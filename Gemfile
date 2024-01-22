@@ -65,3 +65,10 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+
+#Postgresql fulltextsearch
+gem "pg_search", "~> 2.3"
+
+#Paginacion
+gem "pagy", "~> 6.4"
