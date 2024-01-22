@@ -1,9 +1,8 @@
-<%= link_to products_path do%>
-<h1>Vendelo</h1>
+<%= link_to home_path do%>
+<h1>Chilena de Certificaciones</h1>
 <% end %>
 
-<%= link_to 'Añadir producto', new_product_path if Current.user %>
-<%= link_to 'categories', categories_path if Current.user&.admin %>
+
 <%= link_to 'login', new_session_path unless Current.user %>
 <%= link_to 'register', new_user_path unless Current.user %>
 <%= link_to 'logout', session_path(Current.user.id), data: {turbo_method: :delete,

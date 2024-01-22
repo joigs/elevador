@@ -11,7 +11,7 @@ class Authentication::SessionsController < ApplicationController
 
     if @user&.authenticate(params[:password])
       session[:user_id] = @user.id
-      #redirect_to products_path, notice: "Bienvenido"
+      redirect_to home_path, notice: "Bienvenido"
     else
       redirect_to new_session_path, alert: "Credenciales invalidas"
     end
@@ -20,7 +20,7 @@ class Authentication::SessionsController < ApplicationController
 
   def destroy
     session.delete(:user_id)
-    #redirect_to products_path, notice: "Sesion cerrada"
+    redirect_to new_session_path, notice: "Sesion cerrada"
   end
 
   private

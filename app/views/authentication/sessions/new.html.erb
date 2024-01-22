@@ -2,14 +2,14 @@
 <%= form_with(url: sessions_path) do |form| %>
 
   <div>
-    <%= form.label :login %>
+    <%= form.label :"Nombre de usuario" %>
     <%= form.text_field :login, required: true %>
   </div>
 
   <div>
-    <%= form.label :password %>
+    <%= form.label :Contraseña %>
     <%= form.password_field :password, required: true %>
   </div>
 
-  <%= form.submit %>
+  <%= form.submit :"Iniciar Sesión"%>
 <% end %>

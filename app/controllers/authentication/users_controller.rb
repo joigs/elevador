@@ -10,7 +10,7 @@ class Authentication::UsersController < ApplicationController
 
     if @user.save
       session[:user_id] = @user.id
-      #redirect_to products_path, notice: "Usuario creado exitosamente"
+      redirect_to home_path, notice: "Usuario creado exitosamente"
     else
       render :new, status: :unprocessable_entity
     end

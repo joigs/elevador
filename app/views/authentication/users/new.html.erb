@@ -5,19 +5,16 @@
       <%= error %>
     </div>
   <% end %>
+
   <div>
-    <%= form.label :email %>
-    <%= form.email_field :email, required: true %>
-  </div>
-  <div>
-    <%= form.label :username %>
+    <%= form.label :"Nombre de usuario" %>
     <%= form.text_field :username, required: true %>
   </div>
 
   <div>
-    <%= form.label :password %>
+    <%= form.label :Contraseña %>
     <%= form.password_field :password, required: true %>
   </div>
 
-  <%= form.submit %>
+  <%= form.submit :Registrarse %>
 <% end %>

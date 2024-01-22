@@ -5,7 +5,7 @@ module Authorization
     class NotAuthorizedError < StandardError; end
 
     rescue_from NotAuthorizedError do
-      #redirect_to products_path, alert: "No tienes permiso"
+      redirect_to home_path, alert: "No tienes permiso"
     end
 
     private
