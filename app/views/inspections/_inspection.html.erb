@@ -1,0 +1,31 @@
+<div id="<%= dom_id inspection %>">
+  <p>
+    <strong>Número de inspección:</strong>
+    <%= inspection.number %>
+  </p>
+
+  <p>
+    <strong>Lugar de la inspección:</strong>
+    <%= inspection.place %>
+  </p>
+
+  <p>
+    <strong>Fecha de la inspección:</strong>
+    <%= inspection.ins_date %>
+  </p>
+
+  <p>
+    <strong>Fecha de emisión del informe:</strong>
+    <%= inspection.inf_date %>
+  </p>
+
+  <p>
+    <strong>Periodicidad:</strong>
+    <%= display_periodicity(inspection.validation) %>  </p>
+
+  <p>
+    <strong>Resultado de la inspección:</strong>
+    <%= inspection.result %>
+  </p>
+
+</div>

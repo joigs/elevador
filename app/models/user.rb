@@ -8,5 +8,6 @@ class User < ApplicationRecord
             format: {with: /\A[a-z0-9A-Z]+\z/, message: "Solo se permiten letras y numeros"}
   validates :password_digest, length: { minimum: 6 }
 
-
+  acts_as_paranoid
+  has_many :inspections
 end

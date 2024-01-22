@@ -1,0 +1,13 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @inspection %>
+
+<div>
+  <%= link_to "Modificar inspección", edit_inspection_path(@inspection) if @inspection.owner? %>
+  <br>
+  <%= link_to "Ver todas las inspecciones", inspections_path %>
+  <br>
+  <%= link_to 'Eliminar inspección', inspection_path(@inspection), data:
+    {turbo_method: :delete,
+     turbo_confirm: 'Estás seguro?'} if @inspection.owner? %>
+</div>

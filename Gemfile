@@ -72,3 +72,6 @@ gem "pg_search", "~> 2.3"
 
 #Paginacion
 gem "pagy", "~> 6.4"
+
+#soft delete
+gem "acts_as_paranoid", "~> 0.9.0"

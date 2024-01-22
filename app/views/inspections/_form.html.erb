@@ -1,0 +1,35 @@
+<%= form_with(model: inspection) do |form| %>
+  <% if inspection.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(inspection.errors.count, "error") %> prohibited this inspection from being saved:</h2>
+
+      <ul>
+        <% inspection.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div>
+    <%= form.label :"Lugar de inspección", style: "display: block" %>
+    <%= form.text_field :place %>
+  </div>
+
+  <div>
+    <%= form.label :"Fecha de inspección", style: "display: block" %>
+    <%= form.date_field :ins_date %>
+  </div>
+
+  <div>
+    <%= form.label :Periocidad, style: "display: block" %>
+    <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]]) %>
+  </div>
+
+  <br>
+
+  <div>
+    <%= form.submit :"Crear Inspección" %>
+  </div>
+<% end %>

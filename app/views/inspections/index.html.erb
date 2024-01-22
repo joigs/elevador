@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Inspecciones</h1>
+
+<div id="inspections">
+  <% @inspections.each do |inspection| %>
+    <%= render inspection %>
+    <p>
+      <%= link_to "Ver detalles", inspection %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "Nueva inspección", new_inspection_path if Current.user.admin %>
