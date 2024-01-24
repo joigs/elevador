@@ -14,7 +14,7 @@ class Inspection < ApplicationRecord
     newest: "created_at DESC",
   }
 
-  belongs_to :user, default: -> { Current.user }
+  belongs_to :user
 
   def owner?
     user_id == Current.user&.id or Current.user&.admin?

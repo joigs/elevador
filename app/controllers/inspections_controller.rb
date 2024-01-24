@@ -48,7 +48,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date)
+    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id)
   end
 
   def inspection_params_index

@@ -16,5 +16,10 @@
     <%= form.password_field :password, required: true %>
   </div>
 
+ <div>
+   <%= form.label :"Nombre real" %>
+    <%= form.text_field :real_name, required: true %>
+ </div>
+
   <%= form.submit :Registrarse %>
 <% end %>

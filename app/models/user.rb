@@ -7,7 +7,7 @@ class User < ApplicationRecord
             length: { in: 3..15 },
             format: {with: /\A[a-z0-9A-Z]+\z/, message: "Solo se permiten letras y numeros"}
   validates :password_digest, length: { minimum: 6 }
-
+  validates :real_name, presence: true
   acts_as_paranoid
   has_many :inspections
 end

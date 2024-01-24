@@ -1,2 +1,8 @@
 <h1>Inicio</h1>
-<%= link_to 'inspections', inspections_path if Current.user %>
+<div>
+  <%= link_to 'inspecciones', inspections_path if Current.user %>
+</div>
+
+<div>
+  <%= link_to 'Programar nueva inspección', new_inspection_path if Current.user.admin %>
+</div>

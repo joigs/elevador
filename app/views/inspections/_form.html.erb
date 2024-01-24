@@ -1,35 +1,42 @@
-<%= form_with(model: inspection) do |form| %>
-  <% if inspection.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(inspection.errors.count, "error") %> prohibited this inspection from being saved:</h2>
+<% if Current.user.admin? %>
+  <%= form_with(model: inspection) do |form| %>
+    <% if inspection.errors.any? %>
+      <div style="color: red">
+        <h2><%= pluralize(inspection.errors.count, "error") %> No se pudo guardar esta inspección:</h2>
 
-      <ul>
-        <% inspection.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+        <ul>
+          <% inspection.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+
+    <div>
+      <%= form.label :"Lugar de inspección", style: "display: block" %>
+      <%= form.text_field :place %>
+    </div>
+
+    <div>
+      <%= form.label :"Fecha de inspección", style: "display: block" %>
+      <%= form.date_field :ins_date %>
+    </div>
+
+    <div>
+      <%= form.label :Periocidad, style: "display: block" %>
+      <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]]) %>
+    </div>
+
+    <div>
+      <%= form.label :"Inspector asignado", style: "display: block" if Current.user.admin %>
+      <%= form.select :user_id, options_for_select(User.all.map { |u| [u.real_name, u.id] }) if Current.user.admin %>
+    </div>
+
+    <br>
+
+    <div>
+      <%= form.submit "#{inspection.new_record? ? 'Crear' : 'Actualizar'} Inspección" %>
     </div>
   <% end %>
-
-
-  <div>
-    <%= form.label :"Lugar de inspección", style: "display: block" %>
-    <%= form.text_field :place %>
-  </div>
-
-  <div>
-    <%= form.label :"Fecha de inspección", style: "display: block" %>
-    <%= form.date_field :ins_date %>
-  </div>
-
-  <div>
-    <%= form.label :Periocidad, style: "display: block" %>
-    <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]]) %>
-  </div>
-
-  <br>
-
-  <div>
-    <%= form.submit :"Crear Inspección" %>
-  </div>
 <% end %>
