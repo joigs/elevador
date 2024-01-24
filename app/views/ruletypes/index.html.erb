@@ -1,0 +1,13 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Ruletypes</h1>
+
+<div id="ruletypes">
+  <% @ruletypes.each do |ruletype| %>
+    <%= render ruletype %>
+    <%= link_to "Ver detalles", ruletype %>
+
+<% end %>
+</div>
+
+<%= link_to "Crear nuevo tipo de regla", new_ruletype_path %>

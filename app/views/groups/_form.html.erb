@@ -1,0 +1,29 @@
+<%= form_with(model: group) do |form| %>
+  <% if group.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(group.errors.count, "error") %> prohibited this group from being saved:</h2>
+
+      <ul>
+        <% group.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :"Nuevo tipo de ascensor:", style: "display: block" %>
+    <%= form.number_field :number, readonly: true %>
+  </div>
+
+  <%= form.fields_for :rules do |rule_form| %>
+    <%= rule_form.label :point, "Rule Point" %>
+    <%= rule_form.text_field :point %>
+  <% end %>
+
+
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

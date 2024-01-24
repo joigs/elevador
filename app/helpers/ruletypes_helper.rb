@@ -1,0 +1,2 @@
+module RuletypesHelper
+end

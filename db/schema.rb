@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_24_030829) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_24_154756) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -46,6 +46,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_24_030829) do
     t.integer "number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["number"], name: "index_groups_on_number", unique: true
   end
 
   create_table "inspections", force: :cascade do |t|
@@ -59,7 +60,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_24_030829) do
     t.datetime "updated_at", null: false
     t.string "state", default: "Abierto"
     t.bigint "user_id"
-    t.bigint "item_id", null: false
+    t.integer "item_id"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
     t.index ["user_id"], name: "index_inspections_on_user_id"
@@ -78,8 +79,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_24_030829) do
     t.string "point", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "ruletype_id", null: false
+    t.index ["ruletype_id"], name: "index_rules_on_ruletype_id"
+  end
+
+  create_table "rulesets", force: :cascade do |t|
     t.bigint "group_id", null: false
-    t.index ["group_id"], name: "index_rules_on_group_id"
+    t.bigint "rule_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_rulesets_on_group_id"
+    t.index ["rule_id"], name: "index_rulesets_on_rule_id"
+  end
+
+  create_table "ruletypes", force: :cascade do |t|
+    t.string "rtype"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -99,5 +115,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_24_030829) do
   add_foreign_key "inspections", "items"
   add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"
-  add_foreign_key "rules", "groups"
+  add_foreign_key "rules", "ruletypes"
+  add_foreign_key "rulesets", "groups"
+  add_foreign_key "rulesets", "rules"
 end

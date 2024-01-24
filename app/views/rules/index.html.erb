@@ -1,0 +1,7 @@
+<h1>Rules</h1>
+
+<% @rules.each do |rule| %>
+  <p><%= link_to rule.point, rule %></p>
+<% end %>
+
+<%= link_to 'New Rule', new_rule_path %>

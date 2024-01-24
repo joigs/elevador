@@ -1,0 +1,11 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @group %>
+
+<div>
+  <%= link_to "Volver atrás", groups_path %>
+  <br>
+  <%= link_to 'Eliminar clasificación', group_path(@group), data:
+    {turbo_method: :delete,
+     turbo_confirm: 'Estás seguro?'} if Current.user.admin? %>
+</div>

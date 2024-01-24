@@ -1,0 +1,22 @@
+<%= form_with(model: ruletype) do |form| %>
+  <% if ruletype.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(ruletype.errors.count, "error") %> prohibited this ruletype from being saved:</h2>
+
+      <ul>
+        <% ruletype.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :rtype, style: "display: block" %>
+    <%= form.text_field :rtype %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

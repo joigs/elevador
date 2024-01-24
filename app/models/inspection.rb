@@ -9,7 +9,6 @@ class Inspection < ApplicationRecord
 
 
   attribute :number, :integer, default: -> { calculate_new_number }
-
   ORDER_BY = {
     newest: "created_at DESC",
   }
@@ -29,7 +28,8 @@ class Inspection < ApplicationRecord
     # Get the newest record
     newest_record = Inspection.order(ORDER_BY[:newest]).first
 
-    newest_record ? newest_record.number.to_i + 1 : 1  end
+    newest_record ? newest_record.number.to_i + 1 : 1
+  end
 
   def weekend_error
     if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)

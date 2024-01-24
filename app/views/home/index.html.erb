@@ -1,8 +1,12 @@
 <h1>Inicio</h1>
 <div>
-  <%= link_to 'inspecciones', inspections_path if Current.user %>
+  <%= link_to 'Inspecciones', inspections_path if Current.user %>
 </div>
 
 <div>
   <%= link_to 'Programar nueva inspección', new_inspection_path if Current.user.admin %>
+</div>
+
+<div>
+  <%= link_to "Tipos de ascensores", groups_path if Current.user.admin %>
 </div>
