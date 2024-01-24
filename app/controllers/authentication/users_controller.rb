@@ -1,6 +1,5 @@
 class Authentication::UsersController < ApplicationController
 
-    skip_before_action :protect_pages
   def new
     @user = User.new
   end
@@ -22,7 +21,7 @@ class Authentication::UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :real_name)
+    params.require(:user).permit(:username, :password, :real_name, :admin)
   end
 
 end

@@ -16,7 +16,8 @@ class InspectionsController < ApplicationController
     if @inspection.ins_date.present? && (@inspection.ins_date.saturday? || @inspection.ins_date.sunday?)
         flash.now[:alert] = "No se pueden programar inspecciones los fines de semana."
         render :new, status: :unprocessable_entity
-      else
+    else
+
       if @inspection.save
         redirect_to inspections_path, notice: 'Nueva inspección creada'
       else

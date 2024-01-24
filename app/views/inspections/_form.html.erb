@@ -30,7 +30,7 @@
 
     <div>
       <%= form.label :"Inspector asignado", style: "display: block" if Current.user.admin %>
-      <%= form.select :user_id, options_for_select(User.all.map { |u| [u.real_name, u.id] }) if Current.user.admin %>
+      <%= form.select :user_id, options_for_select(User.all.map { |u| [u.real_name, u.id] }, @inspection.user_id) if Current.user.admin %>
     </div>
 
     <br>

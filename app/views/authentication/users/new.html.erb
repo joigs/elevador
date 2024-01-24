@@ -21,5 +21,10 @@
     <%= form.text_field :real_name, required: true %>
  </div>
 
-  <%= form.submit :Registrarse %>
+  <div>
+    <%= form.label :"Rol" %>
+    <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]]) %>
+  </div>
+
+  <%= form.submit :"Crear Usuario" %>
 <% end %>

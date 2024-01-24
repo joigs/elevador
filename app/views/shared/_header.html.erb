@@ -4,6 +4,6 @@
 
 
 <%= link_to 'login', new_session_path unless Current.user %>
-<%= link_to 'Crear nuevo inspector' , new_user_path if Current.user&.admin %>
+<%= link_to 'Crear nuevo usuario' , new_user_path if Current.user&.admin %>
 <%= link_to 'logout', session_path(Current.user.id), data: {turbo_method: :delete,
                                            turbo_confirm: 'Confirmar'} if Current.user%>
