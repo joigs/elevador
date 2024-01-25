@@ -7,6 +7,11 @@
 </div>
 
 
+<div>
+  <%= link_to "Volver a defectos", rules_path %>
+</div>
+
+
 <div id="ruletypes">
   <% @ruletypes.each do |ruletype| %>
     <%= render ruletype %>
@@ -16,7 +21,3 @@
 </div>
 
 
-
-<div>
-  <%= link_to "Volver a defectos", rules_path %>
-</div>
