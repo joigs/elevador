@@ -2,13 +2,13 @@
 
 <%= render @ruletype %>
 <div>
-  Conjuto al que pertenece:
+  Conjunto al que pertenece:
   <%= @ruletype.gygatype %>
 </div>
 
 <div>
 
-  <%= link_to 'Eliminar tipo de regla', ruletype_path(@ruletype), data:
+  <%= link_to 'Eliminar Comprobación', ruletype_path(@ruletype), data:
     {turbo_method: :delete,
      turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>
 

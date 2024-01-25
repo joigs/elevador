@@ -12,12 +12,12 @@
   <% end %>
 
   <div>
-    <%= form.label :"Nombre del tipo de regla", style: "display: block" %>
+    <%= form.label :Comprobación, style: "display: block" %>
     <%= form.text_area :rtype, rows: 7, cols: 70 %>
   </div>
 
   <div>
-    <%= form.label :"Conjunto de la regla", style: "display: block" %>
+    <%= form.label :"Conjunto de la comprobación", style: "display: block" %>
     <%= form.select :gygatype, ['1. CAJA DE ELEVADORES.',
                                 '2. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
                                 '3. PUERTA DE PISO.',
@@ -36,6 +36,6 @@
   </div>
 
   <div>
-    <%= form.submit "Crear regla" %>
+    <%= form.submit "Crear comprobación" %>
   </div>
 <% end %>

@@ -17,7 +17,7 @@
   </div>
 
   <div class="field">
-    <%= form.label :"Tipo de regla" %>
+    <%= form.label :"Comprobación a la que corresponde" %>
     <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(:rtype, :id)) %>  </div>
 
   <div class="field">
@@ -26,6 +26,6 @@
   </div>
 
   <div class="actions">
-    <%= form.submit "#{@rule.new_record? ? 'Crear' : 'Modificar'} regla" %>
+    <%= form.submit "#{@rule.new_record? ? 'Crear' : 'Modificar'} defecto" %>
   </div>
 <% end %>

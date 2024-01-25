@@ -1,6 +1,6 @@
 <h1><%= @rule.point %></h1>
 <p>
-  <strong>Tipo de regla:</strong>
+  <strong>Comprobacion:</strong>
   <%= @rule.ruletype.rtype %>
   <br> <br>
   <strong>Clasificación del ascensor: </strong>
@@ -12,15 +12,15 @@
 
 
 <div>
-  <%= link_to 'Modificar regla', edit_rule_path(@rule) %>
+  <%= link_to 'Modificar defecto', edit_rule_path(@rule) %>
 </div>
 
 <div>
-  <%= link_to 'Eliminar regla', rule_path(@rule), data:
+  <%= link_to 'Eliminar defecto', rule_path(@rule), data:
     {turbo_method: :delete,
      turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>
 </div>
 
 <div>
-  <%= link_to 'Volver a reglas', rules_path %>
+  <%= link_to 'Volver a defecto', rules_path %>
 </div>

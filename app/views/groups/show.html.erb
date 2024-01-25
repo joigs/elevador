@@ -3,7 +3,7 @@
 <%= render @group %>
 
 <div>
-  <h3>Reglas de aprobación:</h3>
+  <h3>Defectos a revisar:</h3>
   <ul>
     <% @group.rules.each do |rule| %>
       <li><%= rule.point %></li>

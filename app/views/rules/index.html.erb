@@ -1,11 +1,11 @@
-<h1>Reglas</h1>
+<h1>Defectos</h1>
 
 <% @rules.each do |rule| %>
   <p><%= link_to rule.point, rule %></p>
 <% end %>
 
 <div>
-  <%= link_to 'Crear nueva regla', new_rule_path %>
+  <%= link_to 'Definir nuevo defecto', new_rule_path %>
 
 </div>
 
@@ -14,5 +14,5 @@
 </div>
 
 <div>
-  <%= link_to 'Tipos de reglas', ruletypes_path %>
+  <%= link_to 'Comprobaciones', ruletypes_path %>
 </div>
