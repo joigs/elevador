@@ -2,10 +2,25 @@
 <p>
   <strong>Tipo de regla:</strong>
   <%= @rule.ruletype.rtype %>
+  <br> <br>
+  <strong>Clasificación del ascensor: </strong>
+  <p> Grupo N°:
+  <%= @rule.groups.pluck(:number).join(', ') %>
+  </p>
 </p>
 
-<%= link_to 'Edit Rule', edit_rule_path(@rule) %> |
-<%= link_to 'Eliminar regla', rule_path(@rule), data:
-  {turbo_method: :delete,
-   turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>
-<%= link_to 'Back to Rules', rules_path %>
+
+
+<div>
+  <%= link_to 'Modificar regla', edit_rule_path(@rule) %>
+</div>
+
+<div>
+  <%= link_to 'Eliminar regla', rule_path(@rule), data:
+    {turbo_method: :delete,
+     turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>
+</div>
+
+<div>
+  <%= link_to 'Volver a reglas', rules_path %>
+</div>

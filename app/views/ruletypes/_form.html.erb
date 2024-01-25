@@ -1,7 +1,7 @@
 <%= form_with(model: ruletype) do |form| %>
   <% if ruletype.errors.any? %>
     <div style="color: red">
-      <h2><%= pluralize(ruletype.errors.count, "error") %> prohibited this ruletype from being saved:</h2>
+      <h2><%= pluralize(ruletype.errors.count, "error") %> No se pudo crear:</h2>
 
       <ul>
         <% ruletype.errors.each do |error| %>
@@ -12,11 +12,30 @@
   <% end %>
 
   <div>
-    <%= form.label :rtype, style: "display: block" %>
-    <%= form.text_field :rtype %>
+    <%= form.label :"Nombre del tipo de regla", style: "display: block" %>
+    <%= form.text_area :rtype, rows: 7, cols: 70 %>
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.label :"Conjunto de la regla", style: "display: block" %>
+    <%= form.select :gygatype, ['1. CAJA DE ELEVADORES.',
+                                '2. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+                                '3. PUERTA DE PISO.',
+                                '4. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
+                                '5. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
+                                '6. GUÍAS, AMORTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
+                                '7. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
+                                '8. MÁQUINA.',
+                                '9. ASCENSORES SIN SALA DE MÁQUINAS.',
+                                '9.1 ESPACIO DE MÁQUINAS.',
+                                '9.2. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
+                                '9.3. ASCENSORES CON MÁQUINAS EN FOSO.',
+                                '9.4. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
+                                '10. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
+                                '11. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR'], { selected: @last_used_ruletype } %>
+  </div>
+
+  <div>
+    <%= form.submit "Crear regla" %>
   </div>
 <% end %>

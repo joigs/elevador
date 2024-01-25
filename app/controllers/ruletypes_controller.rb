@@ -2,12 +2,13 @@ class RuletypesController < ApplicationController
   before_action :authorize!
   # GET /ruletypes or /ruletypes.json
   def index
-    @ruletypes = Ruletype.all.order(rtype: :asc)
+    @ruletypes = Ruletype.all.order('created_at ASC')
   end
 
 
   # GET /ruletypes/new
   def new
+    @last_used_ruletype = Ruletype.last&.gygatype
     @ruletype = Ruletype.new
   end
 
@@ -43,6 +44,8 @@ class RuletypesController < ApplicationController
     end
 
     def ruletype_params
-      params.require(:ruletype).permit(:rtype)
+      params.require(:ruletype).permit(:rtype, :gygatype, :gygatype_number)
     end
+
+
 end

@@ -1,6 +1,6 @@
 <p style="color: green"><%= notice %></p>
 
-<h1>Groups</h1>
+<h1>Clasificaciones</h1>
 
 <div id="Tipos de ascensores:">
   <% @groups.each do |group| %>
@@ -11,7 +11,10 @@
   <% end %>
 </div>
 
-<%= link_to "Crear nueva clasificación", new_group_path %>
+<div>
+  <%= link_to "Crear nueva clasificación", new_group_path %>
+</div>
 
-<%= link_to "Ver reglas", rules_path %>
-```
+<div>
+  <%= link_to "Ver reglas", rules_path %>
+</div>

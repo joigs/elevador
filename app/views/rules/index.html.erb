@@ -1,7 +1,18 @@
-<h1>Rules</h1>
+<h1>Reglas</h1>
 
 <% @rules.each do |rule| %>
   <p><%= link_to rule.point, rule %></p>
 <% end %>
 
-<%= link_to 'New Rule', new_rule_path %>
+<div>
+  <%= link_to 'Crear nueva regla', new_rule_path %>
+
+</div>
+
+<div>
+  <%= link_to 'Volver a clasificación de ascensores', groups_path %>
+</div>
+
+<div>
+  <%= link_to 'Tipos de reglas', ruletypes_path %>
+</div>

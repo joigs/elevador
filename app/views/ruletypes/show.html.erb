@@ -1,12 +1,16 @@
 <p style="color: green"><%= notice %></p>
 
 <%= render @ruletype %>
+<div>
+  Conjuto al que pertenece:
+  <%= @ruletype.gygatype %>
+</div>
 
 <div>
 
   <%= link_to 'Eliminar tipo de regla', ruletype_path(@ruletype), data:
     {turbo_method: :delete,
-     turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>  </p>
+     turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>
 
 
   <%= link_to "Volver atrás", ruletypes_path %>

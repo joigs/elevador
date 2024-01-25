@@ -21,11 +21,11 @@
     <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(:rtype, :id)) %>  </div>
 
   <div class="field">
-    <%= form.label :group_ids %>
+    <%= form.label :"Clasificación del ascensor" %>
     <%= form.collection_check_boxes(:group_ids, Group.all, :id, :number) %>
   </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit "#{@rule.new_record? ? 'Crear' : 'Modificar'} regla" %>
   </div>
 <% end %>

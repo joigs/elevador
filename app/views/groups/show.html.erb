@@ -3,7 +3,15 @@
 <%= render @group %>
 
 <div>
-  <%= link_to "Volver atrás", groups_path %>
+  <h3>Reglas de aprobación:</h3>
+  <ul>
+    <% @group.rules.each do |rule| %>
+      <li><%= rule.point %></li>
+    <% end %>
+  </ul>
+</div>
+<div>
+  <%= link_to "Volver a clasificaciones", groups_path %>
   <br>
   <%= link_to 'Eliminar clasificación', group_path(@group), data:
     {turbo_method: :delete,
