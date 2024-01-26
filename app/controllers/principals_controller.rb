@@ -12,8 +12,7 @@ class PrincipalsController < ApplicationController
 
   # GET /principals/new
   def new
-    authorize!
-    @principal = Principal.new
+    authorize! @principal = Principal.new
   end
 
   # GET /principals/1/edit
@@ -23,8 +22,7 @@ class PrincipalsController < ApplicationController
 
   # POST /principals or /principals.json
   def create
-    authorize!
-    @principal = Principal.new(principal_params)
+    authorize! @principal = Principal.new(principal_params)
 
     if @principal.save
       redirect_to principals_path, notice: "Empresa mandante añadida exitosamente"
@@ -46,8 +44,7 @@ class PrincipalsController < ApplicationController
 
   # DELETE /principals/1 or /principals/1.json
   def destroy
-    authorize!
-    principal.destroy
+    authorize! principal.destroy
     redirect_to principals_path, notice: "Empresa mandante eliminada"
 
   end

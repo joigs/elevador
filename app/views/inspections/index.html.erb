@@ -2,6 +2,14 @@
 
 <h1>Inspecciones</h1>
 
+<div>
+<%= link_to "Nueva inspección", new_inspection_path if Current.user.admin %>
+</div>
+
+<div>
+<%= link_to "Volver a página principal", home_path%>
+</div>
+
 <div id="inspections">
   <% @inspections.each do |inspection| %>
     <%= render inspection %>
@@ -11,4 +19,4 @@
   <% end %>
 </div>
 
-<%= link_to "Nueva inspección", new_inspection_path if Current.user.admin %>
+

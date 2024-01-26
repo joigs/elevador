@@ -1,21 +1,28 @@
 <p style="color: green"><%= notice %></p>
 
-<h1>Principals</h1>
+<h1>Empresas mandantes</h1>
 
 <div id="principals">
+
+  <div>
+    <%= link_to "Agregar nueva empresa mandante", new_principal_path if Current.user.admin %>
+  </div>
+
+  <div>
+    <%= link_to "Empresas menores", minors_path %>
+  </div>
+
+  <div>
+    <%= link_to "Volver a pagina principal", home_path %>
+  </div>
+
   <% @principals.each do |principal| %>
     <%= render principal %>
     <p>
-      <%= link_to "Show this principal", principal %>
+      <%= link_to "Ver más información", principal %>
     </p>
   <% end %>
 </div>
 
-<div>
-  <%= link_to "New principal", new_principal_path %>
-</div>
 
-<div>
-  <%= link_to "Volver a pagina principal", home_path %>
-</div>
 

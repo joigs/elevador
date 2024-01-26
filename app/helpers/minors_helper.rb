@@ -1,0 +1,3 @@
+module MinorsHelper
+
+end

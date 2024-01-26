@@ -1,0 +1,24 @@
+<%= form_with(model: minor) do |form| %>
+  <% if minor.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(minor.errors.count, "error") %> No se pudo guardar empresa menor:</h2>
+
+      <ul>
+        <% minor.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= render 'shared/company_form', form: form %>
+
+  <div>
+    <%= form.label :"Empresa mandante", style: "display:block" %>
+    <%= form.select :principal_id, options_for_select(Principal.all.map { |u| [u.name, u.id] }, @minor.principal_id) if Current.user.admin %>
+  </div>
+
+  <div>
+    <%= form.submit "#{@minor.new_record? ? 'Agregar' : 'Modificar'} empresa menor" %>
+  </div>
+<% end %>

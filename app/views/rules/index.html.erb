@@ -10,10 +10,6 @@
 
 </div>
 
-<% @rules.each do |rule| %>
-  <p><%= link_to "#{rule.code} #{rule.point}", rule %></p>
-<% end %>
-
 
 
 <div>
@@ -23,3 +19,9 @@
 <div>
   <%= link_to 'Comprobaciones', ruletypes_path %>
 </div>
+
+<% @rules.each do |rule| %>
+  <p><%= link_to "#{rule.code} #{rule.point}", rule %></p>
+<% end %>
+
+

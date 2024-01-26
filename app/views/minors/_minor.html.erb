@@ -1,0 +1,10 @@
+<div id="<%= dom_id minor %>">
+
+  <%= render 'shared/company_data', object: minor %>
+
+  <p>
+    <strong>Empresa mandante:</strong>
+    <%= link_to minor.principal.name, principal_path(minor.principal) %>
+  </p>
+
+</div>

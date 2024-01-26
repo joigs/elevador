@@ -20,6 +20,8 @@ Rails.application.routes.draw do
   end
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
   resources :principals, path: '/principals'
+  resources :minors, path: '/minors'
+
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
