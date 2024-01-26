@@ -12,17 +12,29 @@
   <% end %>
 
   <div class="field">
-    <%= form.label :point %>
+    <%= form.label :Defecto %>
     <%= form.text_field :point %>
   </div>
 
+
+
   <div class="field">
     <%= form.label :"Comprobación a la que corresponde" %>
-    <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(:rtype, :id)) %>  </div>
-
+    <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id)) %>
+  </div>
   <div class="field">
     <%= form.label :"Clasificación del ascensor" %>
     <%= form.collection_check_boxes(:group_ids, Group.all, :id, :number) %>
+  </div>
+
+  <div class="field">
+    <%= form.label :"Nivel de importancia" %>
+    <%= form.collection_check_boxes(:level, [['L', 'L'], ['G', 'G']], :first, :last) %>
+  </div>
+
+  <div class="field">
+    <%= form.label :"Tipo de defecto" %>
+    <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last) %>
   </div>
 
   <div class="actions">

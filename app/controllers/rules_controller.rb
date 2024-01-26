@@ -57,7 +57,7 @@ class RulesController < ApplicationController
   private
 
   def rule_params
-    params.require(:rule).permit(:point, :ruletype_id, group_ids: [] )
+    params.require(:rule).permit(:point, :ruletype_id, :code, { ins_type: [] }, { level: [] }, group_ids: [] )
   end
 
   def rule

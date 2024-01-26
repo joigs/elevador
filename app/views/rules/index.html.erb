@@ -1,7 +1,7 @@
 <h1>Defectos</h1>
 
 <% @rules.each do |rule| %>
-  <p><%= link_to rule.point, rule %></p>
+  <p><%= link_to "#{rule.code} #{rule.point}", rule %></p>
 <% end %>
 
 <div>

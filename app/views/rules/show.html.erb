@@ -1,13 +1,22 @@
 <h1><%= @rule.point %></h1>
 <p>
   <strong>Comprobacion:</strong>
+  <%= @rule.ruletype.gygatype_number %>
   <%= @rule.ruletype.rtype %>
   <br> <br>
   <strong>Clasificación del ascensor: </strong>
   <p> Grupo N°:
   <%= @rule.groups.pluck(:number).join(', ') %>
   </p>
+<p>
+  <strong>Nivel de importancia: </strong>
+  <%= display_rule_level(@rule) %>
 </p>
+<p>
+  <strong>Tipo de defecto:</strong>
+  <%= display_rule_ins_type(@rule) %>
+</p>
+
 
 
 
@@ -22,5 +31,5 @@
 </div>
 
 <div>
-  <%= link_to 'Volver a defecto', rules_path %>
+  <%= link_to 'Volver a defectos', rules_path %>
 </div>
