@@ -52,6 +52,7 @@ class InspectionsController < ApplicationController
     params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id)
   end
 
+  #indices para ordenar
   def inspection_params_index
     params.permit(:user_id)
   end

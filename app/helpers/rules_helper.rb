@@ -1,4 +1,5 @@
 module RulesHelper
+  #Ve la variable level del defecto y lo interpreta al usuario
   def display_rule_level(rule)
     if rule.level.include?('L')
       "Leve"
@@ -10,6 +11,7 @@ module RulesHelper
     end
   end
 
+  #Ve la variable ins_type del defecto y lo interpreta al usuario
   def display_rule_ins_type(rule)
     types = rule.ins_type
 

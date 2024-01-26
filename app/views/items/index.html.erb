@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Activos</h1>
+
+<div id="items">
+  <% @items.each do |item| %>
+    <%= render item %>
+    <p>
+      <%= link_to "Ver más detalles", item %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "Crear nuevo activo", new_item_path %>

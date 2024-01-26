@@ -1,5 +1,8 @@
+#Comprobaciones
 class Ruletype < ApplicationRecord
+  #el texto de la comprobacion
   validates :rtype, presence: true
+  #gigatype es el texto ese que son los puntos principales, los más generales que hay en el informe
   validates :gygatype, presence: true
   before_save :set_gygatype_number
 

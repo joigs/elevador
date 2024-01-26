@@ -1,3 +1,4 @@
+#La clasificación de los ascensores, de esto depende que defectos se evaluan
 class Group < ApplicationRecord
   validates :number, presence: true, uniqueness: true
 
@@ -16,8 +17,8 @@ class Group < ApplicationRecord
 
   private
 
+  #para calcular automaticamente el numero de grupo
   def self.calculate_new_number
-    # Get the newest record
     newest_record = Group.order(ORDER_BY[:newest]).first
 
     newest_record ? newest_record.number.to_i + 1 : 1

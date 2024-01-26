@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :items
 
   root 'home#index', as: 'home'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -19,7 +20,10 @@ Rails.application.routes.draw do
     end
   end
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
-  resources :principals, path: '/principals'
+  resources :items, path: '/items'
+  resources :principals, path: '/principals' do
+    get :minors, on: :member
+  end
   resources :minors, path: '/minors'
 
 

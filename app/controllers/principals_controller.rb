@@ -49,6 +49,14 @@ class PrincipalsController < ApplicationController
 
   end
 
+  #metodo para obtener las empresas que pertenecen a la mandante
+  def minors
+    @minors = Principal.find(params[:id]).minors
+    respond_to do |format|
+      format.json { render json: @minors }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def principal

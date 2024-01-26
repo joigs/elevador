@@ -4,6 +4,8 @@ class Rule < ApplicationRecord
   serialize :ins_type, Array, coder: JSON
 
   validates :point, presence: true
+
+  #validan que el array no este vacio
   validate :ins_type_array_presence
   validate :level_array_presence
 
@@ -17,6 +19,8 @@ class Rule < ApplicationRecord
   accepts_nested_attributes_for :rulesets
 
   private
+
+  #calcula el codigo en base al ultimo defecto añadido dentro de la comprobación
   def set_code
     return unless self.code.nil?
 
@@ -31,6 +35,7 @@ class Rule < ApplicationRecord
   end
 
 
+  #valida que el array no este vacio
   def ins_type_array_presence
     errors.add(:"", 'Debe asignar el tipo de defecto') if ins_type.blank? || ins_type.all?(&:blank?)
   end

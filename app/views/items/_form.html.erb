@@ -1,0 +1,37 @@
+<%= form_with(model: item) do |form| %>
+  <% if item.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(item.errors.count, "error") %> No se pudo guardar el activo:</h2>
+
+      <ul>
+        <% item.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :Identificador %>
+    <%= form.text_field :identificador %>
+  </div>
+
+  <div>
+    <%= form.label :"Clasificación del ascensor" %>
+    <%= form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }, @item.group_id) if Current.user&.admin %>
+  </div>
+
+  <div>
+    <%= form.label :"Empresa mandante" %>
+    <%= form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Select a Principal' %>
+  </div>
+
+  <div>
+    <%= form.label :"Empresa a la que pertenece el activo" %>
+    <%= form.collection_select :minor_id, [], :id, :name, prompt: 'Select a Minor' %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

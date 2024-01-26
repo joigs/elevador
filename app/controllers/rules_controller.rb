@@ -9,6 +9,12 @@ class RulesController < ApplicationController
     rule
   end
 
+
+
+
+
+  #hay unos New y Create especiales, esos son para que al añadir un defecto nuevo, este se añada con el mismo codigo que el anterior cuando comparten código, o con el mismo código +1
+
   def new
     @rule = Rule.new
     @with_new_code = params[:with_new_code]
