@@ -1,4 +1,4 @@
-<%= form_with(model: @rule, local: true) do |form| %>
+<%= form_with(model: @rule, local: true, url: @with_same_code ? create_with_same_code_rules_path : (@with_new_code ? create_with_new_code_rules_path : rules_path)) do |form| %>
   <% if @rule.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@rule.errors.count, 'error') %> prohibited this rule from being saved:</h2>
@@ -20,7 +20,7 @@
 
   <div class="field">
     <%= form.label :"Comprobación a la que corresponde" %>
-    <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id)) %>
+    <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id)), { selected: @last_used_rule } %>
   </div>
   <div class="field">
     <%= form.label :"Clasificación del ascensor" %>

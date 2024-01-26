@@ -13,7 +13,14 @@ Rails.application.routes.draw do
   resources :users, only: :show, path: '/user', param: :username
   resources :inspections, path: '/inspections'
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'
-  resources :rules, path: '/rules'
+  resources :rules  , path: '/rules' do
+    collection do
+      get :new_with_new_code
+      get :new_with_same_code
+      post :create_with_new_code
+      post :create_with_same_code
+    end
+  end
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

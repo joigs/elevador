@@ -18,15 +18,19 @@ class Rule < ApplicationRecord
 
   private
   def set_code
+    return unless self.code.nil?
+
     base_number = self.ruletype.gygatype_number.split('.').first + '.' + self.ruletype.gygatype_number.split('.')[1]
     if base_number.start_with?('9')
       base_number = self.ruletype.gygatype_number.split('.')[0..2].join('.')
     end
 
-    suffix = Rule.where("code LIKE ?", "#{base_number}.%").count + 1
+    max_suffix = Rule.where("code LIKE ?", "#{base_number}.%").map { |rule| rule.code.split('.').last.to_i }.max
+    suffix = max_suffix ? max_suffix + 1 : 1
     self.code = "#{base_number}.#{suffix}"
-
   end
+
+
   def ins_type_array_presence
     errors.add(:"", 'Debe asignar el tipo de defecto') if ins_type.blank? || ins_type.all?(&:blank?)
   end
