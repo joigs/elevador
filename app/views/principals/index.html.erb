@@ -1,0 +1,21 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Principals</h1>
+
+<div id="principals">
+  <% @principals.each do |principal| %>
+    <%= render principal %>
+    <p>
+      <%= link_to "Show this principal", principal %>
+    </p>
+  <% end %>
+</div>
+
+<div>
+  <%= link_to "New principal", new_principal_path %>
+</div>
+
+<div>
+  <%= link_to "Volver a pagina principal", home_path %>
+</div>
+

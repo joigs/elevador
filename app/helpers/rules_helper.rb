@@ -4,7 +4,8 @@ module RulesHelper
       "Leve"
     elsif rule.level.include?('G')
       "Grave"
-    elsif rule.level.include?('G') && rule.level.include?('L')
+    end
+    if rule.level.include?('G') && rule.level.include?('L')
       "A decisión del inspector"
     end
   end

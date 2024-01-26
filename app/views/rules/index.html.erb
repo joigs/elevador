@@ -1,7 +1,14 @@
 <h1>Defectos</h1>
 
-<%= link_to 'Define new rule with new code', new_with_new_code_rules_path %>
-<%= link_to 'Define new rule with same code', new_with_same_code_rules_path %>
+<div>
+  <%= link_to 'Definir defecto con código distinto', new_with_new_code_rules_path %>
+
+</div>
+
+<div>
+  <%= link_to 'Definir defecto el mismo código que el anterior', new_with_same_code_rules_path %>
+
+</div>
 
 <% @rules.each do |rule| %>
   <p><%= link_to "#{rule.code} #{rule.point}", rule %></p>
