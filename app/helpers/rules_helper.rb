@@ -1,13 +1,14 @@
 module RulesHelper
   #Ve la variable level del defecto y lo interpreta al usuario
   def display_rule_level(rule)
-    if rule.level.include?('L')
-      "Leve"
-    elsif rule.level.include?('G')
-      "Grave"
-    end
     if rule.level.include?('G') && rule.level.include?('L')
       "A decisión del inspector"
+    elsif rule.level.include?('G')
+      "Grave"
+    elsif rule.level.include?('L')
+      "Leve"
+    else
+      "Error"
     end
   end
 

@@ -2,7 +2,7 @@ class RulesController < ApplicationController
   before_action :authorize!
 
   def index
-    @rules = Rule.all
+    @rules = Rule.all.order(ruletype_id: :asc)
   end
 
   def show
@@ -19,20 +19,23 @@ class RulesController < ApplicationController
     @rule = Rule.new
     @with_new_code = params[:with_new_code]
     @with_same_code = params[:with_same_code]
+    @last_used_rule = Rule.last&.ruletype_id
   end
 
   def new_with_new_code
     @rule = Rule.new
     @with_new_code = true
+    @last_used_rule = Rule.last&.ruletype_id
     render :new
   end
+
 
   def new_with_same_code
     @rule = Rule.new
     @with_same_code = true
+    @last_used_rule = Rule.last&.ruletype_id
     render :new
   end
-
   def create
     @rule = Rule.new(rule_params)
     if params[:with_same_code]

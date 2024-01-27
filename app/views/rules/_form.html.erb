@@ -19,7 +19,7 @@
 
   <div class="field">
     <%= form.label :"Comprobación a la que corresponde" %>
-    <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id)), { selected: @last_used_rule } if @rule.new_record?%>
+    <%= form.select :ruletype_id, options_for_select(Ruletype.pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id), @last_used_rule) if @rule.new_record?%>
   </div>
   <div class="field">
     <%= form.label :"Clasificación del ascensor" %>
