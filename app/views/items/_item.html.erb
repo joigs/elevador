@@ -4,11 +4,25 @@
   </div>
 
   <div>
-    <p><%= item.group.number %></p>
+    <p>Clasificación: Grupo N°<%= item.group.number %></p>
   </div>
 
   <div>
-    <p><%= item.minor.name %></p>
+    <p>Mandante: <%= item.principal&.name %></p>
+  </div>
+
+  <div>
+    <p>Empresa: <%= item.minor&.name %></p>
+  </div>
+
+  <div>
+    <% inspection = last_inspection(item) %>
+    <% if inspection %>
+      <p>Última inspección: <%= format_date(inspection.ins_date) %></p>
+      <p>Estado: <%= inspection.result %></p>
+      <% else %>
+      <p>Aun no hay inspecciones.</p>
+    <% end %>
   </div>
 
 

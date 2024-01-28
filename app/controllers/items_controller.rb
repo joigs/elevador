@@ -3,6 +3,10 @@ class ItemsController < ApplicationController
     @items = Item.all.order(group_id: :asc)
   end
 
+  def show
+    item
+  end
+
   def new
     authorize! @item = Item.new
   end

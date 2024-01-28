@@ -2,6 +2,20 @@
 
 <%= render @inspection %>
 
+
+<p>
+  <strong>Lugar de la inspección:</strong>
+  <%= @inspection.place %>
+</p>
+<p>
+  <strong>Fecha de emisión del informe:</strong>
+  <%= @inspection.inf_date %>
+</p>
+<p>
+  <strong>Inspector asignado:</strong>
+  <%= @inspection.user.real_name if @inspection.user %>
+</p>
+
 <div>
   <%= link_to "Modificar inspección", edit_inspection_path(@inspection) if @inspection.owner? %>
   <br>

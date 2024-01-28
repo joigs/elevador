@@ -14,12 +14,19 @@ class InspectionsController < ApplicationController
 
   end
   def create
-    @inspection = Inspection.new(inspection_params)
-    if @inspection.ins_date.present? && (@inspection.ins_date.saturday? || @inspection.ins_date.sunday?)
-        flash.now[:alert] = "No se pueden programar inspecciones los fines de semana."
-        render :new, status: :unprocessable_entity
-    else
+    @inspection = Inspection.new(inspection_params.except(:item_attributes))
 
+    item_params = inspection_params[:item_attributes]
+    @item = Item.find_or_initialize_by(identificador: item_params[:identificador])
+
+    @item.assign_attributes(item_params)
+
+    @inspection.item = @item
+
+    if @inspection.ins_date.present? && (@inspection.ins_date.saturday? || @inspection.ins_date.sunday?)
+      flash.now[:alert] = "No se pueden programar inspecciones los fines de semana."
+      render :new, status: :unprocessable_entity
+    else
       if @inspection.save
         redirect_to inspections_path, notice: 'Nueva inspección creada'
       else

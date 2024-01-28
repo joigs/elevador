@@ -5,8 +5,18 @@
   </p>
 
   <p>
-    <strong>Lugar de la inspección:</strong>
-    <%= inspection.place %>
+    <strong>Identificador:</strong>
+    <%= inspection.item&.identificador %>
+  </p>
+
+  <p>
+  <strong>Mandante:</strong>
+  <%= inspection.item&.principal&.name %>
+  </p>
+
+  <p>
+    <strong>Empresa:</strong>
+    <%= inspection.item&.minor&.name %>
   </p>
 
   <p>
@@ -14,20 +24,14 @@
     <%= inspection.ins_date %>
   </p>
 
-  <p>
-    <strong>Fecha de emisión del informe:</strong>
-    <%= inspection.inf_date %>
-  </p>
+
 
   <p>
     <strong>Periodicidad:</strong>
     <%= display_periodicity(inspection.validation) %>
   </p>
 
-  <p>
-    <strong>Inspector asignado:</strong>
-    <%= inspection.user.real_name if inspection.user %>
-  </p>
+
 
   <p>
     <strong>Resultado de la inspección:</strong>
