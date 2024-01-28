@@ -7,5 +7,5 @@ class Item < ApplicationRecord
   belongs_to :minor
   belongs_to :principal
   has_many :inspections, dependent: :destroy
-
+  has_many :reports, dependent: :destroy
 end

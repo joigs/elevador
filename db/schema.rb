@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_28_023056) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_28_215009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -105,6 +105,29 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_28_023056) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "reports", force: :cascade do |t|
+    t.string "certificado_minvu"
+    t.date "fecha"
+    t.string "empresa_anterior"
+    t.string "ea_rol"
+    t.string "ea_rut"
+    t.string "empresa_mantenedora"
+    t.string "em_rol"
+    t.string "em_rut"
+    t.date "vi_co_man_ini"
+    t.date "vi_co_man_ter"
+    t.string "nom_tec_man"
+    t.string "tm_rut"
+    t.integer "ul_reg_man"
+    t.date "urm_fecha"
+    t.bigint "inspection_id", null: false
+    t.bigint "item_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inspection_id"], name: "index_reports_on_inspection_id"
+    t.index ["item_id"], name: "index_reports_on_item_id"
+  end
+
   create_table "rules", force: :cascade do |t|
     t.string "point", null: false
     t.datetime "created_at", null: false
@@ -153,6 +176,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_28_023056) do
   add_foreign_key "items", "minors"
   add_foreign_key "items", "principals"
   add_foreign_key "minors", "principals"
+  add_foreign_key "reports", "inspections"
+  add_foreign_key "reports", "items"
   add_foreign_key "rules", "ruletypes"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"

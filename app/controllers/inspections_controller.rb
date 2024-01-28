@@ -13,6 +13,7 @@ class InspectionsController < ApplicationController
     @inspection.build_item  # build an item for the inspection
 
   end
+
   def create
     @inspection = Inspection.new(inspection_params.except(:item_attributes))
 
@@ -28,7 +29,8 @@ class InspectionsController < ApplicationController
       render :new, status: :unprocessable_entity
     else
       if @inspection.save
-        redirect_to inspections_path, notice: 'Nueva inspección creada'
+        @report = Report.create(inspection: @inspection, item: @inspection.item)
+        redirect_to edit_report_path(@report), notice: 'Nueva inspección creada, puede añadir información adicional para el informe'
       else
         flash.now[:alert] = @inspection.errors.full_messages.first
         render :new, status: :unprocessable_entity

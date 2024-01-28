@@ -1,0 +1,37 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  certificado_minvu: MyString
+  fecha: 2024-01-28
+  empresa_anterior: MyString
+  ea_rol: MyString
+  ea_rut: MyString
+  empresa_mantenedora: MyString
+  em_rol: MyString
+  em_rut: MyString
+  vi_co_man_ini: 2024-01-28
+  vi_co_man_ter: 2024-01-28
+  nom_tec_man: MyString
+  tm_rut: MyString
+  ul_reg_man: 1
+  urm_fecha: 2024-01-28
+  inspection: one
+  item: one
+
+two:
+  certificado_minvu: MyString
+  fecha: 2024-01-28
+  empresa_anterior: MyString
+  ea_rol: MyString
+  ea_rut: MyString
+  empresa_mantenedora: MyString
+  em_rol: MyString
+  em_rut: MyString
+  vi_co_man_ini: 2024-01-28
+  vi_co_man_ter: 2024-01-28
+  nom_tec_man: MyString
+  tm_rut: MyString
+  ul_reg_man: 1
+  urm_fecha: 2024-01-28
+  inspection: two
+  item: two
