@@ -18,6 +18,9 @@ class Inspection < ApplicationRecord
 
   belongs_to :user
   belongs_to :item
+  accepts_nested_attributes_for :item
+
+
 
   #sirve para revisar si el usuario es el inspector encargado de la inspeccion, o si es admin
   def owner?

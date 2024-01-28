@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_26_190450) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_28_023056) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -72,9 +72,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_26_190450) do
     t.datetime "updated_at", null: false
     t.bigint "group_id", null: false
     t.bigint "minor_id", null: false
+    t.bigint "principal_id", null: false
     t.index ["group_id"], name: "index_items_on_group_id"
     t.index ["identificador"], name: "index_items_on_identificador", unique: true
     t.index ["minor_id"], name: "index_items_on_minor_id"
+    t.index ["principal_id"], name: "index_items_on_principal_id"
   end
 
   create_table "minors", force: :cascade do |t|
@@ -149,6 +151,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_26_190450) do
   add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"
   add_foreign_key "items", "minors"
+  add_foreign_key "items", "principals"
   add_foreign_key "minors", "principals"
   add_foreign_key "rules", "ruletypes"
   add_foreign_key "rulesets", "groups"

@@ -10,6 +10,8 @@ class InspectionsController < ApplicationController
   end
   def new
     @inspection = Inspection.new
+    @inspection.build_item  # build an item for the inspection
+
   end
   def create
     @inspection = Inspection.new(inspection_params)
@@ -49,7 +51,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id)
+    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, item_attributes: [:identificador, :group_id, :principal_id, :minor_id])
   end
 
   #indices para ordenar
