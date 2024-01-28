@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
     const principalSelect = document.querySelector('select[name="item[principal_id]"]');
     const minorSelect = document.querySelector('select[name="item[minor_id]"]');
 
