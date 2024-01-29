@@ -35,7 +35,7 @@ class ReportsController < ApplicationController
   def update
     authorize! report
     if @report.update(report_params)
-      redirect_to reports_path, notice: 'Información modificada exitosamente'
+      redirect_to inspection_path(@report.inspection), notice: 'Información modificada exitosamente'
     else
       render :edit, status: :unprocessable_entity
     end
