@@ -7,7 +7,7 @@ class DetailsController < ApplicationController
 
   # GET /details/1 or /details/1.json
   def show
-    details
+    detail
   end
 
   # GET /details/1/edit

@@ -15,41 +15,34 @@ class InspectionsController < ApplicationController
   end
 
   def create
-    @inspection = Inspection.new(inspection_params.except(:item_attributes))
+    ActiveRecord::Base.transaction do
+      @inspection = Inspection.new(inspection_params.except(:item_attributes))
 
-    item_params = inspection_params[:item_attributes]
-    @item = Item.find_or_initialize_by(identificador: item_params[:identificador])
+      item_params = inspection_params[:item_attributes]
+      @item = Item.find_or_initialize_by(identificador: item_params[:identificador])
 
-    @item.assign_attributes(item_params)
-    is_new_item = @item.new_record?
+      @item.assign_attributes(item_params)
+      is_new_item = @item.new_record?
 
-    if @item.save
+      @item.save!
       @inspection.item = @item
 
       if is_new_item
-        @detail = Detail.create(item: @item)
+        @detail = Detail.create!(item: @item)
       end
 
-      if @inspection.ins_date.present? && (@inspection.ins_date.saturday? || @inspection.ins_date.sunday?)
-        flash.now[:alert] = "No se pueden programar inspecciones los fines de semana."
-        render :new, status: :unprocessable_entity
+      @inspection.save!
+      @report = Report.create!(inspection: @inspection, item: @inspection.item)
+
+      if is_new_item
+        redirect_to edit_detail_path(@detail), notice: 'Nueva inspección creada, por favor añada detalles para el nuevo activo'
       else
-        if @inspection.save
-          @report = Report.create(inspection: @inspection, item: @inspection.item)
-          if is_new_item
-            redirect_to edit_detail_path(@detail), notice: 'Nueva inspección creada, por favor añada detalles para el nuevo activo'
-          else
-            redirect_to edit_report_path(@report), notice: 'Nueva inspección creada, puede añadir información adicional para el informe'
-          end
-        else
-          flash.now[:alert] = @inspection.errors.full_messages.first
-          render :new, status: :unprocessable_entity
-        end
+        redirect_to edit_report_path(@report), notice: 'Nueva inspección creada, puede añadir información adicional para el informe'
       end
-    else
-      flash.now[:alert] = @item.errors.full_messages.first
-      render :new, status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.record.errors.full_messages.first
+    render :new, status: :unprocessable_entity
   end
 
   def edit
@@ -85,4 +78,5 @@ class InspectionsController < ApplicationController
   def inspection
     @inspection = Inspection.find(params[:id])
   end
+
 end

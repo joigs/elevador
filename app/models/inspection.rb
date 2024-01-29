@@ -2,6 +2,9 @@ class Inspection < ApplicationRecord
   #para la busqueda
   include PgSearch::Model
 
+  before_save :validate_inspection_date
+
+
   #valida que state solo tenga esos valores
   validates :state, inclusion: { in: ['Abierto', 'Cerrado'] }
 
@@ -45,6 +48,14 @@ class Inspection < ApplicationRecord
   def weekend_error
     if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)
       errors.add(:ins_date, "No se hacen inspecciones los fines de semana")
+    end
+  end
+
+
+  def validate_inspection_date
+    if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)
+      errors.add(:ins_date, "No se pueden programar inspecciones los fines de semana.")
+      throw(:abort)
     end
   end
 
