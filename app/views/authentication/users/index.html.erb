@@ -1,0 +1,17 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Usuarios</h1>
+
+<%= link_to "Crear nuevo usuario", new_user_path %>
+<br>
+<%= link_to "Volver a página principal", home_path %>
+
+<div id="users">
+  <% @users.each do |user| %>
+    <%= render user %>
+    <p>
+      <%= link_to "Mostrar usuario", user %>
+    </p>
+  <% end %>
+</div>
+

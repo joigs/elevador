@@ -2,7 +2,7 @@
 
 <%= render @inspection %>
 
-
+<%= link_to 'Realizar inspección', revision_path(@inspection.id) %>
 <p>
   <strong>Lugar de la inspección:</strong>
   <%= @inspection.place %>

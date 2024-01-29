@@ -1,0 +1,30 @@
+
+<%= form_with(model: @user) do |form| %>
+  <% @user.errors.full_messages.each do |error| %>
+    <div>
+      <%= error %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :"Nombre de usuario" %>
+    <%= form.text_field :username, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :Contraseña %>
+    <%= form.password_field :password, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :"Nombre real" %>
+    <%= form.text_field :real_name, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :"Rol" %>
+    <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]]) %>
+  </div>
+
+  <%= form.submit :"Crear Usuario" %>
+<% end %>

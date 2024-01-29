@@ -14,7 +14,54 @@ class Authentication::UsersController < ApplicationController
         render :new, status: :unprocessable_entity
       end
     else
-      redirect_to new_session_path, alert: "No tienes permiso"
+      redirect_to home_path, alert: "No tienes permiso"
+    end
+  end
+
+  def index
+    if Current.user&.admin
+      @users = User.all
+    else
+      redirect_to home_path, alert: "No tienes permiso"
+    end
+  end
+
+  def show
+    if Current.user&.admin
+      @user = User.find(params[:id])
+    else
+      redirect_to home_path, alert: "No tienes permiso"
+    end
+  end
+  def edit
+    if Current.user&.admin
+      @user = User.find(params[:id])
+    else
+      redirect_to home_path, alert: "No tienes permiso"
+    end
+  end
+
+  def update
+    if Current.user&.admin
+      @user = User.find(params[:id])
+
+      if @user.update(user_params)
+        redirect_to home_path, notice: "Usuario actualizado exitosamente"
+      else
+        render :edit, status: :unprocessable_entity
+      end
+    else
+      redirect_to home_path, alert: "No tienes permiso"
+    end
+  end
+
+  def destroy
+    if Current.user&.admin
+      @user = User.find(params[:id])
+      @user.destroy
+      redirect_to home_path, notice: "Usuario eliminado exitosamente"
+    else
+      redirect_to home_path, alert: "No tienes permiso"
     end
   end
 
