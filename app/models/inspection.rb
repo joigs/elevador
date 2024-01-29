@@ -23,6 +23,7 @@ class Inspection < ApplicationRecord
   belongs_to :item
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
+  has_one :revision, dependent: :destroy
 
 
 

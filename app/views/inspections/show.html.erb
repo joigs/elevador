@@ -2,7 +2,6 @@
 
 <%= render @inspection %>
 
-<%= link_to 'Realizar inspección', revision_path(@inspection.id) %>
 <p>
   <strong>Lugar de la inspección:</strong>
   <%= @inspection.place %>
@@ -15,6 +14,13 @@
   <strong>Inspector asignado:</strong>
   <%= @inspection.user.real_name if @inspection.user %>
 </p>
+
+<div>
+  <%= link_to 'Realizar inspección', revision_path(inspection_id: @inspection.id) %>
+</div>
+
+
+
 
 <div>
   <%= link_to "Modificar inspección", edit_inspection_path(@inspection) if @inspection.owner? %>

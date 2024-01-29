@@ -33,6 +33,7 @@ class InspectionsController < ApplicationController
 
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
+      @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
 
       if is_new_item
         redirect_to edit_detail_path(@detail), notice: 'Nueva inspección creada, por favor añada detalles para el nuevo activo'

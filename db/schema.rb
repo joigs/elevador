@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_29_052543) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_29_125338) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -72,6 +72,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_052543) do
     t.integer "number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at", precision: nil
+    t.index ["deleted_at"], name: "index_groups_on_deleted_at"
     t.index ["number"], name: "index_groups_on_number", unique: true
   end
 
@@ -154,6 +156,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_052543) do
     t.index ["item_id"], name: "index_reports_on_item_id"
   end
 
+  create_table "revisions", force: :cascade do |t|
+    t.string "codes"
+    t.string "flaws"
+    t.bigint "item_id", null: false
+    t.bigint "group_id", null: false
+    t.bigint "inspection_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_revisions_on_group_id"
+    t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
+    t.index ["item_id"], name: "index_revisions_on_item_id"
+  end
+
   create_table "rules", force: :cascade do |t|
     t.string "point", null: false
     t.datetime "created_at", null: false
@@ -205,6 +220,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_052543) do
   add_foreign_key "minors", "principals"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
+  add_foreign_key "revisions", "groups"
+  add_foreign_key "revisions", "inspections"
+  add_foreign_key "revisions", "items"
   add_foreign_key "rules", "ruletypes"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"

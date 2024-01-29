@@ -11,6 +11,8 @@ class Group < ApplicationRecord
 
   has_many :items, dependent: :restrict_with_exception
   has_many :rulesets, dependent: :destroy
+  acts_as_paranoid
+  has_many :revisions
   has_many :rules, through: :rulesets
   accepts_nested_attributes_for :rules
 
