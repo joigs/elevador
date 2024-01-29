@@ -10,32 +10,32 @@ class DetailsController < ApplicationController
     details
   end
 
-  # GET /details/new
-  def new
-    authorize! @detail = Detail.new
-  end
-
   # GET /details/1/edit
   def edit
     authorize! detail
   end
 
-  # POST /details or /details.json
+
+  # GET /details/new
+  def new
+    authorize! @detail = Detail.new
+    if params[:item_id].present?
+      @item = Item.find(params[:item_id])
+    else
+      redirect_to items_path, alert: 'No se ha encontrado el item'
+    end
+  end
+
   def create
     authorize! @detail = Detail.new(detail_params)
-
-    if @detail.save
-      redirect_to details_path, notice: "Detalle creado exitosamente"
-    else
-      render :new, status: :unprocessable_entity
-    end
   end
 
   # PATCH/PUT /details/1 or /details/1.json
   def update
     authorize! detail
     if detail.update(detail_params)
-      redirect_to details_path, notice: 'Detalle modificado exitosamente'
+      report = Report.find_by(item_id: detail.item_id)
+      redirect_to edit_report_path(report), notice: 'Información modificada exitosamente'
     else
       render :edit, status: :unprocessable_entity
     end
