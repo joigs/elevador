@@ -18,3 +18,7 @@
 <div>
   <%= link_to "Empresas menores", minors_path %>
 </div>
+
+<div>
+  <%= link_to "Activos", items_path if Current.user %>
+</div>
