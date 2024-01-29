@@ -2,6 +2,8 @@
 
 <h1>Reports</h1>
 
+<%= link_to "Crear nueva inspección", new_inspection_path %>
+
 <div id="reports">
   <% @reports.each do |report| %>
     <%= render report %>
@@ -11,4 +13,3 @@
   <% end %>
 </div>
 
-<%= link_to "New report", new_report_path %>

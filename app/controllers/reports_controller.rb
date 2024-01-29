@@ -25,7 +25,7 @@ class ReportsController < ApplicationController
     authorize! @report = Report.new(report_params)
 
     if @report.save
-      redirect_to reports_path, notice: "Informe creado exitosamente"
+      redirect_to home_path, notice: "Informe creado exitosamente"
     else
       render :new, status: :unprocessable_entity
     end

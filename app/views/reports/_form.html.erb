@@ -12,84 +12,76 @@
   <% end %>
 
   <div>
-    <%= form.label :certificado_minvu, style: "display: block" %>
+    <%= form.label :Certificado_MINVU, style: "display: block" %>
     <%= form.text_field :certificado_minvu %>
   </div>
 
   <div>
-    <%= form.label :fecha, style: "display: block" %>
+    <%= form.label :Fecha, style: "display: block" %>
     <%= form.date_field :fecha %>
   </div>
 
   <div>
-    <%= form.label :empresa_anterior, style: "display: block" %>
+    <%= form.label :"Empresa certificadora anterior", style: "display: block" %>
     <%= form.text_field :empresa_anterior %>
   </div>
 
   <div>
-    <%= form.label :ea_rol, style: "display: block" %>
+    <%= form.label :"Rol", style: "display: block" %>
     <%= form.text_field :ea_rol %>
   </div>
 
   <div>
-    <%= form.label :ea_rut, style: "display: block" %>
+    <%= form.label :"Rut", style: "display: block" %>
     <%= form.text_field :ea_rut %>
   </div>
 
   <div>
-    <%= form.label :empresa_mantenedora, style: "display: block" %>
+    <%= form.label :"Empresa mantenedora", style: "display: block" %>
     <%= form.text_field :empresa_mantenedora %>
   </div>
 
   <div>
-    <%= form.label :em_rol, style: "display: block" %>
+    <%= form.label :"Rol", style: "display: block" %>
     <%= form.text_field :em_rol %>
   </div>
 
   <div>
-    <%= form.label :em_rut, style: "display: block" %>
+    <%= form.label :"Rut", style: "display: block" %>
     <%= form.text_field :em_rut %>
   </div>
 
   <div>
-    <%= form.label :vi_co_man_ini, style: "display: block" %>
+    <p>Vigencia contrato de mantención</p>
+    <%= form.label :"Fecha inicio", style: "display: block" %>
     <%= form.date_field :vi_co_man_ini %>
   </div>
 
   <div>
-    <%= form.label :vi_co_man_ter, style: "display: block" %>
+    <%= form.label :"Fecha termino", style: "display: block" %>
     <%= form.date_field :vi_co_man_ter %>
   </div>
 
   <div>
-    <%= form.label :nom_tec_man, style: "display: block" %>
+    <%= form.label :"Nombre técnico mantenedor", style: "display: block" %>
     <%= form.text_field :nom_tec_man %>
   </div>
 
   <div>
-    <%= form.label :tm_rut, style: "display: block" %>
+    <%= form.label :"Rut", style: "display: block" %>
     <%= form.text_field :tm_rut %>
   </div>
 
   <div>
-    <%= form.label :ul_reg_man, style: "display: block" %>
+    <%= form.label :"Último registro de mantención N°", style: "display: block" %>
     <%= form.number_field :ul_reg_man %>
   </div>
 
   <div>
-    <%= form.label :urm_fecha, style: "display: block" %>
+    <%= form.label :Fecha, style: "display: block" %>
     <%= form.date_field :urm_fecha %>
   </div>
 
-  <div>
-    <%= form.label :inspection_id, style: "display: block" %>
-    <%= form.text_field :inspection_id %>
-  </div>
-
-  <div>
-    <%= form.label :item_id, style: "display: block" %>
-    <%= form.text_field :item_id %>
-  </div>
 
   <div>
     <%= form.submit %>

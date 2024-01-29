@@ -6,21 +6,21 @@
 
   <p>
     <strong>Fecha:</strong>
-    <%= report.fecha %>
+    <%= format_date(report.fecha) %>
   </p>
 
   <p>
-    <strong>Empresa anterior:</strong>
+    <strong>Empresa certificadora anterior:</strong>
     <%= report.empresa_anterior %>
   </p>
 
   <p>
-    <strong>Ea rol:</strong>
+    <strong>Rol:</strong>
     <%= report.ea_rol %>
   </p>
 
   <p>
-    <strong>Ea rut:</strong>
+    <strong>Rut:</strong>
     <%= report.ea_rut %>
   </p>
 
@@ -30,53 +30,53 @@
   </p>
 
   <p>
-    <strong>Em rol:</strong>
+    <strong>Rol:</strong>
     <%= report.em_rol %>
   </p>
 
   <p>
-    <strong>Em rut:</strong>
+    <strong>Rut:</strong>
     <%= report.em_rut %>
   </p>
 
   <p>
-    <strong>Vi co man ini:</strong>
-    <%= report.vi_co_man_ini %>
+    <strong>Fecha inicio:</strong>
+    <%= format_date(report.vi_co_man_ini) %>
   </p>
 
   <p>
-    <strong>Vi co man ter:</strong>
-    <%= report.vi_co_man_ter %>
+    <strong>Fecha término:</strong>
+    <%= format_date(report.vi_co_man_ter) %>
   </p>
 
   <p>
-    <strong>Nom tec man:</strong>
+    <strong>Nombre técnico mantenedor:</strong>
     <%= report.nom_tec_man %>
   </p>
 
   <p>
-    <strong>Tm rut:</strong>
+    <strong>Rut:</strong>
     <%= report.tm_rut %>
   </p>
 
   <p>
-    <strong>Ul reg man:</strong>
+    <strong>Ultimo registro de mantención N°:</strong>
     <%= report.ul_reg_man %>
   </p>
 
   <p>
-    <strong>Urm fecha:</strong>
-    <%= report.urm_fecha %>
+    <strong>Fecha:</strong>
+    <%= format_date(report.urm_fecha) %>
   </p>
 
   <p>
     <strong>Inspection:</strong>
-    <%= report.inspection_id %>
+    <%= report.inspection.number %>
   </p>
 
   <p>
     <strong>Item:</strong>
-    <%= report.item_id %>
+    <%= report.item.identificador %>
   </p>
 
 </div>
