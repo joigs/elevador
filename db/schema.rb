@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_29_125338) do
+ActiveRecord::Schema[7.1].define(version: 2024_01_29_201542) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -164,6 +164,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_125338) do
     t.bigint "inspection_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "level"
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_revisions_on_item_id"

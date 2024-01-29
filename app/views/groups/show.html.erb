@@ -15,5 +15,5 @@
   <br>
   <%= link_to 'Eliminar clasificación', group_path(@group), data:
     {turbo_method: :delete,
-     turbo_confirm: 'Estás seguro?'} if Current.user.admin? %>
+     turbo_confirm: '¿Estás seguro? El asignar defectos a un grupo es un proceso muy tedioso'} if Current.user.admin? %>
 </div>
