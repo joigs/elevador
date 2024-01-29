@@ -44,6 +44,7 @@ class ReportsController < ApplicationController
   # DELETE /reports/1 or /reports/1.json
   def destroy
     authorize! @report.destroy!
+    redirect_to reports_path, notice: "Informe eliminado"
   end
 
   private
