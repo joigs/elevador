@@ -6,8 +6,9 @@
   <h3>Defectos a revisar:</h3>
   <ul>
     <% @group.rules.each do |rule| %>
-      <li><%= rule.point %></li>
-    <% end %>
+      <li><%= "#{rule.code} #{rule.point}" %></li>
+
+  <% end %>
   </ul>
 </div>
 <div>

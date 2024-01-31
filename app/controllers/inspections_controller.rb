@@ -42,7 +42,7 @@ class InspectionsController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordInvalid => e
-    flash.now[:alert] = e.record.errors.full_messages.first
+    flash.now[:alert] = e.record.errors.full_messages.join(', ')
     render :new, status: :unprocessable_entity
   end
 

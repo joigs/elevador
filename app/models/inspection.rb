@@ -4,6 +4,7 @@ class Inspection < ApplicationRecord
 
   before_save :validate_inspection_date
 
+  validates :ins_date, presence: { message: "Debes ingresar una fecha" }
 
   #valida que state solo tenga esos valores
   validates :state, inclusion: { in: ['Abierto', 'Cerrado'] }
@@ -33,7 +34,13 @@ class Inspection < ApplicationRecord
   end
 
 
-
+  def self.human_attribute_name(attr, options = {})
+    if attr == 'ins_date'
+      'Fecha de inspección: '
+    else
+      super
+    end
+  end
 
   private
 

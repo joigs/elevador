@@ -25,12 +25,12 @@
 
       <div>
         <%= item_form.label :"Empresa mandante" %>
-        <%= item_form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Select a Principal' %>
+        <%= item_form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Selecciona una mandante' %>
       </div>
 
       <div>
         <%= item_form.label :"Empresa a la que pertenece el activo" %>
-        <%= item_form.collection_select :minor_id, [], :id, :name, prompt: 'Select a Minor' %>
+        <%= item_form.collection_select :minor_id, [], :id, :name, prompt: 'Selecciona una empresa' %>
       </div>
     <% end %>
 

@@ -20,18 +20,14 @@
 
 
       <% if rule.point == "Otros defectos." %>
-
-
-
-        <% flaw_with_same_code = @revision.flaws.find_by { |flaw| rule.code == flaw } %>
-        <% code_with_same_code = @revision.codes.find { |code| rule.code == code } %>
-        <%= text_area_tag 'revision[flaws][]', flaw_with_same_code || '', size: "40x6" %>
+        <% index = @revision.codes.index(rule.code) %>
+        <% if index.nil? %>
+          <%= text_area_tag 'revision[flaws][]', '' %>
+        <% else %>
+          <%= text_field_tag 'revision[flaws][]', @revision.flaws[index] %>
+        <% end %>
       <% else %>
         <%= check_box_tag 'revision[flaws][]', rule.point, @revision.flaws.include?(rule.point) %>
-
-
-
-
       <% end %>
 
 
@@ -53,4 +49,7 @@
   <div>
     <%= form.submit %>
   </div>
+
+
 <% end %>
+

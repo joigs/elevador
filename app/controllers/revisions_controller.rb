@@ -42,13 +42,21 @@ def update
   params[:revision][:codes] ||= []
   params[:revision][:level] ||= []
 
+  puts "Before assignment: #{params[:revision][:codes]}"
+
   params[:revision][:flaws].each_with_index do |flaw, index|
     rule = @rules.find_by(point: flaw)
     if rule
       params[:revision][:codes][index] = rule.code
       params[:revision][:level][index] = params[:revision][:level].include?(rule.point)
+      if flaw.start_with?("other")
+        params[:revision][:flaws][index] = flaw.split(" ")[2..-1].join(" ")
+      end
     end
   end
+
+  puts "After assignment: #{params[:revision][:codes]}"
+
 
   if @revision.update(revision_params)
     @revision.save

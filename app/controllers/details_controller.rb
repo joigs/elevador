@@ -55,6 +55,6 @@ class DetailsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def detail_params
-      params.require(:detail).permit(:detalle, :marca, :modelo, :n_serie, :mm_marca, :mm_n_serie, :potencia, :capacidad, :personas, :ct_marca, :ct_cantidad, :ct_diametro, :medidas_cintas, :rv_marca, :rv_n_serie, :paradas, :embarques, :sala_maquinas, :item_id)
+      params.require(:detail).permit(:detalle, :marca, :modelo, :n_serie, :mm_marca, :mm_n_serie, :potencia, :capacidad, :personas, :ct_marca, :ct_cantidad, :ct_diametro, :medidas_cintas, :rv_marca, :rv_n_serie, :paradas, :embarques, :sala_maquinas, :velocidad, :item_id)
     end
 end
