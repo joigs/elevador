@@ -4,6 +4,11 @@
     <%= ruletype.gygatype_number %>
     <%= ruletype.rtype %>
 
+</div>
 
 
+<div>
+  <% if controller_name == 'ruletypes' && action_name == 'index' %>
+<%= link_to 'Ver detalles', ruletype_path(ruletype), 'data-turbo-frame':"_top" %>
+    <% end %>
 </div>

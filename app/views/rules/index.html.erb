@@ -1,4 +1,5 @@
-<h1>Defectos</h1>
+
+  <h1>Defectos</h1>
 
 <br>
 <h1>ADVERTENCIA: CUIDADO CON HACER CAMBIOS EN ESTA PARTE, EL ARREGLARLO SERÍA EXTREMADAMENTE TEDIOSO</h1>
@@ -23,8 +24,20 @@
   <%= link_to 'Comprobaciones', ruletypes_path %>
 </div>
 
-<% @rules.each do |rule| %>
-  <p><%= link_to "#{rule.code} #{rule.point}", rule %></p>
+  <%= turbo_frame_tag 'rules' do %>
+
+
+
+  <%= turbo_frame_tag "rules-#{@pagy.page}", class: 'rules' do %>
+    <% @rules.each do |rule| %>
+      <%= turbo_frame_tag "rule-#{rule.id}" do %>
+        <p><%= link_to "#{rule.code} #{rule.point}", rule %></p>
+      <% end %>
+    <% end %>
+
+    <%= turbo_frame_tag "rules-#{@pagy.next}", class: 'rules', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
+  <% end %>
 <% end %>
+
 
 

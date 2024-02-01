@@ -2,7 +2,7 @@ class InspectionsController < ApplicationController
 
   def index
     @inspections = Inspection.order(state: :asc)
-    @pagy, @inspections = pagy_countless(FindInspections.new.call(inspection_params_index), items: 4)
+    @pagy, @inspections = pagy_countless(FindInspections.new.call(inspection_params_index), items: 10  )
 
   end
   def show
@@ -73,7 +73,7 @@ class InspectionsController < ApplicationController
 
   #indices para ordenar
   def inspection_params_index
-    params.permit(:user_id)
+    params.permit(:number, :user_id)
   end
 
   def inspection

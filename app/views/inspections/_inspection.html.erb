@@ -38,4 +38,10 @@
     <%= inspection.result %>
   </p>
 
+  <div>
+    <% if controller_name == 'inspections' && action_name == 'index' %>
+  <%= link_to 'Ver inspección', inspection_path(inspection), 'data-turbo-frame':"_top" %>
+      <% end %>
+  </div>
+
 </div>

@@ -1,13 +1,11 @@
-<p style="color: green"><%= notice %></p>
+<%= turbo_frame_tag 'items' do %>
 
-<h1>Activos</h1>
+  <h1>Activos</h1>
 
-<div id="items">
-  <% @items.each do |item| %>
-    <%= render item %>
-    <p>
-      <%= link_to "Ver más detalles", item %>
-    </p>
-  <% end %>
-</div>
+<%= turbo_frame_tag "items-#{@pagy.page}", class: 'items' do %>
+  <%= render partial: 'item', collection: @items %>
+  <%= turbo_frame_tag "items-#{@pagy.next}", class: 'items', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
+<% end %>
+<% end %>
+
 

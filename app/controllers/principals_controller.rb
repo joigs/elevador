@@ -3,6 +3,7 @@ class PrincipalsController < ApplicationController
   # GET /principals or /principals.json
   def index
     @principals = Principal.all
+    @pagy, @principals = pagy_countless(@principals, items: 10)
   end
 
   # GET /principals/1 or /principals/1.json

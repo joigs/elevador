@@ -1,6 +1,6 @@
-<p style="color: green"><%= notice %></p>
 
-<h1>Minors</h1>
+
+  <h1>Minors</h1>
 
 
 <div>
@@ -11,17 +11,16 @@
   <%= link_to "Empresas mandantes", principals_path %>
 </div>
 
-<div>
-  <%= link_to "Volver a página principal", home_path %>
-</div>
+  <%= render 'shared/back_home' %>
 
 
+  <%= turbo_frame_tag 'minors' do %>
 
-<div id="minors">
-  <% @minors.each do |minor| %>
-    <%= render minor %>
-    <p>
-      <%= link_to "Show this minor", minor %>
-    </p>
-  <% end %>
-</div>
+
+<%= turbo_frame_tag "minors-#{@pagy.page}", class: 'minors' do %>
+  <%= render partial: 'minor', collection: @minors %>
+
+  <%= turbo_frame_tag "minors-#{@pagy.next}", class: 'minors', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
+<% end %>
+<% end %>
+

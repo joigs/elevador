@@ -1,22 +1,19 @@
-<p style="color: green"><%= notice %></p>
 
-<h1>Inspecciones</h1>
+  <h1>Inspecciones</h1>
 
 <div>
 <%= link_to "Nueva inspección", new_inspection_path if Current.user.admin %>
 </div>
 
-<div>
-<%= link_to "Volver a página principal", home_path%>
-</div>
+  <%= render 'shared/back_home' %>
 
-<div id="inspections">
-  <% @inspections.each do |inspection| %>
-    <%= render inspection %>
-    <p>
-      <%= link_to "Ver detalles", inspection %>
-    </p>
+
+  <%= turbo_frame_tag 'inspections' do %>
+
+
+<%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+  <%= render partial: 'inspection', collection: @inspections %>
+    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
   <% end %>
-</div>
-
+<% end %>
 

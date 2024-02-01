@@ -21,6 +21,7 @@ class Authentication::UsersController < ApplicationController
   def index
     if Current.user&.admin
       @users = User.all
+      @pagy, @users = pagy_countless(@users, items: 10)
     else
       redirect_to home_path, alert: "No tienes permiso"
     end

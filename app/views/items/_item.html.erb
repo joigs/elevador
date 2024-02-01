@@ -25,5 +25,12 @@
     <% end %>
   </div>
 
+  <div>
+    <% if controller_name == 'items' && action_name == 'index' %>
+  <%= link_to 'Ver más detalles', item_path(item), 'data-turbo-frame':"_top" %>
+      <% end %>
+  </div>
+
+
 
 </div>

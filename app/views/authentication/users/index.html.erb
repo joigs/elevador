@@ -1,17 +1,15 @@
-<p style="color: green"><%= notice %></p>
 
-<h1>Usuarios</h1>
+  <h1>Usuarios</h1>
 
 <%= link_to "Crear nuevo usuario", new_user_path %>
 <br>
-<%= link_to "Volver a página principal", home_path %>
+  <%= render 'shared/back_home' %>
 
-<div id="users">
-  <% @users.each do |user| %>
-    <%= render user %>
-    <p>
-      <%= link_to "Mostrar usuario", user %>
-    </p>
+  <%= turbo_frame_tag 'users' do %>
+
+
+  <%= turbo_frame_tag "users-#{@pagy.page}", class: 'users' do %>
+    <%= render partial: 'user', collection: @users %>
+    <%= turbo_frame_tag "users-#{@pagy.next}", class: 'users', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
   <% end %>
-</div>
-
+<% end %>

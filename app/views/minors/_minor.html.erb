@@ -8,3 +8,9 @@
   </p>
 
 </div>
+
+<div>
+  <% if controller_name == 'minors' && action_name == 'index' %>
+    <%= link_to 'Ver empresa', minor_path(minor), 'data-turbo-frame':"_top" %>
+  <% end %>
+</div>

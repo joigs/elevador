@@ -1,6 +1,7 @@
 class ItemsController < ApplicationController
   def index
     @items = Item.all.order(group_id: :asc)
+    @pagy, @items = pagy_countless(@items, items: 10)
   end
 
   def show

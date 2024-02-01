@@ -3,6 +3,7 @@ class RulesController < ApplicationController
 
   def index
     @rules = Rule.all.order(ruletype_id: :asc)
+    @pagy, @rules = pagy_countless(@rules, items: 10)
   end
 
   def show

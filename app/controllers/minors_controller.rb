@@ -3,6 +3,7 @@ class MinorsController < ApplicationController
   # GET /minors or /minors.json
   def index
     @minors = Minor.all
+    @pagy, @minors = pagy_countless(@minors, items: 10)
   end
 
   # GET /minors/1 or /minors/1.json

@@ -3,6 +3,7 @@ class RuletypesController < ApplicationController
   # GET /ruletypes or /ruletypes.json
   def index
     @ruletypes = Ruletype.all.order('created_at ASC')
+    @pagy, @ruletypes = pagy_countless(@ruletypes, items: 10)
   end
 
 

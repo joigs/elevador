@@ -1,3 +1,9 @@
 <div id="<%= dom_id principal %>">
   <%= render 'shared/company_data', object: principal %>
 </div>
+
+<div>
+  <% if controller_name == 'principals' && action_name == 'index' %>
+<%= link_to 'Ver mandante', principal_path(principal), 'data-turbo-frame':"_top" %>
+    <% end %>
+</div>

@@ -1,8 +1,6 @@
-<p style="color: green"><%= notice %></p>
 
-<h1>Empresas mandantes</h1>
+  <h1>Empresas mandantes</h1>
 
-<div id="principals">
 
   <div>
     <%= link_to "Agregar nueva empresa mandante", new_principal_path if Current.user.admin %>
@@ -12,17 +10,17 @@
     <%= link_to "Empresas menores", minors_path %>
   </div>
 
-  <div>
-    <%= link_to "Volver a pagina principal", home_path %>
-  </div>
+  <%= render 'shared/back_home' %>
 
-  <% @principals.each do |principal| %>
-    <%= render principal %>
-    <p>
-      <%= link_to "Ver más información", principal %>
-    </p>
+  <%= turbo_frame_tag 'principals' do %>
+
+
+  <%= turbo_frame_tag "principals-#{@pagy.page}", class: 'principals' do %>
+    <%= render partial: 'principal', collection: @principals %>
+    <%= turbo_frame_tag "principals-#{@pagy.next}", class: 'principals', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
   <% end %>
-</div>
+
+<% end %>
 
 
 

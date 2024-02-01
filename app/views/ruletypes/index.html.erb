@@ -1,6 +1,5 @@
-<p style="color: green"><%= notice %></p>
 
-<h1>Comprobaciones</h1>
+  <h1>Comprobaciones</h1>
 
 <br>
 <h1>ADVERTENCIA: CUIDADO CON HACER CAMBIOS EN ESTA PARTE, EL ARREGLARLO SERÍA EXTREMADAMENTE TEDIOSO</h1>
@@ -16,12 +15,15 @@
 </div>
 
 
-<div id="ruletypes">
-  <% @ruletypes.each do |ruletype| %>
-    <%= render ruletype %>
-    <%= link_to "Ver detalles", ruletype %>
+  <%= turbo_frame_tag 'ruletypes' do %>
 
+
+<%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
+  <%= render partial: 'ruletype', collection: @ruletypes %>
+
+  <%= turbo_frame_tag "ruletypes-#{@pagy.next}", class: 'ruletypes', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
 <% end %>
-</div>
+<% end %>
+
 
 
