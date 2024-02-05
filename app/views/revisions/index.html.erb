@@ -1,0 +1,11 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Revisions</h1>
+
+<div id="reports">
+  <% @revisions.each do |revision| %>
+    <%= revision.inspection.id %>
+    <p>
+    </p>
+  <% end %>
+</div>
