@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+
+
   resources :details
   resources :reports
   resources :items
@@ -24,7 +26,9 @@ Rails.application.routes.draw do
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
   resources :items, path: '/items'
   resources :principals, path: '/principals' do
-    get :minors, on: :member
+    collection do
+      get :minors
+    end
   end
   resources :minors, path: '/minors'
   resources :revisions, path: '/revisions'

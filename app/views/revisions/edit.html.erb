@@ -1,55 +1,9 @@
-<%= form_with(model: @revision, url: {action: "update", inspection_id: @inspection.id}) do |form| %>
-  <% if @revision.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(@revision.errors.count, "error") %> No se pudo guardar la revisión:</h2>
+<h1>Modificando revisión</h1>
 
-      <ul>
-        <% @revision.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+<%= render "form", revision: @revision %>
 
-  <% @revision.group.rules.each_with_index do |rule, index| %>
-    <div>
-      <%= rule.code %>
-      <%= rule.point %>
+<br>
 
-
-
-
-      <% if rule.point == "Otros defectos." %>
-        <% index = @revision.codes.index(rule.code) %>
-        <% if index.nil? %>
-          <%= text_area_tag 'revision[flaws][]', '' %>
-        <% else %>
-          <%= text_field_tag 'revision[flaws][]', @revision.flaws[index] %>
-        <% end %>
-      <% else %>
-        <%= check_box_tag 'revision[flaws][]', rule.point, @revision.flaws.include?(rule.point) %>
-      <% end %>
-
-
-
-
-
-
-
-      <% if rule.level.include?('G') && rule.level.include?('L') %>
-        <%= check_box_tag 'revision[level][]', 'G', false, disabled: false %>
-      <% elsif rule.level.include?('G') %>
-        <%= check_box_tag 'revision[level][]', 'G', true, disabled: true %>
-      <% elsif rule.level.include?('L') %>
-        <%= check_box_tag 'revision[level][]', 'L', false, disabled: true %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <div>
-    <%= form.submit %>
-  </div>
-
-
-<% end %>
-
+<div>
+  <%= link_to "Volver atrás", @revision %> |
+</div>

@@ -4,17 +4,29 @@ class RevisionsController < ApplicationController
 def index
     @revisions = Revision.all
 end
-  def new
-    authorize! @revision = Revision.new
-  end
+def new
+  @revision = Revision.new
+  @revision.inspection_id = params[:inspection_id]
+  @inspection = Inspection.find(params[:inspection_id])
+  @item = @inspection.item
+  @group = @item.group
+  @rules = @group.rules
 
-  def create
-    authorize! @revision = Revision.new(revision_params)
-    if @revision.save
-    else
-      render :new, status: :unprocessable_entity
-    end
+  authorize! @revision
+end
+
+def create
+  @revision = Revision.new(revision_params)
+  @revision.inspection_id = params[:inspection_id]
+  @item = @revision.item
+  @group = @item.group
+  @rules = @group.rules
+  if @revision.save
+    redirect_to revision_path(@revision), notice: "Revisión realizada exitosamente"
+  else
+    render :new, status: :unprocessable_entity
   end
+end
 
 def edit
   @revision = Revision.find_by!(inspection_id: params[:inspection_id])
@@ -39,23 +51,7 @@ def update
   @group = @item.group
   @rules = @group.rules
 
-  params[:revision][:codes] ||= []
-  params[:revision][:level] ||= []
 
-  puts "Before assignment: #{params[:revision][:codes]}"
-
-  params[:revision][:flaws].each_with_index do |flaw, index|
-    rule = @rules.find_by(point: flaw)
-    if rule
-      params[:revision][:codes][index] = rule.code
-      params[:revision][:level][index] = params[:revision][:level].include?(rule.point)
-      if flaw.start_with?("other")
-        params[:revision][:flaws][index] = flaw.split(" ")[2..-1].join(" ")
-      end
-    end
-  end
-
-  puts "After assignment: #{params[:revision][:codes]}"
 
 
   if @revision.update(revision_params)
@@ -75,7 +71,7 @@ end
 
   # Only allow a list of trusted parameters through.
   def revision_params
-    params.require(:revision).permit(:inspection_id, :group_id, :item_id, codes: [], flaws: [], level: [])
+    params.require(:revision).permit(:inspection_id, :group_id, :item_id, :codes, :flaws, :level)
   end
 
 end

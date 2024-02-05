@@ -13,25 +13,30 @@
     <% end %>
 
     <%= form.fields_for :item do |item_form| %>
-      <div>
-        <%= item_form.label :Identificador %>
-        <%= item_form.text_field :identificador %>
+
+      <div data-controller="form-element">
+        <%= form.button "Validate", formaction: new_item_path, formmethod: :get, data: { form_element_target: "remoteBtn" } %>
+        <div>
+          <%= item_form.label :"Clasificación del ascensor" %>
+          <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }) if Current.user&.admin %>
+        </div>
+
+        <div>
+          <%= item_form.label :"Empresa mandante" %>
+          <%= item_form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Selecciona una mandante' %>
+        </div>
+
+        <div>
+          <%= item_form.label :"Empresa a la que pertenece el activo" %>
+          <%= item_form.collection_select :minor_id, [], :id, :name, prompt: 'Selecciona una empresa' %>
+        </div>
+
+        <div>
+          <%= item_form.label :Identificador %>
+          <%= item_form.select :identificador, Item.pluck(:identificador), {include_blank: true}, {data: {controller: 'slim'}} %>
+        </div>
       </div>
 
-      <div>
-        <%= item_form.label :"Clasificación del ascensor" %>
-        <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }) if Current.user&.admin %>
-      </div>
-
-      <div>
-        <%= item_form.label :"Empresa mandante" %>
-        <%= item_form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Selecciona una mandante' %>
-      </div>
-
-      <div>
-        <%= item_form.label :"Empresa a la que pertenece el activo" %>
-        <%= item_form.collection_select :minor_id, [], :id, :name, prompt: 'Selecciona una empresa' %>
-      </div>
     <% end %>
 
     <div>
@@ -51,7 +56,7 @@
 
     <div>
       <%= form.label :"Inspector asignado", style: "display: block" if Current.user.admin %>
-      <%= form.select :user_id, options_for_select(User.where(admin: false).map { |u| [u.real_name, u.id] }, @inspection.user_id) if Current.user.admin %>
+      <%= form.select :user_id, options_for_select(User.where(admin: false).map { |u| [u.real_name, u.id] }, @inspection.user_id), {include_blank: true}, {data: {controller: 'slim'}} if Current.user.admin %>
     </div>
 
     <br>

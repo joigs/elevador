@@ -4,9 +4,9 @@
 <% @revision.flaws.each_with_index do |flaw, index| %>
   <p>
     <strong>Defecto:</strong>
-    <%= @revision.codes[index] %>
+    <%= @revision.codes %>
     <%= flaw %>
-    <%= @revision.level[index] %>
+    <%= @revision.level %>
   </p>
 
   <!-- Add more fields as needed -->
