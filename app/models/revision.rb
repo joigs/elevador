@@ -1,9 +1,7 @@
 class Revision < ApplicationRecord
 
-
-  validates :level, presence: true
-  validates :codes, presence: true
-  validates :flaws, presence: true
+  has_many :flaws
+  accepts_nested_attributes_for :flaws
 
   belongs_to :item
   belongs_to :group

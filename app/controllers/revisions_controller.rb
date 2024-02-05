@@ -81,7 +81,7 @@ end
 
   # Only allow a list of trusted parameters through.
   def revision_params
-    params.require(:revision).permit(:inspection_id, :group_id, :item_id, :codes, :flaws, :level)
+    params.require(:revision).permit(:inspection_id, :group_id, :item_id, flaws_attributes: [:id, :_destroy, :revision_id, :flaw, :code, :level]   )
   end
 
 end

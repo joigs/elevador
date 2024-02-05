@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_29_201542) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_05_171522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -66,6 +66,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_201542) do
     t.datetime "updated_at", null: false
     t.string "velocidad"
     t.index ["item_id"], name: "index_details_on_item_id"
+  end
+
+  create_table "flaws", force: :cascade do |t|
+    t.string "point", null: false
+    t.string "code", null: false
+    t.string "level", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "revision_id", null: false
+    t.index ["revision_id"], name: "index_flaws_on_revision_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -157,14 +167,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_201542) do
   end
 
   create_table "revisions", force: :cascade do |t|
-    t.string "codes"
-    t.string "flaws"
-    t.bigint "item_id", null: false
-    t.bigint "group_id", null: false
     t.bigint "inspection_id", null: false
+    t.bigint "group_id", null: false
+    t.bigint "item_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "level"
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_revisions_on_item_id"
@@ -213,6 +220,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_29_201542) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "details", "items"
+  add_foreign_key "flaws", "revisions"
   add_foreign_key "inspections", "items"
   add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"

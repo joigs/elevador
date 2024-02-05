@@ -1,0 +1,10 @@
+<tr>
+  <td>
+    <%= f.input_field :_destroy, as: :hidden %>
+    <%= link_to 'Delete', '#', class: 'remove_record' %>
+  </td>
+
+  <td><%= f.input :code, label:false %></td>
+  <td><%= f.input :point, label:false %></td>
+  <td><%= f.input :level, label:false %></td>
+</tr>
