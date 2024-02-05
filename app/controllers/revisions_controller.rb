@@ -16,18 +16,49 @@ def new
 end
 
 def create
-  @revision = Revision.new(revision_params)
-  @revision.inspection_id = params[:inspection_id]
-  @item = @revision.item
+  @inspection = Inspection.find(params[:inspection_id])
+  @item = @inspection.item
   @group = @item.group
   @rules = @group.rules
-  if @revision.save
-    redirect_to revision_path(@revision), notice: "Revisión realizada exitosamente"
-  else
-    render :new, status: :unprocessable_entity
+
+  params[:codes].each_with_index do |code, index|
+    if params["rule_#{index}"] == '1' # if the checkbox was checked
+      @revision = Revision.new
+      @revision.inspection_id = params[:inspection_id]
+      @revision.item_id = @item.id
+      @revision.group_id = @group.id
+      @revision.codes = code
+      @revision.level = params[:level][index]
+      @revision.flaws = params[:flaws][index]
+      unless @revision.save
+        render :new, status: :unprocessable_entity and return
+      end
+    end
   end
+
+  redirect_to revisions_path, notice: "Revisions created successfully"
 end
 
+def update
+  @inspection = Inspection.find(params[:inspection_id])
+  @item = @inspection.item
+  @group = @item.group
+  @rules = @group.rules
+
+  params[:codes].each_with_index do |code, index|
+    if params["rule_#{index}"] == '1' # if the checkbox was checked
+      @revision = Revision.find_by(inspection_id: params[:inspection_id], item_id: @item.id, group_id: @group.id)
+      @revision.codes = code
+      @revision.level = params[:level][index]
+      @revision.flaws = params[:flaws][index]
+      unless @revision.update(revision_params)
+        render :edit, status: :unprocessable_entity and return
+      end
+    end
+  end
+
+  redirect_to revisions_path, notice: 'Revisions updated'
+end
 def edit
   @revision = Revision.find_by!(inspection_id: params[:inspection_id])
   @inspection = Inspection.find(params[:inspection_id])
@@ -41,27 +72,6 @@ end
 def show
   @revision = Revision.find_by!(inspection_id: params[:inspection_id])
 end
-
-
-def update
-  params[:revision][:flaws].reject!(&:blank?) if params[:revision][:flaws].is_a?(Array)
-  @revision = Revision.find_by!(inspection_id: params[:inspection_id])
-  @inspection = Inspection.find(params[:inspection_id])
-  @item = @revision.item
-  @group = @item.group
-  @rules = @group.rules
-
-
-
-
-  if @revision.update(revision_params)
-    @revision.save
-    redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
-  else
-    render :edit, status: :unprocessable_entity
-  end
-end
-
 
   private
 

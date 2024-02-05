@@ -1,4 +1,4 @@
-<%= form_with(model: revision, url: {action: revision.persisted? ? "update" : "create", inspection_id: @inspection.id}) do |form| %>
+<%= form_with(model: @revision, url: {action: @revision.persisted? ? "update" : "create", inspection_id: @inspection.id}) do |form| %>
 
   <% if @revision.errors.any? %>
     <div style="color: red">
@@ -19,7 +19,13 @@
       <% if rule.point == "Otros defectos." %>
         <%= form.text_field :flaws, value: other_rule(@inspection.id, rule.code) %>
       <% end %>
-
+      <%= form.check_box :codes, {}, rule.code, nil %>
+      <%= form.check_box :level, {}, rule.level, nil %>
+      <%= form.check_box "rule_#{rule.id}", {}, checked: false %> <!-- Checkbox for each rule -->
     </div>
   <% end %>
+
+  <div>
+    <%= form.submit "Guardar revisión" %>
+  </div>
 <% end %>
