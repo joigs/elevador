@@ -48,6 +48,14 @@ class MinorsController < ApplicationController
     redirect_to minors_path, notice: "Empresa menor eliminada"
   end
 
+  def items
+    @items = Minor.find(params[:id]).items
+    respond_to do |format|
+      format.json { render json: @items }
+    end
+  end
+
+
 
   private
     def minor

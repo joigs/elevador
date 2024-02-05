@@ -28,7 +28,9 @@ Rails.application.routes.draw do
   resources :principals, path: '/principals' do
     get :minors, on: :member
   end
-  resources :minors, path: '/minors'
+  resources :minors, path: '/minors' do
+    get :items, on: :member
+  end
   resources :revisions, path: '/revisions'
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
