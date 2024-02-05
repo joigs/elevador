@@ -8,14 +8,51 @@ end
     authorize! @revision = Revision.new
   end
 
-  def create
-    authorize! @revision = Revision.new(revision_params)
-    if @revision.save
-    else
-      render :new, status: :unprocessable_entity
+def create
+  @revision = Revision.new(revision_params)
+  @revision.inspection_id = params[:inspection_id]
+  @inspection = Inspection.find(params[:inspection_id])
+  @item = @inspection.item
+  @group = @item.group
+  @rules = @group.rules
+
+  params[:codes].each_with_index do |code, index|
+    if params["rule_#{index}"] == '1' # if the checkbox was checked
+      @revision.codes << code
+      @revision.level << params[:level][index]
+      @revision.flaws << params[:flaws][index]
     end
   end
 
+  if @revision.save
+    redirect_to revision_path(@revision), notice: "Revisión realizada exitosamente"
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
+
+def update
+  @revision = Revision.find_by!(inspection_id: params[:inspection_id])
+  @inspection = Inspection.find(params[:inspection_id])
+  @item = @revision.item
+  @group = @item.group
+  @rules = @group.rules
+
+  params[:codes].each_with_index do |code, index|
+    if params["rule_#{index}"] == '1' # if the checkbox was checked
+      @revision.codes << code
+      @revision.level << params[:level][index]
+      @revision.flaws << params[:flaws][index]
+    end
+  end
+
+  if @revision.update(revision_params)
+    @revision.save
+    redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
+  else
+    render :edit, status: :unprocessable_entity
+  end
+end
 def edit
   @revision = Revision.find_by!(inspection_id: params[:inspection_id])
   @inspection = Inspection.find(params[:inspection_id])
@@ -31,40 +68,7 @@ def show
 end
 
 
-def update
-  params[:revision][:flaws].reject!(&:blank?) if params[:revision][:flaws].is_a?(Array)
-  @revision = Revision.find_by!(inspection_id: params[:inspection_id])
-  @inspection = Inspection.find(params[:inspection_id])
-  @item = @revision.item
-  @group = @item.group
-  @rules = @group.rules
 
-  params[:revision][:codes] ||= []
-  params[:revision][:level] ||= []
-
-  puts "Before assignment: #{params[:revision][:codes]}"
-
-  params[:revision][:flaws].each_with_index do |flaw, index|
-    rule = @rules.find_by(point: flaw)
-    if rule
-      params[:revision][:codes][index] = rule.code
-      params[:revision][:level][index] = params[:revision][:level].include?(rule.point)
-      if flaw.start_with?("other")
-        params[:revision][:flaws][index] = flaw.split(" ")[2..-1].join(" ")
-      end
-    end
-  end
-
-  puts "After assignment: #{params[:revision][:codes]}"
-
-
-  if @revision.update(revision_params)
-    @revision.save
-    redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
-  else
-    render :edit, status: :unprocessable_entity
-  end
-end
 
 
   private
