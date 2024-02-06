@@ -1,5 +1,4 @@
-class User < Applic    change_column_null :users, :email, false
-ationRecord
+class User < ApplicationRecord
   has_secure_password
 
   #validates :email, presence: true, uniqueness: true,
