@@ -26,11 +26,6 @@
         </div>
 
         <div>
-          <%= item_form.label :"Empresa a la que pertenece el activo" %>
-          <%= item_form.collection_select :minor_id, [], :id, :name, prompt: 'Selecciona una empresa' %>
-        </div>
-
-        <div>
           <%= item_form.label :Identificador %>
           <%= item_form.text_field :identificador, list: "identificador-options" %>
           <datalist id="identificador-options">

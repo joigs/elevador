@@ -6,6 +6,5 @@ class Principal < ApplicationRecord
   validates :email, presence: true, uniqueness: true,
             format: { with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i, message: "Formato de email invalido" }
 
-  has_many :items, through: :minors
-  has_many :minors, dependent: :destroy
+  has_many :items
 end

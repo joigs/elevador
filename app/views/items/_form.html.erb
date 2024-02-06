@@ -26,10 +26,6 @@
     <%= form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Selecciona una mandante' %>
   </div>
 
-  <div>
-    <%= form.label :"Empresa a la que pertenece el activo" %>
-    <%= form.collection_select :minor_id, [], :id, :name, prompt: 'Selecciona una empresa' %>
-  </div>
 
   <div>
     <%= form.submit %>

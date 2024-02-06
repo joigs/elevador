@@ -1,10 +1,7 @@
 <p style="color: green"><%= notice %></p>
 
 <%= render @principal %>
-<div>
-  <h3>Empresas menores asociadas</h3>
-  <%= @principal.minors.map { |minor| link_to minor.name, minor_path(minor) }.join(', ').html_safe %>
-</div>
+
 <br>
 <br>
 <div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_06_032512) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_06_150004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -99,26 +99,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_06_032512) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "group_id", null: false
-    t.bigint "minor_id", null: false
     t.bigint "principal_id", null: false
     t.index ["group_id"], name: "index_items_on_group_id"
     t.index ["identificador"], name: "index_items_on_identificador", unique: true
-    t.index ["minor_id"], name: "index_items_on_minor_id"
     t.index ["principal_id"], name: "index_items_on_principal_id"
-  end
-
-  create_table "minors", force: :cascade do |t|
-    t.string "rut"
-    t.string "name", null: false
-    t.string "business_name"
-    t.string "contact_name"
-    t.string "email"
-    t.string "phone"
-    t.string "cellphone"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "principal_id", null: false
-    t.index ["principal_id"], name: "index_minors_on_principal_id"
   end
 
   create_table "principals", force: :cascade do |t|
@@ -217,9 +201,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_06_032512) do
   add_foreign_key "inspections", "items"
   add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"
-  add_foreign_key "items", "minors"
   add_foreign_key "items", "principals"
-  add_foreign_key "minors", "principals"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
   add_foreign_key "revisions", "groups"
