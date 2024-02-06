@@ -16,6 +16,11 @@
     <%= user.admin ? 'Administrador' : 'Inspector' %>
   </p>
 
+  <p>
+    <strong>Correo electrónico:</strong>
+    <%= user.email %>
+  </p>
+
   <div>
     <% if controller_name == 'users' && action_name == 'index' %>
   <%= link_to 'Mostrar usuario', user_path(user), 'data-turbo-frame':"_top" %>

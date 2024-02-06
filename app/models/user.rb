@@ -1,4 +1,5 @@
-class User < ApplicationRecord
+class User < Applic    change_column_null :users, :email, false
+ationRecord
   has_secure_password
 
   #validates :email, presence: true, uniqueness: true,
@@ -8,6 +9,9 @@ class User < ApplicationRecord
             format: {with: /\A[a-z0-9A-Z]+\z/, message: "Solo se permiten letras y numeros"}
   validates :password_digest, length: { minimum: 6 }
   validates :real_name, presence: true
+  validates :email, presence: true, uniqueness: true,
+            format: { with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i, message: "Formato de email invalido" }
+
   acts_as_paranoid
   has_many :inspections
 end

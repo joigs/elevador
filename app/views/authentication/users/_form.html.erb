@@ -12,6 +12,11 @@
   </div>
 
   <div>
+    <%= form.label :Email %>
+    <%= form.email_field :email, required: true %>
+  </div>
+
+  <div>
     <%= form.label :Contraseña %>
     <%= form.password_field :password, required: true %>
   </div>
