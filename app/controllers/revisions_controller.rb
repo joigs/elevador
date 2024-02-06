@@ -1,3 +1,4 @@
+User
 class RevisionsController < ApplicationController
 
 
@@ -52,14 +53,15 @@ class RevisionsController < ApplicationController
 
     # Initialize arrays to store the values for failed rules
     codes, points, levels, fail_statuses = [], [], [], []
-
+    gap = 0
     # Iterate through each rule's fail status from the form submission
     params[:revision][:fail].each_with_index do |fail_status, index|
       if fail_status == "1"  # Checks if the rule is marked as failed
         # For failed rules, add their code, point, level, and fail status to the arrays
-        codes << params[:revision][:codes][index]
-        points << params[:revision][:points][index]
-        levels << params[:revision][:levels][index]
+        codes << params[:revision][:codes][index-gap]
+        points << params[:revision][:points][index-gap]
+        levels << params[:revision][:levels][index-gap]
+        gap = gap + 1
         fail_statuses << true
       end
     end
@@ -86,11 +88,11 @@ class RevisionsController < ApplicationController
 
 
   # Only allow a list of trusted parameters through.
-def revision_params
-  params.require(:revision).permit(
-    :inspection_id, :group_id, :item_id,
-    codes: [], points: [], levels: [], fail: []
-  )
-end
+  def revision_params
+    params.require(:revision).permit(
+      :inspection_id, :group_id, :item_id,
+      codes: [], points: [], levels: [], fail: []
+    )
+  end
 
 end

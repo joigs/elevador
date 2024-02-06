@@ -13,9 +13,16 @@
 
   <% @revision.group.rules.each_with_index do |rule, index| %>
     <div>
-      <!-- Hidden field first -->
+
+
+      <%if @revision.codes.include?(rule.code) and @revision.points.include?(rule.point) %>
+          <%= check_box_tag "revision[fail][]", "1", true, id: "fail_#{index}" %>
+      <% else %>
+        <%= check_box_tag "revision[fail][]", "1", false, id: "fail_#{index}" %>
+      <% end %>
       <%= hidden_field_tag "revision[fail][]", "0" %>
-      <%= check_box_tag "revision[fail][]", "1", false, id: "fail_#{index}" %>
+
+      <!-- Hidden field first -->
       <%= label_tag "fail_#{index}", "Falla #{rule.code} #{rule.point} #{rule.level}" %>
       <%= hidden_field_tag "revision[codes][]", rule.code %>
       <%= hidden_field_tag "revision[points][]", rule.point %>
@@ -32,4 +39,3 @@
 <div>
   <%= link_to "Volver atrás", @revision %> |
 </div>
-
