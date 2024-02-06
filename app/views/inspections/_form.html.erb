@@ -15,7 +15,6 @@
     <%= form.fields_for :item do |item_form| %>
 
       <div data-controller="form-element">
-        <%= form.button "Validate", formaction: new_item_path, formmethod: :get, data: { form_element_target: "remoteBtn" } %>
         <div>
           <%= item_form.label :"Clasificación del ascensor" %>
           <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }) if Current.user&.admin %>
@@ -33,7 +32,13 @@
 
         <div>
           <%= item_form.label :Identificador %>
-          <%= item_form.text_field :identificador %>
+          <%= item_form.text_field :identificador, list: "identificador-options" %>
+          <datalist id="identificador-options">
+            <% # Assuming @identificadores is an array of unique identifiers available for selection %>
+            <% @items.each do |item| %>
+              <option value="<%= item.identificador %>">
+            <% end %>
+          </datalist>
         </div>
       </div>
 

@@ -1,11 +1,13 @@
 <h1>Revisión N° <%= @revision.inspection_id %></h1>
 <h2>Defectos Encontrados</h2>
 
-<% @revision.flaws.each do |flaw| %>
+<% @revision.points.each_with_index do |point, index| %>
   <p>
     <strong>Defecto:</strong>
-    <%= flaw.code %>
-    <%= flaw.point %>
-    <%= flaw.level %>
+    <%= @revision.codes[index] %>
+    <%= point %>
+    <%= @revision.levels[index] %>
   </p>
+
+  <!-- Add more fields as needed -->
 <% end %>

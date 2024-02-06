@@ -1,9 +1,35 @@
-<h1>Modificando revisión</h1>
+<%= form_with(model: @revision, url: {action: "update", inspection_id: @inspection.id}) do |form| %>
+  <% if @revision.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(@revision.errors.count, "error") %> No se pudo guardar la revisión:</h2>
 
-<%= render "form", revision: @revision %>
+      <ul>
+        <% @revision.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
-<br>
+  <% @revision.group.rules.each_with_index do |rule, index| %>
+    <div>
+      <!-- Hidden field first -->
+      <%= hidden_field_tag "revision[fail][]", "0" %>
+      <%= check_box_tag "revision[fail][]", "1", false, id: "fail_#{index}" %>
+      <%= label_tag "fail_#{index}", "Falla #{rule.code} #{rule.point} #{rule.level}" %>
+      <%= hidden_field_tag "revision[codes][]", rule.code %>
+      <%= hidden_field_tag "revision[points][]", rule.point %>
+      <%= hidden_field_tag "revision[levels][]", rule.level %>
+    </div>
+  <% end %>
+
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
 
 <div>
   <%= link_to "Volver atrás", @revision %> |
 </div>
+

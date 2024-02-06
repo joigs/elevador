@@ -4,9 +4,8 @@
 
 <div id="reports">
   <% @revisions.each do |revision| %>
-    <%= render revision %>
+    <%= revision.inspection.id %>
     <p>
-      <%= link_to "Ver detalles", revision_path(id: revision.id, inspection_id: revision.inspection_id) %>
     </p>
   <% end %>
 </div>

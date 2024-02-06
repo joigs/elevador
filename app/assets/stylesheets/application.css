@@ -18,3 +18,7 @@
 .inline-element {
     display: inline-block;
 }
+
+.hidden-checkbox {
+    display: none;
+}

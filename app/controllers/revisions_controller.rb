@@ -1,65 +1,82 @@
 class RevisionsController < ApplicationController
 
 
-def index
+  def index
     @revisions = Revision.all
-end
-def new
-  @revision = Revision.new
-  @revision.inspection_id = params[:inspection_id]
-  @inspection = Inspection.find(params[:inspection_id])
-  @item = @inspection.item
-  @group = @item.group
-  @rules = @group.rules
-
-  authorize! @revision
-end
-
-def create
-  @inspection = Inspection.find(params[:inspection_id])
-  @item = @inspection.item
-  @group = @item.group
-  @rules = @group.rules
-
-
-  redirect_to revisions_path, notice: "Revisions created successfully"
-end
-
-def update
-  @revision = Revision.find(params[:id])
-  @inspection = Inspection.find(params[:inspection_id])
-  @item = @inspection.item
-  @group = @item.group
-  @rules = @group.rules
-
-  # Get the checked rule IDs from the form parameters
-  checked_rule_ids = params[:flaw_checkboxes].map(&:to_i)
-
-  # For each checked rule, create a new flaw
-  checked_rule_ids.each do |rule_id|
-    rule = Rule.find(rule_id)
-    @revision.flaws.create(point: rule.point, code: rule.code, level: rule.level.join(","))
+  end
+  def new
+    authorize! @revision = Revision.new
   end
 
-  if @revision.update(revision_params)
-    redirect_to revision_path(@revision), notice: 'Revisions updated' # Redirect to the show action
-  else
-    render :edit
+  def create
+    authorize! @revision = Revision.new(revision_params)
+    if @revision.save
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
-end
-def edit
-  @revision = Revision.find_by!(inspection_id: params[:inspection_id])
-  @inspection = Inspection.find(params[:inspection_id])
-  @item = @revision.item
-  @group = @item.group
-  @rules = @group.rules
-  authorize! @revision
 
-end
+  def edit
+    @inspection = Inspection.find_by(id: params[:inspection_id])
+    if @inspection.nil?
+      redirect_to(home_path, alert: "Inspection not found.") and return
+    end
 
-def show
-  @revision = Revision.find_by!(inspection_id: params[:inspection_id])
-end
+    @revision = Revision.find_by(inspection_id: @inspection.id)
+    if @revision.nil?
+      redirect_to(home_path, alert: "Revision not found for the provided Inspection.") and return
+    end
+
+    # Assuming you have authorization logic in place
+    authorize! @revision
+
+    # Directly access item and group through the revision if you're not using them independently in the view.
+    @item = @revision.item
+    @group = @revision.group
+    @rules = @group.rules
+  rescue ActiveRecord::RecordNotFound
+    # This rescue block might be redundant if you are handling the nil cases above
+    redirect_to(home_path, alert: "Revision or Inspection not found.")
+  end
+
+
+
+  def show
+    @revision = Revision.find_by!(inspection_id: params[:inspection_id])
+  end
+
+
+  def update
+    @revision = Revision.find_by!(inspection_id: params[:inspection_id])
+    @inspection = Inspection.find_by(id: params[:inspection_id])
+
+    # Initialize arrays to store the values for failed rules
+    codes, points, levels, fail_statuses = [], [], [], []
+
+    # Iterate through each rule's fail status from the form submission
+    params[:revision][:fail].each_with_index do |fail_status, index|
+      if fail_status == "1"  # Checks if the rule is marked as failed
+        # For failed rules, add their code, point, level, and fail status to the arrays
+        codes << params[:revision][:codes][index]
+        points << params[:revision][:points][index]
+        levels << params[:revision][:levels][index]
+        fail_statuses << true
+      end
+    end
+    # Update the revision with the collected data from failed rules
+    @revision.codes = codes
+    @revision.points = points
+    @revision.levels = levels
+    @revision.fail = fail_statuses
+
+    if @revision.save
+      redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+
 
   private
 
@@ -67,9 +84,13 @@ end
     @revision = Principal.find(params[:id])
   end
 
+
   # Only allow a list of trusted parameters through.
-  def revision_params
-    params.require(:revision).permit(:inspection_id, :group_id, :item_id, flaws_attributes: [:id, :_destroy, :revision_id, :flaw, :code, :level]   )
-  end
+def revision_params
+  params.require(:revision).permit(
+    :inspection_id, :group_id, :item_id,
+    codes: [], points: [], levels: [], fail: []
+  )
+end
 
 end
