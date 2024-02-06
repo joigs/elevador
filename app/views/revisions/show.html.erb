@@ -9,5 +9,8 @@
     <%= @revision.levels[index] %>
   </p>
 
-  <!-- Add more fields as needed -->
+  <% photo = @revision_photos.find { |rp| rp.code == @revision.codes[index] } %>
+  <% if photo&.photo&.attached? %>
+    <%= image_tag photo.photo %>
+  <% end %>
 <% end %>

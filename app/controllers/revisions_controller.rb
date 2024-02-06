@@ -44,13 +44,14 @@ class RevisionsController < ApplicationController
 
   def show
     @revision = Revision.find_by!(inspection_id: params[:inspection_id])
+    @revision_photos = @revision.revision_photos
   end
 
 
   def update
     @revision = Revision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
-
+    puts params.inspect
     # Initialize arrays to store the values for failed rules
     codes, points, levels, fail_statuses = [], [], [], []
     gap = 0
@@ -91,8 +92,8 @@ class RevisionsController < ApplicationController
   def revision_params
     params.require(:revision).permit(
       :inspection_id, :group_id, :item_id,
-      codes: [], points: [], levels: [], fail: []
-    )
+      codes: [], points: [], levels: [], fail: [],
+      revision_photos_attributes: [:id, :photo, :code, :_destroy])
   end
 
 end
