@@ -18,19 +18,7 @@ document.addEventListener('turbo:load', function() {
                         });
                     });
             }
-            if (minorSelect){
-                fetch(`/minors/${minorSelect.value}/items.json`)
-                    .then(response => response.json())
-                    .then(data => {
-                        itemSelect.innerHTML = '';
-                        data.forEach(item => {
-                            const option = document.createElement('option');
-                            option.value = item.identificador;
-                            option.text = item.identificador;
-                            itemSelect.appendChild(option);
-                        });
-                    });
-            }
+
         });
     } else {
         console.log('form is null');

@@ -33,7 +33,7 @@
 
         <div>
           <%= item_form.label :Identificador %>
-          <%= item_form.select :identificador, Item.pluck(:identificador), {include_blank: true}, {data: {controller: 'slim'}} %>
+          <%= item_form.text_field :identificador %>
         </div>
       </div>
 

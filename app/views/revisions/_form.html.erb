@@ -14,14 +14,23 @@
 
   <% @rules.each do |rule| %>
     <div>
+      <!-- Checkbox to determine whether a flaw is created -->
+      <input type="checkbox" id="create_flaw_<%= rule.id %>" name="create_flaw[]" value="<%= rule.id %>" onchange="handleFlawCreation(this, <%= rule.id %>, '<%= j rule.point %>')">
+
+      <% if rule.level.include?('L') && rule.level.include?('G') %>
+        <!-- If rule.level contains both 'L' and 'G', display a second checkbox that sends 'G' when checked and 'L' when unchecked -->
+        <input type="checkbox" id="your_checkbox_id_<%= rule.id %>" name="flaw_checkboxes[]" value="<%= rule.id %>" onchange="handleCheckboxChange(this, <%= rule.id %>, '<%= j rule.point %>', this.checked ? 'G' : 'L')">
+      <% end %>
+
+      <!-- Display rule details -->
       <%= rule.code %>
       <%= rule.point %>
-      <% if rule.point == "Otros defectos." %>
-        <%= form.text_field :flaws, value: other_rule(@inspection.id, rule.code) %>
-      <% end %>
-      <%= form.check_box :codes, {}, rule.code, nil %>
-      <%= form.check_box :level, {}, rule.level, nil %>
-      <%= form.check_box "rule_#{rule.id}", {}, checked: false %> <!-- Checkbox for each rule -->
+      <%= rule.level %>
+
+      <!-- Hidden input fields to store the values -->
+      <input type="hidden" id="flaw_point_<%= rule.id %>" name="flaw[<%= rule.id %>][point]" value="">
+      <input type="hidden" id="flaw_code_<%= rule.id %>" name="flaw[<%= rule.id %>][code]" value="">
+      <input type="hidden" id="flaw_level_<%= rule.id %>" name="flaw[<%= rule.id %>][level]" value="">
     </div>
   <% end %>
 
@@ -29,3 +38,27 @@
     <%= form.submit "Guardar revisión" %>
   </div>
 <% end %>
+
+<!-- Include this script in your HTML file -->
+<script>
+
+        function handleCheckboxChange(checkbox, ruleId, point, level) {
+        console.log('Checkbox changed:', checkbox.checked, ruleId, point, level);
+        var flawPointInput = document.getElementById('flaw_point_' + ruleId);
+        var flawCodeInput = document.getElementById('flaw_code_' + ruleId);
+        var flawLevelInput = document.getElementById('flaw_level_' + ruleId);
+
+        // Set values only when the checkbox is checked
+        if (checkbox.checked) {
+        flawPointInput.value = point;
+        flawCodeInput.value = point;
+        flawLevelInput.value = level;
+    } else {
+        // Clear values when the checkbox is unchecked
+        flawPointInput.value = "";
+        flawCodeInput.value = "";
+        flawLevelInput.value = "";
+    }
+    }
+
+</script>

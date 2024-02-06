@@ -1,7 +1,7 @@
 class Revision < ApplicationRecord
 
-  has_many :flaws
-  accepts_nested_attributes_for :flaws
+  has_many :flaws, dependent: :destroy, inverse_of: :revision
+  accepts_nested_attributes_for :flaws, allow_destroy: true, reject_if: :all_blank
 
   belongs_to :item
   belongs_to :group
