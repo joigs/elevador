@@ -1,6 +1,11 @@
 // app/javascript/controllers/image_controller.js
 import { Controller } from "@hotwired/stimulus"
 
+//Controlador para agrandar imagenes al hacerles click
+
+
+
+
 export default class extends Controller {
   static targets = ["source"];
 

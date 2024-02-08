@@ -2,6 +2,11 @@
 
 import { Controller } from "@hotwired/stimulus"
 
+
+//controlador para que solo se guarden las fallas que esten marcadas.
+//tambien que el codigo de la falla donde se sube la foto se guarde solo si se sube una foto
+
+
 export default class extends Controller {
     static targets = ["fail", "level", "point", "code", "photo", "photoCode"]
 

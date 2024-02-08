@@ -1,3 +1,7 @@
+
+//controlador que se encarga de actualizar los select dentro del form ade inspeccion.
+//Actualmente sin uso, el plan es usarlo para que al seleccionar un principal se actualicen los items correspondientes.
+
 document.addEventListener('turbo:load', function() {
     const form = document.querySelector('form');
     if (form) {
