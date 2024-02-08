@@ -2,20 +2,25 @@
 <h2>Defectos Encontrados</h2>
 
 <div data-controller="image">
-  <% @revision.points.each_with_index do |point, index| %>
-    <p>
-      <strong>Defecto:</strong>
-      <%= @revision.codes[index] %>
-      <%= point %>
-      <%= @revision.levels[index] %>
-    </p>
+  <% @revision.points.each_with_index.chunk_while { |(_, i), (_, j)| @revision.codes[i] == @revision.codes[j] }.each do |group| %>
+    <% group.each do |(point, index)| %>
+      <p>
+        <strong>Defecto:</strong>
+        <%= @revision.codes[index] %>
+        <%= point %>
+        <%= @revision.levels[index] %>
+      </p>
+    <% end %>
 
-    <% photo = @revision_photos.find { |rp| rp.code == @revision.codes[index] } %>
-    <% if photo&.photo&.attached? %>
-      <a href="#" data-action="image#show" data-image-url="<%= url_for(photo.photo) %>">
-        <%= image_tag photo.photo, width: 200 %>
-      </a>
+    <% last_index = group.last[1] %>
+    <% next_code_different = (@revision.codes[last_index] != @revision.codes[last_index + 1]) rescue true %>
+    <% if next_code_different %>
+      <% photos = @photos_by_code[@revision.codes[last_index]] || [] %>
+      <% photos.each do |photo| %>
+        <a href="#" data-action="image#show" data-image-url="<%= url_for(photo.photo) %>">
+          <%= image_tag photo.photo, width: 200 %>
+        </a>
+      <% end %>
     <% end %>
   <% end %>
 </div>
-

@@ -45,6 +45,13 @@ class RevisionsController < ApplicationController
   def show
     @revision = Revision.find_by!(inspection_id: params[:inspection_id])
     @revision_photos = @revision.revision_photos
+
+    # hashmap para agrupar las fotos por código
+    @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
+      if photo.photo.attached?
+        (hash[photo.code] ||= []) << photo
+      end
+    end
   end
 
 
