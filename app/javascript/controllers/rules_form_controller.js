@@ -28,7 +28,6 @@ export default class extends Controller {
                 codeInput.disabled = false;
                 levelInput.disabled = false;
                 pointInput.disabled = false;
-                console.log("b")
 
 
             } else {
@@ -51,7 +50,6 @@ export default class extends Controller {
         const input = event.target;
         if(input.files.length > 0) {
             const fileName = input.files[0].name;
-            console.log(`File uploaded: ${fileName}`);
             // Find the index of the photo input that triggered the upload event
             const photoInputIndex = this.photoTargets.indexOf(input);
             // Assuming photoCodeInputs are in the same order as photoInputs

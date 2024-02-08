@@ -1,18 +1,21 @@
 <h1>Revisión N° <%= @revision.inspection_id %></h1>
 <h2>Defectos Encontrados</h2>
 
+<div data-controller="image">
+  <% @revision.points.each_with_index do |point, index| %>
+    <p>
+      <strong>Defecto:</strong>
+      <%= @revision.codes[index] %>
+      <%= point %>
+      <%= @revision.levels[index] %>
+    </p>
 
-
-<% @revision.points.each_with_index do |point, index| %>
-  <p>
-    <strong>Defecto:</strong>
-    <%= @revision.codes[index] %>
-    <%= point %>
-    <%= @revision.levels[index] %>
-  </p>
-
-  <% photo = @revision_photos.find { |rp| rp.code == @revision.codes[index] } %>
-  <% if photo&.photo&.attached? %>
-    <%= image_tag photo.photo %>
+    <% photo = @revision_photos.find { |rp| rp.code == @revision.codes[index] } %>
+    <% if photo&.photo&.attached? %>
+      <a href="#" data-action="image#show" data-image-url="<%= url_for(photo.photo) %>">
+        <%= image_tag photo.photo, width: 200 %>
+      </a>
+    <% end %>
   <% end %>
-<% end %>
+</div>
+
