@@ -1,5 +1,7 @@
 class Revision < ApplicationRecord
 
+
+
   belongs_to :item
   belongs_to :group
   belongs_to :inspection

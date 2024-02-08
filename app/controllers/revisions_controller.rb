@@ -51,7 +51,6 @@ class RevisionsController < ApplicationController
   def update
     @revision = Revision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
-    puts params.inspect
     # Initialize arrays to store the values for failed rules
     codes, points, levels, fail_statuses = [], [], [], []
     gap = 0
@@ -71,6 +70,18 @@ class RevisionsController < ApplicationController
     @revision.points = points
     @revision.levels = levels
     @revision.fail = fail_statuses
+
+
+    if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
+      params[:revision_photos][:photo].each_with_index do |photo, index|
+        # Proceed only if the photo is present
+        if photo.present?
+          code = params[:revision_photos][:code][index]
+          @revision.revision_photos.create(photo: photo, code: code)
+        end
+      end
+    end
+
 
     if @revision.save
       redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
@@ -92,8 +103,13 @@ class RevisionsController < ApplicationController
   def revision_params
     params.require(:revision).permit(
       :inspection_id, :group_id, :item_id,
-      codes: [], points: [], levels: [], fail: [],
-      revision_photos_attributes: [:id, :photo, :code, :_destroy])
+      codes: [], points: [], levels: [], fail: []
+    ).merge(revision_photos_params)
+  end
+
+
+  def revision_photos_params
+    params.permit(revision_photos: {photo: [], code: []})[:revision_photos] || {}
   end
 
 end

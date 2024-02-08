@@ -1,6 +1,8 @@
 <h1>Revisión N° <%= @revision.inspection_id %></h1>
 <h2>Defectos Encontrados</h2>
 
+
+
 <% @revision.points.each_with_index do |point, index| %>
   <p>
     <strong>Defecto:</strong>

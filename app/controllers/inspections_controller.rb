@@ -35,11 +35,8 @@ class InspectionsController < ApplicationController
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
-      if is_new_item
-        redirect_to edit_detail_path(@detail), notice: 'Nueva inspección creada, por favor añada detalles para el nuevo activo'
-      else
-        redirect_to edit_report_path(@report), notice: 'Nueva inspección creada, puede añadir información adicional para el informe'
-      end
+
+      redirect_to inspection_path(@inspection), notice: 'Nueva inspección creada'
     end
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
@@ -48,17 +45,51 @@ class InspectionsController < ApplicationController
 
   def edit
     authorize! inspection
-    inspection
+    @items = Item.all
   end
 
   def update
     authorize! inspection
-    if inspection.update(inspection_params)
-      redirect_to inspections_path, notice: 'Inspección actualizada'
-    else
-      render :edit, status: :unprocessable_entity
+
+    ActiveRecord::Base.transaction do
+      item_params = inspection_params[:item_attributes]
+      current_item = @inspection.item
+
+      if item_params[:identificador] != current_item.identificador
+        # Find or initialize a new item with the new identificador
+        new_item = Item.find_or_initialize_by(identificador: item_params[:identificador])
+        is_new_item = new_item.new_record?
+
+        # Assign attributes and save the new item
+        new_item.assign_attributes(item_params)
+        new_item.save!
+
+        # Create Detail if it's a new item
+        Detail.create!(item: new_item) if is_new_item
+
+        # Update the inspection's item to the new item
+        @inspection.item = new_item
+      end
+
+      # Proceed with updating the inspection and its associations
+      if @inspection.update(inspection_params.except(:item_attributes))
+        # Update or create associated Report and Revision
+        @report = Report.find_by(inspection: @inspection)
+        @report.update(item: @inspection.item)
+
+        @revision = Revision.find_by(inspection: @inspection)
+        @revision.update(item: @inspection.item, group: @inspection.item.group)
+
+        redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.record.errors.full_messages.join(', ')
+    render :edit, status: :unprocessable_entity
   end
+
 
   def destroy
     authorize! inspection

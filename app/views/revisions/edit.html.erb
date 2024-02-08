@@ -29,11 +29,10 @@
       <%= hidden_field_tag "revision[levels][]", rule.level %>
 
       <!-- carga de imagenes -->
-      <%= form.fields_for :revision_photos, @revision.revision_photos.build, index: nil do |photo_form| %>
-        <%= photo_form.label :photo, "Upload Photo for #{rule.code}" %>
-        <%= photo_form.file_field :photo %>
-        <%= photo_form.hidden_field :code, value: rule.code %>
-      <% end %>
+      <%= label_tag "revision_photos[photo][]", "Upload Photo for #{rule.code}" %>
+      <%= file_field_tag "revision_photos[photo][]", name: "revision_photos[photo][]", id: "photo_#{index}" %>
+
+      <%= hidden_field_tag "revision_photos[code][]", rule.code %>
     </div>
   <% end %>
 
