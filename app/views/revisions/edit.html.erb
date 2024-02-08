@@ -23,6 +23,7 @@
 
         <%= label_tag "revision_photos[photo][]", "Upload Photo for #{rule.code}" %>
         <%= file_field_tag "revision_photos[photo][]", name: "revision_photos[photo][]", id: "photo_#{index}", disabled: !is_checked, data: { rules_form_target: "photo" } %>
+        <%= text_area_tag "revision[comment][]", nil, data: { rules_form_target: "comment" } %>
         <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
       </div>
     <% end %>

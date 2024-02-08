@@ -8,7 +8,7 @@ import { Controller } from "@hotwired/stimulus"
 
 
 export default class extends Controller {
-    static targets = ["fail", "level", "point", "code", "photo", "photoCode"]
+    static targets = ["fail", "level", "point", "code", "comment", "photo", "photoCode"]
 
     connect() {
         this.toggleFields(); // Initial check in case of pre-checked boxes or pre-uploaded photos
@@ -25,6 +25,7 @@ export default class extends Controller {
             const photoCodeInput = this.photoCodeTargets[index];
             const levelInput = this.levelTargets[index];
             const pointInput = this.pointTargets[index];
+            const commentInput = this.commentTargets[index];
 
             const hasUploadedPhoto = photoInput.files && photoInput.files.length > 0;
 
@@ -34,6 +35,7 @@ export default class extends Controller {
             codeInput.disabled = !shouldEnable;
             levelInput.disabled = !shouldEnable;
             pointInput.disabled = !shouldEnable;
+            commentInput.disabled = !shouldEnable;
 
             // Specifically manage photoCodeInput based on the presence of an uploaded photo
             photoCodeInput.disabled = !hasUploadedPhoto;

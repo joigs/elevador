@@ -115,7 +115,7 @@ class RevisionsController < ApplicationController
   def revision_params
     params.require(:revision).permit(
       :inspection_id, :group_id, :item_id,
-      codes: [], points: [], levels: [], fail: []
+      codes: [], points: [], levels: [], fail: [], comment: []
     ).merge(revision_photos_params)
   end
 
