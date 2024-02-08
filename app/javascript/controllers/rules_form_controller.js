@@ -11,7 +11,7 @@ export default class extends Controller {
     static targets = ["fail", "level", "point", "code", "photo", "photoCode"]
 
     connect() {
-        this.toggleFields(); // Initial check in case of pre-checked boxes
+        this.toggleFields(); // Initial check in case of pre-checked boxes or pre-uploaded photos
         this.photoTargets.forEach((photoInput) => {
             photoInput.addEventListener('change', (event) => this.handleFileUpload(event));
         });
@@ -26,24 +26,17 @@ export default class extends Controller {
             const levelInput = this.levelTargets[index];
             const pointInput = this.pointTargets[index];
 
+            const hasUploadedPhoto = photoInput.files && photoInput.files.length > 0;
 
+            // Enable fields if checkbox is checked or if a photo is already uploaded
+            const shouldEnable = isChecked || hasUploadedPhoto;
+            photoInput.disabled = !shouldEnable;
+            codeInput.disabled = !shouldEnable;
+            levelInput.disabled = !shouldEnable;
+            pointInput.disabled = !shouldEnable;
 
-            if (isChecked) {
-                photoInput.disabled = false;
-                codeInput.disabled = false;
-                levelInput.disabled = false;
-                pointInput.disabled = false;
-
-
-            } else {
-                photoInput.disabled = true;
-                codeInput.disabled = true;
-                photoCodeInput.disabled = true;
-                levelInput.disabled = true;
-                pointInput.disabled = true;
-
-            }
-
+            // Specifically manage photoCodeInput based on the presence of an uploaded photo
+            photoCodeInput.disabled = !hasUploadedPhoto;
         });
     }
 
@@ -54,15 +47,13 @@ export default class extends Controller {
     handleFileUpload(event) {
         const input = event.target;
         if(input.files.length > 0) {
-            const fileName = input.files[0].name;
-            // Find the index of the photo input that triggered the upload event
+            // Enable the photoCodeInput related to this photo input
             const photoInputIndex = this.photoTargets.indexOf(input);
-            // Assuming photoCodeInputs are in the same order as photoInputs
             const photoCodeInput = this.photoCodeTargets[photoInputIndex];
             if (photoCodeInput) {
-                photoCodeInput.disabled = false; // Disable the corresponding photoCodeInput
+                photoCodeInput.disabled = false;
             }
-            // Perform additional actions here, such as updating the UI
+            // Perform additional UI updates or actions as needed
         }
     }
 }
