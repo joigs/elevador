@@ -2,7 +2,7 @@ class RuletypesController < ApplicationController
   before_action :authorize!
   # GET /ruletypes or /ruletypes.json
   def index
-    @ruletypes = Ruletype.all.order('created_at ASC')
+    @ruletypes = Ruletype.ordered_by_gygatype_number
     @pagy, @ruletypes = pagy_countless(@ruletypes, items: 10)
   end
 

@@ -18,6 +18,18 @@ class Rule < ApplicationRecord
   has_many :groups, through: :rulesets
   accepts_nested_attributes_for :rulesets
 
+
+  scope :ordered_by_code, -> {
+    select("rules.*")
+      .order(Arel.sql("
+      CAST(split_part(code, '.', 1) AS INTEGER),
+      CAST(split_part(code, '.', 2) AS INTEGER),
+      CASE WHEN split_part(code, '.', 3) = '' THEN 0 ELSE CAST(split_part(code, '.', 3) AS INTEGER) END,
+      CASE WHEN split_part(code, '.', 4) = '' THEN 0 ELSE CAST(split_part(code, '.', 4) AS INTEGER) END
+    "))
+  }
+
+
   private
 
   #calcula el codigo en base al ultimo defecto añadido dentro de la comprobación

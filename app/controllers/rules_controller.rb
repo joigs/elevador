@@ -2,7 +2,7 @@ class RulesController < ApplicationController
   before_action :authorize!
 
   def index
-    @rules = Rule.all.order(ruletype_id: :asc)
+    @rules = Rule.ordered_by_code
     @pagy, @rules = pagy_countless(@rules, items: 10)
   end
 
