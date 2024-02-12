@@ -20,21 +20,23 @@ class RevisionsController < ApplicationController
   def edit
     @inspection = Inspection.find_by(id: params[:inspection_id])
     if @inspection.nil?
-      redirect_to(home_path, alert: "Inspection not found.") and return
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.") and return
     end
 
     @revision = Revision.find_by(inspection_id: @inspection.id)
     if @revision.nil?
-      redirect_to(home_path, alert: "Revision not found for the provided Inspection.") and return
+      redirect_to(home_path, alert: "Checklist no disponible.") and return
     end
 
-    # Assuming you have authorization logic in place
     authorize! @revision
 
-    # Directly access item and group through the revision if you're not using them independently in the view.
+    #acceder a los objetos asociados a la revision
     @item = @revision.item
     @group = @revision.group
     @rules = @group.rules
+
+    @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
     redirect_to(home_path, alert: "Revision or Inspection not found.")
@@ -113,15 +115,14 @@ class RevisionsController < ApplicationController
   end
 
 
-  # Only allow a list of trusted parameters through.
-  def revision_params
+    def revision_params
     params.require(:revision).permit(
       :inspection_id, :group_id, :item_id,
       codes: [], points: [], levels: [], fail: [], comment: []
     ).merge(revision_photos_params)
   end
 
-
+  #agrega los parametros de las fotos a la revision
   def revision_photos_params
     params.permit(revision_photos: {photo: [], code: []})[:revision_photos] || {}
   end
