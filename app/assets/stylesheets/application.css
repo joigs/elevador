@@ -22,3 +22,7 @@
 .hidden-checkbox {
     display: none;
 }
+
+textarea {
+    resize: none;
+}

@@ -11,7 +11,13 @@
       </div>
     <% end %>
 
-    <% @rules.each_with_index do |rule, index| %>
+
+  <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>
+    <% group.each_with_index do |(rule, index), local_index| %>
+      <% if local_index == 0 %>
+        <h2><%= "#{rule.ruletype.gygatype_number} #{rule.ruletype.rtype}" %></h2>
+      <% end %>
+
       <div data-controller="rules-form">
         <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>
         <%= check_box_tag "revision[fail][]", "1", is_checked, id: "fail_#{index}", data: { action: "change->rules-form#toggle", rules_form_target: "fail" } %>
@@ -22,7 +28,7 @@
 
         <% if rule.level.include?('G') && rule.level.include?('L') %>
           <!-- Stimulus controller to toggle between G and L -->
-          <div data-controller="level" data-action="click->level#toggleValue">
+          <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
             <%= button_tag type: 'button', class: 'toggle-button' do %>
               <span data-level-target="label">G</span> <!-- Initially displayed value -->
             <% end %>
@@ -33,15 +39,16 @@
         <% end %>
 
 
-        <%= label_tag "revision_photos[photo][]", "Upload Photo for #{rule.code}" %>
         <%= file_field_tag "revision_photos[photo][]", name: "revision_photos[photo][]", id: "photo_#{index}", disabled: !is_checked, data: { rules_form_target: "photo" } %>
         <%= text_area_tag "revision[comment][]", nil, data: { rules_form_target: "comment" } %>
         <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
       </div>
     <% end %>
+  <% end %>
 
-    <div>
-      <%= form.submit %>
+
+  <div>
+      <%= form.submit "Guardar inspección" %>
     </div>
   <% end %>
 

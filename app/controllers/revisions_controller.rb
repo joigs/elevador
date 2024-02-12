@@ -33,7 +33,7 @@ class RevisionsController < ApplicationController
     #acceder a los objetos asociados a la revision
     @item = @revision.item
     @group = @revision.group
-    @rules = @group.rules.ordered_by_code
+    @rules = @group.rules.includes(:ruletype).ordered_by_code
 
     @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
 

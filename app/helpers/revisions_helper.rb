@@ -9,10 +9,10 @@ module RevisionsHelper
       if last_revision.points.include?(rule.point)
         "#{rule.code} #{rule.point} Grave"
       else
-        "#{rule.code} #{rule.point} #{display_rule_level_short(rule)}"
+        "#{rule.code} #{display_rule_ins_type(rule)} #{rule.point} #{display_rule_level_short(rule)}"
       end
     else
-      "#{rule.code} #{rule.point} #{display_rule_level_short(rule)}"
+      "#{rule.code} #{display_rule_ins_type(rule)} #{rule.point} #{display_rule_level_short(rule)}"
     end
   end
 
