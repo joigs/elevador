@@ -9,7 +9,6 @@ class Ruletype < ApplicationRecord
 
   has_many :rules, dependent: :destroy
 
-
   scope :ordered_by_gygatype_number, -> {
     select("ruletypes.*")
       .order(Arel.sql("
@@ -18,7 +17,6 @@ class Ruletype < ApplicationRecord
       CASE WHEN split_part(gygatype_number, '.', 3) = '' THEN 0 ELSE CAST(split_part(gygatype_number, '.', 3) AS INTEGER) END
     "))
   }
-
 
   private
 
