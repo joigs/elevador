@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_12_151713) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_12_154639) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -159,7 +159,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_12_151713) do
     t.string "levels", default: [], array: true
     t.boolean "fail", default: [], array: true
     t.string "comment", default: [], array: true
-    t.integer "number", null: false
+    t.integer "number"
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_revisions_on_item_id"

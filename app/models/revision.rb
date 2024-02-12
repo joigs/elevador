@@ -1,7 +1,6 @@
 class Revision < ApplicationRecord
 
 
-  attribute :number, :integer, default: -> { calculate_new_number }
 
 
   belongs_to :item
