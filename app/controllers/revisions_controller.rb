@@ -68,36 +68,37 @@ class RevisionsController < ApplicationController
 
     counter = 0
 
-    # Revisar la información de cada campo donde hubo una falla
-    params[:revision][:fail].each do |fail_status|
-      if fail_status == "1"  # Verefica si ocurre la falla
-        # pasa la informacion de los campos a los arreglos
-        codes << params[:revision][:codes][counter]
-        points << params[:revision][:points][counter]
-        levels << params[:revision][:levels][counter]
-        comment << params[:revision][:comment][counter]
-        fail_statuses << true
-        counter = counter + 1
+    if params[:revision].present?
+      # Revisar la información de cada campo donde hubo una falla
+      params[:revision][:fail].each do |fail_status|
+        if fail_status == "1"  # Verefica si ocurre la falla
+          # pasa la informacion de los campos a los arreglos
+          codes << params[:revision][:codes][counter]
+          points << params[:revision][:points][counter]
+          levels << params[:revision][:levels][counter]
+          comment << params[:revision][:comment][counter]
+          fail_statuses << true
+          counter = counter + 1
+        end
       end
-    end
-    # Actualiza la información de los objetos
-    @revision.codes = codes
-    @revision.points = points
-    @revision.levels = levels
-    @revision.comment = comment
-    @revision.fail = fail_statuses
+      # Actualiza la información de los objetos
+      @revision.codes = codes
+      @revision.points = points
+      @revision.levels = levels
+      @revision.comment = comment
+      @revision.fail = fail_statuses
 
 
-    # Maneja la subida de fotos
-    if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
-      params[:revision_photos][:photo].each_with_index do |photo, index|
-        if photo.present?
-          code = params[:revision_photos][:code][index]
-          @revision.revision_photos.create(photo: photo, code: code)
+      # Maneja la subida de fotos
+      if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
+        params[:revision_photos][:photo].each_with_index do |photo, index|
+          if photo.present?
+            code = params[:revision_photos][:code][index]
+            @revision.revision_photos.create(photo: photo, code: code)
+          end
         end
       end
     end
-
 
     if @revision.save
       redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
