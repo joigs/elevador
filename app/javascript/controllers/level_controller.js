@@ -1,5 +1,9 @@
 // app/javascript/controllers/level_controller.js
 import { Controller } from "@hotwired/stimulus"
+
+
+//controlador para manejar el caso de que el inspector asigna el nivel de importancia
+
 export default class extends Controller {
     static targets = ["field", "label"]
 
