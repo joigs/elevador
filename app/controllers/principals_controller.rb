@@ -50,13 +50,12 @@ class PrincipalsController < ApplicationController
 
   end
 
-  #metodo para obtener las empresas que pertenecen a la mandante
-  #def minors
-  #  @minors = Principal.find(params[:id]).minors
-  #  respond_to do |format|
-  #    format.json { render json: @minors }
-  #  end
-  #end
+
+  def items
+    principal = Principal.find(params[:id])
+    items = principal.items.select(:id, :identificador).order(:identificador)
+    render json: items
+  end
 
 
 

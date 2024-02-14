@@ -13,31 +13,24 @@
     <% end %>
 
     <%= form.fields_for :item do |item_form| %>
-
-      <div data-controller="form-element">
+      <div data-controller="principal-select">
         <div>
-          <%= item_form.label :"Clasificación del ascensor" %>
-          <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }) if Current.user&.admin %>
+          <%= item_form.label :group_id, "Clasificación del ascensor" %>
+          <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }), {}, { data: { principal_select_target: "principal" } } if Current.user&.admin %>
         </div>
 
         <div>
-          <%= item_form.label :"Empresa mandante" %>
-          <%= item_form.collection_select :principal_id, Principal.all, :id, :name, prompt: 'Selecciona una mandante' %>
+          <%= item_form.label :principal_id, "Empresa mandante" %>
+          <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una mandante' }, { data: { principal_select_target: "principal", action: "change->principal-select#updateItems" } } %>
         </div>
 
         <div>
-          <%= item_form.label :Identificador %>
-          <%= item_form.text_field :identificador, list: "identificador-options" %>
-          <datalist id="identificador-options">
-            <% # Assuming @identificadores is an array of unique identifiers available for selection %>
-            <% @items.each do |item| %>
-              <option value="<%= item.identificador %>">
-            <% end %>
-          </datalist>
+          <%= item_form.label :identificador, "Identificador del item" %>
+          <%= item_form.select :identificador, [], { include_blank: 'Seleccione un identificador' }, { data: { principal_select_target: "item" }, id: 'item_identificador_select' } %>
         </div>
       </div>
-
     <% end %>
+
 
     <div>
       <%= form.label :"Lugar de inspección", style: "display: block" %>

@@ -26,9 +26,6 @@ Rails.application.routes.draw do
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
   resources :items, path: '/items'
   resources :principals, path: '/principals' do
-    get :minors, on: :member
-  end
-  resources :minors, path: '/minors' do
     get :items, on: :member
   end
   resources :revisions, path: '/revisions'

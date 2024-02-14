@@ -1,30 +1,37 @@
+/// app/javascript/controllers/form_select_update.js
+
 
 //controlador que se encarga de actualizar los select dentro del form ade inspeccion.
-//Actualmente sin uso, el plan es usarlo para que al seleccionar un principal se actualicen los items correspondientes.
+
+
 
 document.addEventListener('turbo:load', function() {
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('change', function(event) {
+            // Target the principal selection field specifically
             const principalSelect = event.target.closest('select[name="inspection[item_attributes][principal_id]"]');
-            const minorSelect = document.querySelector('select[name="inspection[item_attributes][minor_id]"]');
-            const itemSelect = document.querySelector('select[name="inspection[item_attributes][item_id]"]');
             if (principalSelect) {
-                fetch(`/principals/${principalSelect.value}/minors.json`)
+                // Define the item selector based on your form's structure
+                const itemSelect = document.querySelector('select[name="inspection[item_attributes][identificador]"]');
+
+                // Adjust the fetch URL to match your routes and controller action
+                fetch(`/principals/${principalSelect.value}/items`)
                     .then(response => response.json())
                     .then(data => {
-                        minorSelect.innerHTML = '';
-                        data.forEach(minor => {
-                            const option = document.createElement('option');
-                            option.value = minor.id;
-                            option.text = minor.name;
-                            minorSelect.appendChild(option);
-                        });
-                    });
-            }
+                        // Clear existing item options first
+                        itemSelect.innerHTML = '<option value="">Select an item...</option>'; // Add a default "select" option
 
+                        // Populate item select with options based on fetched data
+                        data.forEach(item => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = item.identificador; // Set option value to item.identificador
+                            optionElement.textContent = item.identificador; // Set option display text to item.identificador
+                            itemSelect.appendChild(optionElement);
+                        });
+                    })
+                    .catch(error => console.error('Failed to fetch items:', error)); // Handle any errors
+            }
         });
-    } else {
-        console.log('form is null');
     }
 });
