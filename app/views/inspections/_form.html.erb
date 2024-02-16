@@ -13,22 +13,20 @@
     <% end %>
 
     <%= form.fields_for :item do |item_form| %>
-      <div data-controller="principal-select">
         <div>
           <%= item_form.label :group_id, "Clasificación del ascensor" %>
           <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }), {}, { data: { principal_select_target: "principal" } } if Current.user&.admin %>
         </div>
 
-        <div>
-          <%= item_form.label :principal_id, "Empresa mandante" %>
-          <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una mandante' }, { data: { principal_select_target: "principal", action: "change->principal-select#updateItems" } } %>
-        </div>
+      <div data-controller="principal-select">
+        <!-- Principal Select -->
+        <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una mandante' }, { data: { principal_select_target: "principal", action: "change->principal-select#updateItems" } } %>
 
-        <div>
-          <%= item_form.label :identificador, "Identificador del item" %>
-          <%= item_form.select :identificador, [], { include_blank: 'Seleccione un identificador' }, { data: { principal_select_target: "item" }, id: 'item_identificador_select' } %>
-        </div>
+        <!-- Item Select -->
+        <%= item_form.select :identificador, [], { include_blank: 'Seleccione un identificador' }, { id: 'item_identificador_select', data: { principal_select_target: "item" } } %>
       </div>
+
+
     <% end %>
 
 
