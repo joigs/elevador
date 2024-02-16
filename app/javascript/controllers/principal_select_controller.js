@@ -10,16 +10,11 @@ export default class extends Controller {
 
 
     connect() {
-        console.log("Principal Select Controller connected.");
-        console.log("Identificador List Target:", this.hasIdentificadorListTarget);
     }
 
     updateItems(event) {
-        console.log("updateItems called");
         const principalId = this.principalTarget.value;
-        console.log("Principal ID:", principalId);
         const identificadorList = this.identificadorListTarget;
-        console.log("Identificador List Target:", identificadorList);
 
         fetch(`/principals/${principalId}/items`)
             .then(response => response.json())

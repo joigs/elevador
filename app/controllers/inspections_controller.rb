@@ -10,7 +10,7 @@ class InspectionsController < ApplicationController
   end
   def new
     @inspection = Inspection.new
-    @inspection.build_item  # build an item for the inspection
+    @inspection.build_item
     @items = Item.all
   end
 
@@ -19,10 +19,26 @@ class InspectionsController < ApplicationController
       @inspection = Inspection.new(inspection_params.except(:item_attributes))
 
       item_params = inspection_params[:item_attributes]
-      @item = Item.find_or_initialize_by(identificador: item_params[:identificador])
+
+      if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
+        @inspection.errors.add(:base, 'Ingrese una empresa')
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+
+      @principal = Principal.find(item_params[:principal_id])
+
+      @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
 
       @item.assign_attributes(item_params)
       is_new_item = @item.new_record?
+
+      if @item.new_record? && Item.exists?(identificador: item_params[:identificador])
+        flash.now[:alert] = 'Activo pertenece a otra empresa'
+        render :new, status: :unprocessable_entity
+        return
+      end
 
       @item.save!
       @inspection.item = @item
@@ -54,29 +70,37 @@ class InspectionsController < ApplicationController
       item_params = inspection_params[:item_attributes]
       current_item = @inspection.item
 
+      if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
+        @inspection.errors.add(:base, 'Ingrese una empresa')
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+
+      @principal = Principal.find(item_params[:principal_id])
+
       if item_params[:identificador] != current_item.identificador
-        # Find or initialize a new item with the new identificador
-        new_item = Item.find_or_initialize_by(identificador: item_params[:identificador])
+        new_item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
         is_new_item = new_item.new_record?
 
-        # Assign attributes and save the new item
+        if new_item.new_record? && Item.exists?(identificador: item_params[:identificador])
+          flash.now[:alert] =  'Activo pertenece a otra empresa'
+          render :edit, status: :unprocessable_entity
+          return
+        end
+
         new_item.assign_attributes(item_params)
         new_item.save!
 
-        # Create Detail if it's a new item
         Detail.create!(item: new_item) if is_new_item
-
-        # Update the inspection's item to the new item
         @inspection.item = new_item
       end
 
-      # Proceed with updating the inspection and its associations
       if @inspection.update(inspection_params.except(:item_attributes))
-        # Update or create associated Report and Revision
-        @report = Report.find_by(inspection: @inspection)
+        @report = Report.find_or_initialize_by(inspection: @inspection)
         @report.update(item: @inspection.item)
 
-        @revision = Revision.find_by(inspection: @inspection)
+        @revision = Revision.find_or_initialize_by(inspection: @inspection)
         @revision.update(item: @inspection.item, group: @inspection.item.group)
 
         redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
@@ -88,6 +112,7 @@ class InspectionsController < ApplicationController
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
     render :edit, status: :unprocessable_entity
   end
+
 
 
   def destroy

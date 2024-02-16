@@ -1,5 +1,5 @@
 <% if Current.user.admin? %>
-  <%= form_with(model: inspection, html: { autocomplete: "off" }) do |form| %>
+  <%= form_with(model: inspection, local: true, html: { autocomplete: "off" }) do |form| %>
     <% if inspection.errors.any? %>
       <div style="color: red">
         <h2><%= pluralize(inspection.errors.count, "error") %> No se pudo guardar esta inspección:</h2>
@@ -12,8 +12,8 @@
       </div>
     <% end %>
 
-    <%= form.fields_for :item do |item_form| %>
-        <div>
+    <%= form.fields_for :item, inspection.item || inspection.build_item do |item_form| %>
+      <div>
           <%= item_form.label :group_id, "Clasificación del ascensor" %>
           <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }), {}, { data: { principal_select_target: "principal" } } if Current.user&.admin %>
         </div>
