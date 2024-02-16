@@ -51,7 +51,7 @@ class InspectionsController < ApplicationController
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
 
-      redirect_to inspection_path(@inspection), notice: 'Nueva inspección creada'
+      redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'
     end
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
