@@ -125,9 +125,13 @@ class InspectionsController < ApplicationController
 
   def download_document
     inspection = Inspection.find(params[:id])
+    inspection.update(inf_date: Time.zone.now.to_date)
+    inspection_id = inspection.id
     principal_id = inspection.item.principal_id
     revision_id = Revision.find_by(inspection_id: inspection.id).id
-    new_doc_path = DocumentGenerator.generate_document(principal_id, revision_id)
+    item_id = inspection.item_id
+    admin_id = Current.user.id
+    new_doc_path = DocumentGenerator.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
 
     send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
   rescue StandardError => e
