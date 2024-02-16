@@ -13,7 +13,12 @@ Rails.application.routes.draw do
   end
 
   resources :users, only: :show, path: '/user', param: :username
-  resources :inspections, path: '/inspections'
+  resources :inspections, path: '/inspections' do
+    member do
+      get :generate_document
+      get :download_document
+    end
+  end
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'
   resources :rules  , path: '/rules' do
     collection do

@@ -121,6 +121,22 @@ class InspectionsController < ApplicationController
     redirect_to inspections_path, notice: 'Inspección eliminada', status: :see_other
   end
 
+
+
+  def download_document
+    inspection = Inspection.find(params[:id])
+    principal_id = inspection.item.principal_id
+    revision_id = Revision.find_by(inspection_id: inspection.id).id
+    new_doc_path = DocumentGenerator.generate_document(principal_id, revision_id)
+
+    send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
+  rescue StandardError => e
+    redirect_to inspection_path(inspection), alert: "Error generating document: #{e.message}"
+  end
+
+
+
+
   private
   def inspection_params
     params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, item_attributes: [:identificador, :group_id, :principal_id])

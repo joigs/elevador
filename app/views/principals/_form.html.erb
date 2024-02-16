@@ -1,7 +1,7 @@
 <%= form_with(model: principal) do |form| %>
   <% if principal.errors.any? %>
     <div style="color: red">
-      <h2><%= pluralize(principal.errors.count, "error") %> Empresa mandante no pudo ser guardada:</h2>
+      <h2><%= pluralize(principal.errors.count, "error") %> Empresa no pudo ser guardada:</h2>
 
       <ul>
         <% principal.errors.each do |error| %>
@@ -14,6 +14,6 @@
  <%= render 'shared/company_form', form: form %>
 
   <div>
-    <%= form.submit "#{@principal.new_record? ? 'Agregar' : 'Modificar'} empresa mandante" %>
+    <%= form.submit "#{@principal.new_record? ? 'Agregar' : 'Modificar'} empresa" %>
   </div>
 <% end %>

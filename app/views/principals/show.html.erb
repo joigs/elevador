@@ -1,23 +1,22 @@
-<p style="color: green"><%= notice %></p>
 
 <%= render @principal %>
 
 <br>
 <br>
 <div>
-  <%= link_to "Modificar empresa mandante", edit_principal_path(@principal) if Current.user.admin %>
+  <%= link_to "Modificar empresa", edit_principal_path(@principal) if Current.user.admin %>
 </div>
 
 
 <div>
-  <%= link_to 'Eliminar empresa mandante', principal_path(@principal), data:
+  <%= link_to 'Eliminar empresa', principal_path(@principal), data:
     {turbo_method: :delete,
      turbo_confirm: 'Estás seguro?'} if Current.user.admin? %>
 </div>
 
 <div>
 
-  <%= link_to "Volver a empresas mandantes", principals_path %>
+  <%= link_to "Volver a empresas", principals_path %>
 </div>
 
 

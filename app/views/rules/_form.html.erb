@@ -1,6 +1,6 @@
 <%= form_with(model: @rule, local: true, url: @rule.new_record? ? (@with_same_code ? create_with_same_code_rules_path : (@with_new_code ? create_with_new_code_rules_path : rules_path)) : rule_path(@rule)) do |form| %>  <% if @rule.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@rule.errors.count, 'error') %> prohibited this rule from being saved:</h2>
+      <h2><%= pluralize(@rule.errors.count, 'error') %> Defecto no pudo ser guardado</h2>
 
       <ul>
         <% @rule.errors.full_messages.each do |message| %>
