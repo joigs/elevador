@@ -6,7 +6,7 @@ import SlimSelect from 'slim-select'
 export default class extends Controller {
   connect() {
     this.slimSelect = new SlimSelect({
-      select: this.element.querySelector('select')
+      select: this.element
     });
   }
 
@@ -15,6 +15,8 @@ export default class extends Controller {
   }
 
   update(event) {
-    this.slimSelect.setData(event.detail.options);
+    // Update the SlimSelect options with the new data
+    const options = event.detail.options;
+    this.slimSelect.setData(options);
   }
 }
