@@ -1,5 +1,5 @@
 <% if Current.user.admin? %>
-  <%= form_with(model: inspection) do |form| %>
+  <%= form_with(model: inspection, html: { autocomplete: "off" }) do |form| %>
     <% if inspection.errors.any? %>
       <div style="color: red">
         <h2><%= pluralize(inspection.errors.count, "error") %> No se pudo guardar esta inspección:</h2>
@@ -17,14 +17,20 @@
           <%= item_form.label :group_id, "Clasificación del ascensor" %>
           <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }), {}, { data: { principal_select_target: "principal" } } if Current.user&.admin %>
         </div>
-
       <div data-controller="principal-select">
-        <!-- Principal Select -->
-        <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una mandante' }, { data: { principal_select_target: "principal", action: "change->principal-select#updateItems" } } %>
+        <div>
+          <%= item_form.label :empresa, "Empresa" %>
+          <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una mandante' }, { data: { principal_select_target: "principal", action: "change->principal-select#updateItems" } } %>
+        </div>
+        <div>
+          <label for="inspection_item_attributes_identificador">Identificador</label>
+          <input list="identificador-options" type="text" name="inspection[item_attributes][identificador]" id="inspection_item_attributes_identificador">
+          <datalist id="identificador-options" data-principal-select-target="identificadorList">
+          </datalist>
+        </div>
 
-        <!-- Item Select -->
-        <%= item_form.select :identificador, [], { include_blank: 'Seleccione un identificador' }, { id: 'item_identificador_select', data: { principal_select_target: "item" } } %>
       </div>
+
 
 
     <% end %>

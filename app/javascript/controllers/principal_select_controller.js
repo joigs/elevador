@@ -3,21 +3,37 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["principal", "item"]
+
+
+
+    static targets = ["principal", "identificadorList"]
+
+
+    connect() {
+        console.log("Principal Select Controller connected.");
+        console.log("Identificador List Target:", this.hasIdentificadorListTarget);
+    }
 
     updateItems(event) {
+        console.log("updateItems called");
         const principalId = this.principalTarget.value;
-        const itemSelect = this.itemTarget;
+        console.log("Principal ID:", principalId);
+        const identificadorList = this.identificadorListTarget;
+        console.log("Identificador List Target:", identificadorList);
+
         fetch(`/principals/${principalId}/items`)
             .then(response => response.json())
             .then(data => {
-                itemSelect.innerHTML = '<option value="">Seleccione un identificador</option>';
+                // Clear existing options
+                identificadorList.innerHTML = '';
+
+                // Add new options based on fetched data
                 data.forEach((item) => {
-                    const option = new Option(item.identificador, item.identificador);
-                    itemSelect.add(option);
+                    const option = document.createElement('option');
+                    option.value = item.identificador;
+                    identificadorList.appendChild(option);
                 });
-                // Trigger SlimSelect update
-                this.dispatch('slim-select:update', { target: itemSelect, detail: { options: data.map(item => ({ text: item.identificador, value: item.identificador })) } });
+                // Note: No need to trigger a SlimSelect update here as we're not using SlimSelect for a datalist
             })
             .catch(error => console.error('Error fetching items:', error));
     }

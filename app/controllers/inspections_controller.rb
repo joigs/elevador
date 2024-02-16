@@ -16,7 +16,6 @@ class InspectionsController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-      @items = Item.all
       @inspection = Inspection.new(inspection_params.except(:item_attributes))
 
       item_params = inspection_params[:item_attributes]
