@@ -14,14 +14,22 @@
 </div>
 
 <div>
+  <%= form.label :"Email de empresa:", style: "display: block" %>
+  <%= form.text_field :email %>
+</div>
+
+
+
+<div>
   <%= form.label :"Nombre del contacto:", style: "display: block" %>
   <%= form.text_field :contact_name %>
 </div>
 
 <div>
-  <%= form.label :"Email de contacto:", style: "display: block" %>
-  <%= form.text_field :email %>
+  <%= form.label :"Email del contacto:", style: "display: block" %>
+  <%= form.text_field :contact_email %>
 </div>
+
 
 <div>
   <%= form.label :"Teléfono de contacto:", style: "display: block" %>
