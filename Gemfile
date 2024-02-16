@@ -81,5 +81,6 @@ gem "requestjs-rails", "~> 0.0.11"
 
 gem "tailwindcss-rails", "~> 2.3"
 
-
+#manipulacion de docx
 gem 'docx_replace'
+gem 'docx'

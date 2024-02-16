@@ -7,6 +7,7 @@ class Revision < ApplicationRecord
   belongs_to :group
   belongs_to :inspection
   has_many :revision_photos, dependent: :destroy
+  has_many :carpetas
   accepts_nested_attributes_for :revision_photos, allow_destroy: true
 
   def only_owner?
