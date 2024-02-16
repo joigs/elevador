@@ -12,7 +12,13 @@
   <% end %>
 
   <div>
-    <%= form.label :Certificado_MINVU, style: "display: block" %>
+    <%= form.label :"N° de instalación", style: "display: block" %>
+    <%= form.text_field :instalation_number %>
+  </div>
+
+
+  <div>
+    <%= form.label :"Certificado MINVU", style: "display: block" %>
     <%= form.text_field :certificado_minvu %>
   </div>
 
