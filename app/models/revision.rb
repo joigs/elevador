@@ -7,7 +7,9 @@ class Revision < ApplicationRecord
   belongs_to :group
   belongs_to :inspection
   has_many :revision_photos, dependent: :destroy
+  has_many :bags, dependent: :destroy
   accepts_nested_attributes_for :revision_photos, allow_destroy: true
+  accepts_nested_attributes_for :bags, allow_destroy: true
 
   def only_owner?
     inspection = Inspection.find_by(id: self.inspection_id)
@@ -23,10 +25,5 @@ class Revision < ApplicationRecord
     newest_record ? newest_record.number.to_i + 1 : 1
   end
 
-  #valida que no se puedan agendar revisiones los fines de semana
-  def weekend_error
-    if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)
-      errors.add(:ins_date, "No se hacen inspecciones los fines de semana")
-    end
-  end
+
 end

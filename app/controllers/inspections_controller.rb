@@ -51,6 +51,9 @@ class InspectionsController < ApplicationController
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
 
+      #Bag.create!(number: (1..11).to_a, revision_id: @revision.id)
+
+
       redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'
     end
   rescue ActiveRecord::RecordInvalid => e
@@ -102,6 +105,10 @@ class InspectionsController < ApplicationController
 
         @revision = Revision.find_or_initialize_by(inspection: @inspection)
         @revision.update(item: @inspection.item, group: @inspection.item.group)
+
+        #bag = Bag.find_or_initialize_by(revision_id: @revision.id)
+        # bag.number = (1..11).to_a
+        # bag.save!
 
         redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
       else
