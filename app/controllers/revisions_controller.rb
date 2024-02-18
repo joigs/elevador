@@ -79,6 +79,9 @@ class RevisionsController < ApplicationController
 
     counter = 0
 
+    current_section = params[:section]
+
+
     if params[:revision].present?
       # Revisar la información de cada campo donde hubo una falla
       params[:revision][:fail].each do |fail_status|
@@ -92,12 +95,71 @@ class RevisionsController < ApplicationController
           counter = counter + 1
         end
       end
-      # Actualiza la información de los objetos
-      @revision.codes = codes
-      @revision.points = points
-      @revision.levels = levels
-      @revision.comment = comment
-      @revision.fail = fail_statuses
+
+
+      control = true
+
+      codes2, points2, levels2, comment2, fail_statuses2 = [], [], [], [], []
+
+
+      current_section_num = current_section.to_i
+
+      @revision.codes.each_with_index do |code, index|
+        code_start = code.split('.').first.to_i
+        if code_start >= current_section_num and control
+            control = false
+            codes.each_with_index do |code2, index2|
+              codes2 << codes[index2]
+              points2 << points[index2]
+              levels2 << levels[index2]
+              comment2 << comment[index2]
+              fail_statuses2 << fail_statuses[index2]
+            end
+            if code_start > current_section_num
+              codes2 << code
+              points2 << @revision.points[index]
+              levels2 << @revision.levels[index]
+              comment2 << @revision.comment[index]
+              fail_statuses2 << @revision.fail[index]
+            end
+        else
+          if code_start != current_section_num
+
+          codes2 << code
+          points2 << @revision.points[index]
+          levels2 << @revision.levels[index]
+          comment2 << @revision.comment[index]
+          fail_statuses2 << @revision.fail[index]
+          end
+
+        end
+      end
+      if control
+        codes.each_with_index do |code2, index2|
+          codes2 << codes[index2]
+          points2 << points[index2]
+          levels2 << levels[index2]
+          comment2 << comment[index2]
+          fail_statuses2 << fail_statuses[index2]
+        end
+      end
+
+
+      if @revision.codes.blank?
+        @revision.codes = codes
+        @revision.points = points
+        @revision.levels = levels
+        @revision.comment = comment
+        @revision.fail = fail_statuses
+      else
+        @revision.codes = codes2
+        @revision.points = points2
+        @revision.levels = levels2
+        @revision.comment = comment2
+        @revision.fail = fail_statuses2
+      end
+
+
 
 
       # Maneja la subida de fotos
