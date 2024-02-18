@@ -18,6 +18,12 @@ class RevisionsController < ApplicationController
   end
 
   def edit
+
+    unless params[:section].present?
+      redirect_to edit_revision_path(inspection_id: params[:inspection_id], section: 1) and return
+    end
+
+
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
 
