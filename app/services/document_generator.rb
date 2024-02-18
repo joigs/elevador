@@ -74,7 +74,7 @@ class DocumentGenerator
     doc.replace('{{detail_sala_maquinas}}', detail.sala_maquinas)
 
 
-
+    doc.replace('{{item_group}}', item.group.number)
 
 
 
