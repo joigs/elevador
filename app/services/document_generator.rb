@@ -148,8 +148,44 @@ class DocumentGenerator
     end
 
 
+    carpetas = [
+      '0.1.1',
+      '0.1.2',
+      '0.1.3',
+      '0.1.4',
+      '0.1.5',
+      '0.1.6',
+      '0.1.7',
+      '0.1.8',
+      '0.1.9',
+      '0.1.10',
+      '0.1.11'
+    ]
 
-    doc.replace('{{item_group2}}', "F#{item.group.number}-PO-ASC-01 #{item.group.name}")
+    carpetas.each do |carpeta|
+      indice = revision.codes.find_index(carpeta)
+      if indice
+        doc.replace('{{carpeta_si}}', '')
+        doc.replace('{{carpeta_no}}', 'X')
+        if revision.levels[indice] == 'L'
+          doc.replace('{{carpeta_g}}', '')
+          doc.replace('{{carpeta_l}}', 'X')
+        else
+          doc.replace('{{carpeta_g}}', 'X')
+          doc.replace('{{carpeta_l}}', '')
+        end
+        doc.replace('{{carpeta_comentario}}', revision.comment[indice])
+      else
+        doc.replace('{{carpeta_si}}', 'X')
+        doc.replace('{{carpeta_no}}', '')
+        doc.replace('{{carpeta_g}}', '')
+        doc.replace('{{carpeta_l}}', '')
+        doc.replace('{{carpeta_comentario}}', '')
+      end
+    end
+
+
+            doc.replace('{{item_group2}}', "F#{item.group.number}-PO-ASC-01 #{item.group.name}")
 
     doc.replace('{{inspection_place}}', inspection.place)
     if inspection.result == 'Aprobado'
@@ -161,7 +197,7 @@ class DocumentGenerator
 
     cumple, no_cumple = [], []
 
-    (0..10).each do |index|
+    (0..11).each do |index|
       if revision.codes.any? { |code| code.match?(/^#{index}\./) }
         no_cumple <<  index
       else
@@ -170,6 +206,7 @@ class DocumentGenerator
     end
 
     aux = [
+      '• Carpeta cero.                                                                                                                                                             ',
       '• Caja de elevadores.                                                                                                                                                             ',
       '• Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).                                                                                        ',
       '• Puerta de piso.                                                                                                                                                                 ',

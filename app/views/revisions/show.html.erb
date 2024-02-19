@@ -9,7 +9,7 @@
         <%= @revision.codes[index] %>
         <%= point %>
         <%= @revision.levels[index] %>
-        <%= @revision.comment[index] %>
+        <%= ".        Razón: #{@revision.comment[index]}" %>
       </p>
     <% end %>
 
@@ -27,7 +27,7 @@
 </div>
 
 <div>
-  <%= link_to 'Volver a la inspección', edit_revision_path(inspection_id: @inspection.id, section: 1 ) %>
+  <%= link_to 'Volver a la inspección', edit_revision_path(inspection_id: @inspection.id, section: 0 ) %>
 </div>
 
 <br>

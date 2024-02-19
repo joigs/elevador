@@ -1,4 +1,3 @@
-User
 class RevisionsController < ApplicationController
 
 

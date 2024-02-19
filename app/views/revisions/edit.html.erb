@@ -37,10 +37,9 @@
         <%= hidden_field_tag "revision[points][]", rule.point, data: { rules_form_target: "point" } %>
 
         <% if rule.level.include?('G') && rule.level.include?('L') %>
-          <!-- Stimulus controller to toggle between G and L -->
           <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
             <%= button_tag type: 'button', class: 'toggle-button' do %>
-              <span data-level-target="label">G</span> <!-- Initially displayed value -->
+              <span data-level-target="label">G</span>
             <% end %>
             <%= hidden_field_tag "revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
           </div>
@@ -50,7 +49,8 @@
 
 
         <%= file_field_tag "revision_photos[photo][]", name: "revision_photos[photo][]", id: "photo_#{index}", disabled: !is_checked, data: { rules_form_target: "photo" } %>
-        <%= text_area_tag "revision[comment][]", nil, data: { rules_form_target: "comment" } %>
+        <% comment_index = @revision.codes.index(rule.code) %>
+        <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], data: { rules_form_target: "comment" } %>
         <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
       </div>
     <% end %>
