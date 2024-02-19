@@ -16,7 +16,7 @@
     <% inspection = last_inspection(item) %>
     <% if inspection %>
       <p>Última inspección: <%= format_date(inspection.ins_date) %></p>
-      <p>Estado: <%= inspection.result || "En revisión" %></p>
+      <p>Estado: <%= inspection.result %></p>
       <% else %>
       <p>Aun no hay inspecciones.</p>
     <% end %>

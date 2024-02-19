@@ -19,7 +19,7 @@
 </div>
 
 <div>
-  <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: 'btn btn-primary' %>
+  <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: 'btn btn-primary' if @inspection.state=="Cerrado" %>
 </div>
 
 

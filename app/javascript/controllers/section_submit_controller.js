@@ -19,7 +19,7 @@ export default class extends Controller {
                     // Navigate to the new section after successful submission
                     window.location.href = url;
                 } else {
-                    alert('There was an error saving your changes.');
+                    alert('Error al guardar los cambios.');
                 }
             });
     }

@@ -142,7 +142,22 @@ class InspectionsController < ApplicationController
 
     send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
   rescue StandardError => e
-    redirect_to inspection_path(inspection), alert: "Error generating document: #{e.message}"
+    redirect_to inspection_path(inspection), alert: "Error al generar el documento: #{e.message}"
+  end
+
+  def close_inspection
+    @inspection = Inspection.find(params[:id])
+    @revision = Revision.find(params[:revision_id])
+    if @inspection.update(state: "Cerrado")
+      if @revision.levels.include?("G")
+        @inspection.update(result: "Rechazado")
+      else
+        @inspection.update(validation: "Aprobado")
+      end
+      redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
+    else
+      redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+    end
   end
 
 
