@@ -15,11 +15,11 @@
 </p>
 
 <div>
-  <%= link_to 'Realizar inspección', edit_revision_path(inspection_id: @inspection.id) %>
+  <%= link_to 'Realizar inspección', edit_revision_path(inspection_id: @inspection.id, section: 1 ) %>
 </div>
 
 <div>
-  <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: 'btn btn-primary' %>
+  <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: 'btn btn-primary' if @inspection.state=="Cerrado" %>
 </div>
 
 

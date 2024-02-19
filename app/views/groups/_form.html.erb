@@ -17,6 +17,11 @@
   </div>
 
   <div>
+    <%= form.label :"Nombre de la clasificación:", style: "display: block" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
     <%= form.submit "Crear clasificación"%>
   </div>
 <% end %>

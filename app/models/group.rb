@@ -1,7 +1,7 @@
 #La clasificación de los ascensores, de esto depende que defectos se evaluan
 class Group < ApplicationRecord
   validates :number, presence: true, uniqueness: true
-
+  validates :name, presence: true, uniqueness: true
 
   attribute :number, :integer, default: -> { calculate_new_number }
 

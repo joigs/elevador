@@ -51,6 +51,9 @@ class InspectionsController < ApplicationController
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
 
+      #Bag.create!(number: (1..11).to_a, revision_id: @revision.id)
+
+
       redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'
     end
   rescue ActiveRecord::RecordInvalid => e
@@ -103,6 +106,10 @@ class InspectionsController < ApplicationController
         @revision = Revision.find_or_initialize_by(inspection: @inspection)
         @revision.update(item: @inspection.item, group: @inspection.item.group)
 
+        #bag = Bag.find_or_initialize_by(revision_id: @revision.id)
+        # bag.number = (1..11).to_a
+        # bag.save!
+
         redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
       else
         render :edit, status: :unprocessable_entity
@@ -135,7 +142,23 @@ class InspectionsController < ApplicationController
 
     send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
   rescue StandardError => e
-    redirect_to inspection_path(inspection), alert: "Error generating document: #{e.message}"
+    redirect_to inspection_path(inspection), alert: "Error al generar el documento: #{e.message}"
+  end
+
+  def close_inspection
+    @inspection = Inspection.find(params[:id])
+    @revision = Revision.find(params[:revision_id])
+    if @revision.levels.include?("G")
+      @inspection.update(result: "Rechazado")
+    else
+      @inspection.update(result: "Aprobado")
+    end
+    if @inspection.update(state: "Cerrado")
+
+      redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
+    else
+      redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+    end
   end
 
 
