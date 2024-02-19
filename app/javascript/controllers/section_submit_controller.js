@@ -16,7 +16,6 @@ export default class extends Controller {
         })
             .then(response => {
                 if (response.ok) {
-                    // Navigate to the new section after successful submission
                     window.location.href = url;
                 } else {
                     alert('Error al guardar los cambios.');

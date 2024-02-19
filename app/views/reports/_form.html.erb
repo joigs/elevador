@@ -23,6 +23,19 @@
   </div>
 
   <div>
+    <%= form.label :cert_ant, "Certificacion anterior", style: "display: block" %>
+    <div>
+      <%= form.radio_button :cert_ant, 'Si' %>
+      <%= form.label :cert_ant, 'Si', value: 'Si' %>
+    </div>
+    <div>
+      <%= form.radio_button :cert_ant, 'No' %>
+      <%= form.label :cert_ant, 'No', value: 'No' %>
+    </div>
+  </div>
+
+
+  <div>
     <%= form.label :Fecha, style: "display: block" %>
     <%= form.date_field :fecha %>
   </div>

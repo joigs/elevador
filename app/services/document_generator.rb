@@ -27,6 +27,7 @@ class DocumentGenerator
     doc.replace('{{principal_contact_email}}', principal.contact_email)
     doc.replace('{{inspection_place}}', inspection.place)
 
+
     doc.replace('{{inspection_place}}', inspection.place)
     doc.replace('{{ins_date}}', inspection.ins_date.strftime('%d/%m/%Y'))
     doc.replace('{{inspector}}', inspection.user.real_name)
@@ -35,8 +36,22 @@ class DocumentGenerator
     validation_s = inspection.validation.to_s
     validation_word = validation_s == '1' ? 'año' : 'años'
     doc.replace('{{inspection_validation}}',"#{validation_s} #{validation_word}")
+
+    if report.cert_ant == 'Si'
+      doc.replace('{{cert_si}}', 'X')
+      doc.replace('{{cert_no}}', '')
+
+    elsif report.cert_ant == 'No'
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+    else
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', '')
+    end
+
     doc.replace('{{instalation_number}}', report.instalation_number)
     doc.replace('{{certificado_minvu}}', report.certificado_minvu)
+
     doc.replace('{{report_fecha}}', inspection.inf_date.strftime('%d/%m/%Y'))
     doc.replace('{{empresa_anterior}}', report.empresa_anterior)
     doc.replace('{{ea_rol}}', report.ea_rol)
@@ -57,7 +72,22 @@ class DocumentGenerator
     doc.replace('{{detail_detalle}}', detail.detalle)
     doc.replace('{{detail_marca}}', detail.marca)
     doc.replace('{{detail_modelo}}', detail.modelo)
-    doc.replace('{{detail_n_serie}}', detail.n_serie)
+    doc.replace('{{detail_n_serie}}                                                                                                                                           ', detail.n_serie)
+
+    if group.number == 1
+      doc.replace('{{grupo1}}', 'X')
+      doc.replace('{{grupo2}}', '')
+      doc.replace('{{grupo3}}', '')
+    elsif group.number == 2
+      doc.replace('{{grupo1}}', '')
+      doc.replace('{{grupo2}}', 'X')
+      doc.replace('{{grupo3}}', '')
+
+    elsif group.number == 3
+      doc.replace('{{grupo1}}', '')
+      doc.replace('{{grupo2}}', '')
+      doc.replace('{{grupo3}}', 'X')
+    end
     doc.replace('{{detail_mm_marca}}', detail.mm_marca)
     doc.replace('{{detail_mm_n_serie}}', detail.mm_n_serie)
     doc.replace('{{detail_potencia}}', detail.potencia)
@@ -164,9 +194,17 @@ class DocumentGenerator
 
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
-        errors_graves << revision.points[index]
+        if revision.comment[index].blank?
+          errors_graves << revision.points[index]
+        else
+          errors_graves << revision.comment[index]
+        end
       elsif level.include?("L")
-        errors_leves << revision.points[index]
+        if revision.comment[index].blank?
+          errors_leves << revision.points[index]
+        else
+          errors_leves << revision.comment[index]
+        end
       end
     end
 
@@ -207,9 +245,6 @@ class DocumentGenerator
       doc.replace('{{cumple/parcial/no_cumple}}', "no cumple")
       doc.replace('{{esta/no_esta}}', "no está")
       doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Faltas Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
-      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-      puts("Errors graves: #{errors_graves}")
-      puts("Errors leves: #{errors_leves}")
       if !errors_leves.empty?
         doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{mapped_month}.")
       else
