@@ -30,7 +30,7 @@ class Inspection < ApplicationRecord
 
   #sirve para revisar si el usuario es el inspector encargado de la inspeccion, o si es admin
   def owner?
-    user_id == Current.user&.id or Current.user&.admin?
+    user_id == Current.user&.id
   end
 
 

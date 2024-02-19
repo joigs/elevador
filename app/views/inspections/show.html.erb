@@ -15,7 +15,7 @@
 </p>
 
 <div>
-  <%= link_to 'Realizar inspección', edit_detail_path(@detail) %>
+  <%= link_to 'Realizar inspección', edit_detail_path(@detail) if @inspection.owner? %>
 </div>
 
 <div>

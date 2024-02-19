@@ -9,4 +9,14 @@ class Item < ApplicationRecord
   has_many :inspections, dependent: :destroy
   has_many :reports, dependent: :destroy
   has_many :revisions, dependent: :destroy
+
+  def inspector?
+    self.inspections.each do |inspection|
+      if inspection.user_id == Current.user&.id
+        return true
+      end
+    end
+    return false
+  end
+
 end

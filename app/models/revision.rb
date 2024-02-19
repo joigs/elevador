@@ -13,7 +13,7 @@ class Revision < ApplicationRecord
 
   def only_owner?
     inspection = Inspection.find_by(id: self.inspection_id)
-    inspection.user_id == Current.user&.id or Current.user&.admin?
+    inspection.user_id == Current.user&.id
   end
 
   private

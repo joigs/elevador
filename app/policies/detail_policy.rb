@@ -1,5 +1,6 @@
 class DetailPolicy < BasePolicy
   def method_missing(m, *args, &block)
-    Current.user.admin?
+    item = Item.find(record.item_id)
+    item.inspector?
   end
 end
