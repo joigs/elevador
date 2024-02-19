@@ -4,6 +4,8 @@ require 'docx_replace'
 
 class DocumentGenerator
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
+
+
     inspection = Inspection.find(inspection_id)
     principal = Principal.find(principal_id)
     revision = Revision.find(revision_id)
@@ -102,6 +104,8 @@ class DocumentGenerator
     doc.replace('{{detail_paradas}}', detail.paradas)
     doc.replace('{{detail_embarques}}', detail.embarques)
     doc.replace('{{detail_sala_maquinas}}', detail.sala_maquinas)
+
+    doc.replace('{{item_group}}', item.group.number)
 
 
 
@@ -307,5 +311,7 @@ class DocumentGenerator
 
     return output_path
   end
+
+
 end
 
