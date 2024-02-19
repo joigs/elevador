@@ -148,12 +148,13 @@ class InspectionsController < ApplicationController
   def close_inspection
     @inspection = Inspection.find(params[:id])
     @revision = Revision.find(params[:revision_id])
+    if @revision.levels.include?("G")
+      @inspection.update(result: "Rechazado")
+    else
+      @inspection.update(result: "Aprobado")
+    end
     if @inspection.update(state: "Cerrado")
-      if @revision.levels.include?("G")
-        @inspection.update(result: "Rechazado")
-      else
-        @inspection.update(validation: "Aprobado")
-      end
+
       redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
     else
       redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'

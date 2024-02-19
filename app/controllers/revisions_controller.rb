@@ -102,7 +102,7 @@ class RevisionsController < ApplicationController
           counter = counter + 1
         end
       end
-
+    end
 
       control = true
 
@@ -194,7 +194,6 @@ class RevisionsController < ApplicationController
       # @bag.falla = falla
       # @bag.comentario = comentario
 
-    end
 
     if @revision.save
       redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
