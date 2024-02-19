@@ -12,7 +12,7 @@
     <% end %>
 
   <div data-controller="section-submit">
-    <% (1..11).each do |number| %>
+    <% (0..11).each do |number| %>
       <%= button_tag type: 'button', data: { action: "section-submit#submitAndNavigate", section_submit_target: "button", url: edit_revision_path(id: @revision, inspection_id: @inspection.id, section: number) } do %>
         <%= number %>
       <% end %>

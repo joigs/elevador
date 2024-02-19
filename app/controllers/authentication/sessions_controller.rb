@@ -4,9 +4,17 @@ class Authentication::SessionsController < ApplicationController
 
   def new
 
+    if Current.user
+      redirect_to home_path, alert: "Ya tienes una sesion activa"
+      return
+    end
+
   end
 
   def create
+
+
+
     @user = User.find_by("username = :login", {login: params[:login]})
 
     if @user&.authenticate(params[:password])
