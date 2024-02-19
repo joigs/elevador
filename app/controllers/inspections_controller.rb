@@ -7,6 +7,7 @@ class InspectionsController < ApplicationController
   end
   def show
     inspection
+    @detail = Detail.find_by(item_id: inspection.item_id)
   end
   def new
     @inspection = Inspection.new
