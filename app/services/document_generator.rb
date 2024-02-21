@@ -19,7 +19,7 @@ class DocumentGenerator
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
-
+    doc.replace('{{XXX}}', revision.number)
     doc.replace('{{MM}}', inspection.inf_date.strftime('%m'))
     doc.replace('{{XX}}', inspection.inf_date.strftime('%Y'))
 
@@ -313,7 +313,7 @@ class DocumentGenerator
     doc.replace('{{inspector}}', "#{inspection.user.real_name}")
 
 
-    output_path = Rails.root.join('tmp', "Informe N°#{revision.number}.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{revision.number}-#{inspection.inf_date.strftime('%m')}-#{inspection.inf_date.strftime('%Y')}.docx")
     doc.commit(output_path)
 
 
@@ -325,6 +325,8 @@ class DocumentGenerator
     Omnidocx::Docx.replace_header_content(replacement_hash={ '{{inf_date}}' => inspection.inf_date.strftime('%d/%m/%Y') }, output_path, output_path)
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.inf_date.strftime('%m'), "{{year}}" => inspection.inf_date.strftime('%Y') }, output_path, output_path)
+
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => revision.number}, output_path, output_path)
 
     # Clean up temporary image files after processing
     cleanup_temporary_images(images_to_write)

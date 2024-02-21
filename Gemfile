@@ -91,3 +91,6 @@ gem 'mime-types'
 gem 'omnidocx'
 
 gem 'caracal'
+
+gem 'roo'
+gem 'activerecord-import'

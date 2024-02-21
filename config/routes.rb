@@ -27,6 +27,8 @@ Rails.application.routes.draw do
       get :new_with_same_code
       post :create_with_new_code
       post :create_with_same_code
+      get :new_import
+      post :import
     end
   end
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'

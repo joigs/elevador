@@ -24,6 +24,9 @@
   <%= link_to 'Comprobaciones', ruletypes_path %>
 </div>
 
+  <%= link_to 'Importar defectos desde excel', new_import_rules_path %>
+
+
   <%= turbo_frame_tag 'rules' do %>
 
     <%= render 'shared/search_form', form_url: rules_path %>

@@ -59,6 +59,7 @@ class RulesController < ApplicationController
   def create_with_new_code
     @rule = Rule.new(rule_params)
 
+
     respond_to do |format|
       if @rule.save
         format.html { redirect_to rules_url, notice: 'Rule was successfully created.' }
@@ -110,6 +111,17 @@ class RulesController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+
+  def new_import
+    # View for uploading an Excel file
+  end
+
+  def import
+    RulesImporter.import(params[:file].path, params[:group_id])
+    redirect_to rules_path, notice: "Se importaron las fallas con exito"
+  end
+
 
   private
 

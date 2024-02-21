@@ -1,0 +1,11 @@
+<%= form_tag import_rules_path, multipart: true do %>
+  <div>
+
+  <%= file_field_tag :file %>
+  <%= submit_tag "Import Rules" %>
+  </div>
+<br>
+  <div>
+    <%= select_tag :group_id, options_from_collection_for_select(Group.order(:name), :id, :name), prompt: 'Selecciona el grupo' %>
+  </div>
+<% end %>
