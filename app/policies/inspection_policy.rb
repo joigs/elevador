@@ -1,14 +1,14 @@
 class InspectionPolicy < BasePolicy
   def edit
-    record.owner?
+    Current.user.admin
   end
 
   def update
-    record.owner?
+    Current.user.admin
   end
 
   def destroy
-    record.owner?
+    Current.user.admin
   end
 
 end

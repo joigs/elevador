@@ -83,3 +83,15 @@ gem "tailwindcss-rails", "~> 2.3"
 
 
 gem 'docx_replace'
+
+
+gem 'mime-types'
+
+gem 'omnidocx'
+
+gem 'mini_magick'
+
+gem 'docx'
+
+gem 'rubyzip'
+gem 'nokogiri'

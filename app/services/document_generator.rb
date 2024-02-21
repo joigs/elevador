@@ -1,6 +1,9 @@
 # app/services/document_generator.rb
 
 require 'docx_replace'
+require 'omnidocx'
+require 'fileutils'
+require 'mini_magick'
 
 class DocumentGenerator
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
@@ -16,6 +19,10 @@ class DocumentGenerator
     template_path = Rails.root.join('app', 'templates', 'template.docx')
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+
+
+    doc.replace('{{MM}}', inspection.inf_date.strftime('%m'))
+    doc.replace('{{XX}}', inspection.inf_date.strftime('%Y'))
 
     doc.replace('{{principal_name}}', principal.name)
     doc.replace('{{principal_business_name}}', principal.business_name)
@@ -298,14 +305,66 @@ class DocumentGenerator
     end
 
 
-    doc.replace('{{admin}}', "        #{admin.real_name}")
-    doc.replace('{{inspector}}', "inspection.user.real_name")
+    doc.replace('{{admin}}', "        #{admin.real_name}     ")
+    doc.replace('{{inspector}}', "#{inspection.user.real_name}")
 
 
     output_path = Rails.root.join('tmp', "#{principal.name}_document.docx")
     doc.commit(output_path)
 
-    return output_path
+
+    images_to_write = prepare_images_for_document(revision_id)
+
+    final_output_path = Rails.root.join('tmp', "#{principal.name}_document_with_images.docx")
+
+    # Writing images to the document
+    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, final_output_path)
+
+    # Clean up temporary image files after processing
+    cleanup_temporary_images(images_to_write)
+
+    return final_output_path
+  end
+
+  private
+
+  def self.prepare_images_for_document(revision_id)
+    revision_photos = RevisionPhoto.where(revision_id: revision_id)
+
+    max_width_per_image = 300 # Adjust based on your actual document size and DPI
+
+    images_to_write = revision_photos.map do |revision_photo|
+      if revision_photo.photo.attached?
+        temp_path = save_temp_image(revision_photo.photo)
+        {
+          :path => temp_path,
+          :height => 300, # Adjust height as needed to maintain aspect ratio
+          :width => max_width_per_image,
+        }
+      end
+    end.compact
+    images_to_write
+  end
+
+  def self.save_temp_image(attachment)
+    # Define a temporary directory for storing images
+    temp_dir = Rails.root.join('tmp', 'images')
+    FileUtils.mkdir_p(temp_dir) unless Dir.exist?(temp_dir)
+
+    # Generate a temporary file path
+    temp_path = File.join(temp_dir, attachment.filename.to_s)
+
+    # Save the attachment to a temporary file
+    File.open(temp_path, 'wb') do |file|
+      file.write(attachment.download)
+    end
+
+    temp_path
+  end
+
+  def self.cleanup_temporary_images(images_to_write)
+    images_to_write.each do |image|
+      File.delete(image[:path]) if File.exist?(image[:path])
+    end
   end
 end
-
