@@ -34,9 +34,14 @@
   </p>
 
   <div>
-    <% if controller_name == 'inspections' && action_name == 'index' %>
+    <% if (controller_name == 'inspections' && action_name == 'index') or (controller_name == 'users' && action_name == 'show') %>
   <%= link_to 'Ver inspección', inspection_path(inspection), 'data-turbo-frame':"_top" %>
+
       <% end %>
   </div>
+  <% if (controller_name == 'inspections' && action_name == 'index') or (controller_name == 'users' && action_name == 'show') %>
+    <br>
+  <% end %>
+
 
 </div>

@@ -12,7 +12,7 @@ Rails.application.routes.draw do
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }
   end
 
-  resources :users, only: :show, path: '/user', param: :username
+  resources :users, only: :show, path: '/user', param: :username, as: 'perfil'
   resources :inspections, path: '/inspections' do
     member do
       get :generate_document

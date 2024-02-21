@@ -2,8 +2,14 @@
 <h1>Chilena de Certificaciones</h1>
 <% end %>
 
+<div>
 
 <%= link_to 'login', new_session_path unless Current.user %>
 <%= link_to 'Usuarios' , users_path if Current.user&.admin %>
 <%= link_to 'logout', session_path(Current.user.id), data: {turbo_method: :delete,
                                            turbo_confirm: 'Confirmar'} if Current.user%>
+</div>
+  <br>
+<div>
+  <%= link_to 'Mi perfil', perfil_path(Current.user.username) if Current.user%>
+</div>

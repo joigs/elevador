@@ -1,4 +1,15 @@
-<%= @user.username %>
+<h1><%= @user.username %></h1>
 
+<%= render 'shared/back_home' %>
+
+
+<%= turbo_frame_tag 'inspections' do %>
+
+
+  <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+    <%= render partial: 'inspections/inspection', collection: @inspections %>
+    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
+  <% end %>
+<% end %>
 
 

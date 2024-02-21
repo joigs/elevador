@@ -2,6 +2,11 @@
 <%= render @user %>
 
 <div>
+  <%= link_to 'inspecciones', perfil_path(@user.username) if Current.user.admin and !@user.admin%>
+</div>
+
+
+<div>
   <%= link_to "Modificar usuario", edit_user_path(@user) if Current.user.admin %>
 </div>
 
