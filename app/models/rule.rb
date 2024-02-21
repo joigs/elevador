@@ -1,4 +1,15 @@
 class Rule < ApplicationRecord
+
+  include PgSearch::Model
+
+  pg_search_scope :search_full_text,
+                  against: [:code, :point],
+                  using: {
+                    tsearch: { prefix: true }
+                  }
+
+
+
   #Permitir que esos sean arrays
   serialize :level, Array,coder: JSON
   serialize :ins_type, Array, coder: JSON

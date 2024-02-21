@@ -20,7 +20,13 @@ class Authentication::UsersController < ApplicationController
 
   def index
     if Current.user&.admin
-      @users = User.all
+
+      if params[:query_text].present?
+        @users = User.search_full_text(params[:query_text])
+      else
+        @users = User.all
+      end
+
       @pagy, @users = pagy_countless(@users, items: 10)
     else
       redirect_to home_path, alert: "No tienes permiso"

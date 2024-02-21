@@ -2,7 +2,12 @@ class PrincipalsController < ApplicationController
 
   # GET /principals or /principals.json
   def index
-    @principals = Principal.all
+
+    if params[:query_text].present?
+      @principals = Principal.search_full_text(params[:query_text])
+    else
+      @principals = Principal.all.order(name: :asc)
+    end
     @pagy, @principals = pagy_countless(@principals, items: 10)
   end
 

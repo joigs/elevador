@@ -2,8 +2,10 @@
 
 <%= render 'shared/back_home' %>
 
-
+<br>
 <%= turbo_frame_tag 'inspections' do %>
+
+  <%= render 'shared/search_form', form_url: inspections_path %>
 
 
   <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>

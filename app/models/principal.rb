@@ -1,4 +1,16 @@
 class Principal < ApplicationRecord
+
+  include PgSearch::Model
+
+  pg_search_scope :search_full_text,
+                  against: [:rut, :name, :business_name],
+                  using: {
+                    tsearch: { prefix: true }
+                  }
+
+
+
+
   validates :name, presence: true, uniqueness: true
   validates :rut, presence: true, uniqueness: true
   validates :business_name, presence: true

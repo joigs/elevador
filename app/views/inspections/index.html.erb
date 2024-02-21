@@ -11,11 +11,7 @@
 
   <%= turbo_frame_tag 'inspections' do %>
 
-    <%= form_with url: inspections_path, method: :get do |form| %>
-      <%= form.text_field :query_text, placeholder: 'busqueda',
-                          onChange: 'this.form.requestSubmit()', value: params[:query_text] %>
-
-    <% end %>
+    <%= render 'shared/search_form', form_url: inspections_path %>
 
 <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
   <%= render partial: 'inspection', collection: @inspections %>

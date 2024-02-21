@@ -1,6 +1,10 @@
 class ItemsController < ApplicationController
   def index
-    @items = Item.all.order(group_id: :asc)
+    if params[:query_text].present?
+      @items = Item.search_full_text(params[:query_text])
+    else
+      @items = Item.all.order(created_at: :desc)
+    end
     @pagy, @items = pagy_countless(@items, items: 10)
   end
 

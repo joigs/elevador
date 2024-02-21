@@ -8,6 +8,10 @@
   <%= turbo_frame_tag 'users' do %>
 
 
+    <%= render 'shared/search_form', form_url: users_path %>
+
+
+
   <%= turbo_frame_tag "users-#{@pagy.page}", class: 'users' do %>
     <%= render partial: 'user', collection: @users %>
     <%= turbo_frame_tag "users-#{@pagy.next}", class: 'users', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>

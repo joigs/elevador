@@ -26,7 +26,10 @@
 
   <%= turbo_frame_tag 'rules' do %>
 
-  <%= turbo_frame_tag "rules-#{@pagy.page}", class: 'rules' do %>
+    <%= render 'shared/search_form', form_url: rules_path %>
+
+
+    <%= turbo_frame_tag "rules-#{@pagy.page}", class: 'rules' do %>
     <% @rules.each do |rule| %>
       <%= turbo_frame_tag "rule-#{rule.id}" do %>
         <p><%= link_to "#{rule.code} #{rule.point}", rule, 'data-turbo-frame':"_top" %></p>

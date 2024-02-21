@@ -1,6 +1,16 @@
 class User < ApplicationRecord
   has_secure_password
 
+  include PgSearch::Model
+
+  pg_search_scope :search_full_text,
+                  against: [:username, :real_name, :email],
+                  using: {
+                    tsearch: { prefix: true }
+                  }
+
+
+
   #validates :email, presence: true, uniqueness: true,
   #format: { with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i, message: "Formato de email invalido" }
   validates :username, presence: true, uniqueness: true,

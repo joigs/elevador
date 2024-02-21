@@ -2,7 +2,11 @@ class RulesController < ApplicationController
   before_action :authorize!
 
   def index
-    @rules = Rule.ordered_by_code
+    if params[:query_text].present?
+      @rules = Rule.search_full_text(params[:query_text])
+    else
+      @rules = Rule.ordered_by_code
+    end
     @pagy, @rules = pagy_countless(@rules, items: 10)
   end
 

@@ -12,8 +12,10 @@
 
   <%= turbo_frame_tag 'principals' do %>
 
+    <%= render 'shared/search_form', form_url: principals_path %>
 
-  <%= turbo_frame_tag "principals-#{@pagy.page}", class: 'principals' do %>
+
+    <%= turbo_frame_tag "principals-#{@pagy.page}", class: 'principals' do %>
     <%= render partial: 'principal', collection: @principals %>
     <%= turbo_frame_tag "principals-#{@pagy.next}", class: 'principals', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
   <% end %>

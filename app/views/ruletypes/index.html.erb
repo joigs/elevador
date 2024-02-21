@@ -17,8 +17,10 @@
 
   <%= turbo_frame_tag 'ruletypes' do %>
 
+    <%= render 'shared/search_form', form_url: ruletypes_path %>
 
-<%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
+
+    <%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
   <%= render partial: 'ruletype', collection: @ruletypes %>
 
   <%= turbo_frame_tag "ruletypes-#{@pagy.next}", class: 'ruletypes', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>

@@ -1,0 +1,5 @@
+<%# app/views/shared/_search_form.html.erb %>
+<%= form_with url: form_url, method: :get do |form| %>
+  <%= form.text_field :query_text, placeholder: 'Search',
+                      onChange: 'this.form.requestSubmit()', value: params[:query_text] %>
+<% end %>

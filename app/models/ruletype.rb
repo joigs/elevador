@@ -1,5 +1,16 @@
 #Comprobaciones
 class Ruletype < ApplicationRecord
+
+  include PgSearch::Model
+
+  pg_search_scope :search_full_text,
+                  against: [:gygatype_number, :rtype],
+                  using: {
+                    tsearch: { prefix: true }
+                  }
+
+
+
   #el texto de la comprobacion
   validates :rtype, presence: true
   #gigatype es el texto ese que son los puntos principales, los más generales que hay en el informe
