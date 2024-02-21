@@ -11,6 +11,10 @@ class Revision < ApplicationRecord
   accepts_nested_attributes_for :revision_photos, allow_destroy: true
   accepts_nested_attributes_for :bags, allow_destroy: true
 
+
+  attribute :number, :integer, default: -> { calculate_new_number }
+
+
   def only_owner?
     inspection = Inspection.find_by(id: self.inspection_id)
     inspection.user_id == Current.user&.id
@@ -20,7 +24,7 @@ class Revision < ApplicationRecord
 
   def self.calculate_new_number
     # Get the newest record
-    newest_record = revision.order(ORDER_BY[:newest]).first
+    newest_record = Revision.order(created_at: :desc).first
 
     newest_record ? newest_record.number.to_i + 1 : 1
   end

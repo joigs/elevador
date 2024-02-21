@@ -313,13 +313,11 @@ class DocumentGenerator
     doc.replace('{{inspector}}', "#{inspection.user.real_name}")
 
 
-    output_path = Rails.root.join('tmp', "#{principal.name}_document.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{revision.number}.docx")
     doc.commit(output_path)
 
 
     images_to_write = prepare_images_for_document(revision_id)
-
-    final_output_path = Rails.root.join('tmp', "#{principal.name}_document_with_images.docx")
 
     # Writing images to the document
     Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
