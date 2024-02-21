@@ -7,4 +7,5 @@ class Principal < ApplicationRecord
             format: { with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i, message: "Formato de email invalido" }
 
   has_many :items
+  has_many :inspections
 end

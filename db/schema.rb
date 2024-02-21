@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_19_142528) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_21_134459) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -102,8 +102,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_19_142528) do
     t.string "state", default: "Abierto"
     t.bigint "user_id"
     t.integer "item_id"
+    t.bigint "principal_id", null: false
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
+    t.index ["principal_id"], name: "index_inspections_on_principal_id"
     t.index ["user_id"], name: "index_inspections_on_user_id"
   end
 
@@ -227,6 +229,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_19_142528) do
   add_foreign_key "bags", "revisions"
   add_foreign_key "details", "items"
   add_foreign_key "inspections", "items"
+  add_foreign_key "inspections", "principals"
   add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"
   add_foreign_key "items", "principals"

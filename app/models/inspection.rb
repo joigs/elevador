@@ -2,6 +2,23 @@ class Inspection < ApplicationRecord
   #para la busqueda
   include PgSearch::Model
 
+    pg_search_scope :search_full_text,
+                    against: [:number],
+                    associated_against: {
+                      item: [:identificador],
+                      principal: [:rut, :name, :business_name]
+                    },
+                    using: {
+                      tsearch: { prefix: true }
+                    }
+
+
+  #el como estan ordenados
+  ORDER_BY = {
+    newest: "created_at DESC",
+  }
+
+
   before_save :validate_inspection_date
 
   validates :ins_date, presence: { message: "Debes ingresar una fecha" }
@@ -15,18 +32,15 @@ class Inspection < ApplicationRecord
   #calcula automaticamente el numero de inspeccion
   attribute :number, :integer, default: -> { calculate_new_number }
 
-  #el como estan ordenados
-  ORDER_BY = {
-    newest: "created_at DESC",
-  }
 
   belongs_to :user
   belongs_to :item
+  belongs_to :principal
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
   has_many :revisions, dependent: :destroy
 
-
+  before_validation :set_principal_from_item
 
   #sirve para revisar si el usuario es el inspector encargado de la inspeccion, o si es admin
   def owner?
@@ -65,6 +79,10 @@ class Inspection < ApplicationRecord
       errors.add(:ins_date, "No se pueden programar inspecciones los fines de semana.")
       throw(:abort)
     end
+  end
+
+  def set_principal_from_item
+    self.principal_id = self.item.principal_id if self.item
   end
 
 end

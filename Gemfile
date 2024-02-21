@@ -81,12 +81,13 @@ gem "requestjs-rails", "~> 0.0.11"
 
 gem "tailwindcss-rails", "~> 2.3"
 
-
+#remplazar texto de un docx
 gem 'docx_replace'
 
-
+#dependencia de omnidocx
 gem 'mime-types'
 
+#añadir imagenes a docx
 gem 'omnidocx'
 
 gem 'caracal'

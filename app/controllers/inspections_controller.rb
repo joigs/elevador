@@ -172,7 +172,7 @@ class InspectionsController < ApplicationController
 
   #indices para ordenar
   def inspection_params_index
-    params.permit(:number, :user_id)
+    params.permit(:number, :query_text, :user_id)
   end
 
   def inspection
