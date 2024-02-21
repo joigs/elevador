@@ -3,7 +3,6 @@
 require 'docx_replace'
 require 'omnidocx'
 require 'fileutils'
-require 'mini_magick'
 
 class DocumentGenerator
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
@@ -57,7 +56,12 @@ class DocumentGenerator
     end
 
     doc.replace('{{instalation_number}}', report.instalation_number)
-    doc.replace('{{certificado_minvu}}', report.certificado_minvu)
+
+    if revision.codes.first == '0.1.1'
+      doc.replace('{{certificado_minvu}}', "No cumple")
+    else
+      doc.replace('{{certificado_minvu}}', "Cumple/no aplica")
+    end
 
     doc.replace('{{report_fecha}}', inspection.inf_date.strftime('%d/%m/%Y'))
     doc.replace('{{empresa_anterior}}', report.empresa_anterior)
@@ -192,7 +196,7 @@ class DocumentGenerator
     end
 
 
-            doc.replace('{{item_group2}}', "F#{item.group.number}-PO-ASC-01 #{item.group.name}")
+    doc.replace('{{item_group2}}', "F#{item.group.number}-PO-ASC-01 #{item.group.name}")
 
     doc.replace('{{inspection_place}}', inspection.place)
     if inspection.result == 'Aprobado'
@@ -318,12 +322,16 @@ class DocumentGenerator
     final_output_path = Rails.root.join('tmp', "#{principal.name}_document_with_images.docx")
 
     # Writing images to the document
-    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, final_output_path)
+    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+
+    Omnidocx::Docx.replace_header_content(replacement_hash={ '{{inf_date}}' => inspection.inf_date.strftime('%d/%m/%Y') }, output_path, output_path)
+
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.inf_date.strftime('%m'), "{{year}}" => inspection.inf_date.strftime('%Y') }, output_path, output_path)
 
     # Clean up temporary image files after processing
     cleanup_temporary_images(images_to_write)
 
-    return final_output_path
+    return output_path
   end
 
   private

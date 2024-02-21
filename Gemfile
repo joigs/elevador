@@ -89,9 +89,4 @@ gem 'mime-types'
 
 gem 'omnidocx'
 
-gem 'mini_magick'
-
-gem 'docx'
-
-gem 'rubyzip'
-gem 'nokogiri'
+gem 'caracal'
