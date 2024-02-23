@@ -114,10 +114,24 @@ class RulesController < ApplicationController
 
 
   def new_import
-    # View for uploading an Excel file
   end
 
   def import
+    if params[:file].nil?
+      redirect_to new_import_rules_path, alert: "No se seleccionó ningún archivo"
+      return
+
+    end
+    if params[:group_id].nil? || params[:group_id] == ""
+      redirect_to new_import_rules_path, alert: "No se seleccionó ningún grupo"
+      return
+
+    end
+    if Ruleset.find_by(group_id: params[:group_id])
+      redirect_to new_import_rules_path, alert: "El grupo seleccionado ya tiene reglas asociadas"
+      return
+    end
+
     RulesImporter.import(params[:file].path, params[:group_id])
     redirect_to rules_path, notice: "Se importaron las fallas con exito"
   end

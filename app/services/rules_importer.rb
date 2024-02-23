@@ -19,13 +19,22 @@ class RulesImporter
       level << 'L' if row[3]&.cell_value == 'x'
       level << 'G' if row[4]&.cell_value == 'x'
 
-      rules_data << Rule.new(
-        point: row[0].cell_value,
-        code: row[1].cell_value,
-        ins_type: ins_type,
-        level: level,
-        ruletype_id: ruletype.id
-      )
+      point = row[0].cell_value
+      code = row[1].cell_value
+
+      if old_rule = Rule.find_by(point: point, code: code, ins_type: ins_type, level: level)
+          Ruleset.create(group: group, rule: old_rule)
+      else
+        rules_data << Rule.new(
+          point: point,
+          code: code,
+          ins_type: ins_type,
+          level: level,
+          ruletype_id: ruletype.id
+        )
+      end
+
+
     end
 
     Rule.import rules_data unless rules_data.empty?
