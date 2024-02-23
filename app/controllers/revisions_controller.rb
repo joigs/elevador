@@ -22,7 +22,6 @@ class RevisionsController < ApplicationController
       redirect_to edit_revision_path(inspection_id: params[:inspection_id], section: 0) and return
     end
 
-
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
 
@@ -93,7 +92,7 @@ class RevisionsController < ApplicationController
   def update
     @revision = Revision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
-    #@bag = Bag.find_by(revision_id: @revision.id)
+
 
     # inicializa arreglos para guardar informacion de la revisión
     codes, points, levels, comment, fail_statuses = [], [], [], [], []

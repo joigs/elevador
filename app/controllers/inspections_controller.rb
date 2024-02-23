@@ -148,17 +148,34 @@ class InspectionsController < ApplicationController
   def close_inspection
     @inspection = Inspection.find(params[:id])
     @revision = Revision.find(params[:revision_id])
-    if @revision.levels.include?("G")
-      @inspection.update(result: "Rechazado")
+    detail = @inspection.item.detail
+    report = inspection.report
+    if @inspection.item.detail.sala_maquinas == "Responder más tarde"
+      redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se ha especificado presencia de sala de máquinas'
     else
-      @inspection.update(result: "Aprobado")
-    end
-    if @inspection.update(state: "Cerrado")
+      detail.attributes.each do |attr_name, value|
+        if  value.is_a?(String) && (value.nil? or value == "")
+          detail.update_attribute(attr_name, "S/I")
+        end
+      end
+      report.attributes.each do |attr_name, value|
+        if  value.is_a?(String) && (value.nil? or value == "")
+          report.update_attribute(attr_name, "S/I")
+        end
+      end
+      if @revision.levels.include?("G")
+        @inspection.update(result: "Rechazado")
+      else
+        @inspection.update(result: "Aprobado")
+      end
+      if @inspection.update(state: "Cerrado")
 
-      redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
-    else
-      redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+        redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
+      else
+        redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+      end
     end
+
   end
 
 
