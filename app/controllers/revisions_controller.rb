@@ -39,17 +39,32 @@ class RevisionsController < ApplicationController
 
     #acceder a los objetos asociados a la revision
     @item = @revision.item
-    @group = @revision.group
-    @rules = @group.rules.includes(:ruletype).ordered_by_code
+    @group = @item.group
+    @detail = Detail.find_by(item_id: @item.id)
+
+    if @detail.sala_maquinas == "Responder más tarde"
+      @rules = @group.rules.includes(:ruletype).where.not('code LIKE ?', '2%').where.not('code LIKE ?', '9%').ordered_by_code
+
+
+    elsif @detail.sala_maquinas == "Si"
+      @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '9%').ordered_by_code
+
+    elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
+      @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.3%').where.not('code LIKE ?', '9.4%').ordered_by_code
+
+    elsif @detail.sala_maquinas == "No. Máquina en foso"
+      @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.2%').where.not('code LIKE ?', '9.4%').ordered_by_code
+
+    elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
+      @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.2%').where.not('code LIKE ?', '9.3%').ordered_by_code
+
+    end
     if params[:section].present?
       section_code_start = params[:section]
       @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start.to_s) }
     end
 
-    #@bag = Bag.find_by(revision_id: @revision.id)
-    #@bag.cumple = Array.new(11, "") if @bag.cumple.blank?
-    #@bag.falla = Array.new(11, false) if @bag.falla.blank?
-    #@bag.comentario = Array.new(11, "") if @bag.comentario.blank?
+
 
 
     @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
@@ -179,19 +194,6 @@ class RevisionsController < ApplicationController
       end
 
 
-      # # Maneja la carpeta 0 (bags)
-      # cumple, falla, comentario = [], [], []
-      # if params[:revision][:bags_attributes].present?
-      #   params[:revision][:bags_attributes].each do |bag_attrs|
-      #     cumple << bag_attrs[:cumple]
-      #     falla << bag_attrs[:falla].to_s == 'true'
-      #     comentario << bag_attrs[:comentario]
-      #   end
-      # end
-      #
-      # @bag.cumple = cumple
-      # @bag.falla = falla
-      # @bag.comentario = comentario
 
 
     if @revision.save

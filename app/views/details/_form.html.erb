@@ -114,8 +114,9 @@
 
   <div>
     <%= form.label :"Sala de maquinas", style: "display: block" %>
-    <%= form.text_field :sala_maquinas %>
+    <%= form.select :sala_maquinas, ["Responder más tarde", "Si", "No. Máquina en la parte superior", "No. Máquina en foso", "No. Maquinaria fuera de la caja de elevadores"], {}%>
   </div>
+
   <div>
     <%= form.submit "Actualizar información del activo" %>
   </div>

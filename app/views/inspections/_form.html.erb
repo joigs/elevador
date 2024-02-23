@@ -15,8 +15,8 @@
     <%= form.fields_for :item, inspection.item || inspection.build_item do |item_form| %>
       <div>
           <%= item_form.label :group_id, "Clasificación del ascensor" %>
-          <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }), {}, { data: { principal_select_target: "principal" } } if Current.user&.admin %>
-        </div>
+        <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }, selected: @item.try(:group_id)), {}, { data: { principal_select_target: "principal" } } %>
+      </div>
       <div data-controller="principal-select">
         <div>
           <%= item_form.label :empresa, "Empresa" %>
@@ -24,7 +24,7 @@
         </div>
         <div>
           <label for="inspection_item_attributes_identificador">Identificador</label>
-          <input list="identificador-options" type="text" name="inspection[item_attributes][identificador]" id="inspection_item_attributes_identificador">
+          <input list="identificador-options" type="text" name="inspection[item_attributes][identificador]" id="inspection_item_attributes_identificador" value="<%= @item.identificador if @item.present? %>">
           <datalist id="identificador-options" data-principal-select-target="identificadorList">
           </datalist>
         </div>

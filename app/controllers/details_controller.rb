@@ -34,7 +34,129 @@ class DetailsController < ApplicationController
   def update
     authorize! detail
     if detail.update(detail_params)
-      report = Report.find_by(item_id: detail.item_id)
+      report = Report.where(item_id: detail.item_id).last
+      inspection = Inspection.find(report.inspection_id)
+      inspection.update(state: 'Abierto', result: 'En revisión')
+      revision = Revision.find_by(inspection_id: inspection.id)
+
+
+
+
+
+      if @detail.sala_maquinas == "Responder más tarde"
+
+        codes, points, levels, comment, fail_statuses = [], [], [], [], []
+        revision.codes.each_with_index do |code, index|
+          if !(code.starts_with?('2') or code.starts_with?('9'))
+            codes << code
+            points << revision.points[index]
+            levels << revision.levels[index]
+            comment << revision.comment[index]
+            fail_statuses << revision.fail[index]
+          end
+        end
+        revision.codes = codes
+        revision.points = points
+        revision.levels = levels
+        revision.comment = comment
+        revision.fail = fail_statuses
+        revision.save!
+
+      elsif @detail.sala_maquinas == "Si"
+
+
+        codes, points, levels, comment, fail_statuses = [], [], [], [], []
+        revision.codes.each_with_index do |code, index|
+          if !code.starts_with?('9')
+            codes << code
+            points << revision.points[index]
+            levels << revision.levels[index]
+            comment << revision.comment[index]
+            fail_statuses << revision.fail[index]
+          end
+        end
+        revision.codes = codes
+        revision.points = points
+        revision.levels = levels
+        revision.comment = comment
+        revision.fail = fail_statuses
+        revision.save!
+
+      elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
+        codes, points, levels, comment, fail_statuses = [], [], [], [], []
+        revision.codes.each_with_index do |code, index|
+          if !(code.starts_with?('2') or code.starts_with?('9.3') or code.starts_with?('9.4'))
+            codes << code
+            points << revision.points[index]
+            levels << revision.levels[index]
+            comment << revision.comment[index]
+            fail_statuses << revision.fail[index]
+          end
+        end
+        revision.codes = codes
+        revision.points = points
+        revision.levels = levels
+        revision.comment = comment
+        revision.fail = fail_statuses
+        revision.save!
+
+      elsif @detail.sala_maquinas == "No. Máquina en foso"
+        codes, points, levels, comment, fail_statuses = [], [], [], [], []
+        revision.codes.each_with_index do |code, index|
+          if !(code.starts_with?('2') or code.starts_with?('9.2') or code.starts_with?('9.4'))
+            codes << code
+            points << revision.points[index]
+            levels << revision.levels[index]
+            comment << revision.comment[index]
+            fail_statuses << revision.fail[index]
+          end
+        end
+        revision.codes = codes
+        revision.points = points
+        revision.levels = levels
+        revision.comment = comment
+        revision.fail = fail_statuses
+        revision.save!
+
+      elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
+        codes, points, levels, comment, fail_statuses = [], [], [], [], []
+        revision.codes.each_with_index do |code, index|
+          if !(code.starts_with?('2') or code.starts_with?('9.2') or code.starts_with?('9.3'))
+            codes << code
+            points << revision.points[index]
+            levels << revision.levels[index]
+            comment << revision.comment[index]
+            fail_statuses << revision.fail[index]
+          end
+        end
+        revision.codes = codes
+        revision.points = points
+        revision.levels = levels
+        revision.comment = comment
+        revision.fail = fail_statuses
+        revision.save!
+
+      elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
+        codes, points, levels, comment, fail_statuses = [], [], [], [], []
+        revision.codes.each_with_index do |code, index|
+          if !(code.starts_with?('2') or code.starts_with?('9.2') or code.starts_with?('9.3'))
+            codes << code
+            points << revision.points[index]
+            levels << revision.levels[index]
+            comment << revision.comment[index]
+            fail_statuses << revision.fail[index]
+          end
+        end
+        revision.codes = codes
+        revision.points = points
+        revision.levels = levels
+        revision.comment = comment
+        revision.fail = fail_statuses
+        revision.save!
+
+      end
+
+
       redirect_to edit_report_path(report), notice: 'Información modificada exitosamente'
     else
       render :edit, status: :unprocessable_entity

@@ -12,6 +12,7 @@ class GroupsController < ApplicationController
 
   def show
     group
+    @rules = group.rules.ordered_by_code
   end
 
   # POST /groups or /groups.json

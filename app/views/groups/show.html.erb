@@ -4,7 +4,7 @@
 <div>
   <h3>Defectos a revisar:</h3>
   <ul>
-    <% @group.rules.each do |rule| %>
+    <% @rules.each do |rule| %>
       <li><%= "#{rule.code} #{rule.point}" %></li>
 
   <% end %>

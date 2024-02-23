@@ -65,6 +65,7 @@ class InspectionsController < ApplicationController
   def edit
     authorize! inspection
     @items = Item.all
+    @item = inspection.item
   end
 
   def update
