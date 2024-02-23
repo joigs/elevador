@@ -5,8 +5,10 @@
 
 <div>
   <%= link_to "Modificar activo", edit_item_path(@item) %> |
-  <%= link_to "Modificar detalles adicionales", edit_detail_path(@item.detail) if @item.detail.present? %> |
+  <%= link_to "Ver última inspección", inspection_path(@inspection) if @inspection%> |
   <%= link_to "Volver a activos", items_path %>
 
-  <%= button_to "Eliminar activo", @item, method: :delete %>
+  <%= button_to "Eliminar activo", item_path(@item), data:
+    {turbo_method: :delete,
+     turbo_confirm: 'Estás seguro?'} if Current.user.admin %>
 </div>

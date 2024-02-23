@@ -10,6 +10,7 @@ class ItemsController < ApplicationController
 
   def show
     item
+    @inspection = Inspection.where(item_id: item.id).order(updated_at: :desc).first
   end
 
   def new

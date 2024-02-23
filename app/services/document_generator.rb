@@ -245,13 +245,13 @@ class DocumentGenerator
         if revision.comment[index].blank?
           errors_graves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningun comentario)")
         else
-          errors_graves << revision.comment[index]
+          errors_graves << "#{revision.points[index]}. Razón: #{revision.comment[index]}"
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
           errors_leves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningun comentario)")
         else
-          errors_leves << revision.comment[index]
+          errors_leves << "#{revision.points[index]}. Razón: #{revision.comment[index]}}"
         end
       end
     end

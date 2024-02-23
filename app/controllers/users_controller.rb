@@ -5,7 +5,8 @@ class UsersController < ApplicationController
       @inspections = Inspection.where(state: "Cerrado")
       @pagy, @inspections = pagy_countless(@inspections, items: 10  )
     else
-      @inspections = Inspection.where(user_id: @user.id)
+      @inspections = Inspection.order(number: :desc).where(user_id: @user.id)
+
       @pagy, @inspections = pagy_countless(@inspections, items: 10  )
     end
 

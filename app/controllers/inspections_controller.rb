@@ -1,7 +1,7 @@
 class InspectionsController < ApplicationController
 
   def index
-    @inspections = Inspection.order(state: :asc)
+    @inspections = Inspection.order(number: :desc)
     @pagy, @inspections = pagy_countless(FindInspections.new.call(inspection_params_index), items: 10  )
 
   end
@@ -84,19 +84,20 @@ class InspectionsController < ApplicationController
       @principal = Principal.find(item_params[:principal_id])
 
       if item_params[:identificador] != current_item.identificador
-        new_item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
+        new_item = Item.find_or_initialize_by(identificador: item_params[:identificador], principal_id: @principal.id)
         is_new_item = new_item.new_record?
-
         if new_item.new_record? && Item.exists?(identificador: item_params[:identificador])
           flash.now[:alert] =  'Activo pertenece a otra empresa'
           render :edit, status: :unprocessable_entity
           return
         end
-
         new_item.assign_attributes(item_params)
         new_item.save!
 
-        Detail.create!(item: new_item) if is_new_item
+        if is_new_item
+          Detail.create!(item: new_item)
+        end
+
         @inspection.item = new_item
       end
 
@@ -107,9 +108,6 @@ class InspectionsController < ApplicationController
         @revision = Revision.find_or_initialize_by(inspection: @inspection)
         @revision.update(item: @inspection.item, group: @inspection.item.group)
 
-        #bag = Bag.find_or_initialize_by(revision_id: @revision.id)
-        # bag.number = (1..11).to_a
-        # bag.save!
 
         redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
       else
@@ -167,9 +165,13 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, item_attributes: [:identificador, :group_id, :principal_id])
+    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
+      if whitelisted[:item_attributes] && whitelisted[:item_attributes][:identificador]
+        # Remove all blank spaces from the identificador
+        whitelisted[:item_attributes][:identificador].gsub!(/\s+/, "")
+      end
+    end
   end
-
   #indices para ordenar
   def inspection_params_index
     params.permit(:number, :query_text, :user_id)
