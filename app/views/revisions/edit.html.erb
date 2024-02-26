@@ -29,7 +29,8 @@
       <% end %>
 
       <div data-controller="rules-form">
-        <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", false, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
+        <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+        <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
         <%= label_tag "null_condition_#{index}", "N/A" %>
 
         <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>

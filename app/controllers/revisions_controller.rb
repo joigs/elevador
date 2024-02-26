@@ -41,6 +41,7 @@ class RevisionsController < ApplicationController
 
     #acceder a los objetos asociados a la revision
     @item = @revision.item
+    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
     @group = @item.group
     @detail = Detail.find_by(item_id: @item.id)
 
@@ -129,6 +130,23 @@ class RevisionsController < ApplicationController
       end
 
     end
+
+    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
+    if params[:revision].present?
+      @revision_nulls.each do |null|
+
+        if params[:revision][:null_condition].present?
+          if !params[:revision][:null_condition].include?(null.point)
+            null.destroy
+          end
+        else
+          null.destroy
+        end
+      end
+    else
+      @revision_nulls.destroy_all
+    end
+
 
       control = true
 
