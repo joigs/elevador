@@ -13,7 +13,6 @@ class Revision < ApplicationRecord
   accepts_nested_attributes_for :revision_nulls, allow_destroy: true
   accepts_nested_attributes_for :revision_colors, allow_destroy: true
 
-  attribute :number, :integer, default: -> { calculate_new_number }
 
 
   def only_owner?
@@ -21,14 +20,6 @@ class Revision < ApplicationRecord
     inspection.user_id == Current.user&.id
   end
 
-  private
-
-  def self.calculate_new_number
-    # Get the newest record
-    newest_record = Revision.order(created_at: :desc).first
-
-    newest_record ? newest_record.number.to_i + 1 : 1
-  end
 
 
 end
