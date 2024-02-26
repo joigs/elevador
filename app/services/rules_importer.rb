@@ -22,9 +22,6 @@ class RulesImporter
       point = row[0].cell_value
       code = row[1].cell_value
 
-      if old_rule = Rule.find_by(point: point, code: code, ins_type: ins_type, level: level)
-          Ruleset.create(group: group, rule: old_rule)
-      else
         rules_data << Rule.new(
           point: point,
           code: code,
@@ -32,7 +29,6 @@ class RulesImporter
           level: level,
           ruletype_id: ruletype.id
         )
-      end
 
 
     end
