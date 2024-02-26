@@ -90,7 +90,6 @@ gem 'mime-types'
 #añadir imagenes a docx
 gem 'omnidocx'
 
-gem 'caracal'
-
+#manejo de archivos excel
 gem 'roo'
 gem 'activerecord-import'

@@ -178,28 +178,44 @@ class InspectionsController < ApplicationController
     if @inspection.item.detail.sala_maquinas == "Responder más tarde"
       redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se ha especificado presencia de sala de máquinas'
     else
-      detail.attributes.each do |attr_name, value|
-        if  value.is_a?(String) && (value.nil? or value == "")
-          detail.update_attribute(attr_name, "S/I")
+      control1 = true
+      control2 = true
+      @revision.revision_colors.each do |color|
+        if color.color == false
+          if control1 == true
+            control1 = false
+          else
+            control2 = false
+          end
         end
       end
-      report.attributes.each do |attr_name, value|
-        if  value.is_a?(String) && (value.nil? or value == "")
-          report.update_attribute(attr_name, "S/I")
-        end
-      end
-      if @revision.levels.include?("G")
-        @inspection.update(result: "Rechazado")
+      if control2 == false
+        redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se han completado todos los controles de calidad'
       else
-        @inspection.update(result: "Aprobado")
-      end
-      if @inspection.update(state: "Cerrado")
+        detail.attributes.each do |attr_name, value|
+          if  value.is_a?(String) && (value.nil? or value == "")
+            detail.update_attribute(attr_name, "S/I")
+          end
+        end
+        report.attributes.each do |attr_name, value|
+          if  value.is_a?(String) && (value.nil? or value == "")
+            report.update_attribute(attr_name, "S/I")
+          end
+        end
+        if @revision.levels.include?("G")
+          @inspection.update(result: "Rechazado")
+        else
+          @inspection.update(result: "Aprobado")
+        end
+        if @inspection.update(state: "Cerrado")
 
-        redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
-      else
-        redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+          redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
+        else
+          redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+        end
       end
-    end
+
+      end
 
   end
 

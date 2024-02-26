@@ -1,4 +1,7 @@
+//app/javascript/controllers/section_submit_controller.js
 import { Controller } from "@hotwired/stimulus"
+
+//controlador para los botones de las secciones en la revision
 export default class extends Controller {
     static targets = ["button"]
 

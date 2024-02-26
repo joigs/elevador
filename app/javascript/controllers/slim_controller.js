@@ -3,6 +3,7 @@
 import { Controller } from "@hotwired/stimulus"
 import SlimSelect from 'slim-select'
 
+//controlador para el campo de selección con barra de busqueda
 export default class extends Controller {
   connect() {
     this.slimSelect = new SlimSelect({

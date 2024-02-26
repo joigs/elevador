@@ -333,8 +333,6 @@ class DocumentGenerator
     # Writing images to the document
     Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
 
-    Omnidocx::Docx.replace_header_content(replacement_hash={ '{{inf_date}}' => inspection.inf_date.strftime('%d/%m/%Y') }, output_path, output_path)
-
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.inf_date.strftime('%m'), "{{year}}" => inspection.inf_date.strftime('%Y') }, output_path, output_path)
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => inspection.number.to_s}, output_path, output_path)

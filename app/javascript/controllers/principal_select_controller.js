@@ -2,6 +2,7 @@
 
 import { Controller } from "@hotwired/stimulus"
 
+//controlador para obtener los activos de una empresa
 export default class extends Controller {
 
 

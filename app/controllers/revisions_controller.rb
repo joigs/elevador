@@ -1,20 +1,7 @@
 class RevisionsController < ApplicationController
 
 
-  def index
-    @revisions = Revision.all
-  end
-  def new
-    authorize! @revision = Revision.new
-  end
 
-  def create
-    authorize! @revision = Revision.new(revision_params)
-    if @revision.save
-    else
-      render :new, status: :unprocessable_entity
-    end
-  end
 
   def edit
 
