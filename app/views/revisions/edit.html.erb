@@ -12,18 +12,38 @@
     <% end %>
 
   <div data-controller="section-submit">
-    <% (0..11).each_with_index do |number, index| %>
+    <% (0..11).each do |number| %>
       <div>
-      <%= button_tag type: 'button', data: { action: "section-submit#submitAndNavigate", section_submit_target: "button", url: edit_revision_path(id: @revision, inspection_id: @inspection.id, section: number) } do %>
-        <%= number %>
-        <%= @nombres[index] %>
-      <% end %>
+        <%# Find the specific color object for this iteration's number %>
+        <% color_for_number = @colors.find { |c| c.number == number } %>
+        <% is_current_color = @color.number == number %>
+        <% is_nope = number == @nope %>
+        <%= button_tag type: 'button',
+                       data: { action: "section-submit#submitAndNavigate",
+                               section_submit_target: "button",
+                               url: edit_revision_path(id: @revision, inspection_id: @inspection.id, section: number) },
+                       style: "#{'background-color: #8c0909; color: black;' if is_nope}
+                             #{'background-color: white;' if is_current_color && !is_nope}
+                             #{'background-color: green;' if color_for_number&.color && !is_current_color && !is_nope}
+                             #{'background-color: gray;' if !color_for_number&.color && !is_current_color && !is_nope}",
+                       disabled: is_current_color || is_nope do %>
+          <%= number %>
+          <%= @nombres[number] %>
+        <% end %>
       </div>
-
     <% end %>
   </div>
 
 
+
+
+  <br>
+  <br>
+
+  <div>
+    <%= check_box_tag :color, "1", @color.color, id: "color_checkbox" %>
+    <%= label_tag :color_checkbox, 'Marcar como revisado' %>
+  </div>
 
 
   <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>

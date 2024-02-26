@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_26_141315) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_26_160126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -158,6 +158,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_26_141315) do
     t.index ["item_id"], name: "index_reports_on_item_id"
   end
 
+  create_table "revision_colors", force: :cascade do |t|
+    t.integer "number"
+    t.boolean "color"
+    t.bigint "revision_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id"], name: "index_revision_colors_on_revision_id"
+  end
+
   create_table "revision_nulls", force: :cascade do |t|
     t.string "code"
     t.string "point"
@@ -244,6 +253,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_26_141315) do
   add_foreign_key "items", "principals"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
+  add_foreign_key "revision_colors", "revisions"
   add_foreign_key "revision_nulls", "revisions"
   add_foreign_key "revision_photos", "revisions"
   add_foreign_key "revisions", "groups"

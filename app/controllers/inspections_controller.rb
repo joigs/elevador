@@ -66,7 +66,9 @@ class InspectionsController < ApplicationController
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
-
+      (0..11).each do |index|
+        @revision.revision_colors.create!(number: index, color: false)
+      end
 
 
       redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'

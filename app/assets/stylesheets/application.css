@@ -26,3 +26,8 @@
 textarea {
     resize: none;
 }
+
+.green {
+    background-color: green; /* Or any green shade you prefer */
+    color: white; /* Adjust text color if needed */
+}

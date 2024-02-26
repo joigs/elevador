@@ -44,6 +44,7 @@ class RevisionsController < ApplicationController
     @revision_nulls = RevisionNull.where(revision_id: @revision.id)
     @group = @item.group
     @detail = Detail.find_by(item_id: @item.id)
+    @colors = @revision.revision_colors
     @nombres = ['. DOCUMENTAL CARPETA 0',
                '. CAJA DE ELEVADORES.',
                '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
@@ -67,20 +68,25 @@ class RevisionsController < ApplicationController
 
     elsif @detail.sala_maquinas == "Si"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '9%').ordered_by_code
+      @nope = 9
 
     elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.3%').where.not('code LIKE ?', '9.4%').ordered_by_code
+      @nope = 2
 
     elsif @detail.sala_maquinas == "No. Máquina en foso"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.2%').where.not('code LIKE ?', '9.4%').ordered_by_code
+      @nope = 2
 
     elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.2%').where.not('code LIKE ?', '9.3%').ordered_by_code
+      @nope = 2
 
     end
     if params[:section].present?
       section_code_start = "#{params[:section]}."
       @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start) }
+      @color = @revision.revision_colors.find_by(number: section_code_start.to_i)
     end
 
 
@@ -146,7 +152,10 @@ class RevisionsController < ApplicationController
         end
       end
 
+
+
     end
+
 
 
 
@@ -157,6 +166,19 @@ class RevisionsController < ApplicationController
 
 
       current_section_num = current_section.to_i
+
+    @color = RevisionColor.all
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    @color.each do |color|
+      puts(color.inspect)
+    end
+
+    @color = @revision.revision_colors.find_by(number: current_section_num)
+    if params[:color].present? && params[:color] == "1"
+      @color.update!(color: true)
+    else
+      @color.update!(color: false)
+    end
 
       @revision.codes.each_with_index do |code, index|
         code_start = code.split('.').first.to_i
@@ -296,7 +318,7 @@ class RevisionsController < ApplicationController
 
     def revision_params
     params.require(:revision).permit(
-      :inspection_id, :group_id, :item_id,
+      :inspection_id, :group_id, :item_id, :color,
       codes: [], points: [], levels: [], fail: [], comment: [], null_condition: []
     ).merge(revision_photos_params)
   end
