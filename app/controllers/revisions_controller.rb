@@ -131,21 +131,7 @@ class RevisionsController < ApplicationController
 
     end
 
-    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
-    if params[:revision].present?
-      @revision_nulls.each do |null|
 
-        if params[:revision][:null_condition].present?
-          if !params[:revision][:null_condition].include?(null.point)
-            null.destroy
-          end
-        else
-          null.destroy
-        end
-      end
-    else
-      @revision_nulls.destroy_all
-    end
 
 
       control = true
@@ -210,6 +196,56 @@ class RevisionsController < ApplicationController
         @revision.fail = fail_statuses2
       end
 
+
+    @revision_nulls = @revision.revision_nulls
+    @revision_photos = @revision.revision_photos
+    if params[:revision].present?
+
+      @revision_nulls.each do |null|
+        code_start = null.point.split('.').first.to_i
+
+
+        if code_start == current_section_num
+          if params[:revision][:null_condition].present?
+
+            if !params[:revision][:null_condition].include?(null.point)
+              null.destroy
+            end
+          else
+            null.destroy
+          end
+        end
+
+      end
+
+      @revision_photos.each do |photo|
+        code_start = photo.code.split('.').first.to_i
+        if code_start == current_section_num
+          if params[:revision][:codes].present?
+            if params[:revision][:codes].exclude?(photo.code)
+              photo.destroy
+            end
+          else
+            photo.destroy
+          end
+        end
+
+      end
+
+    else
+      @revision_nulls.each do |null|
+        code_start = null.point.split('.').first.to_i
+        if code_start == current_section_num
+          null.destroy
+        end
+      end
+      @revision_photos.each do |photo|
+        code_start = photo.code.split('.').first.to_i
+        if code_start == current_section_num
+          photo.destroy
+        end
+      end
+    end
 
 
 
