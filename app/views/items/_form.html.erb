@@ -18,7 +18,7 @@
 
   <div>
     <%= form.label :"Clasificación del ascensor" %>
-    <%= form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }, @item.group_id) if Current.user&.admin %>
+    <%= form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }, @item.group_id) if Current.user&.admin and item.new_record?%>
   </div>
 
   <div>

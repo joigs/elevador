@@ -19,19 +19,22 @@ class RevisionsController < ApplicationController
   def edit
 
     unless params[:section].present?
-      redirect_to edit_revision_path(inspection_id: params[:inspection_id], section: 0) and return
+      redirect_to edit_revision_path(inspection_id: params[:inspection_id], section: 0)
+      return
     end
 
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.") and return
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      return
     end
 
     @revision = Revision.find_by(inspection_id: @inspection.id)
     if @revision.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.") and return
+      redirect_to(home_path, alert: "Checklist no disponible.")
+      return
     end
 
     authorize! @revision
@@ -126,7 +129,7 @@ class RevisionsController < ApplicationController
 
       @revision.codes.each_with_index do |code, index|
         code_start = code.split('.').first.to_i
-        if code_start >= current_section_num and control
+        if code_start >= current_section_num && control
             control = false
             codes.each_with_index do |code2, index2|
               codes2 << codes[index2]

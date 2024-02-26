@@ -310,7 +310,7 @@ class DocumentGenerator
 
     end
 
-    if !errors_leves.empty? and errors_graves.empty?
+    if !errors_leves.empty? && errors_graves.empty?
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple parcialmente")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")

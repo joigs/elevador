@@ -32,8 +32,15 @@ class InspectionsController < ApplicationController
 
       @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
 
+
+
+      current_group = @item.group.id.to_s
+
       @item.assign_attributes(item_params)
       is_new_item = @item.new_record?
+
+
+
 
       if @item.new_record? && Item.exists?(identificador: item_params[:identificador])
         flash.now[:alert] = 'Activo pertenece a otra empresa'
@@ -41,7 +48,15 @@ class InspectionsController < ApplicationController
         return
       end
 
+
+      if !@item.new_record? && current_group != item_params[:group_id]
+        flash.now[:alert] = 'Activo pertenece a otro grupo, seleccione el grupo correspondiente'
+        render :new, status: :unprocessable_entity
+        return
+      end
+
       @item.save!
+
       @inspection.item = @item
 
       if is_new_item
@@ -52,7 +67,6 @@ class InspectionsController < ApplicationController
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
 
-      #Bag.create!(number: (1..11).to_a, revision_id: @revision.id)
 
 
       redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'
@@ -84,10 +98,19 @@ class InspectionsController < ApplicationController
 
       @principal = Principal.find(item_params[:principal_id])
 
+      new_item = Item.find_or_initialize_by(identificador: item_params[:identificador], principal_id: @principal.id)
+      is_new_item = new_item.new_record?
+
+      if !is_new_item && new_item.group_id.to_s != item_params[:group_id]
+        flash.now[:alert] = 'Activo pertenece a otro grupo, seleccione el grupo correspondiente'
+        render :edit, status: :unprocessable_entity
+        return
+      end
+
       if item_params[:identificador] != current_item.identificador
-        new_item = Item.find_or_initialize_by(identificador: item_params[:identificador], principal_id: @principal.id)
-        is_new_item = new_item.new_record?
-        if new_item.new_record? && Item.exists?(identificador: item_params[:identificador])
+
+
+        if is_new_item && Item.exists?(identificador: item_params[:identificador])
           flash.now[:alert] =  'Activo pertenece a otra empresa'
           render :edit, status: :unprocessable_entity
           return
