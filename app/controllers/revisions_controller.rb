@@ -44,6 +44,22 @@ class RevisionsController < ApplicationController
     @revision_nulls = RevisionNull.where(revision_id: @revision.id)
     @group = @item.group
     @detail = Detail.find_by(item_id: @item.id)
+    @nombres = ['. DOCUMENTAL CARPETA 0',
+               '. CAJA DE ELEVADORES.',
+               '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+               '. PUERTA DE PISO.',
+               '. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
+               '. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
+               '. GUÍAS, AMO  RTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
+               '. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
+               '. MÁQUINA.',
+               '. ASCENSORES SIN SALA DE MÁQUINAS.',
+               '. ESPACIO DE MÁQUINAS.',
+               '. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
+               '. ASCENSORES CON MÁQUINAS EN FOSO.',
+               '. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
+               '. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
+               '. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR']
 
     if @detail.sala_maquinas == "Responder más tarde"
       @rules = @group.rules.includes(:ruletype).where.not('code LIKE ?', '2%').where.not('code LIKE ?', '9%').ordered_by_code
@@ -63,9 +79,10 @@ class RevisionsController < ApplicationController
 
     end
     if params[:section].present?
-      section_code_start = params[:section]
-      @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start.to_s) }
+      section_code_start = "#{params[:section]}."
+      @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start) }
     end
+
 
 
 
