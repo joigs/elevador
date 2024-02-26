@@ -6,7 +6,7 @@ class PrincipalsController < ApplicationController
     if params[:query_text].present?
       @principals = Principal.search_full_text(params[:query_text])
     else
-      @principals = Principal.all.order(name: :asc)
+      @principals = Principal.all.order(created_at: :desc)
     end
     @pagy, @principals = pagy_countless(@principals, items: 10)
   end

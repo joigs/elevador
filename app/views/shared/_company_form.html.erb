@@ -18,7 +18,10 @@
   <%= form.text_field :email %>
 </div>
 
-
+<div>
+  <%= form.label :"Teléfono de empresa:", style: "display: block" %>
+  <%= form.text_field :phone %>
+</div>
 
 <div>
   <%= form.label :"Nombre del contacto:", style: "display: block" %>
@@ -30,13 +33,7 @@
   <%= form.text_field :contact_email %>
 </div>
 
-
 <div>
-  <%= form.label :"Teléfono de contacto:", style: "display: block" %>
-  <%= form.text_field :phone %>
-</div>
-
-<div>
-  <%= form.label :"Celular de contacto", style: "display: block" %>
+  <%= form.label :"Teléfono de contacto", style: "display: block" %>
   <%= form.text_field :cellphone %>
 </div>

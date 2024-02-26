@@ -19,7 +19,7 @@ class DocumentGenerator
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
-    doc.replace('{{XXX}}', revision.number.to_s)
+    doc.replace('{{XXX}}', inspection.number.to_s)
     doc.replace('{{MM}}', inspection.inf_date.strftime('%m'))
     doc.replace('{{XX}}', inspection.inf_date.strftime('%Y'))
 
@@ -160,9 +160,10 @@ class DocumentGenerator
         doc.replace('{{revision_past_errors_level}}', "")
 
       else
-        last_inspection_inf_date = Inspection.find(last_revision.inspection_id).inf_date
+        last_inspection = Inspection.find(last_revision.inspection_id)
+        last_inspection_inf_date = last_inspection.inf_date
         formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
-        doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_revision.number} de fecha:#{last_inspection_inf_date.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+        doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
         doc.replace('{{revision_past_errors_level}}', formatted_errors)
 
       end
@@ -323,7 +324,7 @@ class DocumentGenerator
     doc.replace('{{inspector}}', "#{inspection.user.real_name}")
 
 
-    output_path = Rails.root.join('tmp', "Informe N°#{revision.number}-#{inspection.inf_date.strftime('%m')}-#{inspection.inf_date.strftime('%Y')}.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number}-#{inspection.inf_date.strftime('%m')}-#{inspection.inf_date.strftime('%Y')}.docx")
     doc.commit(output_path)
 
 
@@ -336,7 +337,7 @@ class DocumentGenerator
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.inf_date.strftime('%m'), "{{year}}" => inspection.inf_date.strftime('%Y') }, output_path, output_path)
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => revision.number.to_s}, output_path, output_path)
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => inspection.number.to_s}, output_path, output_path)
 
     # Clean up temporary image files after processing
     cleanup_temporary_images(images_to_write)

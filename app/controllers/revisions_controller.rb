@@ -167,12 +167,6 @@ class RevisionsController < ApplicationController
 
       current_section_num = current_section.to_i
 
-    @color = RevisionColor.all
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    @color.each do |color|
-      puts(color.inspect)
-    end
-
     @color = @revision.revision_colors.find_by(number: current_section_num)
     if params[:color].present? && params[:color] == "1"
       @color.update!(color: true)
