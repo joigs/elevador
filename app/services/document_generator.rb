@@ -83,7 +83,8 @@ class DocumentGenerator
     doc.replace('{{detail_detalle}}', detail.detalle)
     doc.replace('{{detail_marca}}', detail.marca)
     doc.replace('{{detail_modelo}}', detail.modelo)
-    doc.replace('{{detail_n_serie}}                                                                                                                                           ', detail.n_serie)
+    doc.replace('{{detail_n_serie}}', detail.n_serie)
+
 
     if group.number == 1
       doc.replace('{{grupo1}}', 'X')
