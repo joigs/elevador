@@ -34,7 +34,7 @@ class InspectionsController < ApplicationController
 
 
 
-      current_group = @item.group.id.to_s
+      current_group = @item.group&.id.to_s
 
       @item.assign_attributes(item_params)
       is_new_item = @item.new_record?

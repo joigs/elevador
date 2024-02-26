@@ -8,7 +8,7 @@
   <%= link_to "Ver última inspección", inspection_path(@inspection) if @inspection%> |
   <%= link_to "Volver a activos", items_path %>
 
-  <%= button_to "Eliminar activo", item_path(@item), data:
+  <%= link_to "Eliminar activo", item_path(@item), data:
     {turbo_method: :delete,
      turbo_confirm: 'Estás seguro?'} if Current.user.admin %>
 </div>

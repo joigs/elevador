@@ -36,5 +36,5 @@
   <br>
   <%= link_to 'Eliminar inspección', inspection_path(@inspection), data:
     {turbo_method: :delete,
-     turbo_confirm: 'Estás seguro?'} if @inspection.owner? %>
+     turbo_confirm: 'Estás seguro?'} if  Current.user.admin %>
 </div>
