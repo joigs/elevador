@@ -7,7 +7,6 @@ class Revision < ApplicationRecord
   belongs_to :group
   belongs_to :inspection
   has_many :revision_photos, dependent: :destroy
-  has_many :bags, dependent: :destroy
   has_many :revision_nulls, dependent: :destroy
   has_many :revision_colors, dependent: :destroy
   accepts_nested_attributes_for :revision_photos, allow_destroy: true
