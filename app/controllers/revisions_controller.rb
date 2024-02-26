@@ -106,18 +106,28 @@ class RevisionsController < ApplicationController
 
 
     if params[:revision].present?
-      # Revisar la información de cada campo donde hubo una falla
-      params[:revision][:fail].each do |fail_status|
-        if fail_status == "1"  # Verefica si ocurre la falla
-          # pasa la informacion de los campos a los arreglos
-          codes << params[:revision][:codes][counter]
-          points << params[:revision][:points][counter]
-          levels << params[:revision][:levels][counter]
-          comment << params[:revision][:comment][counter]
-          fail_statuses << true
-          counter = counter + 1
+      if params[:revision][:fail].present?
+        # Revisar la información de cada campo donde hubo una falla
+        params[:revision][:fail].each do |fail_status|
+          if fail_status == "1"  # Verefica si ocurre la falla
+            # pasa la informacion de los campos a los arreglos
+            codes << params[:revision][:codes][counter]
+            points << params[:revision][:points][counter]
+            levels << params[:revision][:levels][counter]
+            comment << params[:revision][:comment][counter]
+            fail_statuses << true
+            counter = counter + 1
+          end
         end
       end
+
+
+      if params[:revision][:null_condition].present?
+        params[:revision][:null_condition].each do |null_condition|
+          @revision.revision_nulls.create(point: null_condition)
+        end
+      end
+
     end
 
       control = true
@@ -197,7 +207,6 @@ class RevisionsController < ApplicationController
 
 
 
-
     if @revision.save
       redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
     else
@@ -217,7 +226,7 @@ class RevisionsController < ApplicationController
     def revision_params
     params.require(:revision).permit(
       :inspection_id, :group_id, :item_id,
-      codes: [], points: [], levels: [], fail: [], comment: [] #,bags_attributes: [:id, { number: [] }, { cumple: [] }, { falla: [] }, { comentario: [] }, :_destroy]
+      codes: [], points: [], levels: [], fail: [], comment: [], null_condition: []
     ).merge(revision_photos_params)
   end
 

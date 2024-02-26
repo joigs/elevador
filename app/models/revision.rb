@@ -8,9 +8,9 @@ class Revision < ApplicationRecord
   belongs_to :inspection
   has_many :revision_photos, dependent: :destroy
   has_many :bags, dependent: :destroy
+  has_many :revision_nulls, dependent: :destroy
   accepts_nested_attributes_for :revision_photos, allow_destroy: true
-  accepts_nested_attributes_for :bags, allow_destroy: true
-
+  accepts_nested_attributes_for :revision_nulls, allow_destroy: true
 
   attribute :number, :integer, default: -> { calculate_new_number }
 

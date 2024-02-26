@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_21_134459) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_26_141315) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -158,6 +158,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_21_134459) do
     t.index ["item_id"], name: "index_reports_on_item_id"
   end
 
+  create_table "revision_nulls", force: :cascade do |t|
+    t.string "code"
+    t.string "point"
+    t.bigint "revision_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id"], name: "index_revision_nulls_on_revision_id"
+  end
+
   create_table "revision_photos", force: :cascade do |t|
     t.bigint "revision_id", null: false
     t.string "code"
@@ -175,7 +184,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_21_134459) do
     t.string "codes", default: [], array: true
     t.string "points", default: [], array: true
     t.string "levels", default: [], array: true
-    t.boolean "fail", default: [], array: true
+    t.string "fail", default: [], array: true
     t.string "comment", default: [], array: true
     t.integer "number"
     t.index ["group_id"], name: "index_revisions_on_group_id"
@@ -235,6 +244,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_21_134459) do
   add_foreign_key "items", "principals"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
+  add_foreign_key "revision_nulls", "revisions"
   add_foreign_key "revision_photos", "revisions"
   add_foreign_key "revisions", "groups"
   add_foreign_key "revisions", "inspections"

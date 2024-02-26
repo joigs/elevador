@@ -8,13 +8,24 @@ import { Controller } from "@hotwired/stimulus"
 
 
 export default class extends Controller {
-    static targets = ["fail", "level", "point", "code", "comment", "photo", "photoCode"]
+    static targets = ["fail", "nullCondition", "level", "point", "code", "comment", "photo", "photoCode"]
 
     connect() {
         this.toggleFields(); // Initial check in case of pre-checked boxes or pre-uploaded photos
         this.photoTargets.forEach((photoInput) => {
             photoInput.addEventListener('change', (event) => this.handleFileUpload(event));
         });
+    }
+
+    toggleNullCondition(event) {
+        const checkBoxIndex = this.nullConditionTargets.indexOf(event.target);
+        const correspondingFailCheckBox = this.failTargets[checkBoxIndex];
+
+        if(event.target.checked) {
+            correspondingFailCheckBox.checked = false;
+        }
+
+        this.toggleFields();
     }
 
     toggleFields() {
@@ -43,7 +54,14 @@ export default class extends Controller {
     }
 
     toggle(event) {
-        this.toggleFields(); // Call this method on change
+        const checkBoxIndex = this.failTargets.indexOf(event.target);
+        const correspondingNullConditionCheckBox = this.nullConditionTargets[checkBoxIndex];
+
+        if(event.target.checked) {
+            correspondingNullConditionCheckBox.checked = false;
+        }
+
+        this.toggleFields();
     }
 
     handleFileUpload(event) {
