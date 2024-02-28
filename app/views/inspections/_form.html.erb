@@ -36,9 +36,10 @@
     <% end %>
 
 
-    <div>
+    <div data-controller="place-select">
       <%= form.label :"Lugar de inspección", style: "display: block" %>
-      <%= form.text_field :place %>
+      <%= form.text_field :place, list: "place-options", id: "inspection_place", data: { place_select_target: "place", action: "change->place-select#updatePlaces" } %>
+      <datalist id="place-options" data-place-select-target="placeList"></datalist>
     </div>
 
     <div>

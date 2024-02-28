@@ -35,6 +35,7 @@ Rails.application.routes.draw do
   resources :items, path: '/items'
   resources :principals, path: '/principals' do
     get :items, on: :member
+    get :places, on: :member
   end
   resources :revisions, path: '/revisions'
   resources :points, path: '/flaws'

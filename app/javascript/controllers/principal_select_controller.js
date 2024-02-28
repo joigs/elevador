@@ -29,8 +29,13 @@ export default class extends Controller {
                     option.value = item.identificador;
                     identificadorList.appendChild(option);
                 });
-                // Note: No need to trigger a SlimSelect update here as we're not using SlimSelect for a datalist
+                this.dispatchPrincipalChangedEvent(principalId);
             })
             .catch(error => console.error('Error fetching items:', error));
+
+    }
+    dispatchPrincipalChangedEvent(principalId) {
+        const event = new CustomEvent('principalChanged', { detail: { principalId: principalId } });
+        document.dispatchEvent(event);
     }
 }

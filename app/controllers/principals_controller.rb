@@ -62,7 +62,11 @@ class PrincipalsController < ApplicationController
     render json: items
   end
 
-
+  def places
+    principal = Principal.find(params[:id])
+    places = principal.inspections.select(:place).distinct.map(&:place)
+    render json: places
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
