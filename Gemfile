@@ -93,3 +93,7 @@ gem 'omnidocx'
 #manejo de archivos excel
 gem 'roo'
 gem 'activerecord-import'
+
+
+gem 'caracal'
+gem 'caxlsx_rails'

@@ -15,7 +15,7 @@ class DocumentGenerator
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
 
-    template_path = Rails.root.join('app', 'templates', 'template.docx')
+    template_path = Rails.root.join('app', 'templates', 'template_1.docx')
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
@@ -122,9 +122,7 @@ class DocumentGenerator
     end
 
     doc.replace('{{detail_sala_maquinas}}', detail.sala_maquinas)
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(detail.inspect)
-    puts(report.inspect)
+
 
     if item.group.number <=3
       doc.replace('{{item_group}}', item.group.number.to_s)
@@ -207,7 +205,14 @@ class DocumentGenerator
     end
 
 
-    doc.replace('{{item_group2}}', "F#{item.group.number}-PO-ASC-01 #{item.group.name}")
+
+    output_path = Rails.root.join('tmp', "part1.docx")
+    doc.commit(output_path)
+
+    template_path = Rails.root.join('app', 'templates', 'template_3.docx')
+
+    doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+
 
     doc.replace('{{inspection_place}}', inspection.place)
     if inspection.result == 'Aprobado'
@@ -250,6 +255,7 @@ class DocumentGenerator
 
     errors_graves = []
     errors_leves = []
+    errors_all = []
 
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
@@ -265,6 +271,7 @@ class DocumentGenerator
           errors_leves << "#{revision.points[index]}. Razón: #{revision.comment[index]}}"
         end
       end
+      errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla #{level}. Razón: #{revision.comment[index]}"
     end
 
     errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                                                                                                                                                         " }.join("\n")
@@ -323,9 +330,9 @@ class DocumentGenerator
     doc.replace('{{admin}}', "        #{admin.real_name}     ")
     doc.replace('{{inspector}}', "#{inspection.user.real_name}")
 
+    output_path2 = Rails.root.join('tmp', "part3.docx")
+    doc.commit(output_path2)
 
-    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number}-#{inspection.inf_date.strftime('%m')}-#{inspection.inf_date.strftime('%Y')}.docx")
-    doc.commit(output_path)
 
 
     images_to_write = prepare_images_for_document(revision_id)
@@ -337,10 +344,9 @@ class DocumentGenerator
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => inspection.number.to_s}, output_path, output_path)
 
-    # Clean up temporary image files after processing
     cleanup_temporary_images(images_to_write)
-
-    return output_path
+    Omnidocx::Docx.merge_documents(['tmp/part1.docx', 'tmp/part3.docx'], 'tmp/output_doc.docx', true)
+    return 'tmp/output_doc.docx'
   end
 
   private
