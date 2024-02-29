@@ -63,7 +63,7 @@ class DocumentGenerator
       doc.replace('{{certificado_minvu}}', "Cumple/no aplica")
     end
 
-    doc.replace('{{report_fecha}}', inspection.inf_date.strftime('%d/%m/%Y'))
+    doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
     doc.replace('{{empresa_anterior}}', report.empresa_anterior)
     doc.replace('{{ea_rol}}', report.ea_rol)
     doc.replace('{{ea_rut}}', report.ea_rut)
@@ -103,7 +103,7 @@ class DocumentGenerator
     doc.replace('{{detail_mm_marca}}', detail.mm_marca)
     doc.replace('{{detail_mm_n_serie}}', detail.mm_n_serie)
     doc.replace('{{detail_potencia}}', detail.potencia)
-    doc.replace('{{detail_capacidad}}', detail.capacidad)
+    doc.replace('{{detail_capacidad}}', " #{detail.capacidad}")
     doc.replace('{{detail_personas}}', detail.personas)
     doc.replace('{{detail_ct_marca}}', detail.ct_marca)
     doc.replace('{{detail_ct_cantidad}}', detail.ct_cantidad)
@@ -135,37 +135,54 @@ class DocumentGenerator
     last_errors = []
 
 
+    if report.cert_ant == 'Si'
 
-    if last_revision&.levels.blank?
-      doc.replace('{{informe_anterior}}', "")
-      doc.replace('{{revision_past_errors_level}}', "")
-    else
+      if last_revision.nil?
+        doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
+        doc.replace('{{revision_past_errors_level}}', "")
+
+      end
+
+      if last_revision&.levels.blank?
+        doc.replace('{{informe_anterior}}', "")
+        doc.replace('{{revision_past_errors_level}}', "")
+      else
 
 
-      last_revision.levels.each_with_index do |level, index|
-        if level.include?("L")
-          if revision.codes.include?(last_revision.codes[index])
-            if revision.points.include?(last_revision.points[index])
-              last_errors << last_revision.points[index]
+        last_revision.levels.each_with_index do |level, index|
+          if level.include?("L")
+            if revision.codes.include?(last_revision.codes[index])
+              if revision.points.include?(last_revision.points[index])
+                last_errors << last_revision.points[index]
+              end
             end
           end
         end
+
+
+        if last_errors.blank?
+          doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
+          doc.replace('{{revision_past_errors_level}}', "")
+
+        else
+          last_inspection = Inspection.find(last_revision.inspection_id)
+          last_inspection_inf_date = last_inspection.inf_date
+          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
+          doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+          doc.replace('{{revision_past_errors_level}}', formatted_errors)
+
+        end
       end
-
-
-      if last_errors.blank?
-        doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
-        doc.replace('{{revision_past_errors_level}}', "")
 
       else
-        last_inspection = Inspection.find(last_revision.inspection_id)
-        last_inspection_inf_date = last_inspection.inf_date
-        formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
-        doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
-        doc.replace('{{revision_past_errors_level}}', formatted_errors)
-
-      end
+        doc.replace('{{informe_anterior}}', "No presenta certificación anterior")
+        doc.replace('{{revision_past_errors_level}}', "")
     end
+
+
+
+
+
 
 
     carpetas = [
@@ -182,11 +199,14 @@ class DocumentGenerator
       '0.1.11'
     ]
 
+    revision_nulls = RevisionNull.where(revision_id: revision_id)
+
     carpetas.each do |carpeta|
       indice = revision.codes.find_index(carpeta)
       if indice
         doc.replace('{{carpeta_si}}', '')
         doc.replace('{{carpeta_no}}', 'X')
+        doc.replace('{{carpeta_no_aplica}}', '')
         if revision.levels[indice] == 'L'
           doc.replace('{{carpeta_g}}', '')
           doc.replace('{{carpeta_l}}', 'X')
@@ -195,9 +215,20 @@ class DocumentGenerator
           doc.replace('{{carpeta_l}}', '')
         end
         doc.replace('{{carpeta_comentario}}', revision.comment[indice])
+
+      elsif revision_nulls.any? { |null| null.point.start_with?("#{carpeta}_") }
+        doc.replace('{{carpeta_si}}', '')
+        doc.replace('{{carpeta_no}}', '')
+        doc.replace('{{carpeta_g}}', '')
+        doc.replace('{{carpeta_l}}', '')
+        doc.replace('{{carpeta_comentario}}', '')
+        doc.replace('{{carpeta_no_aplica}}', 'X')
+
+
       else
         doc.replace('{{carpeta_si}}', 'X')
         doc.replace('{{carpeta_no}}', '')
+        doc.replace('{{carpeta_no_aplica}}', '')
         doc.replace('{{carpeta_g}}', '')
         doc.replace('{{carpeta_l}}', '')
         doc.replace('{{carpeta_comentario}}', '')
@@ -205,8 +236,7 @@ class DocumentGenerator
     end
 
 
-
-    output_path = Rails.root.join('tmp', "part1.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.inf_date.strftime('%m')}-#{inspection.inf_date.strftime('%Y')}.docx")
     doc.commit(output_path)
 
     template_path = Rails.root.join('app', 'templates', 'template_3.docx')
@@ -261,17 +291,24 @@ class DocumentGenerator
       if level.include?("G")
         if revision.comment[index].blank?
           errors_graves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningun comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningun comentario)"
+
         else
           errors_graves << "#{revision.points[index]}. Razón: #{revision.comment[index]}"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: #{revision.comment[index]}"
+
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
           errors_leves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningun comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningun comentario)"
+
         else
           errors_leves << "#{revision.points[index]}. Razón: #{revision.comment[index]}}"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: #{revision.comment[index]}"
+
         end
       end
-      errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla #{level}. Razón: #{revision.comment[index]}"
     end
 
     errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                                                                                                                                                         " }.join("\n")
