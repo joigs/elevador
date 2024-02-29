@@ -64,8 +64,7 @@
         <h2><%= "#{rule.ruletype.gygatype_number} #{rule.ruletype.rtype}" %></h2>
       <% end %>
 
-      <div data-controller="rules-form">
-        <tr>
+        <tr data-controller="rules-form">
 
           <td>
 
@@ -121,7 +120,6 @@
         <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
         </tr>
 
-          </div>
     <% end %>
       </tbody>
     </table>
