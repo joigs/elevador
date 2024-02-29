@@ -94,6 +94,3 @@ gem 'omnidocx'
 gem 'roo'
 gem 'activerecord-import'
 
-
-gem 'caracal'
-gem 'caxlsx_rails'
