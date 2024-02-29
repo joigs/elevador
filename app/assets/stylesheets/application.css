@@ -28,6 +28,44 @@ textarea {
 }
 
 .green {
-    background-color: green; /* Or any green shade you prefer */
-    color: white; /* Adjust text color if needed */
+    background-color: green;
+    color: white;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 8px;
+    font-size: 16px
+}
+
+
+@media (max-width: 1000px) { /* Adjusts styles for screens up to 600px wide */
+    th {
+        font-size: 11px; /* Smaller font size for mobile screens */
+    }
+    td {
+        font-size: 12px; /* Smaller font size for mobile screens */
+    }
+}
+
+input[type="checkbox"] {
+    transform: scale(1.5); /* Adjust scale as needed */
+    margin: 5px; /* Adds some space around the checkbox to avoid layout issues */
+}
+
+button:not(.section-button) {
+    transform: scale(1.2); /* Adjust scale as needed */
+}
+
+.section-button{
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
 }

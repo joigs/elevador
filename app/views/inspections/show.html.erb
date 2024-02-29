@@ -19,11 +19,11 @@
 </div>
 
 <div>
-  <%=   link_to 'Ver fallas encontradas', revision_path(inspection_id: @inspection) if (@inspection.state=="Cerrado" and Current.user.admin) or @inspection.owner?%>
+  <%=   link_to 'Ver fallas encontradas', revision_path(inspection_id: @inspection) if Current.user.admin || @inspection.owner?%>
 </div>
 
 <div>
-  <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: 'btn btn-primary' if @inspection.state=="Cerrado" and Current.user.admin %>
+  <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: 'btn btn-primary' if @inspection.state=="Cerrado" && Current.user.admin %>
 </div>
 
 
