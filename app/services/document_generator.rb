@@ -290,8 +290,8 @@ class DocumentGenerator
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
         if revision.comment[index].blank?
-          errors_graves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningun comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningun comentario)"
+          errors_graves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
           errors_graves << "#{revision.points[index]}. Razón: #{revision.comment[index]}"
@@ -300,8 +300,8 @@ class DocumentGenerator
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
-          errors_leves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningun comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningun comentario)"
+          errors_leves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
           errors_leves << "#{revision.points[index]}. Razón: #{revision.comment[index]}}"
@@ -388,7 +388,7 @@ class DocumentGenerator
 
         has_matching_photo = revision_photos.any? { |photo| photo.code == code }
 
-        next_code_different = (revision.codes[group.last[1] + 1] != code rescue true)
+        next_code_different = (revision.codes[index+1] != code rescue true)
 
         if has_matching_photo && next_code_different
           errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
