@@ -333,26 +333,66 @@ class DocumentGenerator
     output_path2 = Rails.root.join('tmp', "part3.docx")
     doc.commit(output_path2)
 
+    original_files = []
 
-
-    images_to_write = prepare_images_for_document(revision_id)
-
-    # Writing images to the document
-    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+    revision_photos = RevisionPhoto.where(revision_id: revision_id)
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.inf_date.strftime('%m'), "{{year}}" => inspection.inf_date.strftime('%Y') }, output_path, output_path)
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => inspection.number.to_s}, output_path, output_path)
+    set_of_errors = []
 
-    cleanup_temporary_images(images_to_write)
-    Omnidocx::Docx.merge_documents(['tmp/part1.docx', 'tmp/part3.docx'], 'tmp/output_doc.docx', true)
-    return 'tmp/output_doc.docx'
+    revision.codes.each_with_index.chunk_while { |(_, i), (_, j)| revision.codes[i] == revision.codes[j] }.each_with_index do |group, group_index|
+      group.each do |code, index|
+
+        template_path = Rails.root.join('app', 'templates', 'template_2.docx')
+        doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+        set_of_errors << errors_all[index]
+
+        has_matching_photo = revision_photos.any? { |photo| photo.code == code }
+
+        next_code_different = (revision.codes[group.last[1] + 1] != code rescue true)
+
+        if has_matching_photo && next_code_different
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
+          doc.replace('{{loop_falla}}', errors_all_text)
+          output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
+          doc.commit(output_path_var)
+          original_files << output_path_var # Track the file for later deletion
+          Omnidocx::Docx.merge_documents([output_path, output_path_var], output_path, false)
+          images_to_write = prepare_images_for_document(revision_id, code)
+          Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+          cleanup_temporary_images(images_to_write)
+          set_of_errors = []
+
+        elsif index == revision.codes.length - 1
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
+          doc.replace('{{loop_falla}}', errors_all_text)
+          output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
+          doc.commit(output_path_var)
+          original_files << output_path_var # Track the file for later deletion
+          Omnidocx::Docx.merge_documents([output_path, output_path_var], output_path, false)
+        end
+      end
+    end
+
+
+
+    Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
+
+    original_files << 'tmp/part3.docx'
+
+    original_files.each do |file_path|
+      File.delete(file_path) if File.exist?(file_path)
+    end
+
+    return output_path
   end
 
   private
 
-  def self.prepare_images_for_document(revision_id)
-    revision_photos = RevisionPhoto.where(revision_id: revision_id)
+  def self.prepare_images_for_document(revision_id, code)
+    revision_photos = RevisionPhoto.where(revision_id: revision_id, code: code)
 
     max_width_per_image = 300 # Adjust based on your actual document size and DPI
 
