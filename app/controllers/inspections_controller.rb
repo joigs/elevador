@@ -8,6 +8,8 @@ class InspectionsController < ApplicationController
   def show
     inspection
     @detail = Detail.find_by(item_id: inspection.item_id)
+    @control = @inspection == Inspection.order(created_at: :desc).first
+
   end
   def new
     @inspection = Inspection.new

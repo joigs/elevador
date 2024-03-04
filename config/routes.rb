@@ -15,7 +15,6 @@ Rails.application.routes.draw do
   resources :users, only: :show, path: '/user', param: :username, as: 'perfil'
   resources :inspections, path: '/inspections' do
     member do
-      get :generate_document
       get :download_document
       patch :close_inspection
     end
@@ -31,7 +30,14 @@ Rails.application.routes.draw do
       post :import
     end
   end
+
   resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
+  resources :ladders, path: '/ladders' do
+    collection do
+      get :new_import
+      post :import
+    end
+  end
   resources :items, path: '/items'
   resources :principals, path: '/principals' do
     get :items, on: :member

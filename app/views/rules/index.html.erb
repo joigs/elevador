@@ -22,9 +22,15 @@
 <div>
   <%= link_to 'Comprobaciones', ruletypes_path %>
 </div>
-
+  <div>
   <%= link_to 'Importar defectos desde excel', new_import_rules_path %>
+  </div>
 
+  <br>
+  <div>
+    <%= link_to 'Ver defectos de escaleras mecánicas', ladders_path %>
+  </div>
+  <br>
 
   <%= turbo_frame_tag 'rules' do %>
 

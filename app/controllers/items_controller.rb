@@ -33,6 +33,11 @@ class ItemsController < ApplicationController
   def update
     authorize! item
     if @item.update(item_params)
+      @inspections = Inspection.where(item_id: item.id)
+      @principal = Principal.find(item_params[:principal_id])
+      @inspections.each do |inspection|
+        inspection.update(principal_id: @principal.id)
+      end
       redirect_to items_path, notice: 'Se modificaron los datos del activo'
     else
       render :edit, status: :unprocessable_entity

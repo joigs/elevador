@@ -16,12 +16,20 @@ class RulesImporter
 
       ins_type = row[2].cell_value.split(',').map(&:strip)
       level = []
-      level << 'L' if row[3]&.cell_value == 'x'
-      level << 'G' if row[4]&.cell_value == 'x'
+      if row[3]&.cell_value == 'L'
+        level << 'L'
+      else
+        level << 'G'
+      end
+      level << 'G' if row[4]&.cell_value == 'G'
 
       point = row[0].cell_value
       code = row[1].cell_value
 
+      puts(code)
+      puts(level)
+      puts("1: #{row[3]&.cell_value}")
+      puts("2: #{row[4]&.cell_value}")
         rules_data << Rule.new(
           point: point,
           code: code,

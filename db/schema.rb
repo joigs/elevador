@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_26_180914) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_29_201734) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -107,6 +107,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_26_180914) do
     t.index ["group_id"], name: "index_items_on_group_id"
     t.index ["identificador"], name: "index_items_on_identificador", unique: true
     t.index ["principal_id"], name: "index_items_on_principal_id"
+  end
+
+  create_table "ladders", force: :cascade do |t|
+    t.string "number"
+    t.string "point"
+    t.string "code"
+    t.string "priority"
+    t.string "level"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "principals", force: :cascade do |t|

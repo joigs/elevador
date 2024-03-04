@@ -14,8 +14,9 @@
   <%= @inspection.user.real_name if @inspection.user %>
 </p>
 
+
 <div>
-  <%= link_to 'Realizar inspección', edit_detail_path(@detail) if @inspection.owner? %>
+  <%= link_to 'Realizar inspección', edit_detail_path(@detail) if @inspection.owner? && @control %>
 </div>
 
 <div>
