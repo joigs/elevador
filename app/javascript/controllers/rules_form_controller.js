@@ -1,4 +1,3 @@
-// app/javascript/controllers/rules_form_controller.js
 
 import { Controller } from "@hotwired/stimulus"
 
@@ -11,7 +10,7 @@ export default class extends Controller {
     static targets = ["fail", "nullCondition", "level", "point", "code", "comment", "photo", "photoCode", "priority", "number"]
 
     connect() {
-        this.toggleFields(); // Initial check in case of pre-checked boxes or pre-uploaded photos
+        this.toggleFields();
         this.photoTargets.forEach((photoInput) => {
             photoInput.addEventListener('change', (event) => this.handleFileUpload(event));
         });
@@ -42,7 +41,6 @@ export default class extends Controller {
 
             const hasUploadedPhoto = photoInput.files && photoInput.files.length > 0;
 
-            // Enable fields if checkbox is checked or if a photo is already uploaded
             const shouldEnable = isChecked || hasUploadedPhoto;
             photoInput.disabled = !shouldEnable;
             codeInput.disabled = !shouldEnable;
@@ -52,7 +50,6 @@ export default class extends Controller {
             priorityInput.disabled = !shouldEnable;
             numberInput.disabled = !shouldEnable;
 
-            // Specifically manage photoCodeInput based on the presence of an uploaded photo
             photoCodeInput.disabled = !hasUploadedPhoto;
         });
     }
@@ -71,13 +68,11 @@ export default class extends Controller {
     handleFileUpload(event) {
         const input = event.target;
         if(input.files.length > 0) {
-            // Enable the photoCodeInput related to this photo input
             const photoInputIndex = this.photoTargets.indexOf(input);
             const photoCodeInput = this.photoCodeTargets[photoInputIndex];
             if (photoCodeInput) {
                 photoCodeInput.disabled = false;
             }
-            // Perform additional UI updates or actions as needed
         }
     }
 }

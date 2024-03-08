@@ -16,7 +16,6 @@ export default class extends Controller {
   }
 
   update(event) {
-    // Update the SlimSelect options with the new data
     const options = event.detail.options;
     this.slimSelect.setData(options);
   }

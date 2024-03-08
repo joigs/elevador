@@ -284,7 +284,6 @@ class InspectionsController < ApplicationController
   def inspection_params
     params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
       if whitelisted[:item_attributes] && whitelisted[:item_attributes][:identificador]
-        # Remove all blank spaces from the identificador
         whitelisted[:item_attributes][:identificador].gsub!(/\s+/, "")
       end
     end

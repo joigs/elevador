@@ -1,7 +1,7 @@
-/// app/javascript/controllers/form_select_update.js
 
 
-//controlador que se encarga de actualizar los select dentro del form ade inspeccion.
+//controlador que se encarga de actualizar los select dentro del form de inspeccion.
+//SIN USO, AUN NO LO ELIMINO PORQUE ME DA MIEDO
 
 
 
@@ -22,14 +22,13 @@ document.addEventListener('turbo:load', function() {
                             optionElement.textContent = item.identificador;
                             itemSelect.appendChild(optionElement);
                         });
-                        // After updating options, reinitialize Slim Select
                         const slimControllerElement = itemSelect.closest('[data-controller="slim"]');
                         if (slimControllerElement) {
                             const slimController = application.getControllerForElementAndIdentifier(slimControllerElement, "slim");
                             slimController.initializeSlimSelect();
                         }
                     })
-                    .catch(error => console.error('Failed to fetch items:', error));
+                    .catch(error => console.error('No se pudieron obtener activos:', error));
             }
         });
     }

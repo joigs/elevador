@@ -1,4 +1,3 @@
-// app/javascript/controllers/principal_select_controller.js
 
 import { Controller } from "@hotwired/stimulus"
 

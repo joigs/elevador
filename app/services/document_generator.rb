@@ -430,14 +430,14 @@ class DocumentGenerator
   def self.prepare_images_for_document(revision_id, code)
     revision_photos = RevisionPhoto.where(revision_id: revision_id, code: code)
 
-    max_width_per_image = 300 # Adjust based on your actual document size and DPI
+    max_width_per_image = 300
 
     images_to_write = revision_photos.map do |revision_photo|
       if revision_photo.photo.attached?
         temp_path = save_temp_image(revision_photo.photo)
         {
           :path => temp_path,
-          :height => 300, # Adjust height as needed to maintain aspect ratio
+          :height => 300,
           :width => max_width_per_image,
         }
       end
@@ -446,14 +446,11 @@ class DocumentGenerator
   end
 
   def self.save_temp_image(attachment)
-    # Define a temporary directory for storing images
     temp_dir = Rails.root.join('tmp', 'images')
     FileUtils.mkdir_p(temp_dir) unless Dir.exist?(temp_dir)
 
-    # Generate a temporary file path
     temp_path = File.join(temp_dir, attachment.filename.to_s)
 
-    # Save the attachment to a temporary file
     File.open(temp_path, 'wb') do |file|
       file.write(attachment.download)
     end
