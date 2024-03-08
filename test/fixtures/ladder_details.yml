@@ -1,0 +1,37 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  marca: MyString
+  modelo: MyString
+  nserie: 1
+  mm_marca: MyString
+  mm_nserie: 1
+  potencia: 1.5
+  capacidad: 1
+  personas: 1
+  peldaños: 1
+  longitud: 1.5
+  inclinacion: 1
+  ancho: 1
+  velocidad: 1.5
+  fabricacion: 1
+  procedencia: MyString
+  item: one
+
+two:
+  marca: MyString
+  modelo: MyString
+  nserie: 1
+  mm_marca: MyString
+  mm_nserie: 1
+  potencia: 1.5
+  capacidad: 1
+  personas: 1
+  peldaños: 1
+  longitud: 1.5
+  inclinacion: 1
+  ancho: 1
+  velocidad: 1.5
+  fabricacion: 1
+  procedencia: MyString
+  item: two

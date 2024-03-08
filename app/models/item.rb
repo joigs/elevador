@@ -23,7 +23,8 @@ class Item < ApplicationRecord
   has_many :inspections, dependent: :destroy
   has_many :reports, dependent: :destroy
   has_many :revisions, dependent: :destroy
-
+  has_one :ladder_detail, dependent: :destroy
+  has_many :ladder_revisions, dependent: :destroy
   def inspector?
     self.inspections.each do |inspection|
       if inspection.user_id == Current.user&.id

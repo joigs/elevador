@@ -14,13 +14,24 @@
   <%= @inspection.user.real_name if @inspection.user %>
 </p>
 
-
 <div>
-  <%= link_to 'Realizar inspección', edit_detail_path(@detail) if @inspection.owner? && @control %>
+
+<% if @control2 %>
+    <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail) if @inspection.owner? && @control %>
+  <% else %>
+    <%= link_to 'Realizar inspección', edit_detail_path(@detail) if @inspection.owner? && @control %>
+
+  <% end %>
 </div>
 
+
 <div>
-  <%=   link_to 'Ver fallas encontradas', revision_path(inspection_id: @inspection) if Current.user.admin || @inspection.owner?%>
+  <% if @control2 %>
+    <%= link_to 'Ver fallas encontradas', ladder_revision_path(inspection_id: @inspection) if Current.user.admin || @inspection.owner?%>
+    <% else %>
+    <%= link_to 'Ver fallas encontradas', revision_path(inspection_id: @inspection) if Current.user.admin || @inspection.owner?%>
+
+  <% end %>
 </div>
 
 <div>

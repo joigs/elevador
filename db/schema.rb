@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_29_201734) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -109,6 +109,44 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_29_201734) do
     t.index ["principal_id"], name: "index_items_on_principal_id"
   end
 
+  create_table "ladder_details", force: :cascade do |t|
+    t.string "marca"
+    t.string "modelo"
+    t.integer "nserie"
+    t.string "mm_marca"
+    t.integer "mm_nserie"
+    t.float "potencia"
+    t.integer "capacidad"
+    t.integer "personas"
+    t.integer "peldaños"
+    t.float "longitud"
+    t.integer "inclinacion"
+    t.integer "ancho"
+    t.float "velocidad"
+    t.integer "fabricacion"
+    t.string "procedencia"
+    t.bigint "item_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_ladder_details_on_item_id"
+  end
+
+  create_table "ladder_revisions", force: :cascade do |t|
+    t.string "codes", default: [], array: true
+    t.string "points", default: [], array: true
+    t.string "levels", default: [], array: true
+    t.string "fail", default: [], array: true
+    t.string "comment", default: [], array: true
+    t.string "number", default: [], array: true
+    t.string "priority", default: [], array: true
+    t.bigint "inspection_id", null: false
+    t.bigint "item_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inspection_id"], name: "index_ladder_revisions_on_inspection_id"
+    t.index ["item_id"], name: "index_ladder_revisions_on_item_id"
+  end
+
   create_table "ladders", force: :cascade do |t|
     t.string "number"
     t.string "point"
@@ -160,26 +198,29 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_29_201734) do
   create_table "revision_colors", force: :cascade do |t|
     t.integer "number"
     t.boolean "color"
+    t.string "revision_type", null: false
     t.bigint "revision_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["revision_id"], name: "index_revision_colors_on_revision_id"
+    t.index ["revision_type", "revision_id"], name: "index_revision_colors_on_revision"
   end
 
   create_table "revision_nulls", force: :cascade do |t|
     t.string "point"
-    t.bigint "revision_id", null: false
+    t.string "revision_type"
+    t.bigint "revision_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["revision_id"], name: "index_revision_nulls_on_revision_id"
+    t.index ["revision_type", "revision_id"], name: "index_revision_nulls_on_revision"
   end
 
   create_table "revision_photos", force: :cascade do |t|
-    t.bigint "revision_id", null: false
     t.string "code"
+    t.string "revision_type", null: false
+    t.bigint "revision_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["revision_id"], name: "index_revision_photos_on_revision_id"
+    t.index ["revision_type", "revision_id"], name: "index_revision_photos_on_revision"
   end
 
   create_table "revisions", force: :cascade do |t|
@@ -247,11 +288,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_29_201734) do
   add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"
   add_foreign_key "items", "principals"
+  add_foreign_key "ladder_details", "items"
+  add_foreign_key "ladder_revisions", "inspections"
+  add_foreign_key "ladder_revisions", "items"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
-  add_foreign_key "revision_colors", "revisions"
-  add_foreign_key "revision_nulls", "revisions"
-  add_foreign_key "revision_photos", "revisions"
   add_foreign_key "revisions", "groups"
   add_foreign_key "revisions", "inspections"
   add_foreign_key "revisions", "items"

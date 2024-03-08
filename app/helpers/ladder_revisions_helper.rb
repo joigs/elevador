@@ -1,0 +1,2 @@
+module LadderRevisionsHelper
+end

@@ -7,8 +7,15 @@ class InspectionsController < ApplicationController
   end
   def show
     inspection
-    @detail = Detail.find_by(item_id: inspection.item_id)
-    @control = @inspection == Inspection.order(created_at: :desc).first
+    @item = inspection.item
+    @control2 =  @item.group == Group.where("name LIKE ?", "%Escalera%").first
+    if @control2
+      @detail = LadderDetail.find_by(item_id: @item.id)
+    else
+      @detail = Detail.find_by(item_id: @item.id)
+    end
+    @control = @inspection == Inspection.where(item: @item).order(created_at: :desc).first
+
 
   end
   def new
@@ -61,16 +68,31 @@ class InspectionsController < ApplicationController
 
       @inspection.item = @item
 
-      if is_new_item
-        @detail = Detail.create!(item: @item)
-      end
+
 
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
-      @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
-      (0..11).each do |index|
-        @revision.revision_colors.create!(number: index, color: false)
+
+      if @item.group == Group.where("name LIKE ?", "%Escalera%").first
+        @revision = LadderRevision.create!(inspection: @inspection, item: @inspection.item)
+        numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
+        numbers.each do |number|
+          @revision.revision_colors.create!(number: number, color: false)
+        end
+        if is_new_item
+          @detail = LadderDetail.create!(item: @item)
+        end
+      else
+        @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
+        (0..11).each do |index|
+          @revision.revision_colors.create!(number: index, color: false)
+        end
+        if is_new_item
+          @detail = Detail.create!(item: @item)
+        end
       end
+
+
 
 
       redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'
@@ -133,8 +155,15 @@ class InspectionsController < ApplicationController
         @report = Report.find_or_initialize_by(inspection: @inspection)
         @report.update(item: @inspection.item)
 
-        @revision = Revision.find_or_initialize_by(inspection: @inspection)
-        @revision.update(item: @inspection.item, group: @inspection.item.group)
+        if @inspection.item.group == Group.where("name LIKE ?", "%Escalera%").first
+          @revision = LadderRevision.find_or_initialize_by(inspection: @inspection)
+          @revision.update(item: @inspection.item, group: @inspection.item.group)
+
+        else
+          @revision = Revision.find_or_initialize_by(inspection: @inspection)
+          @revision.update(item: @inspection.item, group: @inspection.item.group)
+        end
+
 
 
         redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
@@ -162,10 +191,18 @@ class InspectionsController < ApplicationController
     inspection.update(inf_date: Time.zone.now.to_date)
     inspection_id = inspection.id
     principal_id = inspection.item.principal_id
-    revision_id = Revision.find_by(inspection_id: inspection.id).id
     item_id = inspection.item_id
     admin_id = Current.user.id
-    new_doc_path = DocumentGenerator.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
+
+    if inspection.item.group == Group.where("name LIKE ?", "%Escalera%").first
+      revision_id = LadderRevision.find_by(inspection_id: inspection.id).id
+      new_doc_path = DocumentGeneratorLadder.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
+    else
+      revision_id = Revision.find_by(inspection_id: inspection.id).id
+      new_doc_path = DocumentGenerator.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
+
+    end
+
 
     send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
   rescue StandardError => e
@@ -174,11 +211,20 @@ class InspectionsController < ApplicationController
 
   def close_inspection
     @inspection = Inspection.find(params[:id])
-    @revision = Revision.find(params[:revision_id])
-    detail = @inspection.item.detail
+    if @inspection.item.group == Group.where("name LIKE ?", "%Escalera%").first
+      @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+      isladder = true
+      detail = @inspection.item.ladder_detail
+    else
+      @revision = Revision.find(params[:revision_id])
+      isladder = false
+      detail = @inspection.item.detail
+
+    end
+
     report = inspection.report
     revision_nulls = @revision.revision_nulls
-    if @inspection.item.detail.sala_maquinas == "Responder más tarde"
+    if isladder == false && detail.sala_maquinas == "Responder más tarde"
       redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se ha especificado presencia de sala de máquinas'
     else
       control1 = true
@@ -196,7 +242,7 @@ class InspectionsController < ApplicationController
         redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se han completado todos los controles de calidad'
       else
 
-        if !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } || @revision.codes[0]=='0.1.1') && (report.certificado_minvu == '' || report.certificado_minvu == nil || report.certificado_minvu == 'No' || report.certificado_minvu == 'no')
+        if isladder == false && !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } || @revision.codes[0]=='0.1.1') && (report.certificado_minvu == '' || report.certificado_minvu == nil || report.certificado_minvu == 'No' || report.certificado_minvu == 'no')
           redirect_to inspection_path(@inspection), alert: 'Se ingresó que no hay certificado MINVU, pero en la checklist se ingresó que si hay'
         else
 

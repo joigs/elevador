@@ -14,7 +14,6 @@
   <div data-controller="section-submit">
     <% (0..11).each do |number| %>
       <div>
-        <%# Find the specific color object for this iteration's number %>
         <% color_for_number = @colors.find { |c| c.number == number } %>
         <% is_current_color = @color.number == number %>
         <% is_nope = number == @nope %>
@@ -111,6 +110,8 @@
             <% end %>
 
           </td>
+          <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
+          <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
 
           <td>
 

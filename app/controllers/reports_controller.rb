@@ -12,7 +12,13 @@ class ReportsController < ApplicationController
   def update
     authorize! report
     if @report.update(report_params)
-      redirect_to edit_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'
+
+      if @report.inspection.item.group.name == Group.where("name LIKE ?", "%Escalera%").first.name
+        redirect_to edit_ladder_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'
+      else
+        redirect_to edit_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'
+      end
+
     else
       render :edit, status: :unprocessable_entity
     end

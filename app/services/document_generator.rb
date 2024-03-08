@@ -1,4 +1,3 @@
-# app/services/document_generator.rb
 
 require 'docx_replace'
 require 'omnidocx'

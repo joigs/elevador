@@ -20,10 +20,8 @@ export default class extends Controller {
         fetch(`/principals/${principalId}/items`)
             .then(response => response.json())
             .then(data => {
-                // Clear existing options
                 identificadorList.innerHTML = '';
 
-                // Add new options based on fetched data
                 data.forEach((item) => {
                     const option = document.createElement('option');
                     option.value = item.identificador;
@@ -31,7 +29,7 @@ export default class extends Controller {
                 });
                 this.dispatchPrincipalChangedEvent(principalId);
             })
-            .catch(error => console.error('Error fetching items:', error));
+            .catch(error => console.error('Error al obtener los activos:', error));
 
     }
     dispatchPrincipalChangedEvent(principalId) {

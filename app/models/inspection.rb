@@ -39,6 +39,7 @@ class Inspection < ApplicationRecord
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
   has_one :revision, dependent: :destroy
+  has_one :ladder_revision, dependent: :destroy
 
   before_validation :set_principal_from_item
 

@@ -13,6 +13,7 @@ class DetailsController < ApplicationController
   # GET /details/1/edit
   def edit
     authorize! detail
+
   end
 
 

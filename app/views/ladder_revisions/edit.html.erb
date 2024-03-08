@@ -1,0 +1,159 @@
+<%= form_with(model: @revision, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off" }) do |form| %>
+  <% if @revision.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(@revision.errors.count, "error") %> No se pudo guardar la revisión:</h2>
+
+      <ul>
+        <% @revision.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div data-controller="section-submit">
+    <% @numbers.each_with_index do |number, index| %>
+      <div>
+        <% color_for_number = @colors.find { |c| c.number == number } %>
+        <% is_current_color = @color.number == number %>
+        <%= button_tag type: 'button',
+                       class: 'section-button',
+                       data: { action: "section-submit#submitAndNavigate",
+                               section_submit_target: "button",
+                               url: edit_ladder_revision_path(id: @revision, inspection_id: @inspection.id, section: number) },
+                       style: "#{'background-color: white;' if is_current_color}
+                             #{'background-color: green;' if color_for_number&.color && !is_current_color}
+                             #{'background-color: gray;' if !color_for_number&.color && !is_current_color}",
+                       disabled: is_current_color do %>
+          <%= number %>
+          <%= @nombres[index] %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+
+
+
+  <br>
+  <br>
+
+
+
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+        <tr>
+          <th>No</th>
+          <th>N/A    </th>
+          <th>Descripción</th>
+          <th>Prioridad</th>
+          <th>Ocurre falla</th>
+          <th>Nivel defecto</th>
+          <th>Imagen</th>
+          <th>Comentario</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @rules.each_with_index do |rule, index| %>
+
+
+          <tr data-controller="rules-form">
+
+            <td>
+              <%= rule.number %>
+              <%= hidden_field_tag "ladder_revision[number][]", rule.number, data: { rules_form_target: "number" } %>
+
+            </td>
+
+            <td>
+
+              <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+              <%= check_box_tag "ladder_revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
+              <%= label_tag "null_condition_#{index}", "" %>
+            </td>
+
+            <td>
+              <%= label_tag "", revision_label_text(rule, @last_revision) %>
+            </td>
+
+            <td>
+              <%= rule.priority %>
+              <%= hidden_field_tag "ladder_revision[priority][]", rule.priority, data: { rules_form_target: "priority" } %>
+
+            </td>
+
+            <td>
+
+              <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>
+              <%= check_box_tag "ladder_revision[fail][]", "1", is_checked, id: "fail_#{index}", data: { action: "change->rules-form#toggle", rules_form_target: "fail" } %>
+            </td>
+
+            <%= hidden_field_tag "ladder_revision[codes][]", rule.code, data: { rules_form_target: "code" } %>
+            <%= hidden_field_tag "ladder_revision[points][]", rule.point, data: { rules_form_target: "point" } %>
+            <td>
+
+              <% if @last_revision.present? && @last_revision.points.include?(rule.point) %>
+                <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
+                <%= hidden_field_tag "ladder_revision[levels][]", "G" %>
+
+              <% else %>
+
+                <% if rule.level.include?('G') && rule.level.include?('L') %>
+                  <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
+                    <%= button_tag type: 'button', class: 'toggle-button' do %>
+                      <span data-level-target="label">G</span>
+                    <% end %>
+                    <%= hidden_field_tag "ladder_revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
+                  </div>
+                <% else %>
+                  <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
+                  <%= hidden_field_tag "ladder_revision[levels][]", revision_level_or_g(rule, @last_revision), data: { rules_form_target: "level" } %>
+                <% end %>
+              <% end %>
+
+            </td>
+
+            <td>
+
+              <%= file_field_tag "revision_photos[photo][]",
+                                 name: "revision_photos[photo][]",
+                                 id: "photo_#{index}",
+                                 disabled: !is_checked,
+                                 data: { rules_form_target: "photo" },
+                                 accept: "image/*",
+                                 capture: "environment" %>
+            </td>
+            <td>
+              <% comment_index = @revision.codes.index(rule.code) %>
+              <%= text_area_tag "ladder_revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 30, data: { rules_form_target: "comment" } %>
+            </td>
+            <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
+          </tr>
+
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
+  <br>
+  <div>
+    <%= check_box_tag :color, "1", @color.color, id: "color_checkbox" %>
+    <%= label_tag :color_checkbox, 'Marcar como revisado' %>
+  </div>
+
+  <br>
+
+
+  <br>
+
+  <div>
+    <%= form.submit "Ver fallas registradas" %>
+  </div>
+<% end %>
+
+<br>
+<div>
+  <%= link_to "Volver atrás", inspection_path(@inspection) %>
+</div>
