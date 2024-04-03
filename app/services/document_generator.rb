@@ -198,7 +198,7 @@ class DocumentGenerator
       '0.1.11'
     ]
 
-    revision_nulls = RevisionNull.where(revision_id: revision_id)
+    revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
 
     carpetas.each do |carpeta|
       indice = revision.codes.find_index(carpeta)
@@ -371,7 +371,7 @@ class DocumentGenerator
 
     original_files = []
 
-    revision_photos = RevisionPhoto.where(revision_id: revision_id)
+    revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'Revision')
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.inf_date.strftime('%m'), "{{year}}" => inspection.inf_date.strftime('%Y') }, output_path, output_path)
 
@@ -428,7 +428,7 @@ class DocumentGenerator
   private
 
   def self.prepare_images_for_document(revision_id, code)
-    revision_photos = RevisionPhoto.where(revision_id: revision_id, code: code)
+    revision_photos = RevisionPhoto.where(revision_id: revision_id, code: code, revision_type: 'Revision')
 
     max_width_per_image = 300
 

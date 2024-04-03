@@ -63,10 +63,7 @@ class LadderRevisionsController < ApplicationController
 
     @last_revision = LadderRevision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
 
-    if section_code_start == "1."
-      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-    end
 
   rescue ActiveRecord::RecordNotFound
     redirect_to(home_path, alert: "No se encontró inspección")
