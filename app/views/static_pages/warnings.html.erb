@@ -1,0 +1,16 @@
+<h1> Certificaciones por vencer </h1>
+
+<%= render 'shared/back_home' %>
+
+<br>
+<%= turbo_frame_tag 'inspections' do %>
+
+  <%= render 'shared/search_form', form_url: inspections_path %>
+
+
+  <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+    <%= render partial: 'inspections/inspection', collection: @inspections %>
+    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
+  <% end %>
+<% end %>
+

@@ -8,6 +8,10 @@
 </div>
 
 <div>
+  <%= link_to 'Certificaciones por vencer', warnings_path if Current.user.admin %>
+</div>
+
+<div>
   <%= link_to "Tipos de ascensores", groups_path if Current.user.admin %>
 </div>
 
