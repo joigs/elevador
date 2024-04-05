@@ -146,7 +146,7 @@ class LadderRevisionsController < ApplicationController
     end
 
     @revision.codes.each_with_index do |code, index|
-      code_start = code.split('.').first.to_i
+      code_start = code.split('.')[1].to_i
       if code_start >= current_section_num && control
         control = false
         codes.each_with_index do |code2, index2|
@@ -235,7 +235,7 @@ class LadderRevisionsController < ApplicationController
       end
 
       @revision_photos.each do |photo|
-        code_start = photo.code.split('.').first.to_i
+        code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
           if params[:ladder_revision][:codes].present?
             if params[:ladder_revision][:codes].exclude?(photo.code)
@@ -250,13 +250,13 @@ class LadderRevisionsController < ApplicationController
 
     else
       @revision_nulls.each do |null|
-        code_start = null.point.split('.').first.to_i
+        code_start = null.point.split('.')[1].to_i
         if code_start == current_section_num
           null.destroy
         end
       end
       @revision_photos.each do |photo|
-        code_start = photo.code.split('.').first.to_i
+        code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
           photo.destroy
         end

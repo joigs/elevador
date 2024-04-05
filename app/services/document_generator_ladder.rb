@@ -17,6 +17,10 @@ class DocumentGeneratorLadder
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
+    doc.replace('{{XXX}}', inspection.number.to_s)
+    doc.replace('{{MM}}', inspection.inf_date.strftime('%m'))
+    doc.replace('{{XX}}', inspection.inf_date.strftime('%Y'))
+
 
     doc.replace('{{principal_name}}', principal.name)
     doc.replace('{{principal_business_name}}', principal.business_name)
@@ -291,6 +295,8 @@ class DocumentGeneratorLadder
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'LadderRevision')
     set_of_errors = []
 
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{ins_num}}" => inspection.number.to_s }, output_path, output_path)
+
 
     revision.codes.each_with_index.chunk_while { |(_, i), (_, j)| revision.codes[i] == revision.codes[j] }.each_with_index do |group, group_index|
       group.each do |code, index|
@@ -327,12 +333,12 @@ class DocumentGeneratorLadder
     end
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
-
+    original_files << output_path2
 
     original_files.each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
-    return output_path2
+    return output_path
   end
 
   private

@@ -244,6 +244,7 @@ class DocumentGenerator
 
 
     doc.replace('{{inspection_place}}', inspection.place)
+    doc.replace('{{ins_place}}', inspection.place)
     if inspection.result == 'Aprobado'
       doc.replace('{{buen/mal}}', "buen")
     elsif inspection.result == 'Rechazado'
