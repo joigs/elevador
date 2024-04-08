@@ -1,4 +1,4 @@
-/*@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -11,3 +11,22 @@
 }
 
 */
+
+.btn {
+    @apply w-full px-6 py-3 text-sm font-medium leading-5 text-center text-white rounded-md shadow-sm;
+}
+
+.btn-blue {
+    @apply bg-blue-500;
+}
+
+.btn-green {
+    @apply bg-green-500;
+}
+
+/* Ensure buttons have the same width and height */
+@media (min-width: 640px) {
+    .btn {
+        @apply min-w-[140px] h-[50px];
+    }
+}

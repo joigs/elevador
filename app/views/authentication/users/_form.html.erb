@@ -1,35 +1,34 @@
-
-<%= form_with(model: @user) do |form| %>
+<%= form_with(model: @user, class: "space-y-4 max-w-md mx-auto") do |form| %>
   <% @user.errors.full_messages.each do |error| %>
-    <div>
+    <div class="text-red-500">
       <%= error %>
     </div>
   <% end %>
 
   <div>
-    <%= form.label :"Nombre de usuario" %>
-    <%= form.text_field :username, required: true %>
+    <%= form.label :"Nombre de usuario", class: "block text-gray-700" %>
+    <%= form.text_field :username, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :Email %>
-    <%= form.email_field :email, required: true %>
+    <%= form.label :Email, class: "block text-gray-700" %>
+    <%= form.email_field :email, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :Contraseña %>
-    <%= form.password_field :password, required: true %>
+    <%= form.label :Contraseña, class: "block text-gray-700" %>
+    <%= form.password_field :password, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Nombre real" %>
-    <%= form.text_field :real_name, required: true %>
+    <%= form.label :"Nombre real", class: "block text-gray-700" %>
+    <%= form.text_field :real_name, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Rol" %>
-    <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]]) %>
+    <%= form.label :"Rol", class: "block text-gray-700" %>
+    <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]]), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
   </div>
 
-  <%= form.submit :"Crear Usuario" %>
+  <%= form.submit "Crear Usuario", class: "w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
 <% end %>
