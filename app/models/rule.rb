@@ -33,10 +33,10 @@ class Rule < ApplicationRecord
   scope :ordered_by_code, -> {
     select("rules.*")
       .order(Arel.sql("
-      CAST(split_part(code, '.', 1) AS INTEGER),
-      CAST(split_part(code, '.', 2) AS INTEGER),
-      CASE WHEN split_part(code, '.', 3) = '' THEN 0 ELSE CAST(split_part(code, '.', 3) AS INTEGER) END,
-      CASE WHEN split_part(code, '.', 4) = '' THEN 0 ELSE CAST(split_part(code, '.', 4) AS INTEGER) END
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 1), '.', -1) AS UNSIGNED),
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 2), '.', -1) AS UNSIGNED),
+    CAST(IF(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 3), '.', -1) = '', '0', SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 3), '.', -1)) AS UNSIGNED),
+    CAST(IF(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 4), '.', -1) = '', '0', SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 4), '.', -1)) AS UNSIGNED)
     "))
   }
 

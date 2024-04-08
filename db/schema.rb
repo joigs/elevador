@@ -10,11 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-  create_table "active_storage_attachments", force: :cascade do |t|
+ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
+  create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
@@ -24,7 +21,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
+  create_table "active_storage_blobs", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -36,13 +33,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
+  create_table "active_storage_variant_records", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "details", force: :cascade do |t|
+  create_table "details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "detalle"
     t.string "marca"
     t.string "modelo"
@@ -68,18 +65,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["item_id"], name: "index_details_on_item_id"
   end
 
-  create_table "groups", force: :cascade do |t|
+  create_table "groups", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "deleted_at", precision: nil
+    t.datetime "deleted_at"
     t.string "name", null: false
     t.index ["deleted_at"], name: "index_groups_on_deleted_at"
     t.index ["name"], name: "index_groups_on_name", unique: true
     t.index ["number"], name: "index_groups_on_number", unique: true
   end
 
-  create_table "inspections", force: :cascade do |t|
+  create_table "inspections", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "number", null: false
     t.string "place", null: false
     t.date "ins_date", null: false
@@ -90,7 +87,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.datetime "updated_at", null: false
     t.string "state", default: "Abierto"
     t.bigint "user_id"
-    t.integer "item_id"
+    t.bigint "item_id"
     t.bigint "principal_id", null: false
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
@@ -98,7 +95,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["user_id"], name: "index_inspections_on_user_id"
   end
 
-  create_table "items", force: :cascade do |t|
+  create_table "items", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "identificador", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -109,7 +106,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["principal_id"], name: "index_items_on_principal_id"
   end
 
-  create_table "ladder_details", force: :cascade do |t|
+  create_table "ladder_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "marca"
     t.string "modelo"
     t.integer "nserie"
@@ -131,14 +128,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["item_id"], name: "index_ladder_details_on_item_id"
   end
 
-  create_table "ladder_revisions", force: :cascade do |t|
-    t.string "codes", default: [], array: true
-    t.string "points", default: [], array: true
-    t.string "levels", default: [], array: true
-    t.string "fail", default: [], array: true
-    t.string "comment", default: [], array: true
-    t.string "number", default: [], array: true
-    t.string "priority", default: [], array: true
+  create_table "ladder_revisions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "codes"
+    t.string "points"
+    t.string "levels"
+    t.string "fail"
+    t.string "comment"
+    t.string "number"
+    t.string "priority"
     t.bigint "inspection_id", null: false
     t.bigint "item_id", null: false
     t.datetime "created_at", null: false
@@ -147,7 +144,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["item_id"], name: "index_ladder_revisions_on_item_id"
   end
 
-  create_table "ladders", force: :cascade do |t|
+  create_table "ladders", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "number"
     t.string "point"
     t.string "code"
@@ -157,7 +154,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "principals", force: :cascade do |t|
+  create_table "principals", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "rut", null: false
     t.string "name", null: false
     t.string "business_name", null: false
@@ -170,7 +167,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.string "contact_email"
   end
 
-  create_table "reports", force: :cascade do |t|
+  create_table "reports", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "certificado_minvu"
     t.date "fecha"
     t.string "empresa_anterior"
@@ -195,7 +192,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["item_id"], name: "index_reports_on_item_id"
   end
 
-  create_table "revision_colors", force: :cascade do |t|
+  create_table "revision_colors", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "number"
     t.boolean "color"
     t.string "revision_type", null: false
@@ -205,7 +202,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["revision_type", "revision_id"], name: "index_revision_colors_on_revision"
   end
 
-  create_table "revision_nulls", force: :cascade do |t|
+  create_table "revision_nulls", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "point"
     t.string "revision_type"
     t.bigint "revision_id"
@@ -214,7 +211,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["revision_type", "revision_id"], name: "index_revision_nulls_on_revision"
   end
 
-  create_table "revision_photos", force: :cascade do |t|
+  create_table "revision_photos", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "code"
     t.string "revision_type", null: false
     t.bigint "revision_id", null: false
@@ -223,23 +220,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["revision_type", "revision_id"], name: "index_revision_photos_on_revision"
   end
 
-  create_table "revisions", force: :cascade do |t|
+  create_table "revisions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.bigint "inspection_id", null: false
     t.bigint "group_id", null: false
     t.bigint "item_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "codes", default: [], array: true
-    t.string "points", default: [], array: true
-    t.string "levels", default: [], array: true
-    t.string "fail", default: [], array: true
-    t.string "comment", default: [], array: true
+    t.string "codes"
+    t.string "points"
+    t.string "levels"
+    t.string "fail"
+    t.string "comment"
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_revisions_on_item_id"
   end
 
-  create_table "rules", force: :cascade do |t|
+  create_table "rules", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "point", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -250,7 +247,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["ruletype_id"], name: "index_rules_on_ruletype_id"
   end
 
-  create_table "rulesets", force: :cascade do |t|
+  create_table "rulesets", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.bigint "group_id", null: false
     t.bigint "rule_id", null: false
     t.datetime "created_at", null: false
@@ -259,7 +256,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.index ["rule_id"], name: "index_rulesets_on_rule_id"
   end
 
-  create_table "ruletypes", force: :cascade do |t|
+  create_table "ruletypes", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "rtype"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -267,7 +264,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_06_160503) do
     t.string "gygatype_number"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "username", null: false
     t.string "password_digest", null: false
     t.boolean "admin", default: false

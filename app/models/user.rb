@@ -1,14 +1,12 @@
 class User < ApplicationRecord
   has_secure_password
 
-  include PgSearch::Model
+  include Minidusen::Filter
 
-  pg_search_scope :search_full_text,
-                  against: [:username, :real_name, :email],
-                  using: {
-                    tsearch: { prefix: true }
-                  }
-
+  filter :text do |scope, phrases|
+    columns = [:username, :real_name, :email]
+    scope.where_like(columns => phrases)
+  end
 
 
   validates :username, presence: true, uniqueness: true,

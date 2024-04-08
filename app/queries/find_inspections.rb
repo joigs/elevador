@@ -26,7 +26,7 @@ class FindInspections
 
   def filter_by_query_text(scoped, query_text)
     return scoped unless query_text.present?
-    scoped.search_full_text(query_text)
+    scoped.filter(text: query_text)
   end
 
 

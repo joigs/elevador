@@ -1,17 +1,12 @@
 class Inspection < ApplicationRecord
   #para la busqueda
-  include PgSearch::Model
+  include Minidusen::Filter
 
-    pg_search_scope :search_full_text,
-                    against: [:number],
-                    associated_against: {
-                      item: [:identificador],
-                      principal: [:rut, :name, :business_name]
-                    },
-                    using: {
-                      tsearch: { prefix: true }
-                    }
-
+  filter :text do |scope, phrases|
+    columns = ['inspections.number', 'items.identificador', 'principal.rut', 'principal.name', 'principal.business_name']
+    scope = scope.joins(:item, :principal)
+    scope.where_like(columns => phrases)
+  end
 
   #el como estan ordenados
   ORDER_BY = {

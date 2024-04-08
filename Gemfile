@@ -9,7 +9,7 @@ gem "rails", "~> 7.1.3"
 gem "sprockets-rails"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
+gem "mysql2", "~> 0.5"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
@@ -66,10 +66,6 @@ group :test do
   gem "selenium-webdriver"
 end
 
-
-#Postgresql fulltextsearch
-gem "pg_search", "~> 2.3"
-
 #Paginacion
 gem "pagy", "~> 6.4"
 
@@ -93,4 +89,7 @@ gem 'omnidocx'
 #manejo de archivos excel
 gem 'roo'
 gem 'activerecord-import'
+
+#busqueda en mysql
+gem 'minidusen'
 

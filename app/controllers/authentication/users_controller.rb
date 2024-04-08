@@ -20,11 +20,9 @@ class Authentication::UsersController < ApplicationController
 
   def index
     if Current.user&.admin
-
+      @users = User.all
       if params[:query_text].present?
-        @users = User.search_full_text(params[:query_text])
-      else
-        @users = User.all
+        @users = @users.filter(text: params[:query_text])
       end
 
       @pagy, @users = pagy_countless(@users, items: 10)

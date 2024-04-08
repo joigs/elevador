@@ -1,14 +1,11 @@
 class Principal < ApplicationRecord
 
-  include PgSearch::Model
+  include Minidusen::Filter
 
-  pg_search_scope :search_full_text,
-                  against: [:rut, :name, :business_name],
-                  using: {
-                    tsearch: { prefix: true }
-                  }
-
-
+  filter :text do |scope, phrases|
+    columns = [:rut, :name, :business_name]
+    scope.where_like(columns => phrases)
+  end
 
 
   validates :name, presence: true, uniqueness: true
