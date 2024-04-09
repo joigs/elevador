@@ -1,13 +1,6 @@
 #Comprobaciones
 class Ruletype < ApplicationRecord
 
-  include PgSearch::Model
-
-  pg_search_scope :search_full_text,
-                  against: [:gygatype_number, :rtype],
-                  using: {
-                    tsearch: { prefix: true }
-                  }
 
 
 

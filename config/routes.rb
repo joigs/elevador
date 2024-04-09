@@ -32,7 +32,12 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes'
+  resources :ruletypes, only: [:new, :create, :index, :destroy, :show], path: '/ruletypes' do
+    collection do
+      get :new_import
+      post :import
+    end
+  end
   resources :ladders, path: '/ladders' do
     collection do
       get :new_import

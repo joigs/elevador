@@ -2,15 +2,6 @@
 class Item < ApplicationRecord
 
 
-  include PgSearch::Model
-  pg_search_scope :search_full_text,
-                  against: [:identificador],
-                  associated_against: {
-                    principal: [:rut, :name, :business_name]
-                  },
-                  using: {
-                    tsearch: { prefix: true }
-                  }
 
 
 

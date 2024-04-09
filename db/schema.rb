@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_09_042025) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -130,10 +130,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
 
   create_table "ladder_revisions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "codes"
-    t.string "points"
+    t.text "points"
     t.string "levels"
     t.string "fail"
-    t.string "comment"
+    t.text "comment"
     t.string "number"
     t.string "priority"
     t.bigint "inspection_id", null: false
@@ -146,7 +146,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
 
   create_table "ladders", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "number"
-    t.string "point"
+    t.text "point"
     t.string "code"
     t.string "priority"
     t.string "level"
@@ -203,7 +203,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
   end
 
   create_table "revision_nulls", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.string "point"
+    t.text "point"
     t.string "revision_type"
     t.bigint "revision_id"
     t.datetime "created_at", null: false
@@ -227,17 +227,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "codes"
-    t.string "points"
+    t.text "points"
     t.string "levels"
     t.string "fail"
-    t.string "comment"
+    t.text "comment"
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_revisions_on_item_id"
   end
 
   create_table "rules", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.string "point", null: false
+    t.text "point", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "ruletype_id", null: false
@@ -257,7 +257,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_035019) do
   end
 
   create_table "ruletypes", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.string "rtype"
+    t.text "rtype"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "gygatype", default: "", null: false

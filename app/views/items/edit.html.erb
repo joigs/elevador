@@ -1,10 +1,8 @@
-<h1>Modificar Activo</h1>
-
-<%= render "form", item: @item %>
-
-<br>
-
-<div>
-  <%= link_to "Cancelar", @item %> |
-  <%= link_to "Volver a activos", items_path %>
+<div class="max-w-4xl mx-auto sm:px-6 lg:px-8 py-8">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">Modificar Activo</h1>
+  <%= render "form", item: @item %>
+  <div class="flex justify-center mt-4">
+    <%= link_to "Cancelar", @item, class: "text-md text-gray-600 hover:text-gray-700 transition duration-150 ease-in-out mr-4" %>
+    <%= link_to "Volver a activos", items_path, class: "text-md text-blue-600 hover:text-blue-700 transition duration-150 ease-in-out" %>
+  </div>
 </div>

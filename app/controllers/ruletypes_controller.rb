@@ -43,6 +43,21 @@ class RuletypesController < ApplicationController
     redirect_to ruletypes_url, notice: "Tipo de regla eliminada"
   end
 
+  def new_import
+  end
+
+  def import
+    if params[:file].nil?
+      redirect_to new_import_ruletypes_path, alert: "No se seleccionó ningún archivo"
+      return
+    end
+
+
+    RuletypesImporter.import(params[:file].path)
+    redirect_to ruletypes_path, notice: "Se importaron las comprobaciones con exito"
+  end
+
+
   private
 
     def ruletype

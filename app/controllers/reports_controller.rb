@@ -13,7 +13,7 @@ class ReportsController < ApplicationController
     authorize! report
     if @report.update(report_params)
 
-      if @report.inspection.item.group.name == Group.where("name LIKE ?", "%Escalera%").first.name
+      if @report.inspection.item.group.name == Group.where("name LIKE ?", "%Escalera%").first&.name
         redirect_to edit_ladder_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'
       else
         redirect_to edit_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'

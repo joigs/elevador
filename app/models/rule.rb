@@ -1,12 +1,6 @@
 class Rule < ApplicationRecord
 
-  include PgSearch::Model
 
-  pg_search_scope :search_full_text,
-                  against: [:code, :point],
-                  using: {
-                    tsearch: { prefix: true }
-                  }
 
 
 

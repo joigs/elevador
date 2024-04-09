@@ -1,33 +1,22 @@
-<div id="<%= dom_id item %>">
-  <div>
-    <h2><%= item.identificador %></h2>
-  </div>
+<div id="<%= dom_id item %>" class="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  <h2 class="text-xl font-bold text-gray-800 mb-4"><%= item.identificador %></h2>
 
-  <div>
-    <p>Clasificación: Grupo N°<%= item.group.number %></p>
-  </div>
+  <p class="text-gray-700">Clasificación: Grupo N°<%= item.group.number %></p>
+  <p class="text-gray-700">Mandante: <%= item.principal&.name %></p>
 
-  <div>
-    <p>Mandante: <%= item.principal&.name %></p>
-  </div>
-
-
-  <div>
+  <div class="mt-4">
     <% inspection = last_inspection(item) %>
     <% if inspection %>
-      <p>Última inspección: <%= format_date(inspection.ins_date) %></p>
-      <p>Estado: <%= inspection.result %></p>
-      <% else %>
-      <p>Aun no hay inspecciones.</p>
+      <p class="text-gray-700">Última inspección: <%= format_date(inspection.ins_date) %></p>
+      <p class="text-gray-700">Estado: <%= inspection.result %></p>
+    <% else %>
+      <p class="text-gray-700">Aun no hay inspecciones.</p>
     <% end %>
   </div>
 
-  <div>
-    <% if controller_name == 'items' && action_name == 'index' %>
-  <%= link_to 'Ver más detalles', item_path(item), 'data-turbo-frame':"_top" %>
-      <% end %>
-  </div>
-
-
-
+  <% if controller_name == 'items' && action_name == 'index' %>
+    <div class="mt-4">
+      <%= link_to 'Ver más detalles', item_path(item), 'data-turbo-frame':"_top", class: "text-blue-600 hover:text-blue-700 transition ease-in-out duration-150" %>
+    </div>
+  <% end %>
 </div>
