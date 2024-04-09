@@ -1,6 +1,6 @@
-<%= form_with(model: group, class: "space-y-4") do |form| %>
+<%= form_with(model: group, class: "space-y-4 bg-gray-900 text-white p-4 rounded-md shadow-lg") do |form| %>
   <% if group.errors.any? %>
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <div class="bg-red-800 border border-red-900 text-red-200 px-4 py-3 rounded relative" role="alert">
       <strong class="font-bold">¡Atención!</strong>
       <span class="block sm:inline"><%= pluralize(group.errors.count, "error") %> No se pudo guardar esta clasificación:</span>
       <ul class="list-disc pl-5">
@@ -12,16 +12,16 @@
   <% end %>
 
   <div class="flex flex-col">
-    <%= form.label :number, "Nuevo tipo de ascensor:" %>
-    <%= form.number_field :number, readonly: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :number, "Nuevo tipo de ascensor:", class: "text-gray-300" %>
+    <%= form.number_field :number, readonly: true, class: "mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-600 focus:border-blue-600 sm:text-sm" %>
   </div>
 
   <div class="flex flex-col mt-4">
-    <%= form.label :name, "Nombre de la clasificación:" %>
-    <%= form.text_field :name, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :name, "Nombre de la clasificación:", class: "text-gray-300" %>
+    <%= form.text_field :name, class: "mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-600 focus:border-blue-600 sm:text-sm" %>
   </div>
 
   <div class="mt-6">
-    <%= form.submit "Crear clasificación", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    <%= form.submit "Crear clasificación", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600" %>
   </div>
 <% end %>

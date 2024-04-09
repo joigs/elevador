@@ -1,17 +1,17 @@
 <%= render @group %>
 
 <div class="flex flex-col sm:flex-row sm:space-x-4 mt-6">
-  <%= link_to "Volver a clasificaciones", groups_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150" %>
+  <%= link_to "Volver a clasificaciones", groups_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
   <% if Current.user.admin? %>
-    <%= link_to 'Eliminar clasificación', group_path(@group), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de que quieres eliminar el grupo? ' }, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150 mt-2 sm:mt-0" %>
+    <%= link_to 'Eliminar clasificación', group_path(@group), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de que quieres eliminar el grupo? ' }, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-red-700 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150 mt-2 sm:mt-0" %>
   <% end %>
 </div>
 
-<div class="bg-white shadow overflow-hidden sm:rounded-lg mt-4">
-  <h3 class="text-xl font-semibold text-gray-900 px-4 py-5 bg-gray-50 border-b border-gray-200">Defectos a revisar:</h3>
-  <ul class="divide-y divide-gray-200">
+<div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-4">
+  <h3 class="text-lg font-semibold text-gray-200 px-4 py-5 bg-gray-700 border-b border-gray-600">Defectos a revisar:</h3>
+  <ul class="divide-y divide-gray-700">
     <% @rules.each do |rule| %>
-      <li class="px-4 py-4 bg-white hover:bg-gray-50">
+      <li class="px-4 py-4 bg-gray-800 text-gray-400 hover:bg-gray-700">
         <%= "#{rule.code} #{rule.point}" %>
       </li>
     <% end %>

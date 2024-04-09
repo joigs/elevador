@@ -1,30 +1,30 @@
-<div id="<%= dom_id user %>" class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+<div id="<%= dom_id user %>" class="max-w-md mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden md:max-w-2xl">
   <div class="p-8">
-    <div class="tracking-wide text-2xl font-bold text-gray-800 mb-8">Perfil del Usuario</div>
+    <div class="tracking-wide text-2xl font-bold text-gray-300 mb-8">Perfil del Usuario</div>
 
-    <p class="text-gray-500">
-      <strong class="text-gray-900">Nombre de usuario:</strong>
+    <p class="text-gray-400">
+      <strong class="text-gray-200">Nombre de usuario:</strong>
       <%= user.username %>
     </p>
 
-    <p class="text-gray-500 mt-2">
-      <strong class="text-gray-900">Nombre real:</strong>
+    <p class="text-gray-400 mt-2">
+      <strong class="text-gray-200">Nombre real:</strong>
       <%= user.real_name %>
     </p>
 
-    <p class="text-gray-500 mt-2">
-      <strong class="text-gray-900">Rol:</strong>
+    <p class="text-gray-400 mt-2">
+      <strong class="text-gray-200">Rol:</strong>
       <%= user.admin ? 'Administrador' : 'Inspector' %>
     </p>
 
-    <p class="text-gray-500 mt-2">
-      <strong class="text-gray-900">Correo electrónico:</strong>
+    <p class="text-gray-400 mt-2">
+      <strong class="text-gray-200">Correo electrónico:</strong>
       <%= user.email %>
     </p>
 
     <div class="mt-4">
       <% if controller_name == 'users' && action_name == 'index' %>
-        <%= link_to 'Mostrar usuario', user_path(user), class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-500 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
+        <%= link_to 'Mostrar usuario', user_path(user), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
       <% end %>
     </div>
   </div>

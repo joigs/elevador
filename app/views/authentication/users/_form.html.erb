@@ -1,34 +1,34 @@
-<%= form_with(model: @user, class: "space-y-4 max-w-md mx-auto") do |form| %>
+<%= form_with(model: @user, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
   <% @user.errors.full_messages.each do |error| %>
-    <div class="text-red-500">
+    <div class="text-red-400 bg-red-800 p-2 rounded">
       <%= error %>
     </div>
   <% end %>
 
   <div>
-    <%= form.label :"Nombre de usuario", class: "block text-gray-700" %>
-    <%= form.text_field :username, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :"Nombre de usuario", class: "block text-gray-300" %>
+    <%= form.text_field :username, required: true, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :Email, class: "block text-gray-700" %>
-    <%= form.email_field :email, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :Email, class: "block text-gray-300" %>
+    <%= form.email_field :email, required: true, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :Contraseña, class: "block text-gray-700" %>
-    <%= form.password_field :password, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :Contraseña, class: "block text-gray-300" %>
+    <%= form.password_field :password, required: true, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Nombre real", class: "block text-gray-700" %>
-    <%= form.text_field :real_name, required: true, class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :"Nombre real", class: "block text-gray-300" %>
+    <%= form.text_field :real_name, required: true, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Rol", class: "block text-gray-700" %>
-    <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]]), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+    <%= form.label :"Rol", class: "block text-gray-300" %>
+    <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]], selected: @user.admin), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <%= form.submit "Guardar usuario", class: "w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+  <%= form.submit "Guardar usuario", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
 <% end %>
