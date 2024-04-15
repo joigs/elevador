@@ -29,7 +29,7 @@ class LadderRevisionsController < ApplicationController
     #acceder a los objetos asociados a la revision
     @item = @revision.item
     @revision_nulls = RevisionNull.where(revision_id: @revision.id)
-    @group = Group.where("name LIKE ?", "%Escalera%").first
+    @group = Group.where("name LIKE ?", "%Escala%").first
     @detail = LadderDetail.find_by(item_id: @item.id)
     @colors = @revision.revision_colors
     @nombres = ['. Requisitos generales',
@@ -117,11 +117,7 @@ class LadderRevisionsController < ApplicationController
       end
 
 
-      if params[:ladder_revision][:null_condition].present?
-        params[:ladder_revision][:null_condition].each do |null_condition|
-          @revision.revision_nulls.create(point: null_condition)
-        end
-      end
+
 
 
 
@@ -213,26 +209,10 @@ class LadderRevisionsController < ApplicationController
     end
 
 
-    @revision_nulls = @revision.revision_nulls
     @revision_photos = @revision.revision_photos
     if params[:ladder_revision].present?
 
-      @revision_nulls.each do |null|
-        code_start = null.point.split('.').first.to_i
 
-
-        if code_start == current_section_num
-          if params[:ladder_revision][:null_condition].present?
-
-            if !params[:ladder_revision][:null_condition].include?(null.point)
-              null.destroy
-            end
-          else
-            null.destroy
-          end
-        end
-
-      end
 
       @revision_photos.each do |photo|
         code_start = photo.code.split('.')[1].to_i
@@ -249,12 +229,7 @@ class LadderRevisionsController < ApplicationController
       end
 
     else
-      @revision_nulls.each do |null|
-        code_start = null.point.split('.')[1].to_i
-        if code_start == current_section_num
-          null.destroy
-        end
-      end
+
       @revision_photos.each do |photo|
         code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num

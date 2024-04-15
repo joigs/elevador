@@ -8,7 +8,7 @@ class InspectionsController < ApplicationController
   def show
     inspection
     @item = inspection.item
-    @control2 =  @item.group == Group.where("name LIKE ?", "%Escalera%").first
+    @control2 =  @item.group == Group.where("name LIKE ?", "%Escala%").first
     if @control2
       @detail = LadderDetail.find_by(item_id: @item.id)
     else
@@ -73,7 +73,7 @@ class InspectionsController < ApplicationController
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
 
-      if @item.group == Group.where("name LIKE ?", "%Escalera%").first
+      if @item.group == Group.where("name LIKE ?", "%Escala%").first
         @revision = LadderRevision.create!(inspection: @inspection, item: @inspection.item)
         numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
         numbers.each do |number|
@@ -155,7 +155,7 @@ class InspectionsController < ApplicationController
         @report = Report.find_or_initialize_by(inspection: @inspection)
         @report.update(item: @inspection.item)
 
-        if @inspection.item.group == Group.where("name LIKE ?", "%Escalera%").first
+        if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
           @revision = LadderRevision.find_or_initialize_by(inspection: @inspection)
           @revision.update(item: @inspection.item, group: @inspection.item.group)
 
@@ -194,7 +194,7 @@ class InspectionsController < ApplicationController
     item_id = inspection.item_id
     admin_id = Current.user.id
 
-    if inspection.item.group == Group.where("name LIKE ?", "%Escalera%").first
+    if inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
       revision_id = LadderRevision.find_by(inspection_id: inspection.id).id
       new_doc_path = DocumentGeneratorLadder.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     else
@@ -211,7 +211,7 @@ class InspectionsController < ApplicationController
 
   def close_inspection
     @inspection = Inspection.find(params[:id])
-    if @inspection.item.group == Group.where("name LIKE ?", "%Escalera%").first
+    if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
       detail = @inspection.item.ladder_detail

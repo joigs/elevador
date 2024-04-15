@@ -51,7 +51,11 @@
         <th>N/A    </th>
         <th>Descripción</th>
         <th>Tipo insp</th>
-        <th>Ocurre falla</th>
+        <% if @section == '0' %>
+          <th>No Presenta documento</th>
+        <% else %>
+          <th>No cumple</th>
+        <% end %>
         <th>Nivel defecto</th>
         <th>Imagen</th>
         <th>Comentario</th>

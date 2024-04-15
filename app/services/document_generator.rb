@@ -280,8 +280,21 @@ class DocumentGenerator
     cumple_text = cumple.map { |index| "#{aux[index]}                                                                                                                                                       " }.join("\n")
     no_cumple_text = no_cumple.map { |index| "#{aux[index]}                                                                                                                                                 " }.join("\n")
 
-    doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
-    doc.replace('{{lista_comprobacion_no_cumple}}', no_cumple_text)
+    if cumple.any?
+      doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
+      doc.replace('{{texto_comprobacion_cumple}}', 'De acuerdo a esta inspección, CUMPLE, con los requisitos normativos evaluados:')
+    else
+      doc.replace('{{lista_comprobacion_cumple}}', '')
+      doc.replace('{{texto_comprobacion_cumple}}', '')
+    end
+
+    if no_cumple.any?
+      doc.replace('{{lista_comprobacion_no_cumple}}', no_cumple_text)
+      doc.replace('{{texto_comprobacion_no_cumple}}', "El equipo inspeccionado, identificado en el ítem II, ubicado en #{inspection.place}, NO CUMPLE, con los siguientes requisitos normativos, detectándose no-conformidades:")
+    else
+      doc.replace('{{lista_comprobacion_no_cumple}}', '')
+      doc.replace('{{texto_comprobacion_no_cumple}}', '')
+    end
 
     errors_graves = []
     errors_leves = []
@@ -311,11 +324,24 @@ class DocumentGenerator
       end
     end
 
-    errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                                                                                                                                                         " }.join("\n")
-    errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                                                                                        " }.join("\n")
 
-    doc.replace('{{revision_errors_leves}}', errors_leves_text)
-    doc.replace('{{revision_errors_graves}}', errors_graves_text)
+    if errors_leves.any?
+      errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                                                                                                                                                         " }.join("\n")
+      doc.replace('{{revision_errors_leves}}', errors_leves_text)
+      doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
+    else
+      doc.replace('{{revision_errors_leves}}', '')
+      doc.replace('{{si_las_hubiera_leve}}', '')
+    end
+
+    if errors_graves.any?
+      errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                                                                                        " }.join("\n")
+      doc.replace('{{revision_errors_graves}}', errors_graves_text)
+      doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Faltas Graves, encontradas en la inspección son las siguientes:')
+    else
+      doc.replace('{{revision_errors_graves}}', '')
+      doc.replace('{{si_las_hubiera_grave}}', '')
+    end
 
     identificador_rol = item.identificador.split("-").first
     identificador_rol_last = identificador_rol[/\d(?=[^\d]*$)/]

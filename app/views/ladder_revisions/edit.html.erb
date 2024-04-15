@@ -46,10 +46,9 @@
         <thead>
         <tr>
           <th>No</th>
-          <th>N/A    </th>
           <th>Descripción</th>
           <th>Prioridad</th>
-          <th>Ocurre falla</th>
+          <th>No cumple</th>
           <th>Nivel defecto</th>
           <th>Imagen</th>
           <th>Comentario</th>
@@ -67,12 +66,12 @@
 
             </td>
 
-            <td>
-
+            <td style="display: none;">
               <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
               <%= check_box_tag "ladder_revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
               <%= label_tag "null_condition_#{index}", "" %>
             </td>
+
 
             <td>
               <%= label_tag "", revision_label_text(rule, @last_revision) %>

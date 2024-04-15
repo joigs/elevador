@@ -22,38 +22,46 @@
     <%= form.text_field :instalation_number %>
   </div>
 
-  <div>
+
+  <div data-controller="certificacion-anterior">
     <%= form.label :cert_ant, "Certificacion anterior", style: "display: block" %>
     <div>
-      <%= form.radio_button :cert_ant, 'Si' %>
+      <%= form.radio_button :cert_ant, 'Si', checked: true, data: { action: "certificacion-anterior#toggleFields" } %>
       <%= form.label :cert_ant, 'Si', value: 'Si' %>
     </div>
     <div>
-      <%= form.radio_button :cert_ant, 'No' %>
+      <%= form.radio_button :cert_ant, 'No', data: { action: "certificacion-anterior#toggleFields" } %>
       <%= form.label :cert_ant, 'No', value: 'No' %>
+    </div>
+
+    <!-- Fields to toggle -->
+    <div data-certificacion-anterior-target="toggleable">
+      <div>
+        <%= form.label :"fecha certificacion anterior", style: "display: block" %>
+        <%= form.date_field :fecha %>
+      </div>
+
+      <div>
+        <%= form.label :"Empresa certificadora anterior", style: "display: block" %>
+        <%= form.text_field :empresa_anterior %>
+      </div>
+
+      <div>
+        <%= form.label :"Rol", style: "display: block" %>
+        <%= form.text_field :ea_rol %>
+      </div>
+
+      <div>
+        <%= form.label :"Rut", style: "display: block" %>
+        <%= form.text_field :ea_rut %>
+      </div>
+
     </div>
   </div>
 
 
-  <div>
-    <%= form.label :"fecha certificacion anterior", style: "display: block" %>
-    <%= form.date_field :fecha %>
-  </div>
 
-  <div>
-    <%= form.label :"Empresa certificadora anterior", style: "display: block" %>
-    <%= form.text_field :empresa_anterior %>
-  </div>
 
-  <div>
-    <%= form.label :"Rol", style: "display: block" %>
-    <%= form.text_field :ea_rol %>
-  </div>
-
-  <div>
-    <%= form.label :"Rut", style: "display: block" %>
-    <%= form.text_field :ea_rut %>
-  </div>
 
   <div>
     <%= form.label :"Empresa mantenedora", style: "display: block" %>

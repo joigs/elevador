@@ -88,7 +88,7 @@ class DocumentGeneratorLadder
     doc.replace('{{potencia}}', detail.potencia.to_s)
     doc.replace('{{capacidad}}', detail.capacidad.to_s)
     doc.replace('{{personas}}', detail.personas.to_s)
-    doc.replace('{{peldaños}}', detail.peldaños.to_s)
+    doc.replace('{{peldanos}}', detail.peldaños.to_s)
     doc.replace('{{longitud}}', detail.longitud.to_s)
     doc.replace('{{inclinacion}}', detail.inclinacion.to_s)
     doc.replace('{{ancho}}', detail.ancho.to_s)

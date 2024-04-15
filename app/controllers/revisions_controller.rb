@@ -74,6 +74,7 @@ class RevisionsController < ApplicationController
       section_code_start = "#{params[:section]}."
       @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start) }
       @color = @revision.revision_colors.find_by(number: section_code_start.to_i)
+      @section = params[:section]
     end
 
 

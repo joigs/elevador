@@ -26,7 +26,7 @@ class Inspection < ApplicationRecord
 
   #calcula automaticamente el numero de inspeccion
   attribute :number, :integer, default: -> { calculate_new_number }
-
+  validates :number, presence: true, uniqueness: true, non_negative: true
 
   belongs_to :user
   belongs_to :item
