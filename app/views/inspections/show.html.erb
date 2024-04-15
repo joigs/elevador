@@ -42,7 +42,7 @@
 
 
 <div>
-  <%= link_to "Modificar inspección", edit_inspection_path(@inspection) if false %>
+  <%= link_to "Modificar identificador", edit_identificador_inspection_path(@inspection) if Current.user.admin && @inspection.ins_date > Date.today %>
   <br>
   <%= link_to "Ver todas las inspecciones", inspections_path %>
   <br>

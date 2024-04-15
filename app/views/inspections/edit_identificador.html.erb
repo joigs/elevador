@@ -1,0 +1,12 @@
+<h1>modificar Identificador de Inspección N°<%= @inspection.number %></h1>
+
+<%= form_with(model: @inspection, url: update_identificador_inspection_path(@inspection), local: true) do |form| %>
+  <div class="field">
+    <%= form.label :identificador %>
+    <%= form.text_field :identificador, value: @item.identificador %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Actualizar" %>
+  </div>
+<% end %>

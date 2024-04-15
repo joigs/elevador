@@ -50,7 +50,7 @@ class ItemsController < ApplicationController
     authorize! item.destroy
     redirect_to items_path, notice: "Activo eliminado"
   end
-
+  
   private
   def item
     @item = Item.find(params[:id])

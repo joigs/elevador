@@ -279,6 +279,20 @@ class InspectionsController < ApplicationController
 
 
 
+  def edit_identificador
+    authorize! inspection
+    @item = inspection.item
+  end
+
+  def update_identificador
+    @inspection = Inspection.find(params[:id])
+    @item = Item.find(params[:id])
+    if @item.update(item_params)
+      redirect_to @item, notice: 'Se modifico .'
+    else
+      render :edit_identificador
+    end
+  end
 
   private
   def inspection_params
