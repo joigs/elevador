@@ -1,4 +1,4 @@
-<%= form_with(model: principal) do |form| %>
+<%= form_with(model: principal, builder: CustomFormBuilder) do |form| %>
   <% if principal.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(principal.errors.count, "error") %> Empresa no pudo ser guardada:</h2>

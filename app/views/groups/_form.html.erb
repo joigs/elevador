@@ -1,4 +1,4 @@
-<%= form_with(model: group, class: "space-y-4 bg-gray-900 text-white p-4 rounded-md shadow-lg") do |form| %>
+<%= form_with(model: group, builder: CustomFormBuilder, class: "space-y-4 bg-gray-900 text-white p-4 rounded-md shadow-lg") do |form| %>
   <% if group.errors.any? %>
     <div class="bg-red-800 border border-red-900 text-red-200 px-4 py-3 rounded relative" role="alert">
       <strong class="font-bold">¡Atención!</strong>

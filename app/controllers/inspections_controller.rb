@@ -59,7 +59,7 @@ class InspectionsController < ApplicationController
 
 
       if !@item.new_record? && current_group != item_params[:group_id]
-        flash.now[:alert] = 'Activo pertenece a otro grupo, seleccione el grupo correspondiente'
+        flash.now[:alert] = "Activo con identificador #{@item.identificador} pertenece a #{@item.group.name}, seleccione el grupo correspondiente"
         render :new, status: :unprocessable_entity
         return
       end
@@ -128,7 +128,7 @@ class InspectionsController < ApplicationController
       is_new_item = new_item.new_record?
 
       if !is_new_item && new_item.group_id.to_s != item_params[:group_id]
-        flash.now[:alert] = 'Activo pertenece a otro grupo, seleccione el grupo correspondiente'
+        flash.now[:alert] = "Activo con identificador #{new_item.identificador} pertenece a #{new_item.group.name}, seleccione el grupo correspondiente"
         render :edit, status: :unprocessable_entity
         return
       end

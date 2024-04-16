@@ -30,3 +30,19 @@
         @apply min-w-[140px] h-[50px];
     }
 }
+
+@layer utilities {
+    .error {
+        @apply border-2 border-red-500 animate-pulse; /* Pulse animation for visibility */
+        @apply shadow-lg; /* Soft shadow for depth */
+    }
+
+    .error-message {
+        @apply text-red-500 text-sm mt-1 font-medium; /* Style for error messages */
+        @apply flex items-center space-x-2; /* Flexbox for alignment */
+    }
+
+    .error-icon {
+        @apply w-4 h-4 inline-block; /* Icon size */
+    }
+}

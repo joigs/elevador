@@ -1,4 +1,4 @@
-<%= form_with(model: report) do |form| %>
+<%= form_with(model: report, builder: CustomFormBuilder) do |form| %>
   <% if report.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(report.errors.count, "error") %> Información del informe no pudo ser guardada:</h2>

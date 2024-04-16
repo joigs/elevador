@@ -1,5 +1,5 @@
 <% if Current.user.admin? %>
-  <%= form_with(model: inspection, local: true, html: { autocomplete: "off" }) do |form| %>
+  <%= form_with(model: inspection, local: true, builder: CustomFormBuilder, html: { autocomplete: "off" }) do |form| %>
     <% if inspection.errors.any? %>
       <div style="color: red">
         <h2><%= pluralize(inspection.errors.count, "error") %> No se pudo guardar esta inspección:</h2>
