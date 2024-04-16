@@ -21,6 +21,9 @@
             </li>
           <% end %>
         </ul>
+        <% if @pagy.next %>
+          <%= turbo_frame_tag "users-#{@pagy.next}", class: 'users', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+        <% end %>
       <% end %>
     <% end %>
   </div>

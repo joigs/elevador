@@ -217,7 +217,7 @@ class InspectionsController < ApplicationController
   end
 
   def close_inspection
-    authorize! @inspection = Inspection.find(params[:id])
+    @inspection = Inspection.find(params[:id])
     if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
