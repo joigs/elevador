@@ -18,8 +18,6 @@ Rails.application.routes.draw do
     member do
       get :download_document
       patch :close_inspection
-      get :edit_identificador
-      patch :update_identificador
     end
   end
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'

@@ -13,6 +13,7 @@ class LadderRevision < ApplicationRecord
 
   belongs_to :inspection
   belongs_to :item
+  belongs_to :group
 
   has_many :revision_colors, as: :revision, dependent: :destroy
   has_many :revision_photos, as: :revision, dependent: :destroy

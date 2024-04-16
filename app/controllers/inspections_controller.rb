@@ -141,26 +141,33 @@ class InspectionsController < ApplicationController
           render :edit, status: :unprocessable_entity
           return
         end
+
+        item_params = item_params.except(:id)
+
         new_item.assign_attributes(item_params)
         new_item.save!
 
-        if is_new_item
-          Detail.create!(item: new_item)
-        end
+
 
         @inspection.item = new_item
       end
 
       if @inspection.update(inspection_params.except(:item_attributes))
-        @report = Report.find_or_initialize_by(inspection: @inspection)
+        @report = Report.find_or_initialize_by(item: @inspection.item)
         @report.update(item: @inspection.item)
 
         if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
-          @revision = LadderRevision.find_or_initialize_by(inspection: @inspection)
+          @revision = LadderRevision.find_or_initialize_by(item: @inspection.item)
           @revision.update(item: @inspection.item, group: @inspection.item.group)
+          if is_new_item
+            LadderDetail.create!(item: new_item)
+          end
 
         else
-          @revision = Revision.find_or_initialize_by(inspection: @inspection)
+          if is_new_item
+            Detail.create!(item: new_item)
+          end
+          @revision = Revision.find_or_initialize_by(item: @inspection.item)
           @revision.update(item: @inspection.item, group: @inspection.item.group)
         end
 
@@ -210,7 +217,7 @@ class InspectionsController < ApplicationController
   end
 
   def close_inspection
-    @inspection = Inspection.find(params[:id])
+    authorize! @inspection = Inspection.find(params[:id])
     if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
@@ -278,21 +285,6 @@ class InspectionsController < ApplicationController
   end
 
 
-
-  def edit_identificador
-    authorize! inspection
-    @item = inspection.item
-  end
-
-  def update_identificador
-    @inspection = Inspection.find(params[:id])
-    @item = Item.find(params[:id])
-    if @item.update(item_params)
-      redirect_to @item, notice: 'Se modifico .'
-    else
-      render :edit_identificador
-    end
-  end
 
   private
   def inspection_params
