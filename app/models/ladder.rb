@@ -1,3 +1,3 @@
 class Ladder < ApplicationRecord
-  has_many rulesets, dependent: :destroy
+  has_many :rulesets, dependent: :destroy
 end
