@@ -5,8 +5,8 @@ class Rule < ApplicationRecord
 
 
   #Permitir que esos sean arrays
-  serialize :level, Array,coder: JSON
-  serialize :ins_type, Array, coder: JSON
+  serialize :level, type: Array,coder: JSON
+  serialize :ins_type, type: Array, coder: JSON
 
   validates :point, presence: true
 

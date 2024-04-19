@@ -152,22 +152,24 @@ class InspectionsController < ApplicationController
         @inspection.item = new_item
       end
 
-      if @inspection.update(inspection_params.except(:item_attributes))
-        @report = Report.find_or_initialize_by(item: @inspection.item)
+      if @inspection.update(inspection_params)
+        @report = Report.find_by(inspection: @inspection)
         @report.update(item: @inspection.item)
 
         if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
-          @revision = LadderRevision.find_or_initialize_by(item: @inspection.item)
+          @revision = LadderRevision.find_by(inspection: @inspection)
           @revision.update(item: @inspection.item, group: @inspection.item.group)
           if is_new_item
             LadderDetail.create!(item: new_item)
+            LadderDetail.destroy_by(item: current_item)
           end
 
         else
           if is_new_item
             Detail.create!(item: new_item)
+            Detail.destroy_by(item: current_item)
           end
-          @revision = Revision.find_or_initialize_by(item: @inspection.item)
+          @revision = Revision.find_by(inspection: @inspection)
           @revision.update(item: @inspection.item, group: @inspection.item.group)
         end
 

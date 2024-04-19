@@ -2,13 +2,13 @@ class LadderRevision < ApplicationRecord
 
 
 
-  serialize :codes, Array,coder: JSON
-  serialize :points, Array, coder: JSON
-  serialize :levels, Array, coder: JSON
-  serialize :fail, Array, coder: JSON
-  serialize :comment, Array, coder: JSON
-  serialize :number, Array, coder: JSON
-  serialize :priority, Array, coder: JSON
+  serialize :codes, type: Array,coder: JSON
+  serialize :points, type: Array, coder: JSON
+  serialize :levels, type: Array, coder: JSON
+  serialize :fail, type: Array, coder: JSON
+  serialize :comment, type: Array, coder: JSON
+  serialize :number, type: Array, coder: JSON
+  serialize :priority, type: Array, coder: JSON
 
 
   belongs_to :inspection
