@@ -104,6 +104,8 @@ class InspectionsController < ApplicationController
 
   def edit
     authorize! inspection
+    inspection_not_modifiable!(inspection)
+
     @items = Item.all
     @item = inspection.item
   end
