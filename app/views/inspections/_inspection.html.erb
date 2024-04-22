@@ -26,6 +26,10 @@
     <%= display_periodicity(inspection.validation) %>
   </p>
 
+  <p>
+    <strong>Clasificación</strong>
+    <%= inspection.item&.group.name %>
+  </p>
 
 
   <p>

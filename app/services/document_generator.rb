@@ -445,6 +445,8 @@ class DocumentGenerator
 
     original_files << 'tmp/part3.docx'
 
+
+
     original_files.each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
