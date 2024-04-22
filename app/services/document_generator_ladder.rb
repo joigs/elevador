@@ -1,6 +1,8 @@
 require 'docx_replace'
 require 'omnidocx'
 require 'fileutils'
+require 'libreconv'
+require 'pdf-reader'
 
 class DocumentGeneratorLadder
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
@@ -334,6 +336,20 @@ class DocumentGeneratorLadder
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
     original_files << output_path2
+
+
+
+    pdf_path = "#{Rails.root}/tmp/#{inspection.number.to_s}.pdf"
+
+    Libreconv.convert(output_path, pdf_path)
+
+    reader = PDF::Reader.new(pdf_path)
+    number_of_pages = reader.page_count
+
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{number_of_pages}}" => number_of_pages.to_s}, output_path, output_path)
+
+
+
 
     original_files.each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
