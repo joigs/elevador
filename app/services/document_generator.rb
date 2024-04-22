@@ -131,6 +131,17 @@ class DocumentGenerator
       doc.replace('{{item_group}}', item.group.name)
     end
 
+    if item.group.number == 1
+      doc.replace('{{normas_de_referencia}}', 'NCh.3395/1:2016 y NCh.440/2:2001')
+
+    elsif item.group.number == 2
+      doc.replace('{{normas_de_referencia}}', 'NCh 440/1 :2000 y NCh440/2 :2001.')
+
+    elsif item.group.number == 3
+      doc.replace('{{normas_de_referencia}}', 'NCh 440/1 :2014 y NCh 440/2 :2001 y NCh 3362.')
+    end
+
+
 
     last_revision = Revision.where(item_id: item.id).order(created_at: :desc).offset(1).first
     last_errors = []
