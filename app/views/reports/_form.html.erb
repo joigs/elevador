@@ -48,7 +48,7 @@
 
       <div>
         <%= form.label :"Rut", style: "display: block" %>
-        <%= form.text_field :ea_rut %>
+        <%= form.text_field :ea_rut, data: { controller: "rut", rut_target: "rut" } %>
       </div>
 
     </div>
@@ -70,7 +70,7 @@
 
   <div>
     <%= form.label :"Rut", style: "display: block" %>
-    <%= form.text_field :em_rut %>
+    <%= form.text_field :em_rut, data: { controller: "rut", rut_target: "rut" } %>
   </div>
 
   <div>
@@ -91,7 +91,7 @@
 
   <div>
     <%= form.label :"Rut", style: "display: block" %>
-    <%= form.text_field :tm_rut %>
+    <%= form.text_field :tm_rut, data: { controller: "rut", rut_target: "rut" } %>
   </div>
 
   <div>
