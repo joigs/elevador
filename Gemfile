@@ -93,3 +93,9 @@ gem 'activerecord-import'
 #busqueda en mysql
 gem 'minidusen'
 
+#conteo de paginas
+gem 'yomu'
+
+gem 'pdf-reader'
+
+gem 'libreconv'
