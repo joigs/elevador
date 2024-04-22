@@ -56,7 +56,7 @@ class DocumentGeneratorLadder
       doc.replace('{{cert_no}}', '')
     end
 
-    doc.replace('{{instalation_number}}', report.instalation_number)
+    doc.replace('{{instalation_number}}', item.identificador)
 
     if revision.codes.first == '0.1.1'
       doc.replace('{{certificado_minvu}}', "No cumple")
