@@ -7,7 +7,6 @@ class Report < ApplicationRecord
   belongs_to :item
 
   private
-  #Si no hay certificado anterior, se limpian los campos
   def clear_fields
     if cert_ant == 'No'
       self.fecha = nil
@@ -22,12 +21,11 @@ class Report < ApplicationRecord
       rut_value = send(rut_column)
       next if rut_value.blank? || rut_value == 'S/I'
       unless valid_rut?(rut_value)
-        errors.add(rut_column, 'is invalid')
+        errors.add(rut_column, 'es invalido')
       end
     end
   end
 
-  # Check if a RUT is valid
   def valid_rut?(rut)
     clean_rut = rut.delete('.-')
     rut_body = clean_rut[0...-1]
@@ -37,7 +35,6 @@ class Report < ApplicationRecord
     calculated_dv == verifier
   end
 
-  # Calculate the DV (Digito Verificador) for a RUT
   def calculate_rut_dv(rut_number)
     sum = 0
     multiplier = 2

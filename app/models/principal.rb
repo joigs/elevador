@@ -41,7 +41,7 @@ class Principal < ApplicationRecord
     verifier = clean_rut[-1].upcase
 
     unless valid_rut?(rut_body, verifier)
-      errors.add(:rut, 'is invalid')
+      errors.add(:rut, 'es invalido')
     end
   end
 
