@@ -49,8 +49,18 @@ Rails.application.routes.draw do
     get :items, on: :member
     get :places, on: :member
   end
-  resources :revisions, path: '/revisions'
-  resources :ladder_revisions, path: '/ladder_revisions'
+  resources :revisions, path: '/revisions' do
+    collection do
+      get :edit_black
+      patch :update_black
+    end
+  end
+  resources :ladder_revisions, path: '/ladder_revisions' do
+    collection do
+      get :edit_black
+      patch :update_black
+    end
+  end
   get 'warnings', to: 'static_pages#warnings'
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

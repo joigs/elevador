@@ -57,7 +57,7 @@ class Inspection < ApplicationRecord
 #para calcular automaticamente el numero de inspeccion
   def self.calculate_new_number
     # Get the newest record
-    newest_record = Inspection.order(ORDER_BY[:newest]).first
+    newest_record = Inspection.where('number > ?', 0).order(ORDER_BY[:newest]).first
 
     newest_record ? newest_record.number.to_i + 1 : 1
   end
