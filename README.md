@@ -1,24 +1,40 @@
-# README
+# Instalación
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+sudo apt install curl -y 
 
-Things you may want to cover:
+cd $HOME
 
-* Ruby version
+sudo apt-get update 
 
-* System dependencies
+sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libxml2-dev libxslt1-dev libcurl4-openssl-dev libffi-dev
 
-* Configuration
 
-* Database creation
+### (no usar cuenta root)
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
 
-* Database initialization
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
 
-* How to run the test suite
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 
-* Services (job queues, cache servers, search engines, etc.)
+exec $SHELL
 
-* Deployment instructions
+git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-* ...
+echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bashrc
+
+exec $SHELL
+
+rbenv install 3.3.0
+
+rbenv global 3.3.0
+
+
+gem install bundler
+
+rbenv rehash
+
+gem install rails
+
+rbenv rehash
+
+
