@@ -1,7 +1,5 @@
 class LadderDetail < ApplicationRecord
 
-  validates :nserie, non_negative: true, allow_nil: true
-  validates :mm_nserie, non_negative: true, allow_nil: true
   validates :potencia, non_negative: true, allow_nil: true
   validates :capacidad, non_negative: true, allow_nil: true
   validates :personas, non_negative: true, allow_nil: true

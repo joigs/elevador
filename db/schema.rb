@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_19_201332) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_22_171921) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -43,9 +43,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_19_201332) do
     t.string "detalle"
     t.string "marca"
     t.string "modelo"
-    t.integer "n_serie"
+    t.string "n_serie"
     t.string "mm_marca"
-    t.integer "mm_n_serie"
+    t.string "mm_n_serie"
     t.float "potencia"
     t.integer "capacidad"
     t.integer "personas"
@@ -54,7 +54,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_19_201332) do
     t.float "ct_diametro"
     t.float "medidas_cintas"
     t.string "rv_marca"
-    t.integer "rv_n_serie"
+    t.string "rv_n_serie"
     t.integer "paradas"
     t.integer "embarques"
     t.string "sala_maquinas"
@@ -110,9 +110,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_19_201332) do
   create_table "ladder_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "marca"
     t.string "modelo"
-    t.integer "nserie"
+    t.string "nserie"
     t.string "mm_marca"
-    t.integer "mm_nserie"
+    t.string "mm_nserie"
     t.float "potencia"
     t.integer "capacidad"
     t.integer "personas"
