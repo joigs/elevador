@@ -12,7 +12,11 @@ class GroupsController < ApplicationController
 
   def show
     group
-    @rules = group.rules.ordered_by_code
+    if group == Group.where("name LIKE ?", "%Escala%").first
+      @rules = Ladder.all
+    else
+      @rules = group.rules.ordered_by_code
+    end
   end
 
   # POST /groups or /groups.json
