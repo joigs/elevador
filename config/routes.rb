@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     member do
       get :download_document
       patch :close_inspection
+      patch :close_inspection_black
     end
   end
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'

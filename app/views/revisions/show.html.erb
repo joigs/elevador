@@ -36,7 +36,10 @@
     <br>
     <br>
     <div>
-      <%= button_to 'Terminar inspección', close_inspection_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la inspección?', turbo_frame: "_top" } if @inspection.owner?%>
+      <%= button_to 'Terminar inspección', close_inspection_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la inspección?', turbo_frame: "_top" } if @inspection.owner? && @inspection.number>0%>
+    </div>
+    <div>
+      <%= button_to 'Terminar Preinspección', close_inspection_black_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la preinspección?', turbo_frame: "_top" } if @inspection.owner? && @inspection.number<0%>
     </div>
   <% else %>
     <%= link_to 'Volver atrás', inspection_path(@inspection) if @inspection.owner? %>
