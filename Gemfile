@@ -99,3 +99,8 @@ gem 'pdf-reader'
 
 #conversion de docx a pdf
 gem 'libreconv'
+
+
+#supuestas dependencias de roo
+gem 'rubyzip'
+gem 'nokogiri'
