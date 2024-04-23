@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_22_200900) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_23_175359) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -141,7 +141,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_22_200900) do
     t.bigint "item_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "group_id"
     t.index ["inspection_id"], name: "index_ladder_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_ladder_revisions_on_item_id"
   end
@@ -253,7 +252,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_22_200900) do
     t.bigint "rule_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "ladder_id"
     t.index ["group_id"], name: "index_rulesets_on_group_id"
     t.index ["rule_id"], name: "index_rulesets_on_rule_id"
   end
