@@ -93,4 +93,6 @@ gem 'activerecord-import'
 #busqueda en mysql
 gem 'minidusen'
 
-
+#supuestas dependencias de roo
+gem 'rubyzip'
+gem 'nokogiri'

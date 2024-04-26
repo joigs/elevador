@@ -1,4 +1,4 @@
-  class RulesController < ApplicationController
+class RulesController < ApplicationController
   before_action :authorize!
 
   def index
