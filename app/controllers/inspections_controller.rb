@@ -52,7 +52,7 @@ class InspectionsController < ApplicationController
 
 
       if @item.new_record? && Item.exists?(identificador: item_params[:identificador])
-        flash.now[:alert] = 'Activo pertenece a otra empresa'
+        flash.now[:alert] = "El activo con id #{item_params[:identificador]} pertenece a la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
         render :new, status: :unprocessable_entity
         return
       end
@@ -139,7 +139,7 @@ class InspectionsController < ApplicationController
 
 
         if is_new_item && Item.exists?(identificador: item_params[:identificador])
-          flash.now[:alert] =  'Activo pertenece a otra empresa'
+          flash.now[:alert] = "El activo con id #{item_params[:identificador]} pertenece a la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
           render :edit, status: :unprocessable_entity
           return
         end

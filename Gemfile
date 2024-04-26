@@ -94,8 +94,3 @@ gem 'activerecord-import'
 gem 'minidusen'
 
 
-#lectura de paginas de pdf
-gem 'pdf-reader'
-
-#conversion de docx a pdf
-gem 'libreconv'

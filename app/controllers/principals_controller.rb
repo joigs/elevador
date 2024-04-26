@@ -33,7 +33,7 @@ class PrincipalsController < ApplicationController
     authorize! @principal = Principal.new(principal_params)
 
     if @principal.save
-      redirect_to principals_path, notice: "Empresa mandante añadida exitosamente"
+      redirect_to principals_path, notice: "Empresa añadida exitosamente"
     else
       render :new, status: :unprocessable_entity
     end
@@ -44,7 +44,7 @@ class PrincipalsController < ApplicationController
   def update
     authorize! principal
     if principal.update(principal_params)
-      redirect_to principals_path, notice: 'Empresa mandante modificada'
+      redirect_to principals_path, notice: 'Empresa modificada'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -53,7 +53,7 @@ class PrincipalsController < ApplicationController
   # DELETE /principals/1 or /principals/1.json
   def destroy
     authorize! principal.destroy
-    redirect_to principals_path, notice: "Empresa mandante eliminada"
+    redirect_to principals_path, notice: "Empresa eliminada"
 
   end
 

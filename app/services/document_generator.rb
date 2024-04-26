@@ -2,8 +2,6 @@
 require 'docx_replace'
 require 'omnidocx'
 require 'fileutils'
-require 'libreconv'
-require 'pdf-reader'
 
 class DocumentGenerator
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
@@ -465,15 +463,8 @@ class DocumentGenerator
 
     original_files << 'tmp/part3.docx'
 
-    pdf_path = "#{Rails.root}/tmp/#{inspection.number.to_s}.pdf"
 
-    Libreconv.convert(output_path, pdf_path)
-
-    reader = PDF::Reader.new(pdf_path)
-    number_of_pages = reader.page_count
-
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{number_of_pages}}" => number_of_pages.to_s}, output_path, output_path)
-
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{number_of_pages}}" => "9"}, output_path, output_path)
 
 
 
