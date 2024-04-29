@@ -259,12 +259,12 @@ class InspectionsController < ApplicationController
 
 
           detail.attributes.each do |attr_name, value|
-            if  value.is_a?(String) && (value.nil? or value == "")
+            if  value.is_a?(String) && (value.nil? || value == "")
               detail.update_attribute(attr_name, "S/I")
             end
           end
           report.attributes.each do |attr_name, value|
-            if  value.is_a?(String) && (value.nil? or value == "")
+            if  value.is_a?(String) && (value.nil? || value == "")
               report.update_attribute(attr_name, "S/I")
             end
           end
