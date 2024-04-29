@@ -38,9 +38,14 @@ class ReportsController < ApplicationController
         if item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
 
           if was_created
-            @revision = LadderRevision.create!(inspection_id: black_inspection.id)
+            @revision = LadderRevision.create!(inspection_id: black_inspection.id, item_id: item.id, group_id: item.group_id)
             @revision.created_at = DateTime.new(1000, 1, 1)
             @revision.save
+
+            numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
+            numbers.each do |number|
+              @revision.revision_colors.create!(number: number, color: false)
+            end
           else
             @revision = LadderRevision.find_by(inspection_id: black_inspection.id)
           end
@@ -50,9 +55,12 @@ class ReportsController < ApplicationController
 
         else
           if was_created
-            @revision = Revision.create!(inspection_id: black_inspection.id)
+            @revision = Revision.create!(inspection_id: black_inspection.id, item_id: item.id, group_id: item.group_id)
             @revision.created_at = DateTime.new(1000, 1, 1)
             @revision.save
+            (0..11).each do |index|
+              @revision.revision_colors.create!(number: index, color: false)
+            end
           else
             @revision = Revision.find_by(inspection_id: black_inspection.id)
           end

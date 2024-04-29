@@ -31,7 +31,7 @@
 </div>
 
 <div>
-  <% if @inspection.result == 'En revisión' %>
+  <% if @inspection.result == 'En revisión' || @inspection.result == 'black'%>
     <%= link_to 'Volver a la inspección', edit_revision_path(inspection_id: @inspection.id, section: 0 ) if @inspection.owner? %>
     <br>
     <br>
