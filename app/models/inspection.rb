@@ -19,14 +19,14 @@ class Inspection < ApplicationRecord
   validates :ins_date, presence: { message: "Debes ingresar una fecha" }
 
   #valida que state solo tenga esos valores
-  validates :state, inclusion: { in: ['Abierto', 'Cerrado'] }
+  validates :state, inclusion: { in: ['Abierto', 'Cerrado', 'black'] }
 
   #valida que no se puedan agendar revisiones los fines de semana
   validate :weekend_error
 
   #calcula automaticamente el numero de inspeccion
   attribute :number, :integer, default: -> { calculate_new_number }
-  validates :number, presence: true, uniqueness: true, non_negative: true
+  validates :number, presence: true, uniqueness: true
 
   belongs_to :user
   belongs_to :item
@@ -57,7 +57,7 @@ class Inspection < ApplicationRecord
 #para calcular automaticamente el numero de inspeccion
   def self.calculate_new_number
     # Get the newest record
-    newest_record = Inspection.order(ORDER_BY[:newest]).first
+    newest_record = Inspection.where('number > ?', 0).order(ORDER_BY[:newest]).first
 
     newest_record ? newest_record.number.to_i + 1 : 1
   end

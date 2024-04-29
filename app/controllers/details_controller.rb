@@ -48,7 +48,7 @@ class DetailsController < ApplicationController
 
         codes, points, levels, comment, fail_statuses = [], [], [], [], []
         revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') or code.starts_with?('9'))
+          if !(code.starts_with?('2') || code.starts_with?('9'))
             codes << code
             points << revision.points[index]
             levels << revision.levels[index]
@@ -86,7 +86,7 @@ class DetailsController < ApplicationController
       elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
         codes, points, levels, comment, fail_statuses = [], [], [], [], []
         revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') or code.starts_with?('9.3') or code.starts_with?('9.4'))
+          if !(code.starts_with?('2') || code.starts_with?('9.3') || code.starts_with?('9.4'))
             codes << code
             points << revision.points[index]
             levels << revision.levels[index]
@@ -104,7 +104,7 @@ class DetailsController < ApplicationController
       elsif @detail.sala_maquinas == "No. Máquina en foso"
         codes, points, levels, comment, fail_statuses = [], [], [], [], []
         revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') or code.starts_with?('9.2') or code.starts_with?('9.4'))
+          if !(code.starts_with?('2') || code.starts_with?('9.2') || code.starts_with?('9.4'))
             codes << code
             points << revision.points[index]
             levels << revision.levels[index]
@@ -122,7 +122,7 @@ class DetailsController < ApplicationController
       elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
         codes, points, levels, comment, fail_statuses = [], [], [], [], []
         revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') or code.starts_with?('9.2') or code.starts_with?('9.3'))
+          if !(code.starts_with?('2') || code.starts_with?('9.2') || code.starts_with?('9.3'))
             codes << code
             points << revision.points[index]
             levels << revision.levels[index]
@@ -140,7 +140,7 @@ class DetailsController < ApplicationController
       elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
         codes, points, levels, comment, fail_statuses = [], [], [], [], []
         revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') or code.starts_with?('9.2') or code.starts_with?('9.3'))
+          if !(code.starts_with?('2') || code.starts_with?('9.2') || code.starts_with?('9.3'))
             codes << code
             points << revision.points[index]
             levels << revision.levels[index]
