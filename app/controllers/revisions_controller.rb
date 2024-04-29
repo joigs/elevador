@@ -85,7 +85,7 @@ class RevisionsController < ApplicationController
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
-    redirect_to(home_path, alert: "Revision or Inspection not found.")
+    redirect_to(home_path, alert: "Error al guardar la inspección")
   end
 
 

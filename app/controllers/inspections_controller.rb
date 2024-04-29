@@ -305,10 +305,10 @@ class InspectionsController < ApplicationController
       redirect_to inspection_path(original_inspection), alert: 'Error: No se ha especificado presencia de sala de máquinas'
 
     else
-      if is_ladder
-        redirect_to ladder_revision_path(original_inspection.revision), notice: 'Preinspección realizada con éxito, ahora realice la inspección real'
+      if isladder
+        redirect_to edit_ladder_revision_path(inspection_id: original_inspection.id), notice: 'Preinspección realizada con éxito, ahora realice la inspección real'
       else
-        redirect_to revision_path(original_inspection.revision), notice: 'Preinspección realizada con éxito, ahora realice la inspección real'
+        redirect_to edit_revision_path(inspection_id: original_inspection.id), notice: 'Preinspección realizada con éxito, ahora realice la inspección real'
 
       end
 
