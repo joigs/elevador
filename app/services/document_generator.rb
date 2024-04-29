@@ -169,6 +169,8 @@ class DocumentGenerator
           end
         end
 
+        puts(last_revision.inspect)
+        puts(revision.inspect)
 
         if last_errors.blank?
           doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")

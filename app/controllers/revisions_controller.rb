@@ -131,6 +131,7 @@ class RevisionsController < ApplicationController
             counter = counter + 1
           end
         end
+        puts(params[:revision].inspect)
       end
 
 
