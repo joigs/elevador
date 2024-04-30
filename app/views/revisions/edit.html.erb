@@ -94,7 +94,7 @@
         <%= hidden_field_tag "revision[points][]", rule.point, data: { rules_form_target: "point" } %>
           <td>
 
-            <% if @last_revision.present? && @last_revision.points.include?(rule.point) %>
+            <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision.id %>
               <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
               <%= hidden_field_tag "revision[levels][]", "G", data: {rules_form_target: "level"} %>
 
@@ -109,7 +109,7 @@
                 </div>
               <% else %>
                 <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
-                <%= hidden_field_tag "revision[levels][]", revision_level_or_g(rule, @last_revision), data: { rules_form_target: "level" } %>
+                <%= hidden_field_tag "revision[levels][]", revision_level_or_g(rule, @last_revision, @revision.id), data: { rules_form_target: "level" } %>
               <% end %>
             <% end %>
 

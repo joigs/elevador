@@ -16,8 +16,8 @@ module RevisionsHelper
     end
   end
 
-  def revision_level_or_g(rule, last_revision)
-    if last_revision&.codes&.include?(rule.code)
+  def revision_level_or_g(rule, last_revision, revision_id)
+    if last_revision&.codes&.include?(rule.code) and last_revision.id != revision_id
       if last_revision.points.include?(rule.point)
         "G"
       else

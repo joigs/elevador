@@ -135,10 +135,23 @@ class DocumentGeneratorLadder
 
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
-          last_inspection_inf_date = last_inspection.inf_date
           formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
-          doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
-          doc.replace('{{revision_past_errors_level}}', formatted_errors)
+
+          if last_inspection.number > 0
+            last_inspection_inf_date = last_inspection.inf_date
+            doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+            doc.replace('{{revision_past_errors_level}}', formatted_errors)
+
+          else
+
+            if report.empresa_anterior=="S/I"
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por empresa sin identificar, las cuales se detallan a continuación:")
+            else
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
+            end
+            doc.replace('{{revision_past_errors_level}}', formatted_errors)
+          end
+
 
         end
       end
