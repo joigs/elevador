@@ -467,7 +467,7 @@ class DocumentGenerator
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)
-          original_files << output_path_var # Track the file for later deletion
+          original_files << output_path_var
           Omnidocx::Docx.merge_documents([output_path, output_path_var], output_path, false)
         end
       end
@@ -480,7 +480,6 @@ class DocumentGenerator
     original_files << 'tmp/part3.docx'
 
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{number_of_pages}}" => "9"}, output_path, output_path)
 
 
 

@@ -352,18 +352,6 @@ class DocumentGeneratorLadder
 
 
 
-    pdf_path = "#{Rails.root}/tmp/#{inspection.number.to_s}.pdf"
-
-    Libreconv.convert(output_path, pdf_path)
-
-    reader = PDF::Reader.new(pdf_path)
-    number_of_pages = reader.page_count
-
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{number_of_pages}}" => number_of_pages.to_s}, output_path, output_path)
-
-
-
-
     original_files.each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
