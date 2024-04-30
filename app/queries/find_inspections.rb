@@ -16,7 +16,7 @@ class FindInspections
   private
 
   def initial_scope
-    Inspection
+    Inspection.where("number > ?", 0)
   end
 
   def sort(scoped, order_by)

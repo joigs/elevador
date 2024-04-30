@@ -1,9 +1,7 @@
 class InspectionsController < ApplicationController
 
   def index
-    @inspections = Inspection.order(number: :desc)
     @pagy, @inspections = pagy_countless(FindInspections.new.call(inspection_params_index), items: 10  )
-
   end
   def show
     inspection
