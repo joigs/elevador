@@ -96,21 +96,21 @@
 
             <% if @last_revision.present? && @last_revision.points.include?(rule.point) %>
               <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
-              <%= hidden_field_tag "revision[levels][]", "G" %>
+              <%= hidden_field_tag "revision[levels][]", "G", data: {rules_form_target: "level"} %>
 
+            <% else %>
+
+              <% if rule.level.include?('G') && rule.level.include?('L') %>
+                <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
+                  <%= button_tag type: 'button', class: 'toggle-button' do %>
+                    <span data-level-target="label">G</span>
+                  <% end %>
+                  <%= hidden_field_tag "revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
+                </div>
               <% else %>
-
-        <% if rule.level.include?('G') && rule.level.include?('L') %>
-          <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
-            <%= button_tag type: 'button', class: 'toggle-button' do %>
-              <span data-level-target="label">G</span>
-            <% end %>
-            <%= hidden_field_tag "revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
-          </div>
-        <% else %>
-              <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
-          <%= hidden_field_tag "revision[levels][]", revision_level_or_g(rule, @last_revision), data: { rules_form_target: "level" } %>
-        <% end %>
+                <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
+                <%= hidden_field_tag "revision[levels][]", revision_level_or_g(rule, @last_revision), data: { rules_form_target: "level" } %>
+              <% end %>
             <% end %>
 
           </td>
