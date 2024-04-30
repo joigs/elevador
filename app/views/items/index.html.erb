@@ -1,17 +1,18 @@
 <%= turbo_frame_tag 'items' do %>
+  <div class="px-4 py-6 bg-gray-800">
+    <h1 class="text-xl text-white font-bold mb-4">Activos</h1>
+    <%= render 'shared/search_form', form_url: items_path %>
+  </div>
 
-  <h1 class="text-xl text-white font-bold mb-4">Activos</h1>
-
-  <%= render 'shared/search_form', form_url: items_path %>
-
-  <%= turbo_frame_tag "items-#{ @pagy.page }", class: 'items bg-gray-800' do %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <%= render partial: 'item', collection: @items %>
+  <%= turbo_frame_tag "items-#{ @pagy.page }", class: 'bg-gray-800 py-6' do %>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <%= render partial: 'item', collection: @items %>
+      </div>
     </div>
 
     <% if @pagy.next.present? %>
       <%= turbo_frame_tag "items-#{ @pagy.next }", class: 'items', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
     <% end %>
   <% end %>
-
 <% end %>
