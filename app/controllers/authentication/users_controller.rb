@@ -41,6 +41,8 @@ class Authentication::UsersController < ApplicationController
   def edit
     if Current.user&.admin
       @user = User.find(params[:id])
+    elsif Current.user.id == params[:id].to_i
+      @user = User.find(params[:id])
     else
       redirect_to home_path, alert: "No tienes permiso"
     end
@@ -48,13 +50,28 @@ class Authentication::UsersController < ApplicationController
 
   def update
     if Current.user&.admin
-      @user = User.find(params[:id])
 
+      (@user = User.find(params[:id]))
       if @user.update(user_params)
         redirect_to home_path, notice: "Usuario actualizado exitosamente"
       else
         render :edit, status: :unprocessable_entity
       end
+    elsif Current.user.id == params[:id].to_i
+      @user = User.find(params[:id])
+
+
+
+      if user_params[:admin].present? || user_params[:real_name].present?
+        redirect_to home_path, alert: "No tienes permiso para modificar estos campos"
+      else
+        if @user.update(user_params)
+          redirect_to perfil_path(@user.username), notice: "Usuario actualizado exitosamente"
+        else
+          render :edit, status: :unprocessable_entity
+        end
+      end
+
     else
       redirect_to home_path, alert: "No tienes permiso"
     end

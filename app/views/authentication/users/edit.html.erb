@@ -5,6 +5,7 @@
 </div>
 
 <div class="mt-6 flex justify-center space-x-4">
-  <%= link_to "Cancelar", @user, class: "px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300" %>
-  <%= link_to "Volver a usuarios", users_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+  <%= link_to "Cancelar", @user, class: "px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300"  if Current.user.admin %>
+  <%= link_to "Volver a usuarios", users_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" if Current.user.admin %>
+  <%= link_to "Volver al perfil", perfil_path(Current.user.username), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" unless Current.user.admin %>
 </div>

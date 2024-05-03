@@ -479,16 +479,6 @@
               <RakeTaskImpl description="Truncate all/specified *.log files in log/ to zero bytes (specify which logs with LOGS=test,development)" fullCommand="log:clear" id="clear" />
             </subtasks>
           </RakeTaskImpl>
-          <RakeTaskImpl id="pg_search">
-            <subtasks>
-              <RakeTaskImpl id="multisearch">
-                <subtasks>
-                  <RakeTaskImpl description="Rebuild PgSearch multisearch records for a given model" fullCommand="pg_search:multisearch:rebuild[model,schema]" id="rebuild[model,schema]" />
-                  <RakeTaskImpl description="" fullCommand="pg_search:multisearch:rebuild" id="rebuild" />
-                </subtasks>
-              </RakeTaskImpl>
-            </subtasks>
-          </RakeTaskImpl>
           <RakeTaskImpl id="requestjs">
             <subtasks>
               <RakeTaskImpl description="Install Request.JS into the app" fullCommand="requestjs:install" id="install" />
