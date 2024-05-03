@@ -38,7 +38,7 @@ class ReportsController < ApplicationController
         if item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
 
           if was_created
-            @revision = LadderRevision.create!(inspection_id: black_inspection.id, item_id: item.id, group_id: item.group_id)
+            @revision = LadderRevision.create!(inspection_id: black_inspection.id, item_id: item.id)
             @revision.created_at = DateTime.new(1000, 1, 1)
             @revision.save
 
