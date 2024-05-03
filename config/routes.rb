@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :items
 
   root 'home#index', as: 'home'
+  post 'sync_data', to: 'home#sync_data'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :authentication, path: '', as: '' do
     resources :users, path: '/register'
