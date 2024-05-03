@@ -59,7 +59,7 @@ class DocumentGenerator
     if revision.codes.first == '0.1.1'
       doc.replace('{{certificado_minvu}}', "No cumple")
     else
-      doc.replace('{{certificado_minvu}}', "Cumple/no aplica")
+      doc.replace('{{certificado_minvu}}', report.certificado_minvu)
     end
 
     doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
