@@ -120,7 +120,7 @@ class DocumentGeneratorLadder
           if level.include?("L")
             if revision.codes.include?(last_revision.codes[index])
               if revision.points.include?(last_revision.points[index])
-                last_errors << last_revision.points[index]
+                last_errors << last_revision.codes[index] + " " + last_revision.points[index]
               end
             end
           end
@@ -183,21 +183,21 @@ class DocumentGeneratorLadder
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
         if revision.comment[index].blank?
-          errors_graves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
+          errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
-          errors_graves << "#{revision.points[index]}. Razón: #{revision.comment[index]}"
+          errors_graves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: #{revision.comment[index]}"
 
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
-          errors_leves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
+          errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
-          errors_leves << "#{revision.points[index]}. Razón: #{revision.comment[index]}}"
+          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}}"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: #{revision.comment[index]}"
 
         end
@@ -220,19 +220,19 @@ class DocumentGeneratorLadder
     end
 
     aux = [
-      '• Requisitos generales'                                                                                                                                                                                                                                                                                    ,
-      '• Estructura de soporte (bastidor) y cerramiento'                                                                                                                                                                                                                                                                                    ,
-      '• Escalones, placa, banda'                                                                                                                                                                                                                                                                                    ,
-      '• Unidad de almacenamiento                                                                                                                                                                                                                                                                                    ',
-      '•  Balaustrada                                                                                                                                                                                                                                                                                    ',
-      '•  Pasamanos                                                                                                                                                                                                                                                                                    ',
-      '•  Rellanos                                                                                                                                                                                                                                                                                    ',
-      '•  Cuartos de maquinaria, estaciones de accionamiento y de retorno                                                                                                                                                                                                                                                                                    ',
-      '• Instalaciones y aparatos eléctricos                                                                                                                                                                                                                                                                                    ',
-      '• Protección contra fallos eléctricos-maniobra                                                                                                                                                                                                                                                                                    ',
-      '• Interfaces con el edificio                                                                                                                                                                                                                                                                                    ',
-      '• Señales de seguridad para los usuarios                                                                                                                                                                                                                                                                                    ',
-      '• Utilización de carros de compra y de carros de equipaje                                                                                                                                                                                                                                                                                    '
+      '•1. Requisitos generales'                                                                                                                                                                                                                                                                                    ,
+      '•2. Estructura de soporte (bastidor) y cerramiento'                                                                                                                                                                                                                                                                                    ,
+      '•3. Escalones, placa, banda'                                                                                                                                                                                                                                                                                    ,
+      '•4. Unidad de almacenamiento                                                                                                                                                                                                                                                                                    ',
+      '•5.  Balaustrada                                                                                                                                                                                                                                                                                    ',
+      '•6.  Pasamanos                                                                                                                                                                                                                                                                                    ',
+      '•7.  Rellanos                                                                                                                                                                                                                                                                                    ',
+      '•8.  Cuartos de maquinaria, estaciones de accionamiento y de retorno                                                                                                                                                                                                                                                                                    ',
+      '•11. Instalaciones y aparatos eléctricos                                                                                                                                                                                                                                                                                    ',
+      '•12. Protección contra fallos eléctricos-maniobra                                                                                                                                                                                                                                                                                    ',
+      '•13. Interfaces con el edificio                                                                                                                                                                                                                                                                                    ',
+      '•14. Señales de seguridad para los usuarios                                                                                                                                                                                                                                                                                    ',
+      '•15. Utilización de carros de compra y de carros de equipaje                                                                                                                                                                                                                                                                                    '
     ]
 
 

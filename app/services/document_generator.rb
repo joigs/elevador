@@ -164,7 +164,7 @@ class DocumentGenerator
           if level.include?("L")
             if revision.codes.include?(last_revision.codes[index])
               if revision.points.include?(last_revision.points[index])
-                last_errors << last_revision.points[index]
+                last_errors << last_revision.codes[index] + " " + last_revision.points[index]
               end
             end
           end
@@ -289,20 +289,38 @@ class DocumentGenerator
       end
     end
 
-    aux = [
-      '• Carpeta cero.                                                                                                                                                             ',
-      '• Caja de elevadores.                                                                                                                                                             ',
-      '• Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).                                                                                        ',
-      '• Puerta de piso.                                                                                                                                                                 ',
-      '• Cabina, contrapeso y masa de equilibrio.                                                                                                                                        ',
-      '• Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.                                                               ',
-      '• Guías, amortiguadores y dispositivos de seguridad de final de recorrido.                                                                                                        ',
-      '• Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.                                                                                ',
-      '• Máquina.                                                                                                                                                                        ',
-      '• Ascensores sin sala de máquinas.                                                                                                                                                ',
-      '• Protección contra defectos eléctricos, mandos y prioridades.                                                                                                                    ',
-      '• Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular'
-    ]
+    if detail.sala_maquinas == "Si"
+      aux = [
+        '•1. Carpeta cero.                                                                                                                                                             ',
+        '•2. Caja de elevadores.                                                                                                                                                             ',
+        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).                                                                                        ',
+        '•4. Puerta de piso.                                                                                                                                                                 ',
+        '•5. Cabina, contrapeso y masa de equilibrio.                                                                                                                                        ',
+        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.                                                               ',
+        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.                                                                                                        ',
+        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.                                                                                ',
+        '•10. Ascensores sin sala de máquinas.                                                                                                                                                ',
+        '•11. Protección contra defectos eléctricos, mandos y prioridades.                                                                                                                    ',
+        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular'
+      ]
+
+
+    else
+      aux = [
+        '•1. Carpeta cero.                                                                                                                                                             ',
+        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).                                                                                        ',
+        '•4. Puerta de piso.                                                                                                                                                                 ',
+        '•5. Cabina, contrapeso y masa de equilibrio.                                                                                                                                        ',
+        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.                                                               ',
+        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.                                                                                                        ',
+        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.                                                                                ',
+        '•9. Máquina.                                                                                                                                                                        ',
+        '•10. Ascensores sin sala de máquinas.                                                                                                                                                ',
+        '•11. Protección contra defectos eléctricos, mandos y prioridades.                                                                                                                    ',
+        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular'
+      ]
+    end
+
 
     cumple_text = cumple.map { |index| "#{aux[index]}                                                                                                                                                       " }.join("\n")
     no_cumple_text = no_cumple.map { |index| "#{aux[index]}                                                                                                                                                 " }.join("\n")
@@ -330,21 +348,21 @@ class DocumentGenerator
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
         if revision.comment[index].blank?
-          errors_graves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
+          errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
-          errors_graves << "#{revision.points[index]}. Razón: #{revision.comment[index]}"
+          errors_graves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: #{revision.comment[index]}"
 
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
-          errors_leves << ("#{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
+          errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
-          errors_leves << "#{revision.points[index]}. Razón: #{revision.comment[index]}}"
+          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}}"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: #{revision.comment[index]}"
 
         end
