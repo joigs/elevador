@@ -96,3 +96,5 @@ gem 'minidusen'
 #supuestas dependencias de roo
 gem 'rubyzip'
 gem 'nokogiri'
+
+gem 'serviceworker-rails'

@@ -10,7 +10,29 @@
     <%= stylesheet_link_tag "application" , "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "https://unpkg.com/slim-select@latest/dist/slimselect.css", "data-turbo-tracl": "reload" %>
     <%= javascript_importmap_tags %>
-    <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>  </head>
+    <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>
+
+
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/serviceworker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+
+
+
+  </head>
+
+
 
   <body style="background-color: #d1cddc;">
   <%= render 'shared/header' %>
