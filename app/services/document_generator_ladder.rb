@@ -361,14 +361,14 @@ class DocumentGeneratorLadder
   def self.prepare_images_for_document(revision_id, code)
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'LadderRevision', code: code)
 
-    max_width_per_image = 300
+    max_width_per_image = 400
 
     images_to_write = revision_photos.map do |revision_photo|
       if revision_photo.photo.attached?
         temp_path = save_temp_image(revision_photo.photo)
         {
           :path => temp_path,
-          :height => 300,
+          :height => 250,
           :width => max_width_per_image,
         }
       end

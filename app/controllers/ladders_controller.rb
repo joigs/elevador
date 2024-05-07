@@ -84,4 +84,11 @@ class LaddersController < ApplicationController
     def ladder_params
       params.require(:ladder).permit(:number, :point, :code, :priority, :level)
     end
+
+  def process_image(upload)
+    ImageProcessing::MiniMagick
+      .source(upload)
+      .resize_to_fit(400, 250)
+      .call
+  end
 end
