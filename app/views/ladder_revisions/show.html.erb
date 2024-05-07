@@ -1,7 +1,6 @@
 <h1>Inspección N° <%= @inspection.number %></h1>
 <h2>Defectos Encontrados</h2>
 
-<div data-controller="image">
   <% @revision.points.each_with_index.chunk_while { |(_, i), (_, j)| @revision.codes[i] == @revision.codes[j] }.each do |group| %>
     <% group.each do |(point, index)| %>
       <p>
@@ -20,13 +19,11 @@
     <% if next_code_different %>
       <% photos = @photos_by_code[@revision.codes[last_index]] || [] %>
       <% photos.each do |photo| %>
-        <a href="#" data-action="image#show" data-image-url="<%= url_for(photo.photo) %>">
           <%= image_tag photo.photo, width: 200 %>
         </a>
       <% end %>
     <% end %>
   <% end %>
-</div>
 
 <div>
   <%= link_to 'Volver atrás', inspection_path(@inspection) if Current.user.admin %>
