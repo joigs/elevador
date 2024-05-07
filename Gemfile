@@ -96,3 +96,6 @@ gem 'minidusen'
 #supuestas dependencias de roo
 gem 'rubyzip'
 gem 'nokogiri'
+
+gem 'image_processing', '~> 1.2'
+gem 'mini_magick'
