@@ -19,7 +19,7 @@
 
   <% if controller_name == 'items' && action_name == 'index' %>
     <div class="mt-4">
-      <%= link_to 'Ver más detalles', item_path(item), 'data-turbo-frame': "_top", class: "text-blue-400 hover:text-blue-500 transition ease-in-out duration-150" %>
+      <%= link_to 'Ver más detalles', item_path(item), 'data-turbo-frame': "_top", class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
     </div>
   <% end %>
 </div>

@@ -1,22 +1,18 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <div class="bg-gray-900 shadow overflow-hidden sm:rounded-lg pb-8">
+    <%= render @principal %>
+  </div>
 
-<%= render @principal %>
+  <div class="flex flex-col items-center justify-center mt-8 space-y-2">
+    <% if Current.user.admin? %>
+      <%= link_to "Modificar empresa", edit_principal_path(@principal), class: "w-40 text-center px-4 py-2 bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
 
-<br>
-<br>
-<div>
-  <%= link_to "Modificar empresa", edit_principal_path(@principal) if Current.user.admin %>
+      <%= link_to 'Eliminar empresa', principal_path(@principal), data: {
+        turbo_method: :delete,
+        turbo_confirm: '¿Estás seguro?'
+      }, class: "w-40 text-center px-4 py-2 bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out" %>
+    <% end %>
+
+    <%= link_to "Volver a empresas", principals_path, class: "w-40 text-center px-4 py-2 bg-gray-700 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-800 active:shadow-lg transition duration-150 ease-in-out" %>
+  </div>
 </div>
-
-
-<div>
-  <%= link_to 'Eliminar empresa', principal_path(@principal), data:
-    {turbo_method: :delete,
-     turbo_confirm: 'Estás seguro?'} if Current.user.admin? %>
-</div>
-
-<div>
-
-  <%= link_to "Volver a empresas", principals_path %>
-</div>
-
-

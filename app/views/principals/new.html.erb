@@ -1,9 +1,11 @@
-<h1>Agregar Empresa</h1>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-8">Agregar Empresa</h1>
 
-<%= render "form", principal: @principal %>
+  <div class="mb-6 bg-gray-900 shadow overflow-hidden sm:rounded-lg pb-8">
+    <%= render "form", principal: @principal %>
+  </div>
 
-<br>
-
-<div>
-  <%= link_to "Volver a empresas", principals_path %>
+  <div class="text-center mt-4">
+    <%= link_to "Volver a empresas", principals_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+  </div>
 </div>

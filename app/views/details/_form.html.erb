@@ -1,8 +1,7 @@
-<%= form_with(model: detail, builder: CustomFormBuilder) do |form| %>
+<%= form_with(model: detail, builder: CustomFormBuilder, class: "space-y-6 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-lg") do |form| %>
   <% if detail.errors.any? %>
-    <div style="color: red">
+    <div class="text-red-400 bg-red-800 p-2 rounded">
       <h2><%= pluralize(detail.errors.count, "error") %> No se pudieron guardar los datos sobre el activo:</h2>
-
       <ul>
         <% detail.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -11,113 +10,67 @@
     </div>
   <% end %>
 
+  <!-- Detalles Generales del Activo -->
   <div>
-    <%= form.label :Detalle, style: "display: block" %>
-    <%= form.text_field :detalle %>
+    <%= form.label :detalle, "Detalle:", class: "block text-gray-300" %>
+    <%= form.text_field :detalle, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :Marca, style: "display: block" %>
-    <%= form.text_field :marca %>
+    <%= form.label :marca, "Marca:", class: "block text-gray-300" %>
+    <%= form.text_field :marca, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :Modelo, style: "display: block" %>
-    <%= form.text_field :modelo %>
+    <%= form.label :modelo, "Modelo:", class: "block text-gray-300" %>
+    <%= form.text_field :modelo, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"N° de serie", style: "display: block" %>
-    <%= form.text_field :n_serie %>
+    <%= form.label :n_serie, "N° de serie:", class: "block text-gray-300" %>
+    <%= form.text_field :n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <p>
-    <strong>Motor Motriz</strong>
-  </p>
+  <!-- Motor Motriz -->
+  <div class="pt-4">
+    <p class="text-gray-300 font-bold">Motor Motriz</p>
+    <%= form.label :mm_marca, "Marca del Motor:", class: "block text-gray-300" %>
+    <%= form.text_field :mm_marca, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+
+    <%= form.label :mm_n_serie, "N° de serie del Motor:", class: "block text-gray-300" %>
+    <%= form.text_field :mm_n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+
+    <%= form.label :potencia, "Potencia (Kw):", class: "block text-gray-300" %>
+    <%= form.text_field :potencia, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+
+ </div>
 
   <div>
-    <%= form.label :Marca, style: "display: block" %>
-    <%= form.text_field :mm_marca %>
-  </div>
 
-  <div>
-    <%= form.label :"N° de serie", style: "display: block" %>
-    <%= form.text_field :mm_n_serie %>
-  </div>
-
-  <div>
-    <%= form.label :"Potencia Kw", style: "display: block" %>
-    <%= form.text_field :potencia %>
-  </div>
-
-  <div>
-    <%= form.label :"Capacidad Kg", style: "display: block" %>
-    <%= form.number_field :capacidad %>
-  </div>
-
-  <div>
-    <%= form.label :Personas, style: "display: block" %>
-    <%= form.number_field :personas %>
-  </div>
-
-  <p>
-    <strong>Cables de Tracción</strong>
-  </p>
-
-  <div>
-    <%= form.label :Marca, style: "display: block" %>
-    <%= form.text_field :ct_marca %>
-  </div>
-
-  <div>
-    <%= form.label :Cantidad, style: "display: block" %>
-    <%= form.number_field :ct_cantidad %>
-  </div>
-
-  <div>
-    <%= form.label :"Diámetro", style: "display: block" %>
-    <%= form.text_field :ct_diametro %>
-  </div>
-
-  <div>
-    <%= form.label :"Medidas de cintas mm", style: "display: block" %>
-    <%= form.text_field :medidas_cintas %>
-  </div>
-
-  <p>
-    <strong>Regulador de velocidad:</strong>
-  </p>
-
-  <div>
-    <%= form.label :"Velocidad m/s", style: "display: block" %>
-    <%= form.text_field :velocidad %>
+    <%= form.label :capacidad, "Capacidad (Kg):", class: "block text-gray-300" %>
+    <%= form.number_field :capacidad, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
   <div>
-    <%= form.label :Marca, style: "display: block" %>
-    <%= form.text_field :rv_marca %>
+
+    <%= form.label :personas, "Capacidad de Personas:", class: "block text-gray-300" %>
+    <%= form.number_field :personas, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <div>
-    <%= form.label :"N° serie", style: "display: block" %>
-    <%= form.text_field :rv_n_serie %>
+  <!-- Cables de Tracción -->
+  <div class="pt-4">
+    <p class="text-gray-300 font-bold">Cables de Tracción</p>
+    <%= form.label :ct_marca, "Marca de Cables:", class: "block text-gray-300" %>
+    <%= form.text_field :ct_marca, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+
+    <%= form.label :ct_cantidad, "Cantidad de Cables:", class: "block text-gray-300" %>
+    <%= form.number_field :ct_cantidad, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+
+    <%= form.label :ct_diametro, "Diámetro de Cables (mm):", class: "block text-gray-300" %>
+    <%= form.text_field :ct_diametro, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
+  <!-- Botón de Envío -->
   <div>
-    <%= form.label :Paradas, style: "display: block" %>
-    <%= form.number_field :paradas %>
-  </div>
-
-  <div>
-    <%= form.label :Embarques, style: "display: block" %>
-    <%= form.number_field :embarques %>
-  </div>
-
-  <div>
-    <%= form.label :"Sala de maquinas", style: "display: block" %>
-    <%= form.select :sala_maquinas, ["Responder más tarde", "Si", "No. Máquina en la parte superior", "No. Máquina en foso", "No. Maquinaria fuera de la caja de elevadores"], {}%>
-  </div>
-
-  <div>
-    <%= form.submit "Actualizar información del activo" %>
+    <%= form.submit "Actualizar información del activo", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
   </div>
 <% end %>

@@ -1,8 +1,7 @@
-<%= form_with(model: principal, builder: CustomFormBuilder) do |form| %>
+<%= form_with(model: principal, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
   <% if principal.errors.any? %>
-    <div style="color: red">
+    <div class="text-red-400 bg-red-800 p-2 rounded">
       <h2><%= pluralize(principal.errors.count, "error") %> Empresa no pudo ser guardada:</h2>
-
       <ul>
         <% principal.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -12,45 +11,46 @@
   <% end %>
 
   <div>
-    <%= form.label :"Rut de la empresa", style: "display: block" %>
-    <%= form.text_field :rut, data: { controller: "rut", rut_target: "rut" } %>
+    <%= form.label :"Rut de la empresa", class: "block text-gray-300" %>
+    <%= form.text_field :rut, data: { controller: "rut", rut_target: "rut" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Nombre de la empresa:", style: "display: block" %>
-    <%= form.text_field :name %>
+    <%= form.label :"Nombre de la empresa:", class: "block text-gray-300" %>
+    <%= form.text_field :name, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Razón social:", style: "display: block" %>
-    <%= form.text_field :business_name %>
+    <%= form.label :"Razón social:", class: "block text-gray-300" %>
+    <%= form.text_field :business_name, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Email de empresa:", style: "display: block" %>
-    <%= form.text_field :email %>
+    <%= form.label :"Email de empresa:", class: "block text-gray-300" %>
+    <%= form.text_field :email, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Teléfono de empresa:", style: "display: block" %>
-    <%= form.text_field :phone %>
+    <%= form.label :"Teléfono de empresa:", class: "block text-gray-300" %>
+    <%= form.text_field :phone, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Nombre del contacto:", style: "display: block" %>
-    <%= form.text_field :contact_name %>
+    <%= form.label :"Nombre del contacto:", class: "block text-gray-300" %>
+    <%= form.text_field :contact_name, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Email del contacto:", style: "display: block" %>
-    <%= form.text_field :contact_email %>
+    <%= form.label :"Email del contacto:", class: "block text-gray-300" %>
+    <%= form.text_field :contact_email, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
-    <%= form.label :"Teléfono de contacto", style: "display: block" %>
-    <%= form.text_field :cellphone %>
+    <%= form.label :"Teléfono de contacto", class: "block text-gray-300" %>
+    <%= form.text_field :cellphone, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
+
   <div>
-    <%= form.submit "#{@principal.new_record? ? 'Agregar' : 'Modificar'} empresa" %>
+    <%= form.submit "#{principal.new_record? ? 'Agregar' : 'Modificar'} empresa", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
   </div>
 <% end %>
