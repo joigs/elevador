@@ -522,6 +522,7 @@ class DocumentGenerator
         temp_path = save_temp_image(revision_photo.photo)
         {
           :path => temp_path,
+          :height => 250,
           :width => max_width_per_image,
         }
       end
