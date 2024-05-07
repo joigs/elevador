@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get "/service-worker.js" => "service_worker#service_worker"
+  get "/manifest.json" => "service_worker#manifest"
 
   resources :details
   resources :ladder_details
