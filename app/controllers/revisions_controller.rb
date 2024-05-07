@@ -324,7 +324,7 @@ class RevisionsController < ApplicationController
   def process_image(upload)
     ImageProcessing::MiniMagick
       .source(upload)
-      .resize_to_fill(200, 150)
+      .resize_to_fit(200, 150)
       .call
   end
 
