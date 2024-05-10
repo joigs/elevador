@@ -7,7 +7,7 @@ class RulesController < ApplicationController
     else
       @rules = Rule.ordered_by_code
     end
-    @pagy, @rules = pagy_countless(@rules, items: 10)
+    @pagy, @rules = pagy_countless(@rules, items: 50)
   end
 
   def show
