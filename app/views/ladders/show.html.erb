@@ -1,15 +1,15 @@
-<div class="mx-auto md:w-2/3 w-full flex">
-  <div class="mx-auto">
+<div class="mx-auto md:w-2/3 w-full">
+  <div class="mx-auto p-4 bg-gray-800 shadow-lg rounded-lg">
     <% if notice.present? %>
-      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+      <div class="py-2 px-4 bg-green-600 mb-5 text-white font-medium rounded-lg" id="notice"><%= notice %></div>
     <% end %>
 
     <%= render @ladder %>
 
-    <%= link_to "Edit this ladder", edit_ladder_path(@ladder), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <div class="inline-block ml-2">
-      <%= button_to "Destroy this ladder", ladder_path(@ladder), method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+    <div class="flex justify-between items-center mt-4">
+      <%= link_to "Edit this ladder", edit_ladder_path(@ladder), class: "flex items-center justify-center rounded-lg py-2 px-4 bg-blue-500 text-white font-medium hover:bg-blue-600 transition ease-in-out duration-150" %>
+      <%= button_to "Destroy this ladder", ladder_path(@ladder), method: :delete, data: { turbo_confirm: "Are you sure you want to destroy this ladder?" }, class: "flex items-center justify-center rounded-lg py-2 px-4 bg-red-500 text-white font-medium hover:bg-red-600 transition ease-in-out duration-150" %>
+      <%= link_to "Back to ladders", ladders_path, class: "flex items-center justify-center rounded-lg py-2 px-4 bg-gray-500 text-white font-medium hover:bg-gray-600 transition ease-in-out duration-150" %>
     </div>
-    <%= link_to "Back to ladders", ladders_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
   </div>
 </div>

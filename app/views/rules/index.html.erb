@@ -1,52 +1,40 @@
 
-  <h1>Defectos</h1>
-
-<br>
-
-<div>
-  <%= link_to 'Definir defecto con código distinto', new_with_new_code_rules_path %>
-
-</div>
-
-<div>
-  <%= link_to 'Definir defecto el mismo código que el anterior', new_with_same_code_rules_path %>
-
-</div>
 
 
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-6">
+    <h3 class="text-lg font-semibold text-gray-200 px-4 py-5 bg-gray-700 border-b border-gray-600">Defectos:</h3>
 
-<div>
-  <%= link_to 'Volver a clasificación de ascensores', groups_path %>
-</div>
+    <div class="flex flex-col sm:flex-row sm:space-x-4 mt-4 px-4">
+      <%= link_to 'Volver a clasificación de ascensores', groups_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+      <%= link_to 'Definir defecto con código distinto', new_with_new_code_rules_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+      <%= link_to 'Definir defecto el mismo código que el anterior', new_with_same_code_rules_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+      <%= link_to 'Comprobaciones', ruletypes_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+      <%= link_to 'Importar defectos desde excel', new_import_rules_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+      <%= link_to 'Ver defectos de escalas mecánicas', ladders_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+    </div>
 
-<div>
-  <%= link_to 'Comprobaciones', ruletypes_path %>
-</div>
-  <div>
-  <%= link_to 'Importar defectos desde excel', new_import_rules_path %>
+
+    <div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-4">
+      <ul class="divide-y divide-gray-700">
+        <%= turbo_frame_tag 'rules' do %>
+
+          <%= render 'shared/search_form', form_url: rules_path %>
+
+
+          <%= turbo_frame_tag "rules-#{@pagy.page}", class: 'rules' do %>
+            <% @rules.each do |rule| %>
+              <%= turbo_frame_tag "rule-#{rule.id}" do %>
+                <li class="px-4 py-4 bg-gray-800 text-gray-400 hover:bg-gray-700">
+                  <p><%= link_to "#{rule.code} #{rule.point}", rule, 'data-turbo-frame':"_top" %></p>
+                </li>
+              <% end %>
+            <% end %>
+
+            <%= turbo_frame_tag "rules-#{@pagy.next}", class: 'rules', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
+          <% end %>
+        <% end %>
+
+      </ul>
+    </div>
+
   </div>
-
-  <br>
-  <div>
-    <%= link_to 'Ver defectos de escalas mecánicas', ladders_path %>
-  </div>
-  <br>
-
-  <%= turbo_frame_tag 'rules' do %>
-
-    <%= render 'shared/search_form', form_url: rules_path %>
-
-
-    <%= turbo_frame_tag "rules-#{@pagy.page}", class: 'rules' do %>
-    <% @rules.each do |rule| %>
-      <%= turbo_frame_tag "rule-#{rule.id}" do %>
-        <p><%= link_to "#{rule.code} #{rule.point}", rule, 'data-turbo-frame':"_top" %></p>
-      <% end %>
-    <% end %>
-
-    <%= turbo_frame_tag "rules-#{@pagy.next}", class: 'rules', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
-  <% end %>
-<% end %>
-
-
-

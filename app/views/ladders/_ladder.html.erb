@@ -1,32 +1,36 @@
-<div id="<%= dom_id ladder %>">
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Number:</strong>
-    <%= ladder.number %>
-  </p>
+<div id="<%= dom_id ladder %>" class="bg-gray-800 p-4 rounded-lg shadow-md">
+  <div class="space-y-4">
+    <div>
+      <strong class="block text-gray-300 font-semibold mb-1">Number:</strong>
+      <p class="text-gray-400 font-medium"><%= ladder.number %></p>
+    </div>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Point:</strong>
-    <%= ladder.point %>
-  </p>
+    <div>
+      <strong class="block text-gray-300 font-semibold mb-1">Point:</strong>
+      <p class="text-gray-400 font-medium"><%= ladder.point %></p>
+    </div>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Code:</strong>
-    <%= ladder.code %>
-  </p>
+    <div>
+      <strong class="block text-gray-300 font-semibold mb-1">Code:</strong>
+      <p class="text-gray-400 font-medium"><%= ladder.code %></p>
+    </div>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Priority:</strong>
-    <%= ladder.priority %>
-  </p>
+    <div>
+      <strong class="block text-gray-300 font-semibold mb-1">Priority:</strong>
+      <p class="text-gray-400 font-medium"><%= ladder.priority %></p>
+    </div>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Level:</strong>
-    <%= ladder.level %>
-  </p>
+    <div>
+      <strong class="block text-gray-300 font-semibold mb-1">Level:</strong>
+      <p class="text-gray-400 font-medium"><%= ladder.level %></p>
+    </div>
+  </div>
 
   <% if action_name != "show" %>
-    <%= link_to "Show this ladder", ladder, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <%= link_to "Edit this ladder", edit_ladder_path(ladder), class: "rounded-lg py-3 ml-2 px-5 bg-gray-100 inline-block font-medium" %>
-    <hr class="mt-6">
+    <div class="flex items-center space-x-2 mt-4">
+      <%= link_to "Show this ladder", ladder, class: "flex items-center justify-center rounded-lg py-2 px-4 bg-blue-500 text-white font-medium hover:bg-blue-600 transition ease-in-out duration-150" %>
+      <%= link_to "Edit this ladder", edit_ladder_path(ladder), class: "flex items-center justify-center rounded-lg py-2 px-4 bg-gray-500 text-white font-medium hover:bg-gray-600 transition ease-in-out duration-150" %>
+    </div>
+    <hr class="my-6 border-gray-700">
   <% end %>
 </div>
