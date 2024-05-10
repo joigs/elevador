@@ -1,35 +1,32 @@
-<h1><%= @rule.point %></h1>
-<p>
-  <strong>Comprobacion:</strong>
-  <%= @rule.ruletype.gygatype_number %>
-  <%= @rule.ruletype.rtype %>
-  <br> <br>
-  <strong>Clasificación del ascensor: </strong>
-  <p> Grupo N°:
-  <%= @rule.groups.pluck(:number).join(', ') %>
-  </p>
-<p>
-  <strong>Nivel de importancia: </strong>
-  <%= @rule.level %>
-</p>
-<p>
-  <strong>Tipo de defecto:</strong>
-  <%= display_rule_ins_type(@rule) %>
-</p>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= @rule.point %></h1>
 
+  <div class="bg-gray-900 p-6 rounded-lg shadow-md">
+    <p class="text-gray-400">
+      <strong class="text-white">Comprobación:</strong>
+      <%= @rule.ruletype.gygatype_number %> <%= @rule.ruletype.rtype %>
+    </p>
+    <p class="text-gray-400">
+      <strong class="text-white">Clasificación del ascensor:</strong>
+      Grupo N°: <%= @rule.groups.pluck(:number).join(', ') %>
+    </p>
+    <p class="text-gray-400">
+      <strong class="text-white">Nivel de importancia:</strong>
+      <%= @rule.level %>
+    </p>
+    <p class="text-gray-400">
+      <strong class="text-white">Tipo de defecto:</strong>
+      <%= display_rule_ins_type(@rule) %>
+    </p>
+  </div>
 
+  <div class="flex space-x-4 mt-6">
+    <%= link_to 'Modificar defecto', edit_rule_path(@rule), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
 
+    <% if Current.user&.admin %>
+      <%= link_to 'Eliminar defecto', rule_path(@rule), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out" %>
+    <% end %>
 
-<div>
-  <%= link_to 'Modificar defecto', edit_rule_path(@rule) %>
-</div>
-
-<div>
-  <%= link_to 'Eliminar defecto', rule_path(@rule), data:
-    {turbo_method: :delete,
-     turbo_confirm: 'Estás seguro?'} if Current.user&.admin %>
-</div>
-
-<div>
-  <%= link_to 'Volver a defectos', rules_path %>
+    <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-blue-500 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-600 hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>
+  </div>
 </div>
