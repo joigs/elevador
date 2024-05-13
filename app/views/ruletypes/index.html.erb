@@ -1,33 +1,26 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-4xl font-bold text-gray-800 mb-6">Comprobaciones</h1>
 
-  <h1>Comprobaciones</h1>
-
-
-
-<div>
-  <%= link_to "Crear nuevo tipo de regla", new_ruletype_path %>
-</div>
-
-  <div>
-    <%= link_to 'Importar comprobaciones desde excel', new_import_ruletypes_path %>
+  <div class="flex flex-wrap gap-4 mb-6">
+    <%= link_to "Crear nuevo tipo de regla", new_ruletype_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+    <%= link_to 'Importar comprobaciones desde excel', new_import_ruletypes_path, class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" %>
+    <%= link_to "Volver a defectos", rules_path, class: "px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300" %>
   </div>
 
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <%= turbo_frame_tag 'ruletypes' do %>
+      <div class="p-6">
+        <%= render 'shared/search_form', form_url: ruletypes_path, class: "mb-5" %>
 
-<div>
-  <%= link_to "Volver a defectos", rules_path %>
+        <%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
+          <ul class="divide-y divide-gray-700">
+            <%= render partial: 'ruletype', collection: @ruletypes %>
+          </ul>
+          <% if @pagy.next %>
+            <%= turbo_frame_tag "ruletypes-#{@pagy.next}", class: 'ruletypes', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>
-
-
-  <%= turbo_frame_tag 'ruletypes' do %>
-
-    <%= render 'shared/search_form', form_url: ruletypes_path %>
-
-
-    <%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
-  <%= render partial: 'ruletype', collection: @ruletypes %>
-
-  <%= turbo_frame_tag "ruletypes-#{@pagy.next}", class: 'ruletypes', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
-<% end %>
-<% end %>
-
-
-

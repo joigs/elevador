@@ -47,6 +47,13 @@ class RuletypesController < ApplicationController
   end
 
   def import
+
+    if !Ruletype.blank?
+      redirect_to new_import_ruletypes_path, alert: "Ya existen comprobaciones"
+      return
+    end
+
+
     if params[:file].nil?
       redirect_to new_import_ruletypes_path, alert: "No se seleccionó ningún archivo"
       return

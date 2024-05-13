@@ -1,9 +1,9 @@
-<%= form_with(model: ruletype, builder: CustomFormBuilder) do |form| %>
+<%= form_with(model: ruletype, builder: CustomFormBuilder, local: true) do |form| %>
   <% if ruletype.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(ruletype.errors.count, "error") %> No se pudo crear:</h2>
-
-      <ul>
+    <div class="bg-red-800 text-white text-sm font-bold px-4 py-3 rounded relative" role="alert">
+      <strong class="font-bold">¡Error!</strong>
+      <span><%= pluralize(ruletype.errors.count, 'error') %> no permitieron crear la comprobación:</span>
+      <ul class="mt-3 list-disc list-inside text-sm">
         <% ruletype.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -11,32 +11,33 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :Comprobación, style: "display: block" %>
-    <%= form.text_area :rtype, rows: 7, cols: 70 %>
+  <div class="mb-4">
+    <%= form.label :Comprobación, class: "block text-gray-400 font-bold mb-2" %>
+    <%= form.text_area :rtype, rows: 7, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-300 bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
   </div>
 
-  <div>
-    <%= form.label :"Conjunto de la comprobación", style: "display: block" %>
-    <%= form.select :gygatype, ['0. DOCUMENTAL CARPETA 0',
-                                '1. CAJA DE ELEVADORES.',
-                                '2. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
-                                '3. PUERTA DE PISO.',
-                                '4. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
-                                '5. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
-                                '6. GUÍAS, AMO  RTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
-                                '7. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
-                                '8. MÁQUINA.',
-                                '9. ASCENSORES SIN SALA DE MÁQUINAS.',
-                                '9.1 ESPACIO DE MÁQUINAS.',
-                                '9.2. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
-                                '9.3. ASCENSORES CON MÁQUINAS EN FOSO.',
-                                '9.4. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
-                                '10. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
-                                '11. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR'], { selected: @last_used_ruletype } %>
+  <div class="mb-4">
+    <%= form.label :"Conjunto de la comprobación", class: "block text-gray-400 font-bold mb-2" %>
+    <%= form.select :gygatype, options_for_select(['0. DOCUMENTAL CARPETA 0',
+                                                   '1. CAJA DE ELEVADORES.',
+                                                   '2. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+                                                   '3. PUERTA DE PISO.',
+                                                   '4. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
+                                                   '5. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
+                                                   '6. GUÍAS, AMORTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
+                                                   '7. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
+                                                   '8. MÁQUINA.',
+                                                   '9. ASCENSORES SIN SALA DE MÁQUINAS.',
+                                                   '9.1 ESPACIO DE MÁQUINAS.',
+                                                   '9.2. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
+                                                   '9.3. ASCENSORES CON MÁQUINAS EN FOSO.',
+                                                   '9.4. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
+                                                   '10. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
+                                                   '11. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR'], @last_used_ruletype),
+                    {}, class: "block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" %>
   </div>
 
-  <div>
-    <%= form.submit "Crear comprobación" %>
+  <div class="flex items-center justify-between">
+    <%= form.submit "Crear comprobación", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
   </div>
 <% end %>

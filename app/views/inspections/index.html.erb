@@ -1,21 +1,30 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-4xl font-bold text-gray-800 mb-6">Inspecciones</h1>
 
-  <h1>Inspecciones</h1>
-
-<div>
-<%= link_to "Nueva inspección", new_inspection_path if Current.user.admin %>
-</div>
+  <div class="mb-6">
+    <%= link_to "Nueva inspección", new_inspection_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-blue-700 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" if Current.user.admin %>
+  </div>
 
   <%= render 'shared/back_home' %>
 
-<br>
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <%= turbo_frame_tag 'inspections' do %>
+      <div class="p-6">
+        <%= render 'shared/search_form', form_url: inspections_path, class: "mb-5" %>
 
-  <%= turbo_frame_tag 'inspections' do %>
-
-    <%= render 'shared/search_form', form_url: inspections_path %>
-
-<%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
-  <%= render partial: 'inspection', collection: @inspections %>
-    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
-  <% end %>
-<% end %>
-
+        <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+          <ul class="divide-y divide-gray-700">
+            <% @inspections.each_with_index do |inspection, index| %>
+              <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                <%= render 'inspection', inspection: inspection %>
+              </li>
+            <% end %>
+          </ul>
+          <% if @pagy.next %>
+            <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+          <% end %>
+        <% end %>
+    <% end %>
+    </div>
+  </div>
+</div>

@@ -32,8 +32,8 @@
         <% if Current.user.admin %>
           <div class="group overflow-hidden p-8 rounded-xl bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 ease-in-out dark:border-gray-700 dark:bg-gray-900">
             <div class="text-center">
-              <h3 class="text-lg font-semibold">Certificaciones por Vencer</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-300 mt-2">Revisa las certificaciones próximas a vencer.</p>
+              <h3 class="text-lg font-semibold">Certificaciones Vencidas y por Vencer</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-300 mt-2">Revisa los activos que necesitan renovar su certificación.</p>
               <div class="mt-4">
                 <%= link_to 'Certificaciones por vencer', warnings_path, class: "inline-block px-6 py-2 border border-red-500 text-red-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
               </div>

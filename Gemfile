@@ -99,3 +99,7 @@ gem 'nokogiri'
 
 gem 'image_processing', '~> 1.2'
 gem 'mini_magick'
+
+#para revisar periodicamente si vencio una certificacion
+gem 'whenever', require: false
+

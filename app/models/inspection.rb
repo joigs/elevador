@@ -15,6 +15,7 @@ class Inspection < ApplicationRecord
 
 
   before_save :validate_inspection_date
+  before_save :check_and_update_state
 
   validates :ins_date, presence: { message: "Debes ingresar una fecha" }
 
@@ -51,6 +52,25 @@ class Inspection < ApplicationRecord
       super
     end
   end
+
+  def check_and_update_state
+    return unless ins_date.present? && validation.present?
+
+    expiration_date = ins_date + validation.years
+    expiration_date = expiration_date.beginning_of_month.next_month
+
+    if Date.today >= expiration_date
+      self.result = 'Vencido'
+    end
+  end
+
+  def self.check_all_expirations
+    Inspection.all.find_each do |inspection|
+      inspection.send(:check_and_update_state)
+      inspection.save if inspection.changed?
+    end
+  end
+
 
   private
 

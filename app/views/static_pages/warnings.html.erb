@@ -1,16 +1,27 @@
-<h1> Certificaciones por vencer </h1>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <%= render 'shared/back_home' %>
 
-<%= render 'shared/back_home' %>
+  <h1 class="text-4xl font-bold text-gray-800 mb-6">Certificaciones por vencer</h1>
 
-<br>
-<%= turbo_frame_tag 'inspections' do %>
+  <div class="mb-6 flex space-x-4">
+    <%= link_to 'Certificaciones por vencer', warnings_path(filter: 'expiring_soon'), class: 'px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
+    <%= link_to 'Certificaciones vencidas', warnings_path(filter: 'vencido'), class: 'px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
+  </div>
 
-  <%= render 'shared/search_form', form_url: inspections_path %>
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <%= turbo_frame_tag 'inspections' do %>
+      <div class="p-6">
+        <%= render 'shared/search_form', form_url: inspections_path, class: "mb-5" %>
 
-
-  <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
-    <%= render partial: 'inspections/inspection', collection: @inspections %>
-    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
-  <% end %>
-<% end %>
-
+        <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+          <ul class="divide-y divide-gray-700">
+            <%= render partial: 'inspections/inspection', collection: @inspections %>
+          </ul>
+          <% if @pagy.next %>
+            <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

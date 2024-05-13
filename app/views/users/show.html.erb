@@ -1,22 +1,35 @@
-<%= render 'shared/back_home' %>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <%= render 'shared/back_home' %>
 
+  <div class="bg-gray-900 p-6 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-white mb-2"><%= @user.username %></h1>
+    <h2 class="text-xl text-gray-300 mb-1"><%= @user.real_name %></h2>
+    <h2 class="text-xl text-gray-300 mb-4"><%= @user.email %></h2>
 
+    <% if Current.user.id == @user.id %>
+      <%= link_to "Modificar datos", edit_user_path(@user), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out" %>
+    <% end %>
+  </div>
 
-<h1><%= @user.username %></h1>
-<h2><%= @user.real_name %></h2>
-<h2><%= @user.email %></h2>
-<%= link_to "Modificar datos", edit_user_path(@user) if Current.user.id == @user.id %>
+  <div class="mt-6 bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <%= turbo_frame_tag 'inspections' do %>
+      <div class="p-6">
+        <%= render 'shared/search_form', form_url: inspections_path, class: "mb-5" %>
 
-<br>
-<%= turbo_frame_tag 'inspections' do %>
-
-  <%= render 'shared/search_form', form_url: inspections_path %>
-
-
-  <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
-    <%= render partial: 'inspections/inspection', collection: @inspections %>
-    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
-  <% end %>
-<% end %>
-
-
+        <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+          <ul class="divide-y divide-gray-700">
+            <% @inspections.each_with_index do |inspection, index| %>
+              <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                <%= render partial: 'inspections/inspection', locals: { inspection: inspection } %>
+              </li>
+            <% end %>
+          </ul>
+          <% if @pagy.next %>
+            <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+```
