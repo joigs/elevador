@@ -11,6 +11,14 @@
       </div>
     <% end %>
 
+
+  <% if @inspection.result == "black" %>
+    <h1>Realizando Preinspección</h1>
+  <% else %>
+    <h1>Realizando Inspección</h1>
+  <% end %>
+
+
   <div data-controller="section-submit">
     <% (0..11).each do |number| %>
       <div>
