@@ -13,7 +13,7 @@ class DetailsController < ApplicationController
   # GET /details/1/edit
   def edit
     authorize! detail
-
+    @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
   end
 
 
@@ -22,6 +22,7 @@ class DetailsController < ApplicationController
     authorize! @detail = Detail.new
     if params[:item_id].present?
       @item = Item.find(params[:item_id])
+      @inspection = Inspection.where(item_id: @item.id).where.not(result: 'black').order(created_at: :desc).first
     else
       redirect_to items_path, alert: 'No se ha encontrado el item'
     end

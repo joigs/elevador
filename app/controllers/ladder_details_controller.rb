@@ -13,6 +13,8 @@ class LadderDetailsController < ApplicationController
   # GET /details/1/edit
   def edit
     authorize! detail
+    @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
+
   end
 
 

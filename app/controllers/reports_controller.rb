@@ -3,7 +3,12 @@ class ReportsController < ApplicationController
   # GET /reports/1/edit
   def edit
     authorize! report
-
+    @item = @report.item
+    if @item.group.name.downcase.include?("escala")
+      @detail = LadderDetail.find_by(item_id: @item.id)
+    else
+      @detail = Detail.find_by(item_id: @item.id)
+    end
   end
 
 

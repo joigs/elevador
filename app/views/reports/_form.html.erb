@@ -1,111 +1,110 @@
-<%= form_with(model: report, builder: CustomFormBuilder) do |form| %>
-  <% if report.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(report.errors.count, "error") %> Información del informe no pudo ser guardada:</h2>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
+  <%= form_with(model: report, builder: CustomFormBuilder, local: true, class: "space-y-4") do |form| %>
+    <% if report.errors.any? %>
+      <div class="text-red-500 bg-red-900 p-4 rounded">
+        <h2><%= pluralize(report.errors.count, "error") %> Información del informe no pudo ser guardada:</h2>
+        <ul>
+          <% report.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% report.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div>
+      <%= form.label :certificado_minvu, "Certificado MINVU", class: "block text-gray-300" %>
+      <%= form.text_field :certificado_minvu, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div data-controller="certificacion-anterior">
+      <%= form.label :cert_ant, "Certificacion anterior", class: "block text-gray-300" %>
+      <div class="flex items-center space-x-4">
+        <%= form.radio_button :cert_ant, 'Si', checked: true, data: { action: "certificacion-anterior#toggleFields" }, class: "form-radio" %>
+        <%= form.label :cert_ant, 'Si', value: 'Si', class: "text-gray-300" %>
+        <label></label>
+        <%= form.radio_button :cert_ant, 'No', data: { action: "certificacion-anterior#toggleFields" }, class: "form-radio" %>
+        <%= form.label :cert_ant, 'No', value: 'No', class: "text-gray-300" %>
+      </div>
+
+      <div data-certificacion-anterior-target="toggleable" class="space-y-4 mt-4">
+        <div>
+          <%= form.label :fecha, "Fecha certificacion anterior", class: "block text-gray-300" %>
+          <%= form.date_field :fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :empresa_anterior, "Empresa certificadora anterior", class: "block text-gray-300" %>
+          <%= form.text_field :empresa_anterior, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :ea_rol, "Rol", class: "block text-gray-300" %>
+          <%= form.text_field :ea_rol, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :ea_rut, "Rut", class: "block text-gray-300" %>
+          <%= form.text_field :ea_rut, data: { controller: "rut", rut_target: "rut" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :empresa_mantenedora, "Empresa mantenedora", class: "block text-gray-300" %>
+      <%= form.text_field :empresa_mantenedora, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :em_rol, "Rol", class: "block text-gray-300" %>
+      <%= form.text_field :em_rol, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :em_rut, "Rut", class: "block text-gray-300" %>
+      <%= form.text_field :em_rut, data: { controller: "rut", rut_target: "rut" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <p class="text-gray-300 font-bold">Vigencia contrato de mantención</p>
+      <%= form.label :vi_co_man_ini, "Fecha inicio", class: "block text-gray-300" %>
+      <%= form.date_field :vi_co_man_ini, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :vi_co_man_ter, "Fecha termino", class: "block text-gray-300" %>
+      <%= form.date_field :vi_co_man_ter, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :nom_tec_man, "Nombre técnico mantenedor", class: "block text-gray-300" %>
+      <%= form.text_field :nom_tec_man, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :tm_rut, "Rut", class: "block text-gray-300" %>
+      <%= form.text_field :tm_rut, data: { controller: "rut", rut_target: "rut" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :ul_reg_man, "Último registro de mantención N°", class: "block text-gray-300" %>
+      <%= form.number_field :ul_reg_man, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.label :urm_fecha, "Fecha Último registro de mantención", class: "block text-gray-300" %>
+      <%= form.date_field :urm_fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div>
+      <%= form.submit "Guardar información", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
     </div>
   <% end %>
+</div>
 
-  <di>
-    <%= form.label :"Certificado MINVU", style: "display: block" %>
-    <%= form.text_field :certificado_minvu %>
-  </di>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
-
-
-  <div data-controller="certificacion-anterior">
-    <%= form.label :cert_ant, "Certificacion anterior", style: "display: block" %>
-    <div>
-      <%= form.radio_button :cert_ant, 'Si', checked: true, data: { action: "certificacion-anterior#toggleFields" } %>
-      <%= form.label :cert_ant, 'Si', value: 'Si' %>
-    </div>
-    <div>
-      <%= form.radio_button :cert_ant, 'No', data: { action: "certificacion-anterior#toggleFields" } %>
-      <%= form.label :cert_ant, 'No', value: 'No' %>
-    </div>
-
-    <!-- Fields to toggle -->
-    <div data-certificacion-anterior-target="toggleable">
-      <div>
-        <%= form.label :"fecha certificacion anterior", style: "display: block" %>
-        <%= form.date_field :fecha %>
-      </div>
-
-      <div>
-        <%= form.label :"Empresa certificadora anterior", style: "display: block" %>
-        <%= form.text_field :empresa_anterior %>
-      </div>
-
-      <div>
-        <%= form.label :"Rol", style: "display: block" %>
-        <%= form.text_field :ea_rol %>
-      </div>
-
-      <div>
-        <%= form.label :"Rut", style: "display: block" %>
-        <%= form.text_field :ea_rut, data: { controller: "rut", rut_target: "rut" } %>
-      </div>
-
-    </div>
-  </div>
-
-
-
-
-
-  <div>
-    <%= form.label :"Empresa mantenedora", style: "display: block" %>
-    <%= form.text_field :empresa_mantenedora %>
-  </div>
-
-  <div>
-    <%= form.label :"Rol", style: "display: block" %>
-    <%= form.text_field :em_rol %>
-  </div>
-
-  <div>
-    <%= form.label :"Rut", style: "display: block" %>
-    <%= form.text_field :em_rut, data: { controller: "rut", rut_target: "rut" } %>
-  </div>
-
-  <div>
-    <p>Vigencia contrato de mantención</p>
-    <%= form.label :"Fecha inicio", style: "display: block" %>
-    <%= form.date_field :vi_co_man_ini %>
-  </div>
-
-  <div>
-    <%= form.label :"Fecha termino", style: "display: block" %>
-    <%= form.date_field :vi_co_man_ter %>
-  </div>
-
-  <div>
-    <%= form.label :"Nombre técnico mantenedor", style: "display: block" %>
-    <%= form.text_field :nom_tec_man %>
-  </div>
-
-  <div>
-    <%= form.label :"Rut", style: "display: block" %>
-    <%= form.text_field :tm_rut, data: { controller: "rut", rut_target: "rut" } %>
-  </div>
-
-  <div>
-    <%= form.label :"Último registro de mantención N°", style: "display: block" %>
-    <%= form.number_field :ul_reg_man %>
-  </div>
-
-  <div>
-    <%= form.label :"Fecha Último registro de mantención", style: "display: block" %>
-    <%= form.date_field :urm_fecha %>
-  </div>
-
-
-  <div>
-    <%= form.submit "Guardar información" %>
-  </div>
-<% end %>

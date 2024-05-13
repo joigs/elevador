@@ -1,7 +1,6 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
   <div class="text-white space-y-3">
-    <h2 class="text-xl font-bold">Detalles de la Inspección</h2>
-    <p><strong>Número de inspección:</strong> <%= @inspection.number %></p>
+    <h2 class="text-xl font-bold">Inspección N°<%= @inspection.number %></h2>
     <p><strong>Identificador:</strong> <%= @inspection.item&.identificador %></p>
     <p><strong>Empresa:</strong> <%= @inspection.item&.principal&.name %></p>
     <p><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
@@ -14,6 +13,13 @@
     <p><strong>Inspector asignado:</strong> <%= @inspection.user&.real_name %></p>
   </div>
 
+  <div class="mt-4">
+    <% if @control2 %>
+      <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" if @inspection.owner? && @control %>
+    <% else %>
+      <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" if @inspection.owner? && @control %>
+    <% end %>
+  </div>
 
   <div class="mt-4">
     <% if @control2 %>

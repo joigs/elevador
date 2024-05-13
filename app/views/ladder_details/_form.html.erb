@@ -1,92 +1,62 @@
-<%= form_with(model: ladder_detail, builder: CustomFormBuilder, class: "contents") do |form| %>
-  <% if ladder_detail.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2><%= pluralize(ladder_detail.errors.count, "error") %> prohibited this ladder_detail from being saved:</h2>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <%= form_with(model: ladder_detail, builder: CustomFormBuilder, class: "space-y-6 bg-gray-900 p-6 rounded-lg shadow-lg") do |form| %>
+    <% if ladder_detail.errors.any? %>
+      <div id="error_explanation" class="bg-red-700 text-white px-3 py-2 font-medium rounded-lg">
+        <h2><%= pluralize(ladder_detail.errors.count, "error") %> prohibited this ladder_detail from being saved:</h2>
+        <ul>
+          <% ladder_detail.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% ladder_detail.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
+    <% # Fields with specific styling %>
+    <%= form.label :marca, class: "block text-gray-300" %>
+    <%= form.text_field :marca, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :modelo, class: "block text-gray-300" %>
+    <%= form.text_field :modelo, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :nserie, class: "block text-gray-300" %>
+    <%= form.text_field :nserie, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :mm_marca, class: "block text-gray-300" %>
+    <%= form.text_field :mm_marca, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :mm_nserie, class: "block text-gray-300" %>
+    <%= form.text_field :mm_nserie, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :potencia, class: "block text-gray-300" %>
+    <%= form.text_field :potencia, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :capacidad, class: "block text-gray-300" %>
+    <%= form.number_field :capacidad, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :personas, class: "block text-gray-300" %>
+    <%= form.number_field :personas, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :peldaños, class: "block text-gray-300" %>
+    <%= form.number_field :peldaños, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :longitud, class: "block text-gray-300" %>
+    <%= form.text_field :longitud, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :inclinacion, class: "block text-gray-300" %>
+    <%= form.number_field :inclinacion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :ancho, class: "block text-gray-300" %>
+    <%= form.number_field :ancho, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :velocidad, class: "block text-gray-300" %>
+    <%= form.text_field :velocidad, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :fabricacion, class: "block text-gray-300" %>
+    <%= form.number_field :fabricacion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :procedencia, class: "block text-gray-300" %>
+    <%= form.text_field :procedencia, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.submit "Actualizar información del activo", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
   <% end %>
-
-  <div class="my-5">
-    <%= form.label :marca %>
-    <%= form.text_field :marca, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :modelo %>
-    <%= form.text_field :modelo, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :nserie %>
-    <%= form.text_field :nserie, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :mm_marca %>
-    <%= form.text_field :mm_marca, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :mm_nserie %>
-    <%= form.text_field :mm_nserie, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :potencia %>
-    <%= form.text_field :potencia, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :capacidad %>
-    <%= form.number_field :capacidad, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :personas %>
-    <%= form.number_field :personas, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :peldaños %>
-    <%= form.number_field :peldaños, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :longitud %>
-    <%= form.text_field :longitud, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :inclinacion %>
-    <%= form.number_field :inclinacion, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :ancho %>
-    <%= form.number_field :ancho, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :velocidad %>
-    <%= form.text_field :velocidad, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :fabricacion %>
-    <%= form.number_field :fabricacion, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :procedencia %>
-    <%= form.text_field :procedencia, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit "Actualizar información del activo", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
-  </div>
-<% end %>
+</div>
