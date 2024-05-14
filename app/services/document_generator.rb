@@ -159,6 +159,8 @@ class DocumentGenerator
       else
 
 
+        last_revision_pikachu = []
+
         last_revision.levels.each_with_index do |level, index|
           if level.include?("L")
             if revision.codes.include?(last_revision.codes[index])
@@ -166,15 +168,18 @@ class DocumentGenerator
                 last_errors << last_revision.codes[index] + " " + last_revision.points[index]
               end
             end
+            last_revision_pikachu << last_revision.codes[index] + " " + last_revision.points[index]
           end
         end
 
-        puts(last_revision.inspect)
-        puts(revision.inspect)
+
 
         if last_errors.blank?
+
+          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
+
           doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
-          doc.replace('{{revision_past_errors_level}}', "")
+          doc.replace('{{revision_past_errors_level}}', formatted_pikachu)
 
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
