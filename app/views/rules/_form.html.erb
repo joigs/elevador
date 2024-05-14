@@ -23,7 +23,7 @@
 
   <div class="mb-4">
     <%= form.label :"Clasificación del ascensor", class: "block text-gray-300 font-bold mb-2" %>
-    <%= form.collection_check_boxes(:group_ids, Group.all, :id, :number, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+    <%= form.collection_check_boxes(:group_ids, Group.where("name NOT ILIKE ?", "%Escala%"), :id, :number, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
   </div>
 
   <div class="mb-4">

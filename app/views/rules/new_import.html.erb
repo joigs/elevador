@@ -7,7 +7,7 @@
 
     <div>
       <%= label_tag :group_id, "Selecciona el grupo", class: "block text-gray-300 font-bold mb-2" %>
-      <%= select_tag :group_id, options_from_collection_for_select(Group.order(:name), :id, :name), prompt: 'Selecciona el grupo', class: "block appearance-none w-full bg-gray-700 border border-gray-600 text-white py-2 px-3 pr-8 rounded leading-tight focus:outline-none focus:bg-gray-500 focus:border-gray-500" %>
+      <%= select_tag :group_id, options_from_collection_for_select(Group.where("name NOT ILIKE ?", "%Escala%").order(:name), :id, :name), prompt: 'Selecciona el grupo', class: "block appearance-none w-full bg-gray-700 border border-gray-600 text-white py-2 px-3 pr-8 rounded leading-tight focus:outline-none focus:bg-gray-500 focus:border-gray-500" %>
     </div>
 
     <div>
