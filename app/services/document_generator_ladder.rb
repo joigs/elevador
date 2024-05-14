@@ -38,9 +38,8 @@ class DocumentGeneratorLadder
     doc.replace('{{inspector}}', inspection.user.real_name)
     doc.replace('{{admin}}', admin.real_name)
     doc.replace('{{inf_date}}', inspection.inf_date.strftime('%d/%m/%Y'))
-    validation_s = inspection.validation.to_s
-    validation_word = validation_s == '1' ? 'año' : 'años'
-    doc.replace('{{inspection_validation}}',"#{validation_s} #{validation_word}")
+
+    doc.replace('{{inspection_validation}}', report.ending.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si'
       doc.replace('{{cert_si}}', 'X')

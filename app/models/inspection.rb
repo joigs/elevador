@@ -57,12 +57,11 @@ class Inspection < ApplicationRecord
   end
 
   def check_and_update_state
-    return unless ins_date.present? && validation.present?
 
-    expiration_date = ins_date + validation.years
-    expiration_date = expiration_date.beginning_of_month.next_month
 
-    if Date.today >= expiration_date
+    return unless report
+
+    if Date.today >= report.ending
       self.result = 'Vencido'
     end
   end

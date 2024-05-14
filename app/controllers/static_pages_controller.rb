@@ -3,8 +3,10 @@ class StaticPagesController < ApplicationController
     case params[:filter]
     when "expiring_soon"
       @pagy, @inspections = pagy_countless(
-        Inspection.where(result: 'Aprobado')
-                  .where("DATE_ADD(ins_date, INTERVAL validation YEAR) <= ?", Date.today + 2.months),
+        Inspection.joins(:report)
+                  .where("reports.ending > ?", Date.today)
+                  .where("reports.ending <= ?", Date.today + 2.months)
+                  .where(state: 'Cerrado'),
         items: 10
       )
     when "vencido"
@@ -13,7 +15,6 @@ class StaticPagesController < ApplicationController
         items: 10
       )
     else
-      # Handle default case or render a specific message or redirect
       @pagy, @inspections = pagy_countless(Inspection.none, items: 10)
     end
 
