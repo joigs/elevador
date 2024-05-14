@@ -23,6 +23,8 @@ Rails.application.routes.draw do
       patch :close_inspection_black
       get :edit_identificador
       patch :update_identificador
+      patch :update_ending
+
     end
   end
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'

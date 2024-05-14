@@ -3,6 +3,14 @@ class Report < ApplicationRecord
   before_save :clear_fields
   validates :ul_reg_man, non_negative: true, allow_nil: true
   validate :validate_ruts
+  validates :fecha, date: true
+  validates :vi_co_man_ini, date: true
+  validates :vi_co_man_ter, date: true
+  validates :urm_fecha, date: true
+  validates :ending, date: true
+
+
+
   belongs_to :inspection
   belongs_to :item
 

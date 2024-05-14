@@ -19,4 +19,8 @@ class InspectionPolicy < BasePolicy
     Current.user.admin
   end
 
+  def update_ending
+    Current.user.admin || record.user == Current.user
+  end
+
 end

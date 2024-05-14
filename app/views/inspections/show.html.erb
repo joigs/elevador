@@ -1,19 +1,37 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
-  <div class="text-white space-y-3">
-    <h2 class="text-xl font-bold">Inspección N°<%= @inspection.number %></h2>
-    <p><strong>Identificador:</strong> <%= @inspection.item&.identificador %></p>
-    <p><strong>Empresa:</strong> <%= @inspection.item&.principal&.name %></p>
-    <p><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
-    <p><strong>Periodicidad:</strong> <%= display_periodicity(@inspection.validation) %></p>
-    <p><strong>Clasificación:</strong> <%= @inspection.item&.group&.name %></p>
-    <p><strong>Resultado de la inspección:</strong> <%= @inspection.result %></p>
+  <div class="flex flex-wrap">
+    <div class="text-white lg:w-2/3 pr-4">
+      <h2 class="text-xl font-bold">Inspección N°<%= @inspection.number %></h2>
+      <p><strong>Identificador:</strong> <%= @inspection.item&.identificador %></p>
+      <p><strong>Empresa:</strong> <%= @inspection.item&.principal&.name %></p>
+      <p><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
+      <p><strong>Periodicidad:</strong> <%= display_periodicity(@inspection.validation) %></p>
+      <p><strong>Clasificación:</strong> <%= @inspection.item&.group&.name %></p>
+      <p><strong>Resultado de la inspección:</strong> <%= @inspection.result %></p>
+      <p><strong>Lugar de la inspección:</strong> <%= @inspection.place %></p>
+      <p><strong>Fecha de emisión del informe:</strong> <%= format_date(@inspection.inf_date) %></p>
+      <p><strong>Inspector asignado:</strong> <%= @inspection.user&.real_name %></p>
+    </div>
 
-    <p><strong>Lugar de la inspección:</strong> <%= @inspection.place %></p>
-    <p><strong>Fecha de emisión del informe:</strong> <%= format_date(@inspection.inf_date) %></p>
-    <p><strong>Inspector asignado:</strong> <%= @inspection.user&.real_name %></p>
+    <% if @inspection.state == "Cerrado" %>
+      <div class="lg:w-1/3 lg:pl-4">
+        <%= form_with model: @inspection, url: update_ending_inspection_path(@inspection), local: true do |form| %>
+          <div class="form-group mb-4">
+            <%= form.label :ending, "Fecha de termino de la certificación", class: "block text-sm font-medium text-white mb-1" %>
+            <%= form.date_field :ending, value: @report.ending&.strftime('%Y-%m-%d'), class: "form-control block w-full px-3 py-2 rounded-md bg-gray-800 border-2 border-gray-600 focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
+          </div>
+          <%= form.submit "Actualizar fecha", class: "btn btn-primary w-full py-2 mt-2 text-sm text-white font-medium bg-blue-500 hover:bg-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" %>
+        <% end %>
+      </div>
+    <% end %>
+
   </div>
 
-  <div class="mt-4">
+
+
+
+
+<div class="mt-4 w-full">
     <% if @control2 %>
       <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" if @inspection.owner? && @control %>
     <% else %>
@@ -21,7 +39,7 @@
     <% end %>
   </div>
 
-  <div class="mt-4">
+<div class="mt-4 w-full">
     <% if @control2 %>
       <%= link_to 'Ver fallas encontradas', ladder_revision_path(inspection_id: @inspection), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" if Current.user.admin || @inspection.owner? %>
     <% else %>
@@ -29,17 +47,18 @@
     <% end %>
   </div>
 
-  <div class="mt-4">
-    <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin %>
+<div class="mt-4 w-full">
+    <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin && @report.ending%>
   </div>
 
-  <div class="mt-4">
+<div class="mt-4 w-full">
     <%= link_to "Modificar identificador", edit_identificador_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 text-gray-900 font-bold hover:bg-purple-800 transition duration-300" if Current.user.admin && @control3 %>
     <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin && @inspection.ins_date > Date.today %>
     <%= link_to "Ver todas las inspecciones", inspections_path, class: "px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600 transition duration-300 mt-4" %>
   </div>
-    <div class="mt-4">
+<div class="mt-4 w-full">
 
     <%= link_to 'Eliminar inspección', inspection_path(@inspection), method: :delete, data: { confirm: 'Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if Current.user.admin %>
   </div>
+</div>
 </div>

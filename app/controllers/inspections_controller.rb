@@ -14,7 +14,7 @@ class InspectionsController < ApplicationController
     end
     @control = @inspection == Inspection.where(item: @item).order(created_at: :desc).first
     @control3 = @item.identificador.include? "CAMBIAME"
-
+    @report = Report.find_by(inspection: inspection)
   end
   def new
     @inspection = Inspection.new
@@ -169,6 +169,26 @@ class InspectionsController < ApplicationController
       end
     end
   end
+
+
+
+
+
+
+  def update_ending
+    authorize! inspection
+    ending = inspection_params[:ending]
+    @report = Report.find_by(inspection: inspection)
+    if @report.update(ending: ending)
+      redirect_to @inspection, notice: 'Fecha de vigencia de certificación actualizada'
+    else
+      render @inspection, status: :unprocessable_entity
+    end
+  end
+
+
+
+
   def update
     authorize! inspection
 
@@ -380,7 +400,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
+    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, :ending, item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
       if whitelisted[:item_attributes] && whitelisted[:item_attributes][:identificador]
         whitelisted[:item_attributes][:identificador].gsub!(/\s+/, "")
       end
