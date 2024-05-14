@@ -15,7 +15,6 @@ class Inspection < ApplicationRecord
 
 
   before_save :validate_inspection_date
-  before_save :check_and_update_state
 
   validates :ins_date, presence: { message: "Debes ingresar una fecha" }
 
