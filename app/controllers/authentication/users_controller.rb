@@ -9,7 +9,7 @@ class Authentication::UsersController < ApplicationController
       @user = User.new(user_params)
 
       if @user.save
-        redirect_to home_path, notice: "Usuario creado exitosamente"
+        redirect_to user_path, notice: "Usuario creado exitosamente"
       else
         render :new, status: :unprocessable_entity
       end

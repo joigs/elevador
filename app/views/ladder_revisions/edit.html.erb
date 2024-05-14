@@ -11,6 +11,14 @@
     </div>
   <% end %>
 
+
+  <% if @inspection.result == "black" %>
+    <h1 class="text-4xl text-red-500">Realizando Preinspección</h1>
+  <% else %>
+    <h1 class="text-4xl text-green-500">Realizando Inspección</h1>
+  <% end %>
+
+
   <div data-controller="section-submit">
     <% @numbers.each_with_index do |number, index| %>
       <div>
