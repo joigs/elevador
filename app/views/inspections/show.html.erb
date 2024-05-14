@@ -34,8 +34,12 @@
   </div>
 
   <div class="mt-4">
+    <%= link_to "Modificar identificador", edit_identificador_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 text-gray-900 font-bold hover:bg-purple-800 transition duration-300" if Current.user.admin && @control3 %>
     <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin && @inspection.ins_date > Date.today %>
     <%= link_to "Ver todas las inspecciones", inspections_path, class: "px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600 transition duration-300 mt-4" %>
+  </div>
+    <div class="mt-4">
+
     <%= link_to 'Eliminar inspección', inspection_path(@inspection), method: :delete, data: { confirm: 'Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if Current.user.admin %>
   </div>
 </div>

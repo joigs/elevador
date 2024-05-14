@@ -290,6 +290,11 @@ class LadderRevisionsController < ApplicationController
     params.permit(revision_photos: {photo: [], code: []})[:revision_photos] || {}
   end
 
-
+  def process_image(upload)
+    ImageProcessing::MiniMagick
+      .source(upload)
+      .resize_to_fit(400, 250)
+      .call
+  end
 
 end
