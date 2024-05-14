@@ -48,10 +48,11 @@ class RuletypesController < ApplicationController
 
   def import
 
-    if !Ruletype.blank?
+    if Ruletype.exists?
       redirect_to new_import_ruletypes_path, alert: "Ya existen comprobaciones"
       return
     end
+
 
 
     if params[:file].nil?
