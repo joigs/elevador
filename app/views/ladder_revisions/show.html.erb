@@ -1,56 +1,49 @@
-<h1>Inspección N° <%= @inspection.number %></h1>
-<h2>Defectos Encontrados</h2>
+<div class="bg-gray-800 text-white min-h-screen">
+  <div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-4">Inspección N° <%= @inspection.number %></h1>
+    <h2 class="text-2xl font-semibold mb-3">Defectos Encontrados</h2>
 
-  <% @revision.points.each_with_index.chunk_while { |(_, i), (_, j)| @revision.codes[i] == @revision.codes[j] }.each do |group| %>
-    <% group.each do |(point, index)| %>
-      <p>
-        <strong>Defecto N°:</strong>
-        <%= "#{@revision.number[index]}.  Código: " %>
-        <%= @revision.codes[index] %>
-        <%= point %>
-        <%= "  Riesgo: #{@revision.levels[index]}" %>
-        <%= ".  Prioridad: #{@revision.priority[index]}" %>
-        <%= ".        Razón: #{@revision.comment[index]}" %>
-      </p>
-    <% end %>
+    <% @revision.points.each_with_index.chunk_while { |(_, i), (_, j)| @revision.codes[i] == @revision.codes[j] }.each do |group| %>
+      <% group.each do |(point, index)| %>
+        <div class="p-3 bg-gray-700 rounded-lg mb-2">
+          <p><strong>Defecto N°:</strong> <%= "#{@revision.number[index]}. Código: " %>
+            <%= @revision.codes[index] %> <%= point %> <%= " Riesgo: #{@revision.levels[index]}" %>
+            <span class="text-gray-300">. Prioridad: <%= @revision.priority[index] %>. Razón: <%= @revision.comment[index] %></span>
+          </p>
+        </div>
+      <% end %>
 
-    <% last_index = group.last[1] %>
-    <% next_code_different = (@revision.codes[last_index] != @revision.codes[last_index + 1]) rescue true %>
-    <% if next_code_different %>
-      <% photos = @photos_by_code[@revision.codes[last_index]] || [] %>
-      <% photos.each do |photo| %>
-          <%= image_tag photo.photo, width: 200 %>
-        </a>
+      <% last_index = group.last[1] %>
+      <% next_code_different = (@revision.codes[last_index] != @revision.codes[last_index + 1]) rescue true %>
+      <% if next_code_different %>
+        <% photos = @photos_by_code[@revision.codes[last_index]] || [] %>
+        <% photos.each do |photo| %>
+          <%= image_tag photo.photo, width: 200, class: "w-48 rounded-lg shadow-lg m-1" %>
+        <% end %>
       <% end %>
     <% end %>
-  <% end %>
+  </div>
 
-<div>
-  <%= link_to 'Volver atrás', inspection_path(@inspection) if Current.user.admin %>
-</div>
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-wrap justify-between items-center space-y-4 md:space-y-0">
+      <% if Current.user.admin %>
+        <%= link_to 'Volver atrás', inspection_path(@inspection), class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded shadow transition duration-300 ease-in-out" %>
+      <% end %>
 
-<div>
-  <% if @inspection.result == 'En revisión' %>
-      <%= link_to 'Volver a la inspección', edit_ladder_revision_path(inspection_id: @inspection.id, section: 1 ) if @inspection.owner? %>
-    <br>
-    <br>
-    <div>
-      <%= button_to 'Terminar inspección', close_inspection_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la inspección?', turbo_frame: "_top" } if @inspection.owner?%>
+      <% if @inspection.result == 'En revisión' %>
+        <div class="mt-4">
+          <%= link_to 'Volver a la inspección', edit_ladder_revision_path(inspection_id: @inspection.id, section: 0), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" if @inspection.owner? %>
+          <%= button_to 'Terminar inspección', close_inspection_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la inspección?', turbo_frame: "_top" }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if @inspection.owner? && @inspection.number > 0 %>
+        </div>
+
+    <% else %>
+        <%= link_to 'Volver atrás', inspection_path(@inspection), class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded shadow transition duration-300 ease-in-out" if @inspection.owner? && @inspection.number > 0 %>
+      <% end %>
+
+      <div class="mt-4">
+      <%= link_to 'Volver a la preinspección', edit_ladder_revision_path(inspection_id: @inspection.id, section: 0), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300"  if @inspection.owner? && @inspection.number < 0 %>
+        <%= button_to 'Terminar Preinspección', close_inspection_black_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la preinspección?', turbo_frame: "_top" }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if @inspection.owner? && @inspection.number < 0 %>
+      </div>
     </div>
-
-  <% else %>
-      <%= link_to 'Volver atrás', inspection_path(@inspection) if @inspection.owner? && @inspection.number > 0 %>
-  <% end %>
-
-  <div>
-    <%= link_to 'Volver a la preinspección', edit_revision_path(inspection_id: @inspection.id, section: 0 ) if @inspection.owner? && @inspection.number < 0 %>
   </div>
-
-  <div>
-    <%= button_to 'Terminar Preinspección', close_inspection_black_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la preinspección?', turbo_frame: "_top" } if @inspection.owner? && @inspection.number<0%>
-  </div>
-
 </div>
-
-
-
