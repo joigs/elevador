@@ -22,6 +22,20 @@
       <%= user.email %>
     </p>
 
+    <p class="text-gray-400 mt-2">
+      <strong class="text-gray-200">Profesión:</strong>
+      <%= user.profesion %>
+    </p>
+
+    <div class="mt-2">
+      <strong class="text-gray-200">Firma:</strong>
+      <% if user.signature.attached? %>
+        <%= image_tag user.signature, class: "max-w-full h-auto" %>
+      <% else %>
+        <p class="text-gray-400">No hay firma cargada.</p>
+      <% end %>
+    </div>
+
     <div class="mt-4">
       <% if controller_name == 'users' && action_name == 'index' %>
         <%= link_to 'Mostrar usuario', user_path(user), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>

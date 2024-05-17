@@ -78,6 +78,6 @@ class PrincipalsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def principal_params
-      params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email)
+      params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email, :place)
     end
 end

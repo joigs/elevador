@@ -82,6 +82,16 @@ class DocumentGenerator
     doc.replace('{{detail_marca}}', detail.marca)
     doc.replace('{{detail_modelo}}', detail.modelo)
     doc.replace('{{detail_n_serie}}', detail.n_serie)
+    doc.replace('{{detail_velocidad}}', detail.velocidad)
+    doc.replace('{{detail_rol_n}}', detail.rol_n)
+    doc.replace('{{detail_numero_permiso}}', detail.numero_permiso)
+    doc.replace('{{detail_fecha_permiso}}', detail.fecha_permiso.strftime('%d/%m/%Y'))
+    doc.replace('{{detail_destino}}', detail.destino)
+    doc.replace('{{detail_recepcion}}', detail.recepcion)
+    doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
+    doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
+    doc.replace('{{detail_porcentaje}}', detail.porcentaje.to_s)
+
 
 
     if group.number == 1
@@ -154,7 +164,7 @@ class DocumentGenerator
       end
 
       if last_revision&.levels.blank?
-        doc.replace('{{informe_anterior}}', "")
+        doc.replace('{{informe_anterior}}', "Informe anterior sin fallas registradas")
         doc.replace('{{revision_past_errors_level}}', "")
       else
 
@@ -205,7 +215,7 @@ class DocumentGenerator
       end
 
       else
-        doc.replace('{{informe_anterior}}', "No presenta certificación anterior")
+        doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
         doc.replace('{{revision_past_errors_level}}', "")
     end
 
@@ -234,33 +244,26 @@ class DocumentGenerator
     carpetas.each do |carpeta|
       indice = revision.codes.find_index(carpeta)
       if indice
-        doc.replace('{{carpeta_si}}', '')
-        doc.replace('{{carpeta_no}}', 'X')
+        doc.replace('{{carpeta_si}}', 'No')
         doc.replace('{{carpeta_no_aplica}}', '')
         if revision.levels[indice] == 'L'
-          doc.replace('{{carpeta_g}}', '')
-          doc.replace('{{carpeta_l}}', 'X')
+          doc.replace('{{carpeta_f}}', 'FL')
         else
-          doc.replace('{{carpeta_g}}', 'X')
-          doc.replace('{{carpeta_l}}', '')
+          doc.replace('{{carpeta_f}}', 'FG')
         end
         doc.replace('{{carpeta_comentario}}', revision.comment[indice])
 
       elsif revision_nulls.any? { |null| null.point.start_with?("#{carpeta}_") }
         doc.replace('{{carpeta_si}}', '')
-        doc.replace('{{carpeta_no}}', '')
-        doc.replace('{{carpeta_g}}', '')
-        doc.replace('{{carpeta_l}}', '')
+        doc.replace('{{carpeta_f}}', '')
         doc.replace('{{carpeta_comentario}}', '')
         doc.replace('{{carpeta_no_aplica}}', 'X')
 
 
       else
-        doc.replace('{{carpeta_si}}', 'X')
-        doc.replace('{{carpeta_no}}', '')
+        doc.replace('{{carpeta_si}}', 'Si')
         doc.replace('{{carpeta_no_aplica}}', '')
-        doc.replace('{{carpeta_g}}', '')
-        doc.replace('{{carpeta_l}}', '')
+        doc.replace('{{carpeta_f}}', '')
         doc.replace('{{carpeta_comentario}}', '')
       end
     end
@@ -449,7 +452,7 @@ class DocumentGenerator
 
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'Revision')
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date.strftime('%m'), "{{year}}" => inspection.ins_date.strftime('%Y') }, output_path, output_path)
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{day}}" => inspection.ins_date.strftime('%d'), "{{month}}" => inspection.ins_date.strftime('%m'), "{{year}}" => inspection.ins_date.strftime('%Y') }, output_path, output_path)
 
 
 

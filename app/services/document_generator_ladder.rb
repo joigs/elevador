@@ -30,7 +30,7 @@ class DocumentGeneratorLadder
     doc.replace('{{principal_phone}}', principal.phone)
     doc.replace('{{principal_cellphone}}', principal.cellphone)
     doc.replace('{{principal_contact_email}}', principal.contact_email)
-    doc.replace('{{inspection_place}}', inspection.place)
+    doc.replace('{{principal_place}}', principal.place)
 
 
     doc.replace('{{inspection_place}}', inspection.place)
@@ -94,6 +94,7 @@ class DocumentGeneratorLadder
     doc.replace('{{velocidad}}', detail.velocidad.to_s)
     doc.replace('{{fabricacion}}', detail.fabricacion.to_s)
     doc.replace('{{procedencia}}', detail.procedencia)
+    doc.replace('{{detail_descripcion}}', detail.descripcion)
 
 
 

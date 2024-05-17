@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_14_195159) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_17_204916) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -62,6 +62,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_14_195159) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "velocidad"
+    t.string "descripcion"
+    t.string "rol_n"
+    t.integer "numero_permiso"
+    t.date "fecha_permiso"
+    t.string "destino"
+    t.string "recepcion"
+    t.string "empresa_instaladora"
+    t.string "empresa_instaladora_rut"
+    t.integer "porcentaje"
     t.index ["item_id"], name: "index_details_on_item_id"
   end
 
@@ -166,6 +175,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_14_195159) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "contact_email"
+    t.string "place"
   end
 
   create_table "reports", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -274,6 +284,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_14_195159) do
     t.datetime "deleted_at"
     t.string "real_name", default: "", null: false
     t.string "email"
+    t.string "profesion"
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["username"], name: "index_users_on_username", unique: true
   end

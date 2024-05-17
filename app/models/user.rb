@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
+  has_one_attached :signature
 
   include Minidusen::Filter
 
@@ -19,4 +20,6 @@ class User < ApplicationRecord
 
   acts_as_paranoid
   has_many :inspections
+
+
 end

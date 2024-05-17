@@ -11,10 +11,65 @@
       </div>
     <% end %>
 
+
+
+
+    <div class="form-group">
+      <%= form.label :rol_n, "Rol N°", class: "block text-gray-300" %>
+      <%= form.text_field :rol_n, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :numero_permiso, "N° de permiso", class: "block text-gray-300" %>
+      <%= form.number_field :numero_permiso, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :fecha_permiso, "Fecha de permiso", class: "block text-gray-300" %>
+      <%= form.date_field :fecha_permiso, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+
+    <div class="form-group">
+      <%= form.label :porcentaje, "% de ocupación", class: "block text-gray-300" %>
+      <%= form.number_field :porcentaje, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :destino, class: "block text-gray-300" %>
+      <%= form.text_field :destino, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :recepcion, class: "block text-gray-300" %>
+      <%= form.text_field :recepcion, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :empresa_instaladora, class: "block text-gray-300" %>
+      <%= form.text_field :empresa_instaladora, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :empresa_instaladora_rut, class: "block text-gray-300" %>
+      <%= form.text_field :empresa_instaladora_rut, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+
+
+
+
+
     <div class="form-group">
       <%= form.label :detalle, class: "block text-gray-300" %>
       <%= form.text_field :detalle, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
+
+    <div class="form-group">
+      <%= form.label :descripcion, class: "block text-gray-300" %>
+      <%= form.text_field :descripcion, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
 
     <div class="form-group">
       <%= form.label :marca, class: "block text-gray-300" %>
@@ -84,9 +139,6 @@
       <%= form.text_field :medidas_cintas, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
-    <div class="text-white text-lg font-semibold mt-6 mb-2">
-      Regulador de velocidad
-    </div>
 
     <div class="form-group">
       <%= form.label :velocidad, "Velocidad m/s", class: "block text-gray-300" %>
