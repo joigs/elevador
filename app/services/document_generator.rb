@@ -34,7 +34,7 @@ class DocumentGenerator
     doc.replace('{{principal_phone}}', principal.phone)
     doc.replace('{{principal_cellphone}}', principal.cellphone)
     doc.replace('{{principal_contact_email}}', principal.contact_email)
-    doc.replace('{{inspection_place}}', inspection.place)
+    doc.replace('{{principal_place}}', principal.place)
 
 
     doc.replace('{{inspection_place}}', inspection.place)
@@ -95,6 +95,7 @@ class DocumentGenerator
     doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
     doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
     doc.replace('{{detail_porcentaje}}', detail.porcentaje.to_s)
+    doc.replace('{{detail_descripcion}}', detail.descripcion)
 
 
 
@@ -173,7 +174,6 @@ class DocumentGenerator
       else
 
 
-        last_revision_pikachu = []
 
         last_revision.levels.each_with_index do |level, index|
           if level.include?("L")
@@ -182,7 +182,6 @@ class DocumentGenerator
                 last_errors << last_revision.codes[index] + " " + last_revision.points[index]
               end
             end
-            last_revision_pikachu << last_revision.codes[index] + " " + last_revision.points[index]
           end
         end
 
@@ -190,10 +189,9 @@ class DocumentGenerator
 
         if last_errors.blank?
 
-          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
 
-          doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
-          doc.replace('{{revision_past_errors_level}}', formatted_pikachu)
+          doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas Leves, indicadas en certificación anterior.")
+          doc.replace('{{revision_past_errors_level}}', "")
 
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
@@ -472,66 +470,6 @@ class DocumentGenerator
 
 
 
-    # Paths for the signature and the third image
-    inspector_signature_path = Rails.root.join('tmp', 'inspector_signature.jpg')
-    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
-    third_image_path = Rails.root.join('app', 'templates', 'blanco.png')  # Path for the third image
-
-    # Download and resize signatures to 400 pixels wide
-    [inspector_signature_path, admin_signature_path].each do |path|
-      File.open(path, 'wb') do |file|
-        file.write(path == inspector_signature_path ? inspector.signature.download : admin.signature.download)
-      end
-      image = MiniMagick::Image.open(path)
-      image.resize "300x"
-      image.write(path)
-    end
-
-    # Resize the third image to 400 pixels wide
-    third_image = MiniMagick::Image.open(third_image_path)
-    third_image.resize "100x"
-    third_image.write(third_image_path)  # Save the resized image temporarily
-
-    # Include all images in the array
-    images = [
-      inspector_signature_path,
-      third_image_path,
-      admin_signature_path
-    ]
-
-    # Generate a unique filename for the montage
-    random_hex = SecureRandom.hex(4)
-    output_filename = "inspector_#{inspector.username}_admin_#{admin.username}_#{random_hex}.jpg"
-    output_path_image = Rails.root.join('tmp', output_filename)
-
-    # Create the montage with three images already resized
-    MiniMagick::Tool::Montage.new do |montage|
-      montage.geometry "300x+0+0"  # Each image is 400 pixels wide
-      montage.tile "3x1"  # Adjust tile to 3x1 for three images
-      images.each { |i| montage << i }
-      montage << output_path_image.to_s
-    end
-
-    # Prepare the array for Omnidocx with the resized image
-    images_to_write = [
-      {
-        :path => output_path_image.to_s,
-        :height => 300,
-        :width => 800  # Total width of the montage
-      }
-    ]
-
-    # Write the images to the document
-    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path2, output_path2)
-
-    # Delete the temporary files after they are no longer needed
-    [inspector_signature_path, admin_signature_path, output_path_image].each do |path|
-      File.delete(path) if File.exist?(path)
-    end
-
-
-
-
 
 
 
@@ -589,9 +527,69 @@ class DocumentGenerator
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
 
-    #original_files << 'tmp/part3.docx'
+    original_files << 'tmp/part3.docx'
 
 
+
+
+
+
+    # Paths for the signature and the third image
+    inspector_signature_path = Rails.root.join('tmp', 'inspector_signature.jpg')
+    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
+    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')  # Path for the third image
+
+    # Download and resize signatures to 400 pixels wide
+    [inspector_signature_path, admin_signature_path].each do |path|
+      File.open(path, 'wb') do |file|
+        file.write(path == inspector_signature_path ? inspector.signature.download : admin.signature.download)
+      end
+      image = MiniMagick::Image.open(path)
+      image.resize "300x"
+      image.write(path)
+    end
+
+    # Resize the third image to 400 pixels wide
+    third_image = MiniMagick::Image.open(third_image_path)
+    third_image.resize "100x"
+    third_image.write(third_image_path)  # Save the resized image temporarily
+
+    # Include all images in the array
+    images = [
+      inspector_signature_path,
+      third_image_path,
+      admin_signature_path
+    ]
+
+    # Generate a unique filename for the montage
+    random_hex = SecureRandom.hex(4)
+    output_filename = "inspector_#{inspector.username}_admin_#{admin.username}_#{random_hex}.jpg"
+    output_path_image = Rails.root.join('tmp', output_filename)
+
+    # Create the montage with three images already resized
+    MiniMagick::Tool::Montage.new do |montage|
+      montage.geometry "300x+0+0"  # Each image is 400 pixels wide
+      montage.tile "3x1"  # Adjust tile to 3x1 for three images
+      images.each { |i| montage << i }
+      montage << output_path_image.to_s
+    end
+
+    # Prepare the array for Omnidocx with the resized image
+    images_to_write = [
+      {
+        :path => output_path_image.to_s,
+        :height => 300,
+        :width => 800  # Total width of the montage
+      }
+    ]
+
+    # Write the images to the document
+    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+
+    # Delete the temporary files after they are no longer needed
+    [inspector_signature_path, admin_signature_path, output_path_image].each do |path|
+      File.delete(path) if File.exist?(path)
+    end
 
 
 
@@ -600,7 +598,7 @@ class DocumentGenerator
     end
 
 
-    return 'tmp/part3.docx'
+    return output_path
 
   end
 
