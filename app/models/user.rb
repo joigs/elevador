@@ -3,6 +3,7 @@ class User < ApplicationRecord
   has_one_attached :signature
 
   include Minidusen::Filter
+  acts_as_paranoid
 
   filter :text do |scope, phrases|
     columns = [:username, :real_name, :email]
@@ -18,7 +19,9 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true,
             format: { with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i, message: "Formato de email invalido" }
 
-  acts_as_paranoid
+
+
+
   has_many :inspections
 
 

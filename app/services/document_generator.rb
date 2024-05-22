@@ -2,6 +2,9 @@
 require 'docx_replace'
 require 'omnidocx'
 require 'fileutils'
+require 'mini_magick'
+require 'tempfile'
+require 'securerandom'
 
 class DocumentGenerator
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
@@ -13,14 +16,15 @@ class DocumentGenerator
     detail = item.detail
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
+    inspector = inspection.user
 
     template_path = Rails.root.join('app', 'templates', 'template_1.docx')
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
     doc.replace('{{XXX}}', inspection.number.to_s)
-    doc.replace('{{MM}}', inspection.ins_date.strftime('%m'))
-    doc.replace('{{XX}}', inspection.ins_date.strftime('%Y'))
+    doc.replace('{{MM}}', inspection.ins_date&.strftime('%m'))
+    doc.replace('{{XX}}', inspection.ins_date&.strftime('%Y'))
 
     doc.replace('{{principal_name}}', principal.name)
     doc.replace('{{principal_business_name}}', principal.business_name)
@@ -34,12 +38,12 @@ class DocumentGenerator
 
 
     doc.replace('{{inspection_place}}', inspection.place)
-    doc.replace('{{ins_date}}', inspection.ins_date.strftime('%d/%m/%Y'))
+    doc.replace('{{ins_date}}', inspection.ins_date&.strftime('%d/%m/%Y'))
     doc.replace('{{inspector}}', inspection.user.real_name)
     doc.replace('{{admin}}', admin.real_name)
-    doc.replace('{{inf_date}}', inspection.inf_date.strftime('%d/%m/%Y'))
+    doc.replace('{{inf_date}}', inspection.inf_date&.strftime('%d/%m/%Y'))
 
-    doc.replace('{{inspection_validation}}', report.ending.strftime('%d/%m/%Y'))
+    doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si'
       doc.replace('{{cert_si}}', 'X')
@@ -85,7 +89,7 @@ class DocumentGenerator
     doc.replace('{{detail_velocidad}}', detail.velocidad)
     doc.replace('{{detail_rol_n}}', detail.rol_n)
     doc.replace('{{detail_numero_permiso}}', detail.numero_permiso)
-    doc.replace('{{detail_fecha_permiso}}', detail.fecha_permiso.strftime('%d/%m/%Y'))
+    doc.replace('{{detail_fecha_permiso}}', detail.fecha_permiso&.strftime('%d/%m/%Y'))
     doc.replace('{{detail_destino}}', detail.destino)
     doc.replace('{{detail_recepcion}}', detail.recepcion)
     doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
@@ -269,7 +273,7 @@ class DocumentGenerator
     end
 
 
-    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date.strftime('%m')}-#{inspection.ins_date.strftime('%Y')}.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}.docx")
     doc.commit(output_path)
 
     template_path = Rails.root.join('app', 'templates', 'template_3.docx')
@@ -337,7 +341,7 @@ class DocumentGenerator
       doc.replace('{{texto_comprobacion_cumple}}', 'De acuerdo a esta inspección, CUMPLE, con los requisitos normativos evaluados:')
     else
       doc.replace('{{lista_comprobacion_cumple}}', '')
-      doc.replace('{{texto_comprobacion_cumple}}', '')
+      doc.replace('{{texto_comprobacion_cumple}}', 'No cumple con ningún requisito normativo')
     end
 
     if no_cumple.any?
@@ -345,7 +349,7 @@ class DocumentGenerator
       doc.replace('{{texto_comprobacion_no_cumple}}', "El equipo inspeccionado, identificado en el ítem II, ubicado en #{inspection.place}, NO CUMPLE, con los siguientes requisitos normativos, detectándose no-conformidades:")
     else
       doc.replace('{{lista_comprobacion_no_cumple}}', '')
-      doc.replace('{{texto_comprobacion_no_cumple}}', '')
+      doc.replace('{{texto_comprobacion_no_cumple}}', 'No se encontraron no conformidades en la inspección.')
     end
 
     errors_graves = []
@@ -383,7 +387,7 @@ class DocumentGenerator
       doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
     else
       doc.replace('{{revision_errors_leves}}', '')
-      doc.replace('{{si_las_hubiera_leve}}', '')
+      doc.replace('{{si_las_hubiera_leve}}', 'No se encontraron faltas leves en la inspección.')
     end
 
     if errors_graves.any?
@@ -392,7 +396,7 @@ class DocumentGenerator
       doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Faltas Graves, encontradas en la inspección son las siguientes:')
     else
       doc.replace('{{revision_errors_graves}}', '')
-      doc.replace('{{si_las_hubiera_grave}}', '')
+      doc.replace('{{si_las_hubiera_grave}}', 'No se encontraron faltas graves en la inspección.')
     end
 
     identificador_rol = item.identificador.split("-").first
@@ -443,16 +447,99 @@ class DocumentGenerator
 
 
     doc.replace('{{admin}}', "        #{admin.real_name}     ")
-    doc.replace('{{inspector}}', "#{inspection.user.real_name}")
+    doc.replace('{{inspector}}', "#{inspector.real_name}")
+    inspector_profesion = inspector.profesion
+    admin_profesion = admin.profesion
+
+
+    # Calculate the excess length of admin_profesion over 10 characters
+    chars_to_delete2 = [admin_profesion.length, 0].max
+    chars_to_delete = chars_to_delete2/2
+
+    # Adjust inspector_profesion by removing the calculated number of characters
+    adjusted_length = [100 - chars_to_delete, 0].max
+    inspector_profesion = inspector_profesion.ljust(adjusted_length)
+
+
+
+    doc.replace('{{inspector_profesion}}', "#{inspector_profesion}")
+    doc.replace('{{admin_profesion}}', "         #{admin.profesion}")
 
     output_path2 = Rails.root.join('tmp', "part3.docx")
     doc.commit(output_path2)
+
+
+
+
+
+    # Paths for the signature and the third image
+    inspector_signature_path = Rails.root.join('tmp', 'inspector_signature.jpg')
+    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
+    third_image_path = Rails.root.join('app', 'templates', 'blanco.png')  # Path for the third image
+
+    # Download and resize signatures to 400 pixels wide
+    [inspector_signature_path, admin_signature_path].each do |path|
+      File.open(path, 'wb') do |file|
+        file.write(path == inspector_signature_path ? inspector.signature.download : admin.signature.download)
+      end
+      image = MiniMagick::Image.open(path)
+      image.resize "300x"
+      image.write(path)
+    end
+
+    # Resize the third image to 400 pixels wide
+    third_image = MiniMagick::Image.open(third_image_path)
+    third_image.resize "100x"
+    third_image.write(third_image_path)  # Save the resized image temporarily
+
+    # Include all images in the array
+    images = [
+      inspector_signature_path,
+      third_image_path,
+      admin_signature_path
+    ]
+
+    # Generate a unique filename for the montage
+    random_hex = SecureRandom.hex(4)
+    output_filename = "inspector_#{inspector.username}_admin_#{admin.username}_#{random_hex}.jpg"
+    output_path_image = Rails.root.join('tmp', output_filename)
+
+    # Create the montage with three images already resized
+    MiniMagick::Tool::Montage.new do |montage|
+      montage.geometry "300x+0+0"  # Each image is 400 pixels wide
+      montage.tile "3x1"  # Adjust tile to 3x1 for three images
+      images.each { |i| montage << i }
+      montage << output_path_image.to_s
+    end
+
+    # Prepare the array for Omnidocx with the resized image
+    images_to_write = [
+      {
+        :path => output_path_image.to_s,
+        :height => 300,
+        :width => 800  # Total width of the montage
+      }
+    ]
+
+    # Write the images to the document
+    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path2, output_path2)
+
+    # Delete the temporary files after they are no longer needed
+    [inspector_signature_path, admin_signature_path, output_path_image].each do |path|
+      File.delete(path) if File.exist?(path)
+    end
+
+
+
+
+
+
 
     original_files = []
 
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'Revision')
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{day}}" => inspection.ins_date.strftime('%d'), "{{month}}" => inspection.ins_date.strftime('%m'), "{{year}}" => inspection.ins_date.strftime('%Y') }, output_path, output_path)
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{day}}" => inspection.ins_date&.strftime('%d'), "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y') }, output_path, output_path)
 
 
 
@@ -502,7 +589,7 @@ class DocumentGenerator
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
 
-    original_files << 'tmp/part3.docx'
+    #original_files << 'tmp/part3.docx'
 
 
 
@@ -513,7 +600,7 @@ class DocumentGenerator
     end
 
 
-    return output_path
+    return 'tmp/part3.docx'
 
   end
 
@@ -554,5 +641,12 @@ class DocumentGenerator
     images_to_write.each do |image|
       File.delete(image[:path]) if File.exist?(image[:path])
     end
+  end
+
+  def download_blob_to_tempfile(blob, tempfile)
+    blob.download do |chunk|
+      tempfile.write(chunk)
+    end
+    tempfile.rewind
   end
 end
