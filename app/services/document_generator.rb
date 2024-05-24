@@ -413,7 +413,6 @@ class DocumentGenerator
       "9" => "Diciembre"
     }
 
-    # Assuming last_digit_before_dash contains the last digit as a string
     mapped_month = months[identificador_rol_last]
 
     if revision.levels.blank?
@@ -450,11 +449,9 @@ class DocumentGenerator
     admin_profesion = admin.profesion
 
 
-    # Calculate the excess length of admin_profesion over 10 characters
     chars_to_delete2 = [admin_profesion.length, 0].max
     chars_to_delete = chars_to_delete2/2
 
-    # Adjust inspector_profesion by removing the calculated number of characters
     adjusted_length = [100 - chars_to_delete, 0].max
     inspector_profesion = inspector_profesion.ljust(adjusted_length)
 
@@ -534,12 +531,10 @@ class DocumentGenerator
 
 
 
-    # Paths for the signature and the third image
     inspector_signature_path = Rails.root.join('tmp', 'inspector_signature.jpg')
     admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
-    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')  # Path for the third image
+    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')
 
-    # Download and resize signatures to 400 pixels wide
     [inspector_signature_path, admin_signature_path].each do |path|
       File.open(path, 'wb') do |file|
         file.write(path == inspector_signature_path ? inspector.signature.download : admin.signature.download)
@@ -549,44 +544,37 @@ class DocumentGenerator
       image.write(path)
     end
 
-    # Resize the third image to 400 pixels wide
     third_image = MiniMagick::Image.open(third_image_path)
     third_image.resize "100x"
-    third_image.write(third_image_path)  # Save the resized image temporarily
+    third_image.write(third_image_path)
 
-    # Include all images in the array
     images = [
       inspector_signature_path,
       third_image_path,
       admin_signature_path
     ]
 
-    # Generate a unique filename for the montage
     random_hex = SecureRandom.hex(4)
     output_filename = "inspector_#{inspector.username}_admin_#{admin.username}_#{random_hex}.jpg"
     output_path_image = Rails.root.join('tmp', output_filename)
 
-    # Create the montage with three images already resized
     MiniMagick::Tool::Montage.new do |montage|
-      montage.geometry "300x+0+0"  # Each image is 400 pixels wide
-      montage.tile "3x1"  # Adjust tile to 3x1 for three images
+      montage.geometry "300x+0+0"
+      montage.tile "3x1"
       images.each { |i| montage << i }
       montage << output_path_image.to_s
     end
 
-    # Prepare the array for Omnidocx with the resized image
     images_to_write = [
       {
         :path => output_path_image.to_s,
         :height => 300,
-        :width => 800  # Total width of the montage
+        :width => 800
       }
     ]
 
-    # Write the images to the document
     Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
 
-    # Delete the temporary files after they are no longer needed
     [inspector_signature_path, admin_signature_path, output_path_image].each do |path|
       File.delete(path) if File.exist?(path)
     end

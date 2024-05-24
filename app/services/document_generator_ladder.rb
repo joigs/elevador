@@ -12,6 +12,8 @@ class DocumentGeneratorLadder
     detail = item.ladder_detail
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
+    inspector = inspection.user
+
 
     template_path = Rails.root.join('app', 'templates', 'template_ladder1.docx')
 
@@ -95,6 +97,16 @@ class DocumentGeneratorLadder
     doc.replace('{{fabricacion}}', detail.fabricacion.to_s)
     doc.replace('{{procedencia}}', detail.procedencia)
     doc.replace('{{detail_descripcion}}', detail.descripcion)
+    doc.replace('{{detail_rol_n}}', detail.rol_n)
+    doc.replace('{{detail_numero_permiso}}', detail.numero_permiso)
+    doc.replace('{{detail_fecha_permiso}}', detail.fecha_permiso&.strftime('%d/%m/%Y'))
+    doc.replace('{{detail_destino}}', detail.destino)
+    doc.replace('{{detail_recepcion}}', detail.recepcion)
+    doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
+    doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
+    doc.replace('{{detail_porcentaje}}', detail.porcentaje.to_s)
+    doc.replace('{{detail_descripcion}}', detail.descripcion)
+
 
 
 
@@ -303,6 +315,26 @@ class DocumentGeneratorLadder
       doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{mapped_month}.")
     end
 
+
+    doc.replace('{{admin}}', "        #{admin.real_name}     ")
+    doc.replace('{{inspector}}', "#{inspector.real_name}")
+    inspector_profesion = inspector.profesion
+    admin_profesion = admin.profesion
+
+
+    chars_to_delete2 = [admin_profesion.length, 0].max
+    chars_to_delete = chars_to_delete2/2
+
+    adjusted_length = [100 - chars_to_delete, 0].max
+    inspector_profesion = inspector_profesion.ljust(adjusted_length)
+
+
+
+    doc.replace('{{inspector_profesion}}', "#{inspector_profesion}")
+    doc.replace('{{admin_profesion}}', "         #{admin.profesion}")
+
+
+
     output_path2 = Rails.root.join('tmp', "part3.docx")
     doc.commit(output_path2)
 
@@ -311,7 +343,13 @@ class DocumentGeneratorLadder
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'LadderRevision')
     set_of_errors = []
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{ins_num}}" => inspection.number.to_s }, output_path, output_path)
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{day}}" => inspection.ins_date&.strftime('%d'), "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y') }, output_path, output_path)
+
+
+
+
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{XXX}}" => inspection.number.to_s}, output_path, output_path)
+
 
 
     revision.codes.each_with_index.chunk_while { |(_, i), (_, j)| revision.codes[i] == revision.codes[j] }.each_with_index do |group, group_index|
@@ -350,6 +388,55 @@ class DocumentGeneratorLadder
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
     original_files << output_path2
+
+
+    inspector_signature_path = Rails.root.join('tmp', 'inspector_signature.jpg')
+    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
+    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')  # Path for the third image
+
+    [inspector_signature_path, admin_signature_path].each do |path|
+      File.open(path, 'wb') do |file|
+        file.write(path == inspector_signature_path ? inspector.signature.download : admin.signature.download)
+      end
+      image = MiniMagick::Image.open(path)
+      image.resize "300x"
+      image.write(path)
+    end
+
+    third_image = MiniMagick::Image.open(third_image_path)
+    third_image.resize "100x"
+    third_image.write(third_image_path)  # Save the resized image temporarily
+
+    images = [
+      inspector_signature_path,
+      third_image_path,
+      admin_signature_path
+    ]
+
+    random_hex = SecureRandom.hex(4)
+    output_filename = "inspector_#{inspector.username}_admin_#{admin.username}_#{random_hex}.jpg"
+    output_path_image = Rails.root.join('tmp', output_filename)
+
+    MiniMagick::Tool::Montage.new do |montage|
+      montage.geometry "300x+0+0"  # Each image is 400 pixels wide
+      montage.tile "3x1"  # Adjust tile to 3x1 for three images
+      images.each { |i| montage << i }
+      montage << output_path_image.to_s
+    end
+
+    images_to_write = [
+      {
+        :path => output_path_image.to_s,
+        :height => 300,
+        :width => 800
+      }
+    ]
+
+    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+
+    [inspector_signature_path, admin_signature_path, output_path_image].each do |path|
+      File.delete(path) if File.exist?(path)
+    end
 
 
 

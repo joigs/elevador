@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_17_204916) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_24_194354) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -150,6 +150,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_17_204916) do
     t.bigint "item_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "descripcion"
+    t.string "rol_n"
+    t.integer "numero_permiso"
+    t.date "fecha_permiso"
+    t.string "destino"
+    t.string "recepcion"
+    t.string "empresa_instaladora"
+    t.string "empresa_instaladora_rut"
+    t.integer "porcentaje"
     t.index ["inspection_id"], name: "index_ladder_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_ladder_revisions_on_item_id"
   end
