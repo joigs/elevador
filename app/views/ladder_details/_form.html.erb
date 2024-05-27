@@ -11,7 +11,38 @@
       </div>
     <% end %>
 
-    <% # Fields with specific styling %>
+
+
+    <%= form.label :"Detalle", class: "block text-gray-300" %>
+    <%= form.text_field :detalle, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Descripción", class: "block text-gray-300" %>
+    <%= form.text_field :descripcion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Rol N°", class: "block text-gray-300" %>
+    <%= form.text_field :rol_n, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"N° Permiso", class: "block text-gray-300" %>
+    <%= form.number_field :numero_permiso, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Fecha Permiso", class: "block text-gray-300" %>
+    <%= form.date_field :fecha_permiso, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Destino", class: "block text-gray-300" %>
+    <%= form.text_field :destino, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Recepción", class: "block text-gray-300" %>
+    <%= form.text_field :recepcion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Empresa Instaladora", class: "block text-gray-300" %>
+    <%= form.text_field :empresa_instaladora, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"RUT Empresa Instaladora", class: "block text-gray-300" %>
+    <%= form.text_field :empresa_instaladora_rut, data: { controller: "rut", rut_target: "rut" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+    <%= form.label :"Porcentaje de Ocupación", class: "block text-gray-300" %>
+    <%= form.number_field :porcentaje, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
     <%= form.label :"Marca", class: "block text-gray-300" %>
     <%= form.text_field :marca, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 

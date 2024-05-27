@@ -61,6 +61,9 @@ class LadderDetailsController < ApplicationController
     @detail = LadderDetail.find(params[:id])
   end
 
+
+
+
   # Only allow a list of trusted parameters through.
   def ladder_detail_params
     params.require(:ladder_detail).permit(
@@ -78,7 +81,17 @@ class LadderDetailsController < ApplicationController
       :ancho,
       :velocidad,
       :fabricacion,
-      :procedencia
+      :procedencia,
+      :descripcion,
+      :rol_n,
+      :numero_permiso,
+      :fecha_permiso,
+      :destino,
+      :recepcion,
+      :empresa_instaladora,
+      :empresa_instaladora_rut,
+      :porcentaje,
+      :detalle
     )
   end
 end

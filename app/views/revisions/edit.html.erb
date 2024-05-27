@@ -12,11 +12,8 @@
     <% end %>
 
 
-  <% if @inspection.result == "black" %>
-    <h1 class="text-4xl text-red-500">Realizando Preinspección</h1>
-  <% else %>
+
     <h1 class="text-4xl text-green-500">Realizando Inspección</h1>
-  <% end %>
 
 
   <div data-controller="section-submit">
@@ -56,7 +53,12 @@
     <table>
       <thead>
       <tr>
-        <th>N/A    </th>
+        <% if @section.to_s == '0' %>
+          <th>N/A    </th>
+        <% end %>
+        <% if @black_inspection %>
+          <th>falla anterior</th>
+        <% end %>
         <th>Descripción</th>
         <th>Tipo insp</th>
         <% if @section == '0' %>
@@ -77,12 +79,23 @@
 
         <tr data-controller="rules-form">
 
-          <td>
-
-        <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-        <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
-        <%= label_tag "null_condition_#{index}", "" %>
+          <td <% unless @section.to_s == '0' %>style="display: none;"<% end %>>
+            <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+            <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
+            <%= label_tag "null_condition_#{index}", "" %>
           </td>
+
+          <% if @black_inspection %>
+            <td data-controller="past-submit">
+              <% is_black_checked = @black_revision.codes.include?(rule.code) && @black_revision.points.include?(rule.point) %>
+
+              <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
+              <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
+              <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
+              <%= hidden_field_tag "past_revision[levels][]", rule.level, data: { past_submit_target: "level" } %>
+            </td>
+          <% end %>
+
 
           <td>
             <%= label_tag "", revision_label_text(rule, @last_revision) %>

@@ -33,17 +33,14 @@
       <% if @inspection.result == 'En revisión' %>
         <div class="mt-4">
           <%= link_to 'Volver a la inspección', edit_ladder_revision_path(inspection_id: @inspection.id, section: 0), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" if @inspection.owner? %>
-          <%= button_to 'Terminar inspección', close_inspection_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la inspección?', turbo_frame: "_top" }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if @inspection.owner? && @inspection.number > 0 %>
+          <%= button_to 'Terminar inspección', close_inspection_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la inspección?', turbo_frame: "_top" }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if @inspection.owner?  %>
         </div>
 
     <% else %>
-        <%= link_to 'Volver atrás', inspection_path(@inspection), class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded shadow transition duration-300 ease-in-out" if @inspection.owner? && @inspection.number > 0 %>
+        <%= link_to 'Volver atrás', inspection_path(@inspection), class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded shadow transition duration-300 ease-in-out" if @inspection.owner? %>
       <% end %>
 
-      <div class="mt-4">
-      <%= link_to 'Volver a la preinspección', edit_ladder_revision_path(inspection_id: @inspection.id, section: 0), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300"  if @inspection.owner? && @inspection.number < 0 %>
-        <%= button_to 'Terminar Preinspección', close_inspection_black_inspection_path(id: @inspection.id, revision_id: @revision.id), method: :patch, data: { turbo_confirm: '¿Estás seguro de que quieres terminar la preinspección?', turbo_frame: "_top" }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if @inspection.owner? && @inspection.number < 0 %>
-      </div>
+
     </div>
   </div>
 </div>

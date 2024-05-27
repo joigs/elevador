@@ -12,6 +12,10 @@ class RevisionsController < ApplicationController
 
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
+    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+    if @black_inspection
+      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    end
 
     if @inspection.nil?
       redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
@@ -312,7 +316,7 @@ class RevisionsController < ApplicationController
     params.require(:revision).permit(
       :inspection_id, :group_id, :item_id, :color,
       codes: [], points: [], levels: [], fail: [], comment: [], null_condition: []
-    ).merge(revision_photos_params)
+    ).merge(revision_photos_params).merge(past_revision_params)
   end
 
   #agrega los parametros de las fotos a la revision
@@ -320,6 +324,11 @@ class RevisionsController < ApplicationController
     params.permit(revision_photos: {photo: [], code: []})[:revision_photos] || {}
   end
 
+  def past_revision_params
+    params.permit(
+      fail: [], codes: [], levels: [], points: []
+    )
+  end
 
   def process_image(upload)
     ImageProcessing::MiniMagick

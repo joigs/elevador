@@ -367,35 +367,7 @@ class InspectionsController < ApplicationController
 
   end
 
-  def close_inspection_black
 
-    @inspection = Inspection.find(params[:id])
-    original_inspection = Inspection.find_by(number: @inspection.number.abs, item_id: @inspection.item_id)
-    if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
-      @revision = LadderRevision.find_by(inspection_id: @inspection.id)
-      isladder = true
-    else
-      @revision = Revision.find(params[:revision_id])
-      isladder = false
-
-    end
-
-    if isladder == false && original_inspection.item.detail.sala_maquinas == "Responder más tarde"
-      redirect_to inspection_path(original_inspection), alert: 'Error: No se ha especificado presencia de sala de máquinas'
-
-    else
-      if isladder
-        redirect_to edit_ladder_revision_path(inspection_id: original_inspection.id), notice: 'Preinspección realizada con éxito, ahora realice la inspección real'
-      else
-        redirect_to edit_revision_path(inspection_id: original_inspection.id), notice: 'Preinspección realizada con éxito, ahora realice la inspección real'
-
-      end
-
-    end
-
-
-
-  end
 
 
   private
