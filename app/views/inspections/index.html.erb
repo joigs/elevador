@@ -5,9 +5,11 @@
     <%= link_to "Nueva inspección", new_inspection_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-blue-700 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" if Current.user.admin %>
   </div>
 
-  <%= render 'shared/back_home' %>
+
 
   <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <%= render 'shared/back_home' %>
+
     <%= turbo_frame_tag 'inspections' do %>
       <div class="p-6">
         <%= render 'shared/search_form', form_url: inspections_path, class: "mb-5" %>

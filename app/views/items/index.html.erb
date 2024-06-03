@@ -1,16 +1,17 @@
-<%= turbo_frame_tag 'items' do %>
 
 
   <div class="bg-gray-900 shadow overflow-hidden sm:rounded-md max-w-7xl mx-auto px-4">
 
+    <h1 class="text-4xl text-white font-bold mb-6 mt-4 ml-4">Activos</h1>
 
+    <%= render 'shared/back_home' %>
 
   <div class="px-4 py-6 bg-gray-800">
-    <h1 class="text-xl text-white font-bold mb-4">Activos</h1>
     <%= render 'shared/search_form', form_url: items_path %>
   </div>
 
     <br>
+    <%= turbo_frame_tag 'items' do %>
 
   <%= turbo_frame_tag "items-#{ @pagy.page }", class: 'bg-gray-800 py-6' do %>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
