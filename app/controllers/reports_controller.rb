@@ -38,7 +38,8 @@ class ReportsController < ApplicationController
         end
 
         if item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
-
+          puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+          puts(item.group.name)
           if was_created
             @revision = LadderRevision.create!(inspection_id: black_inspection.id, item_id: item.id)
             @revision.created_at = DateTime.new(1000, 1, 1)
@@ -68,10 +69,17 @@ class ReportsController < ApplicationController
         end
       end
 
+
+      if report_params[:cert_ant] == 'No'
+        if @black_inspection = Inspection.find_by(number: inspection.number*-1)
+          @black_inspection.destroy
+        end
+      end
+
       if item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
-        redirect_to edit_ladder_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'
+        redirect_to edit_ladder_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
       else
-        redirect_to edit_revision_path(inspection_id: @report.inspection_id), notice: 'Información modificada exitosamente'
+        redirect_to edit_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
       end
 
     else

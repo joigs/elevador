@@ -12,10 +12,6 @@ class LadderRevisionsController < ApplicationController
 
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
-    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
-    if @black_inspection
-      @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
-    end
 
     if @inspection.nil?
       redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
@@ -29,6 +25,12 @@ class LadderRevisionsController < ApplicationController
     end
 
     authorize! @revision
+
+
+    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+    if @black_inspection
+      @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
+    end
 
     #acceder a los objetos asociados a la revision
     @item = @revision.item
@@ -80,6 +82,12 @@ class LadderRevisionsController < ApplicationController
     @inspection = Inspection.find_by(id: params[:inspection_id])
     @revision_photos = @revision.revision_photos
 
+    if @inspection.nil?
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      return
+    end
+
+
     # hashmap para agrupar las fotos por código
     @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
       if photo.photo.attached?
@@ -101,6 +109,14 @@ class LadderRevisionsController < ApplicationController
 
     current_section = params[:section]
 
+    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+    if @black_inspection
+      @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
+      if ladder_revision_params[:past_revision].present?
+
+        black_params = ladder_revision_params[:past_revision]
+      end
+    end
 
     if params[:ladder_revision].present?
       if params[:ladder_revision][:fail].present?
@@ -118,6 +134,25 @@ class LadderRevisionsController < ApplicationController
             counter = counter + 1
           end
         end
+
+        if @black_inspection and black_params.present?
+          codes.each_with_index do |code, index|
+            if black_params[:codes].include?(code)
+              black_index_c = black_params[:codes].index(code)
+
+              if black_params[:points].include?(points[index])
+
+                black_index_p = black_params[:points].index(points[index])
+                if black_index_c == black_index_p
+                  levels[index] = "G"
+                end
+              end
+            end
+          end
+        end
+
+
+
       end
 
 
@@ -128,6 +163,25 @@ class LadderRevisionsController < ApplicationController
     end
 
 
+    counter = 0
+
+
+
+    black_codes, black_points, black_levels, black_fail_statuses = [], [], [], []
+
+    if black_params.present?
+
+      black_params[:fail].each do |fail_status|
+        if fail_status == "1"  # Verefica si ocurre la falla
+          # pasa la informacion de los campos a los arreglos
+          black_codes << black_params[:codes][counter]
+          black_points << black_params[:points][counter]
+          black_levels << black_params[:levels][counter]
+          black_fail_statuses << true
+          counter = counter + 1
+        end
+      end
+    end
 
 
 
@@ -144,6 +198,68 @@ class LadderRevisionsController < ApplicationController
     else
       @color.update!(color: false)
     end
+
+    black_codes2, black_points2, black_levels2, black_fail_statuses2 = [], [], [], []
+
+
+
+    if @black_revision
+
+
+
+      @black_revision.codes.each_with_index do |code, index|
+        code_start = code.split('.').first.to_i
+        if code_start >= current_section_num && control
+          control = false
+
+          black_codes.each_with_index do |code2, index2|
+            black_codes2 << black_codes[index2]
+            black_points2 << black_points[index2]
+            black_levels2 << black_levels[index2]
+            black_fail_statuses2 << black_fail_statuses[index2]
+          end
+          if code_start > current_section_num
+            black_codes2 << code
+            black_points2 << @black_revision.points[index]
+            black_levels2 << @black_revision.levels[index]
+            black_fail_statuses2 << @black_revision.fail[index]
+          end
+        else
+          if code_start != current_section_num
+
+            black_codes2 << code
+            black_points2 << @black_revision.points[index]
+            black_levels2 << @black_revision.levels[index]
+            black_fail_statuses2 << @black_revision.fail[index]
+          end
+
+        end
+      end
+    end
+    if control
+      black_codes.each_with_index do |code2, index2|
+        black_codes2 << black_codes[index2]
+        black_points2 << black_points[index2]
+        black_levels2 << black_levels[index2]
+        black_fail_statuses2 << black_fail_statuses[index2]
+      end
+    end
+
+
+    if @black_revision&.codes.blank?
+      black_codes2 = black_codes
+      black_points2 = black_points
+      black_levels2 = black_levels
+      black_fail_statuses2 = black_fail_statuses
+    end
+
+    @black_revision&.update(codes: black_codes2, points: black_points2, levels: black_levels2, fail: black_fail_statuses2)
+
+
+
+
+    control = true
+
 
     @revision.codes.each_with_index do |code, index|
       code_start = code.split('.')[1].to_i
@@ -283,10 +399,10 @@ class LadderRevisionsController < ApplicationController
 
 
   def ladder_revision_params
-    params.require(:ladder_revision).permit(
-      :inspection_id, :item_id, :color,
-      codes: [], points: [], levels: [], fail: [], comment: [], number:[], priority:[], null_condition: []
-    ).merge(revision_photos_params).merge(past_revision_params)
+    params.fetch(:ladder_revision, {}).permit(
+      :inspection_id, :group_id, :item_id, :color,
+      codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: []
+    ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end
 
   #agrega los parametros de las fotos a la revision
@@ -295,9 +411,7 @@ class LadderRevisionsController < ApplicationController
   end
 
   def past_revision_params
-    params.permit(
-      fail: [], codes: [], levels: [], points: []
-    )
+    params.permit(past_revision: {fail: [], codes: [], points: [], levels: []})[:past_revision] || {}
   end
 
   def process_image(upload)
