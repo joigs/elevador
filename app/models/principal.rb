@@ -1,10 +1,11 @@
 class Principal < ApplicationRecord
 
-  include Minidusen::Filter
+  def self.ransackable_attributes(auth_object = nil)
+    ["business_name", "cellphone", "contact_email", "contact_name", "created_at", "email", "id", "name", "phone", "place", "rut", "updated_at"]
+  end
 
-  filter :text do |scope, phrases|
-    columns = [:rut, :name, :business_name]
-    scope.where_like(columns => phrases)
+  def self.ransackable_associations(auth_object = nil)
+    ["inspections", "items"]
   end
 
 

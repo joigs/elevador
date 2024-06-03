@@ -2,7 +2,13 @@
 class Item < ApplicationRecord
 
 
+  def self.ransackable_attributes(auth_object = nil)
+    ["identificador", "created_at", "updated_at"]
+  end
 
+  def self.ransackable_associations(auth_object = nil)
+    ["principal"]
+  end
 
 
   validates :identificador, presence: true, uniqueness: true

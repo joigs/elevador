@@ -1,11 +1,12 @@
 class Inspection < ApplicationRecord
   #para la busqueda
-  include Minidusen::Filter
 
-  filter :text do |scope, phrases|
-    columns = ['inspections.number', 'items.identificador', 'principal.rut', 'principal.name', 'principal.business_name']
-    scope = scope.joins(:item, :principal)
-    scope.where_like(columns => phrases)
+  def self.ransackable_attributes(auth_object = nil)
+    ["number", "created_at", "updated_at"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["item", "principal"]
   end
 
   #el como estan ordenados

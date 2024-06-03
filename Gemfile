@@ -104,3 +104,5 @@ gem 'docx'
 #para revisar periodicamente si vencio una certificacion
 gem 'whenever', require: false
 
+#para busquedas
+gem 'ransack'

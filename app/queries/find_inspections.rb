@@ -1,6 +1,6 @@
 class FindInspections
-
   attr_reader :inspections
+
   def initialize(inspections = initial_scope)
     @inspections = inspections
   end
@@ -10,8 +10,6 @@ class FindInspections
     scoped = filter_by_query_text(scoped, params[:query_text])
     sort(scoped, params[:order_by])
   end
-
-
 
   private
 
@@ -28,7 +26,4 @@ class FindInspections
     return scoped unless query_text.present?
     scoped.filter(text: query_text)
   end
-
-
-
 end

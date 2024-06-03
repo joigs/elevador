@@ -99,6 +99,7 @@
     <orderEntry type="library" scope="PROVIDED" name="rails-html-sanitizer (v1.6.0, rbenv: 3.3.0) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="railties (v7.1.3, rbenv: 3.3.0) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rake (v13.1.0, rbenv: 3.3.0) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ransack (v4.1.1, rbenv: 3.3.0) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rdoc (v6.6.2, rbenv: 3.3.0) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="regexp_parser (v2.9.0, rbenv: 3.3.0) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="reline (v0.4.2, rbenv: 3.3.0) [gem]" level="application" />

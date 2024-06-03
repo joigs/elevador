@@ -7,11 +7,11 @@
 
   <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
     <%= render 'shared/back_home' %>
-
+    <div class="p-6">
+      <%= render 'shared/search_form', form_url: principals_path, search_keys: 'name_or_rut_or_business_name_cont', frame_id: 'principal_frame' %>
+    </div>
     <%= turbo_frame_tag 'principals' do %>
-      <div class="p-6">
-        <%= render 'shared/search_form', form_url: principals_path, class: "mb-5" %>
-      </div>
+
 
       <%= turbo_frame_tag "principals-#{@pagy.page}", class: 'principals' do %>
         <ul class="divide-y divide-gray-700">
