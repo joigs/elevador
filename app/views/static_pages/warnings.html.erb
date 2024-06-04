@@ -7,7 +7,7 @@
     <%= render 'shared/back_home' %>
 
 
-    <div class="mb-6 flex space-x-4 ml-4">
+    <div class="mb-6 flex space-x-4 ml-4 py-4">
       <%= link_to 'Certificaciones por vencer', warnings_path(filter: 'expiring_soon'), class: 'px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
       <%= link_to 'Certificaciones vencidas', warnings_path(filter: 'vencido'), class: 'px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
     </div>
