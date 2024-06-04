@@ -1,20 +1,16 @@
 <%= form_with(model: @revision, builder: CustomFormBuilder, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off" }) do |form| %>
   <% if @revision.errors.any? %>
-      <div style="color: red">
-        <h2><%= pluralize(@revision.errors.count, "error") %> No se pudo guardar la revisión:</h2>
+    <div style="color: red">
+      <h2><%= pluralize(@revision.errors.count, "error") %> No se pudo guardar la revisión:</h2>
+      <ul>
+        <% @revision.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
-        <ul>
-          <% @revision.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
-
-
-    <h1 class="text-4xl text-green-500">Realizando Inspección</h1>
-
+  <h1 class="text-4xl text-green-500">Realizando Inspección</h1>
 
   <div data-controller="section-submit">
     <% (0..11).each do |number| %>
@@ -39,145 +35,141 @@
     <% end %>
   </div>
 
-
-
-
   <br>
   <br>
-
-
-
 
   <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>
-    <div class="table-responsive">
-    <table>
-      <thead>
-      <tr>
-        <% if @section.to_s == '0' %>
-          <th>N/A    </th>
-        <% end %>
-        <% if @black_inspection %>
-          <th>falla anterior</th>
-        <% end %>
-        <th>Descripción</th>
-        <th>Tipo insp</th>
-        <% if @section == '0' %>
-          <th>No Presenta documento</th>
-        <% else %>
-          <th>No cumple</th>
-        <% end %>
-        <th>Nivel defecto</th>
-        <th>Imagen</th>
-        <th>Comentario</th>
-      </tr>
-      </thead>
-      <tbody>
-    <% group.each_with_index do |(rule, index), local_index| %>
-      <% if local_index == 0 %>
-        <h2><%= "#{rule.ruletype.gygatype_number} #{rule.ruletype.rtype}" %></h2>
-      <% end %>
+    <div class="px-4">
 
-        <tr data-controller="rules-form">
-
-          <td <% unless @section.to_s == '0' %>style="display: none;"<% end %>>
-            <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-            <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
-            <%= label_tag "null_condition_#{index}", "" %>
-          </td>
-
+    <div class="relative overflow-x-auto">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <% if @section.to_s == '0' %>
+            <th class="px-6 py-3">N/A</th>
+          <% end %>
           <% if @black_inspection %>
-            <td data-controller="past-submit">
-              <% is_black_checked = @black_revision.codes.include?(rule.code) && @black_revision.points.include?(rule.point) %>
-
-              <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
-              <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
-              <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
-              <%= hidden_field_tag "past_revision[levels][]", rule.level, data: { past_submit_target: "level" } %>
-            </td>
+            <th class="px-6 py-3">falla anterior</th>
+          <% end %>
+          <th class="px-6 py-3">Descripción</th>
+          <th class="px-2 py-3 flex-shrink-1 min-w-[10px]">Tipo insp</th>
+          <% if @section == '0' %>
+            <th class="px-6 py-3">No Presenta documento</th>
+          <% else %>
+            <th class="px-6 py-3">No cumple</th>
+          <% end %>
+          <th class="px-6 py-3">Nivel defecto</th>
+          <th class="px-6 py-3">Imagen</th>
+          <th class="px-6 py-3">Comentario</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% group.each_with_index do |(rule, index), local_index| %>
+          <% if local_index == 0 %>
+            <h2><%= "#{rule.ruletype.gygatype_number} #{rule.ruletype.rtype}" %></h2>
           <% end %>
 
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700" data-controller="rules-form">
+            <td <% unless @section.to_s == '0' %>style="display: none;"<% end %>>
+            <div class="flex justify-center items-center">
 
-          <td>
-            <%= label_tag "", revision_label_text(rule, @last_revision) %>
-          </td>
-          <td>
-            <%= label_tag "ins_type_#{index}", display_rule_ins_type(rule) %>
+            <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+              <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}",class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+                                data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" }  %>
+              <%= label_tag "null_condition_#{index}", "" %>
+              </div>
+            </td>
 
-          </td>
+            <% if @black_inspection %>
+              <td data-controller="past-submit">
+                <div class="flex justify-center items-center">
 
-          <td>
-
-            <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>
-            <%= check_box_tag "revision[fail][]", "1", is_checked, id: "fail_#{index}", data: { action: "change->rules-form#toggle", rules_form_target: "fail" } %>
-          </td>
-
-        <%= hidden_field_tag "revision[codes][]", rule.code, data: { rules_form_target: "code" } %>
-        <%= hidden_field_tag "revision[points][]", rule.point, data: { rules_form_target: "point" } %>
-          <td>
-
-            <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision.id %>
-              <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
-              <%= hidden_field_tag "revision[levels][]", "G", data: {rules_form_target: "level"} %>
-
-            <% else %>
-
-              <% if rule.level.include?('G') && rule.level.include?('L') %>
-                <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
-                  <%= button_tag type: 'button', class: 'toggle-button' do %>
-                    <span data-level-target="label">G</span>
-                  <% end %>
-                  <%= hidden_field_tag "revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
-                </div>
-              <% else %>
-                <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
-                <%= hidden_field_tag "revision[levels][]", revision_level_or_g(rule, @last_revision, @revision.id), data: { rules_form_target: "level" } %>
-              <% end %>
+                <% is_black_checked = @black_revision.codes.include?(rule.code) && @black_revision.points.include?(rule.point) %>
+                <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+                                  data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
+                <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
+                <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
+                <%= hidden_field_tag "past_revision[levels][]", rule.level, data: { past_submit_target: "level" } %>
+                  </div>
+              </td>
             <% end %>
 
-          </td>
-          <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
-          <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
+            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              <%= label_tag "", revision_label_text(rule, @last_revision) %>
+            </td>
+            <td class="px-2 py-4 flex-shrink-1 min-w-[10px] justify-center items-center">
+              <%= label_tag "ins_type_#{index}", display_rule_ins_type(rule) %>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex justify-center items-center">
 
-          <td>
+              <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>
+              <%= check_box_tag "revision[fail][]", "1", is_checked, id: "fail_#{index}", class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+                                data: { action: "change->rules-form#toggle", rules_form_target: "fail" } %>
+              </div>
+            </td>
 
-        <%= file_field_tag "revision_photos[photo][]",
-                           name: "revision_photos[photo][]",
-                           id: "photo_#{index}",
-                           disabled: !is_checked,
-                           data: { rules_form_target: "photo" },
-                           accept: "image/*",
-                           capture: "environment" %>
-          </td>
-          <td>
-        <% comment_index = @revision.codes.index(rule.code) %>
-        <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 30, data: { rules_form_target: "comment" } %>
-          </td>
-        <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
-        </tr>
+            <%= hidden_field_tag "revision[codes][]", rule.code, data: { rules_form_target: "code" } %>
+            <%= hidden_field_tag "revision[points][]", rule.point, data: { rules_form_target: "point" } %>
+            <td class="px-6 py-4">
+              <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision.id %>
+                <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
+                <%= hidden_field_tag "revision[levels][]", "G", data: {rules_form_target: "level"} %>
+              <% else %>
+                <% if rule.level.include?('G') && rule.level.include?('L') %>
+                  <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
+                    <%= button_tag type: 'button', class: 'toggle-button' do %>
+                      <span data-level-target="label">G</span>
+                    <% end %>
+                    <%= hidden_field_tag "revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
+                  </div>
+                <% else %>
+                  <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
+                  <%= hidden_field_tag "revision[levels][]", revision_level_or_g(rule, @last_revision, @revision.id), data: { rules_form_target: "level" } %>
+                <% end %>
+              <% end %>
+            </td>
+            <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
+            <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
 
-    <% end %>
-      </tbody>
-    </table>
-      </div>
+            <td class="px-6 py-4 justify-center items-center">
+              <%= file_field_tag "revision_photos[photo][]",
+                                 name: "revision_photos[photo][]",
+                                 id: "photo_#{index}",
+                                 disabled: !is_checked,
+                                 data: { rules_form_target: "photo" },
+                                 accept: "image/*",
+                                 capture: "environment" %>
+            </td>
+            <td class="px-6 py-4">
+              <% comment_index = @revision.codes.index(rule.code) %>
+              <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" }, class: "shadow appearance-none border rounded w-full py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+            </td>
+            <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+
+    </div>
+    </div>
   <% end %>
 
   <br>
   <div>
-    <%= check_box_tag :color, "1", @color.color, id: "color_checkbox" %>
+    <%= check_box_tag :color, "1", @color.color,
+                      id: "color_checkbox",
+                      class: "w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" %>
     <%= label_tag :color_checkbox, 'Marcar como revisado' %>
   </div>
 
   <br>
-
-
-  <br>
-
   <div>
-      <%= form.submit "Ver fallas registradas" %>
-    </div>
-  <% end %>
+    <%= form.submit "Ver fallas registradas" %>
+  </div>
+<% end %>
 
 <br>
-  <div>
-    <%= link_to "Volver atrás", inspection_path(@inspection) %>
-  </div>
+<div>
+  <%= link_to "Volver atrás", inspection_path(@inspection) %>
+</div>
