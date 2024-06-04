@@ -2,11 +2,8 @@ class RulesController < ApplicationController
   before_action :authorize!
 
   def index
-    if params[:query_text].present?
-      @rules = Rule.search_full_text(params[:query_text])
-    else
-      @rules = Rule.ordered_by_code
-    end
+    @q = Rule.ransack(params[:q])
+    @rules = @q.result(distinct: true).merge(Rule.ordered_by_code)
     @pagy, @rules = pagy_countless(@rules, items: 50)
   end
 

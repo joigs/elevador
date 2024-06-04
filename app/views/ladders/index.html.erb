@@ -8,6 +8,8 @@
   </div>
 
   <ul class="divide-y divide-gray-700 mt-4">
+    <%= render 'shared/search_form', form_url: ladders_path, search_keys: 'point_or_code_or_number_cont', frame_id: 'ladders' %>
+
     <% @ladders.each do |rule| %>
       <li class="px-4 py-4 bg-gray-800 text-gray-400 hover:bg-gray-700">
         <%= link_to "#{rule.code} #{rule.point}", rule, 'data-turbo-frame': "_top", class: "text-gray-300 hover:text-white" %>

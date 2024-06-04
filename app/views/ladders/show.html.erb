@@ -1,15 +1,31 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <div class="mx-auto p-4 bg-gray-800 shadow-lg rounded-lg">
-    <% if notice.present? %>
-      <div class="py-2 px-4 bg-green-600 mb-5 text-white font-medium rounded-lg" id="notice"><%= notice %></div>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= @ladder.point %></h1>
+
+  <div class="bg-gray-900 p-6 rounded-lg shadow-md">
+    <p class="text-gray-400">
+      <strong class="text-white">Número:</strong>
+      <%= @ladder.number %>
+    </p>
+    <p class="text-gray-400">
+      <strong class="text-white">Código:</strong>
+      <%= @ladder.code %>
+    </p>
+    <p class="text-gray-400">
+      <strong class="text-white">Prioridad:</strong>
+      <%= @ladder.priority %>
+    </p>
+    <p class="text-gray-400">
+      <strong class="text-white">Nivel:</strong>
+      <%= @ladder.level %>
+    </p>
+  </div>
+
+  <div class="flex space-x-4 mt-6">
+    <% if Current.user&.admin %>
+      <%= link_to 'Modificar defecto', edit_ladder_path(@ladder), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
+
+      <%= link_to 'Eliminar defecto', ladder_path(@ladder), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out" %>
     <% end %>
-
-    <%= render @ladder %>
-
-    <div class="flex justify-between items-center mt-4">
-      <%= link_to "Edit this ladder", edit_ladder_path(@ladder), class: "flex items-center justify-center rounded-lg py-2 px-4 bg-blue-500 text-white font-medium hover:bg-blue-600 transition ease-in-out duration-150" %>
-      <%= button_to "Destroy this ladder", ladder_path(@ladder), method: :delete, data: { turbo_confirm: "Are you sure you want to destroy this ladder?" }, class: "flex items-center justify-center rounded-lg py-2 px-4 bg-red-500 text-white font-medium hover:bg-red-600 transition ease-in-out duration-150" %>
-      <%= link_to "Back to ladders", ladders_path, class: "flex items-center justify-center rounded-lg py-2 px-4 bg-gray-500 text-white font-medium hover:bg-gray-600 transition ease-in-out duration-150" %>
-    </div>
+    <%= link_to 'Volver a defectos de escala', ladders_path, class: "px-4 py-2 rounded bg-blue-500 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-600 hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>
   </div>
 </div>

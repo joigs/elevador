@@ -1,8 +1,12 @@
 <%= form_with url: form_url, method: :get, local: true, scope: :q, data: { controller: "search", action: "search#toggleClearButton", search_target: "form" } do |form| %>
-  <%= form.search_field search_keys, placeholder: 'Search', onchange: 'this.form.requestSubmit()', value: params.dig(:q, search_keys), data: { search_target: "searchField" } %>
-  <%= form.button 'Search', type: 'submit' %>
+  <div class="flex gap-4 mb-6 items-center">
+    <%= form.search_field search_keys, placeholder: 'Buscar', onchange: 'this.form.requestSubmit()', value: params.dig(:q, search_keys), class: "shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ", data: { search_target: "searchField" } %>
+    <%= form.button 'Buscar', type: 'submit', class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" %>
 
-  <div data-search-target="clearButton" style="display: none;">
-    <%= link_to 'Clear', form_url, method: :get, class: 'btn btn-default', data: { action: "click->search#resetSearch" } %>
+    <div data-search-target="clearButton" style="display: none;">
+      <%= button_tag type: 'submit', form: form_url, method: :get, class: 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2', data: { action: "click->search#resetSearch" } do %>
+        Limpiar filtro
+      <% end %>
+    </div>
   </div>
 <% end %>

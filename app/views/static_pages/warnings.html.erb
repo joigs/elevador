@@ -14,7 +14,7 @@
 
     <%= turbo_frame_tag 'inspections' do %>
       <div class="p-6">
-        <%= render 'shared/search_form', form_url: inspections_path, class: "mb-5" %>
+        <%= render 'shared/search_form', form_url: warnings_path(filter: params[:filter]), search_keys: 'number_eq', frame_id: 'inspections' %>
 
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
           <ul class="divide-y divide-gray-700">

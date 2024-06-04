@@ -1,14 +1,10 @@
 class InspectionsController < ApplicationController
 
   def index
-    @inspections = if params[:number].present?
-                     Inspection.where(number: params[:number]).where("number > 0").includes(:item, :principal).order(number: :desc)
-                   else
-                     Inspection.where("number > 0").includes(:item, :principal).order(number: :desc)
-                   end
+    @q = Inspection.ransack(params[:q])
+    @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal).order(number: :desc)
     @pagy, @inspections = pagy_countless(@inspections, items: 10)
   end
-
   def show
     inspection
     @item = inspection.item

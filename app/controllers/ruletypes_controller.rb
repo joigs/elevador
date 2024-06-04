@@ -2,12 +2,8 @@ class RuletypesController < ApplicationController
   before_action :authorize!
   # GET /ruletypes or /ruletypes.json
   def index
-
-    if params[:query_text].present?
-      @ruletypes = Ruletype.search_full_text(params[:query_text])
-    else
-      @ruletypes = Ruletype.ordered_by_gygatype_number
-    end
+    @q = Ruletype.ransack(params[:q])
+    @ruletypes = @q.result(distinct: true).merge(Ruletype.ordered_by_gygatype_number)
     @pagy, @ruletypes = pagy_countless(@ruletypes, items: 10)
   end
 

@@ -3,7 +3,8 @@ class LaddersController < ApplicationController
 
   # GET /ladders or /ladders.json
   def index
-    @ladders = Ladder.all
+    @q = Ladder.ransack(params[:q])
+    @ladders = @q.result(distinct: true).order(created_at: :desc)
   end
 
   # GET /ladders/1 or /ladders/1.json

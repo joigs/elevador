@@ -3,6 +3,13 @@ class Ruletype < ApplicationRecord
 
 
 
+  def self.ransackable_attributes(auth_object = nil)
+    ["rtype", "gygatype", "gygatype_number", "created_at", "updated_at"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["rules"]
+  end
 
   #el texto de la comprobacion
   validates :rtype, presence: true

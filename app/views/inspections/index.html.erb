@@ -10,23 +10,8 @@
 
     <%= turbo_frame_tag 'inspections' do %>
       <div class="p-6">
-        <%= form_with url: inspections_path, method: :get, local: true, data: { controller: "search-inspection", search_inspection_target: "form", turbo_frame: 'inspections' } do |form| %>
-          <div>
-            <%= form.label :number, "Exact Number" %>
-            <%= form.number_field :number, placeholder: 'Search by exact number', data: { action: "change->search-inspection#submitForm", search_inspection_target: "numberField" }, value: params[:number] %>
-          </div>
+        <%= render 'shared/search_form', form_url: inspections_path, search_keys: 'number_eq', frame_id: 'inspections' %>
 
-          <div>
-            <%= form.label :query, "Associated Attributes" %>
-            <%= form.search_field :q, placeholder: 'Search', data: { action: "change->search-inspection#submitForm input->search-inspection#toggleClearButton", search_inspection_target: "searchField" }, value: params[:q].is_a?(Hash) ? params.dig(:q, 'number_or_item_identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont') : '' %>
-          </div>
-
-          <%= form.button 'Search', type: 'submit' %>
-
-          <div data-search-inspection-target="clearButton" style="display: none;">
-            <%= link_to 'Clear', inspections_path, method: :get, class: 'btn btn-default', data: { action: "click->search-inspection#resetSearch" } %>
-          </div>
-        <% end %>
 
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
           <ul class="divide-y divide-gray-700">
