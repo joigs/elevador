@@ -10,60 +10,74 @@
     </div>
   <% end %>
 
-  <h1 class="text-4xl text-green-500 font-bold text-center my-4">Realizando Inspección</h1>
+  <h1 class="text-4xl text-green-500 font-bold text-center my-4 py-4">Realizando Inspección</h1>
 
-  <div data-controller="section-submit" class="grid grid-cols-3 gap-4">
-    <% (0..11).each do |number| %>
-      <div class="flex justify-center">
-        <% color_for_number = @colors.find { |c| c.number == number } %>
-        <% is_current_color = @color.number == number %>
-        <% is_nope = number == @nope %>
-        <%= button_tag type: 'button',
-                       class: "section-button #{'bg-red-800 text-white' if is_nope} #{'bg-white' if is_current_color && !is_nope} #{'bg-green-600 text-white' if color_for_number&.color && !is_current_color && !is_nope} #{'bg-gray-500' if !color_for_number&.color && !is_current_color && !is_nope} w-full py-2 rounded",
-                       data: { action: "section-submit#submitAndNavigate",
-                               section_submit_target: "button",
-                               url: edit_revision_path(id: @revision, inspection_id: @inspection.id, section: number) },
-                       disabled: is_current_color || is_nope do %>
-          <%= number %>
-          <%= @nombres[number] %>
-        <% end %>
-      </div>
-    <% end %>
+  <div data-controller="dropdown section-submit" class="px-8">
+
+
+    <div class="flex justify-center">
+
+      <% current_section = "#{@color.number}- #{@nombres[@color.number]}" %>
+      <%= button_tag type: 'button',
+                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+                     data: { action: "dropdown#toggle" } do %>
+        <%= "Sección actual: #{current_section}" %>
+      <% end %>
+    </div>
+
+    <div data-dropdown-target="menu" class="grid gap-4 hidden">
+      <% (0..11).each do |number| %>
+        <div class="flex justify-center">
+          <% color_for_number = @colors.find { |c| c.number == number } %>
+          <% is_current_color = @color.number == number %>
+          <% is_nope = number == @nope %>
+          <%= button_tag type: 'button',
+                         class: "section-button #{'bg-red-800 text-white' if is_nope} #{'bg-white' if is_current_color && !is_nope} #{'bg-green-600 text-white' if color_for_number&.color && !is_current_color && !is_nope} #{'bg-gray-500' if !color_for_number&.color && !is_current_color && !is_nope} w-full py-2 rounded",
+                         data: { action: "section-submit#submitAndNavigate",
+                                 section_submit_target: "button",
+                                 url: edit_revision_path(id: @revision, inspection_id: @inspection.id, section: number) },
+                         disabled: is_current_color || is_nope do %>
+            <%= number %>-<%= @nombres[number] %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   </div>
+
 
 
   <br>
   <br>
 
   <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>
-    <div class="px-4">
+    <div class="px-4 mt-4">
 
-    <div class="relative overflow-x-auto">
+      <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-        <tr>
-          <% if @section.to_s == '0' %>
-            <th class="px-6 py-3">N/A</th>
-          <% end %>
-          <% if @black_inspection %>
-            <th class="px-6 py-3">falla anterior</th>
-          <% end %>
-          <th class="px-6 py-3">Descripción</th>
-          <th class="px-2 py-3 flex-shrink-1 min-w-[10px]">Tipo insp</th>
-          <% if @section == '0' %>
-            <th class="px-6 py-3">No Presenta documento</th>
-          <% else %>
-            <th class="px-6 py-3">No cumple</th>
-          <% end %>
-          <th class="px-6 py-3">Nivel defecto</th>
-          <th class="px-4 py-3">Imagen</th>
-          <th class="px-6 py-3">Comentario</th>
-        </tr>
+          <tr>
+            <% if @section.to_s == '0' %>
+              <th class="px-6 py-3">N/A</th>
+            <% end %>
+            <% if @black_inspection %>
+              <th class="px-6 py-3">falla anterior</th>
+            <% end %>
+            <th class="px-6 py-3">Descripción</th>
+            <th class="px-2 py-3 flex-shrink-1 min-w-[10px]">Tipo insp</th>
+            <% if @section == '0' %>
+              <th class="px-6 py-3">No Presenta documento</th>
+            <% else %>
+              <th class="px-6 py-3">No cumple</th>
+            <% end %>
+            <th class="px-6 py-3">Nivel defecto</th>
+            <th class="px-4 py-3">Imagen</th>
+            <th class="px-6 py-3">Comentario</th>
+          </tr>
         </thead>
         <tbody>
         <% group.each_with_index do |(rule, index), local_index| %>
           <% if local_index == 0 %>
-            <h2><%= "#{rule.ruletype.gygatype_number} #{rule.ruletype.rtype}" %></h2>
+            <h2 class="px-6 py-3 text-lg text-gray-900 bg-gray-200"><%= "#{rule.ruletype.gygatype_number} #{rule.ruletype.rtype}" %></h2>
           <% end %>
 
           <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700" data-controller="rules-form">
@@ -110,6 +124,7 @@
 
             <%= hidden_field_tag "revision[codes][]", rule.code, data: { rules_form_target: "code" } %>
             <%= hidden_field_tag "revision[points][]", rule.point, data: { rules_form_target: "point" } %>
+
             <td class="px-6 py-4 dark:text-white justify-center items-center">
               <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision.id %>
                 <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
@@ -162,14 +177,19 @@
     </div>
     </div>
   <% end %>
-  <div class="px-4 mt-4">
-    <%= check_box_tag :color, "1", @color.color,
-                      id: "color_checkbox",
-                      class: "form-checkbox h-5 w-5 text-green-500" %>
-    <%= label_tag :color_checkbox, 'Marcar como revisado', class: "ml-2 text-sm text-gray-700" %>
+
+
+  <div class="py-2 px-4">
+
+      <div class="mt-4 inline-block border-2 border-gray-300 rounded-lg p-2 bg-white">
+        <%= check_box_tag :color, "1", @color.color,
+                        id: "color_checkbox",
+                        class: "form-checkbox h-5 w-5 text-green-500" %>
+      <%= label_tag :color_checkbox, 'Marcar como revisado', class: "ml-2 text-sm text-gray-700" %>
+    </div>
   </div>
 
-  <div class="px-4 mt-4">
+  <div class="px-4 mt-4 py-4">
     <%= form.submit "Ver fallas registradas", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
   </div>
 
