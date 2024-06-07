@@ -75,7 +75,7 @@ gem "acts_as_paranoid", "~> 0.9.0"
 gem "requestjs-rails", "~> 0.0.11"
 
 
-gem "tailwindcss-rails", "~> 2.3"
+gem 'tailwindcss-rails', '~> 2.6'
 
 #remplazar texto de un docx
 gem 'docx_replace'
