@@ -36,16 +36,15 @@ class Authentication::UsersController < ApplicationController
 
   def index
     if Current.user&.admin
-      @users = User.all
-      if params[:query_text].present?
-        @users = @users.filter(text: params[:query_text])
-      end
+      @q = User.ransack(params[:q])
+      @users = @q.result(distinct: true)
 
       @pagy, @users = pagy_countless(@users, items: 10)
     else
       redirect_to home_path, alert: "No tienes permiso"
     end
   end
+
 
   def show
     if Current.user&.admin
