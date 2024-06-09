@@ -14,6 +14,8 @@ class LadderDetailsController < ApplicationController
   def edit
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
+    @inspection.update(state: 'Abierto', result: 'En revisión')
+
 
   end
 
@@ -35,11 +37,9 @@ class LadderDetailsController < ApplicationController
   # PATCH/PUT /details/1 or /details/1.json
   def update
     authorize! detail
+    report = Report.where(item_id: detail.item_id).last
+
     if detail.update(ladder_detail_params)
-      report = Report.where(item_id: detail.item_id).last
-      inspection = Inspection.find(report.inspection_id)
-      inspection.update(state: 'Abierto', result: 'En revisión')
-      revision = LadderRevision.find_by(inspection_id: inspection.id)
 
 
 

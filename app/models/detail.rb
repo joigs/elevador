@@ -28,7 +28,7 @@ class Detail < ApplicationRecord
     rut_body = clean_rut[0...-1]
     verifier = clean_rut[-1].upcase
 
-    self.rut = "#{rut_body.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse}-#{verifier}"
+    self.empresa_instaladora_rut = "#{rut_body.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse}-#{verifier}"
   end
 
   def rut_validity
