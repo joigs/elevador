@@ -395,17 +395,10 @@ class RevisionsController < ApplicationController
       params[:revision_photos][:photo].each_with_index do |photo, index|
         if photo.present?
           # Procesar la imagen para cambiar su tamaño y guardarla temporalmente
-          processed_photo = process_image(photo)
 
-          # Crear un blob para el archivo procesado
-          blob = ActiveStorage::Blob.create_and_upload!(
-            io: File.open(processed_photo.path),
-            filename: photo.original_filename,
-            content_type: photo.content_type
-          )
 
           code = params[:revision_photos][:code][index]
-          @revision.revision_photos.create(photo: blob, code: code)
+          @revision.revision_photos.create(photo: photo, code: code)
         end
       end
     end
@@ -445,20 +438,10 @@ class RevisionsController < ApplicationController
   end
 
   def past_revision_params
-    # Asumiendo que :past_revision es opcional
     params.fetch(:past_revision, {}).permit(
       fail: [], codes: [], points: [], levels: []
     )
   end
-
-
-  def process_image(upload)
-    ImageProcessing::MiniMagick
-      .source(upload)
-      .resize_to_fit(400, 250)
-      .call
-  end
-
 
 
 end

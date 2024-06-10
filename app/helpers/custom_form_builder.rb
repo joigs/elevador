@@ -37,5 +37,4 @@ class CustomFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
-  # Add other field types as necessary
 end

@@ -39,8 +39,6 @@ class ReportsController < ApplicationController
         end
 
         if @item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
-          puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-          puts(item.group.name)
           if was_created
             @revision = LadderRevision.create!(inspection_id: black_inspection.id, item_id: @item.id)
             @revision.created_at = DateTime.new(1000, 1, 1)
@@ -58,7 +56,8 @@ class ReportsController < ApplicationController
 
         else
           if was_created
-            @revision = Revision.create!(inspection_id: black_inspection.id, item_id: item.id, group_id: @item.group_id)
+            puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            @revision = Revision.create!(inspection_id: black_inspection.id, item_id: @item.id, group_id: @item.group_id)
             @revision.created_at = DateTime.new(1000, 1, 1)
             @revision.save
             (0..11).each do |index|

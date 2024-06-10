@@ -154,9 +154,15 @@
                                    class: "w-full",
                                    id: "photo_#{index}",
                                    disabled: !is_checked,
-                                   data: { rules_form_target: "photo", file_upload_target: "file", action: "file-upload#fileChanged change->file-upload#fileChanged" },
+                                   data: {
+                                     rules_form_target: "photo",
+                                     file_upload_target: "file",
+                                     action: "file-upload#fileChanged change->file-upload#fileChanged change->resize-image#resizeImage",
+                                     controller: "resize-image"
+                                   },
                                    accept: "image/*",
                                    capture: "environment" %>
+
                 <label for="photo_#{index}" class="cursor-pointer">
                   <span data-file-upload-target="filename" class="text-gray-500">No hay archivo seleccionado</span>
                 </label>
