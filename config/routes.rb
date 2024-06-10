@@ -23,7 +23,9 @@ Rails.application.routes.draw do
       get :edit_identificador
       patch :update_identificador
       patch :update_ending
-
+    end
+    collection do
+      get :new_with_last
     end
   end
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'

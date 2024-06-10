@@ -8,6 +8,7 @@ class InspectionsController < ApplicationController
   def show
     inspection
     @item = inspection.item
+    @last_inspection = Inspection.where(item: @item).order(created_at: :desc).first
     @control2 =  @item.group == Group.where("name LIKE ?", "%Escala%").first
     if @control2
       @detail = LadderDetail.find_by(item_id: @item.id)
@@ -103,6 +104,27 @@ class InspectionsController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
     render :new, status: :unprocessable_entity
+  end
+
+
+
+  def new_with_last
+    @from_last_inspection = true
+    last_inspection = Inspection.order(created_at: :desc).find_by(params[:inspection_id])
+    @inspection = Inspection.new(
+      place: last_inspection.place,
+      validation: last_inspection.validation
+    )
+
+    if last_inspection.item
+      @inspection.build_item(
+        identificador: last_inspection.item.identificador,
+        group_id: last_inspection.item.group_id,
+        principal_id: last_inspection.item.principal_id
+      )
+    end
+
+    render :new
   end
 
   def edit
@@ -272,6 +294,11 @@ class InspectionsController < ApplicationController
 
   def destroy
     authorize! inspection
+    black_inspection = Inspection.find_by(number: inspection.number*-1)
+    if black_inspection
+      black_inspection.destroy
+    end
+
     inspection.destroy
     redirect_to inspections_path, notice: 'Inspección eliminada', status: :see_other
   end
