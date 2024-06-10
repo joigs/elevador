@@ -442,23 +442,14 @@ class DocumentGenerator
       doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{mapped_month}.")
     end
 
-
-    doc.replace('{{admin}}', "        #{admin.real_name}     ")
-    doc.replace('{{inspector}}', "#{inspector.real_name}")
-    inspector_profesion = inspector.profesion
-    admin_profesion = admin.profesion
-
-
-    chars_to_delete2 = [admin_profesion.length, 0].max
-    chars_to_delete = chars_to_delete2/2
-
-    adjusted_length = [100 - chars_to_delete, 0].max
-    inspector_profesion = inspector_profesion.ljust(adjusted_length)
+    doc.replace('{{admin}}', admin.real_name)
+    doc.replace('{{inspector}}', inspector.real_name)
 
 
 
-    doc.replace('{{inspector_profesion}}', "#{inspector_profesion}")
-    doc.replace('{{admin_profesion}}', "         #{admin.profesion}")
+
+    doc.replace('{{inspector_profesion}}', inspector.profesion)
+    doc.replace('{{admin_profesion}}', admin.profesion)
 
     output_path2 = Rails.root.join('tmp', "part3.docx")
     doc.commit(output_path2)
