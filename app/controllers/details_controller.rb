@@ -38,9 +38,9 @@ class DetailsController < ApplicationController
   def update
 
     authorize! detail
-    report = Report.where(item_id: detail.item_id).last
-    inspection = Inspection.find(report.inspection_id)
-    revision = Revision.find_by(inspection_id: inspection.id)
+    @report = Report.where(item_id: detail.item_id).last
+    @inspection = Inspection.find(@report.inspection_id)
+    revision = Revision.find_by(inspection_id: @inspection.id)
 
     if detail.update(detail_params)
 
@@ -161,7 +161,7 @@ class DetailsController < ApplicationController
       end
 
 
-      redirect_to edit_report_path(report), notice: 'Información modificada exitosamente'
+      redirect_to edit_report_path(@report), notice: 'Información modificada exitosamente'
     else
       render :edit, status: :unprocessable_entity
     end

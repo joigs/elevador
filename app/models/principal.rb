@@ -17,8 +17,8 @@ class Principal < ApplicationRecord
             format: { with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i, message: "Formato de email invalido" }
 
   #validar y formatear el rut
-  validate :rut_validity
-  before_validation :format_rut
+  validate :rut_validity, if: :rut?
+  before_validation :format_rut, if: :rut?
 
   has_many :items
   has_many :inspections

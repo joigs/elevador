@@ -37,13 +37,13 @@ class LadderDetailsController < ApplicationController
   # PATCH/PUT /details/1 or /details/1.json
   def update
     authorize! detail
-    report = Report.where(item_id: detail.item_id).last
+    @report = Report.where(item_id: detail.item_id).last
 
     if detail.update(ladder_detail_params)
 
 
 
-      redirect_to edit_report_path(report), notice: 'Información modificada exitosamente'
+      redirect_to edit_report_path(@report), notice: 'Información modificada exitosamente'
     else
       render :edit, status: :unprocessable_entity
     end
