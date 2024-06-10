@@ -14,7 +14,7 @@
         <%= render 'shared/search_form', form_url: items_path, search_keys: 'identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont', frame_id: 'items' %>
       </div>
   <%= turbo_frame_tag "items-#{ @pagy.page }", class: 'bg-gray-800 py-6' do %>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <%= render partial: 'item', collection: @items %>
       </div>
