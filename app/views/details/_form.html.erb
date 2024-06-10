@@ -2,7 +2,7 @@
   <%= form_with(model: detail, builder: CustomFormBuilder, local: true, class: "space-y-4") do |form| %>
     <% if detail.errors.any? %>
       <div class="text-red-500 bg-red-900 p-4 rounded">
-        <h2><%= pluralize(detail.errors.count, "error") %> No se pudieron guardar los datos sobre el activo:</h2>
+        <h2><%= "Error: " %> No se pudieron guardar los datos sobre el activo:</h2>
         <ul>
           <% detail.errors.each do |error| %>
             <li><%= error.full_message %></li>

@@ -1,7 +1,7 @@
 <%= form_with(model: principal, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
   <% if principal.errors.any? %>
     <div class="text-red-400 bg-red-800 p-2 rounded">
-      <h2><%= pluralize(principal.errors.count, "error") %> Empresa no pudo ser guardada:</h2>
+      <h2><%= "Error: " %> Empresa no pudo ser guardada:</h2>
       <ul>
         <% principal.errors.each do |error| %>
           <li><%= error.full_message %></li>

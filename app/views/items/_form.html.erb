@@ -1,7 +1,7 @@
 <%= form_with(model: item, builder: CustomFormBuilder, class: "max-w-xl mx-auto p-6 bg-gray-900 rounded-lg shadow-md") do |form| %>
   <% if item.errors.any? %>
     <div class="bg-red-700 text-red-200 border border-red-600 px-4 py-3 rounded relative" role="alert">
-      <strong class="font-bold"><%= pluralize(item.errors.count, "error") %></strong>
+      <strong class="font-bold"><%= "Error: " %></strong>
       <span class="block sm:inline"> No se pudo guardar el activo:</span>
       <ul class="list-disc pl-5 mt-3">
         <% item.errors.each do |error| %>

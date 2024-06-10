@@ -2,7 +2,7 @@
   <%= form_with(model: inspection, local: true, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
     <% if inspection.errors.any? %>
       <div class="text-red-400 bg-red-800 p-2 rounded">
-        <h2><%= pluralize(inspection.errors.count, "error") %> No se pudo guardar esta inspección:</h2>
+        <h2><%= "Error: " %> No se pudo guardar esta inspección:</h2>
         <ul>
           <% inspection.errors.each do |error| %>
             <li><%= error.full_message %></li>
