@@ -128,16 +128,13 @@ class RevisionsController < ApplicationController
 
     current_section = params[:section]
 
-
-    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
-      if @black_inspection
-        @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
-        if revision_params[:past_revision].present?
-          black_params = revision_params[:past_revision]
-
-        end
+    @black_inspection = Inspection.find_by(number: @inspection.number * -1)
+    if @black_inspection
+      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+      if revision_params[:past_revision].present?
+        black_params = revision_params[:past_revision]
       end
-
+    end
 
     if params[:revision].present?
       if params[:revision][:fail].present?
@@ -421,16 +418,10 @@ class RevisionsController < ApplicationController
 
 
   def revision_params
-    # Aquí, no usamos `require(:revision)` ya que `:revision` podría no estar presente.
-    revision_permitted = params.fetch(:revision, {}).permit(
-      :group_id, :item_id, :color,
+    params.fetch(:revision, {}).permit(
+      :inspection_id, :group_id, :item_id, :color,
       codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: []
-    ).merge(revision_photos_params).merge(past_revision_params)
-
-    # Agregar parámetros de la URL al hash permitido
-    revision_permitted[:section] = params[:section]
-    revision_permitted[:inspection_id] = params[:inspection_id]
-    revision_permitted
+    ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end
 
   def revision_photos_params
@@ -438,9 +429,7 @@ class RevisionsController < ApplicationController
   end
 
   def past_revision_params
-    params.fetch(:past_revision, {}).permit(
-      fail: [], codes: [], points: [], levels: []
-    )
+    params.permit(past_revision: {fail: [], codes: [], points: [], levels: []})[:past_revision] || {}
   end
 
 

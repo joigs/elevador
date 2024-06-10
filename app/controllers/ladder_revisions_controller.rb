@@ -109,9 +109,12 @@ class LadderRevisionsController < ApplicationController
 
     current_section = params[:section]
 
+
     @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+
     if @black_inspection
       @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
+
       if ladder_revision_params[:past_revision].present?
 
         black_params = ladder_revision_params[:past_revision]
