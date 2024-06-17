@@ -29,12 +29,45 @@ class DocumentGenerator
     doc.replace('{{principal_name}}', principal.name)
     doc.replace('{{principal_business_name}}', principal.business_name)
     doc.replace('{{principal_rut}}', principal.rut)
-    doc.replace('{{principal_contact_name}}', principal.contact_name)
+
+
+    if principal.contact_name
+      doc.replace('{{principal_contact_name}}', principal.contact_name)
+    else
+      doc.replace('{{principal_contact_name}}', "S/I")
+    end
+
     doc.replace('{{principal_email}}', principal.email)
-    doc.replace('{{principal_phone}}', principal.phone)
-    doc.replace('{{principal_cellphone}}', principal.cellphone)
-    doc.replace('{{principal_contact_email}}', principal.contact_email)
-    doc.replace('{{principal_place}}', principal.place)
+
+
+    if principal.phone
+      doc.replace('{{principal_phone}}', principal.phone)
+    else
+      doc.replace('{{principal_phone}}', "S/I")
+    end
+
+
+
+
+    if principal.cellphone
+      doc.replace('{{principal_cellphone}}', principal.cellphone)
+    else
+      doc.replace('{{principal_cellphone}}', "S/I")
+    end
+
+
+    if principal.contact_email
+      doc.replace('{{principal_contact_email}}', principal.contact_email)
+    else
+      doc.replace('{{principal_contact_email}}', "S/I")
+    end
+
+
+    if principal.place
+      doc.replace('{{principal_place}}', principal.place)
+    else
+      doc.replace('{{principal_place}}', "S/I")
+    end
 
 
     doc.replace('{{inspection_place}}', inspection.place)
@@ -65,6 +98,7 @@ class DocumentGenerator
       doc.replace('{{certificado_minvu}}', report.certificado_minvu)
     end
 
+
     doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
     doc.replace('{{empresa_anterior}}', report.empresa_anterior)
     doc.replace('{{ea_rol}}', report.ea_rol)
@@ -72,14 +106,20 @@ class DocumentGenerator
     doc.replace('{{empresa_mantenedora}}', report.empresa_mantenedora)
     doc.replace('{{em_rol}}', report.em_rol)
     doc.replace('{{em_rut}}', report.em_rut)
-    aux_date = report.vi_co_man_ini&.strftime('%d/%m/%Y') || ''
+    aux_date = report.vi_co_man_ini&.strftime('%d/%m/%Y') || 'S/I'
     doc.replace('{{vi_co_man_ini}}', aux_date)
-    aux_date = report.vi_co_man_ter&.strftime('%d/%m/%Y') || ''
+    aux_date = report.vi_co_man_ter&.strftime('%d/%m/%Y') || 'S/I'
     doc.replace('{{vi_co_man_ter}}', aux_date)
     doc.replace('{{nom_tec_man}}', report.nom_tec_man)
     doc.replace('{{tm_rut}}', report.tm_rut)
-    doc.replace('{{ul_reg_man}}', report.ul_reg_man)
-    aux_date = report.urm_fecha&.strftime('%d/%m/%Y') || ''
+
+    if report.ul_reg_man
+      doc.replace('{{ul_reg_man}}', report.ul_reg_man)
+    else
+      doc.replace('{{ul_reg_man}}', "S/I")
+    end
+
+    aux_date = report.urm_fecha&.strftime('%d/%m/%Y') || 'S/I'
     doc.replace('{{urm_fecha}}', aux_date)
     doc.replace('{{item_identificador}}', item.identificador)
     doc.replace('{{detail_detalle}}', detail.detalle)
@@ -88,13 +128,30 @@ class DocumentGenerator
     doc.replace('{{detail_n_serie}}', detail.n_serie)
     doc.replace('{{detail_velocidad}}', detail.velocidad)
     doc.replace('{{detail_rol_n}}', detail.rol_n)
-    doc.replace('{{detail_numero_permiso}}', detail.numero_permiso)
-    doc.replace('{{detail_fecha_permiso}}', detail.fecha_permiso&.strftime('%d/%m/%Y'))
+
+    if detail.numero_permiso
+      doc.replace('{{detail_numero_permiso}}', detail.numero_permiso)
+    else
+      doc.replace('{{detail_numero_permiso}}', "S/I")
+    end
+
+    if detail.fecha_permiso
+      doc.replace('{{detail_fecha_permiso}}', detail.fecha_permiso&.strftime('%d/%m/%Y'))
+    else
+      doc.replace('{{detail_fecha_permiso}}', "S/I")
+    end
+
     doc.replace('{{detail_destino}}', detail.destino)
     doc.replace('{{detail_recepcion}}', detail.recepcion)
     doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
     doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
-    doc.replace('{{detail_porcentaje}}', detail.porcentaje.to_s)
+
+    if detail.porcentaje
+      doc.replace('{{detail_porcentaje}}', detail.porcentaje.to_s)
+    else
+      doc.replace('{{detail_porcentaje}}', "S/I")
+    end
+
     doc.replace('{{detail_descripcion}}', detail.descripcion)
 
 
@@ -115,17 +172,64 @@ class DocumentGenerator
     end
     doc.replace('{{detail_mm_marca}}', detail.mm_marca)
     doc.replace('{{detail_mm_n_serie}}', detail.mm_n_serie)
-    doc.replace('{{detail_potencia}}', detail.potencia)
-    doc.replace('{{detail_capacidad}}', " #{detail.capacidad}")
-    doc.replace('{{detail_personas}}', detail.personas)
+
+    if detail.potencia
+      doc.replace('{{detail_potencia}}', "#{detail.potencia} Kw")
+    else
+      doc.replace('{{detail_potencia}}', "S/I")
+
+    end
+
+    if detail.capacidad
+      doc.replace('{{detail_capacidad}}', " #{detail.capacidad} Kg")
+    else
+      doc.replace('{{detail_capacidad}}', " S/I")
+    end
+
+
+    if detail.personas
+      doc.replace('{{detail_personas}}', detail.personas)
+    else
+      doc.replace('{{detail_personas}}', "S/I")
+    end
     doc.replace('{{detail_ct_marca}}', detail.ct_marca)
-    doc.replace('{{detail_ct_cantidad}}', detail.ct_cantidad)
-    doc.replace('{{detail_ct_diametro}}', detail.ct_diametro)
-    doc.replace('{{detail_medidas_cintas}}', detail.medidas_cintas)
+
+    if detail.ct_cantidad
+      doc.replace('{{detail_ct_cantidad}}', "#{detail.ct_cantidad} unidades")
+    else
+      doc.replace('{{detail_ct_cantidad}}', "S/I")
+    end
+
+    if detail.ct_diametro
+      doc.replace('{{detail_ct_diametro}}', "#{detail.ct_diametro} mm")
+    else
+      doc.replace('{{detail_ct_diametro}}', "S/I")
+
+    end
+
+
+    if detail.medidas_cintas
+      doc.replace('{{detail_medidas_cintas}}', "#{detail.medidas_cintas} mm")
+    else
+      doc.replace('{{detail_medidas_cintas}}', "S/I")
+
+    end
+
     doc.replace('{{detail_rv_marca}}', detail.rv_marca)
     doc.replace('{{detail_rv_n_serie}}', detail.rv_n_serie)
-    doc.replace('{{detail_paradas}}', detail.paradas)
-    doc.replace('{{detail_embarques}}', detail.embarques)
+
+    if detail.paradas
+      doc.replace('{{detail_paradas}}', detail.paradas)
+    else
+      doc.replace('{{detail_paradas}}', "S/I")
+    end
+
+
+    if detail.embarques
+      doc.replace('{{detail_embarques}}', detail.embarques)
+    else
+      doc.replace('{{detail_embarques}}', "S/I")
+    end
 
     if detail.sala_maquinas == "Si"
       doc.replace('{{detail_sala_maquinas}}', "Si")
