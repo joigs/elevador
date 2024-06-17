@@ -307,7 +307,7 @@ class InspectionsController < ApplicationController
 
   def download_document
     inspection = Inspection.find(params[:id])
-    inspection.update(inf_date: Time.zone.now.to_date)
+
     inspection_id = inspection.id
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
@@ -381,8 +381,7 @@ class InspectionsController < ApplicationController
           else
             @inspection.update(result: "Aprobado")
           end
-          if @inspection.update(state: "Cerrado")
-
+          if @inspection.update(state: "Cerrado", inf_date: Time.zone.now.to_date)
             redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
           else
             redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
