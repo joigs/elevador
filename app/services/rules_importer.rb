@@ -41,7 +41,6 @@ class RulesImporter
 
     end
 
-    Rule.import rules_data unless rules_data.empty?
-    rules_data.each { |rule| Ruleset.create(group: group, rule: rule) }
+    rules_data.each { |rule| Ruleset.create(group: group, rule: rule) } unless rules_data.empty?
   end
 end

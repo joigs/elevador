@@ -246,13 +246,13 @@ class DocumentGeneratorLadder
 
 
         if last_errors.blank?
-          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
+          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                                                                                                          "}.join("\n")
           doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
           doc.replace('{{revision_past_errors_level}}', formatted_pikachu)
 
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
-          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
+          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                                                          "}.join("\n")
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
@@ -339,29 +339,29 @@ class DocumentGeneratorLadder
     end
 
     aux = [
-      '•1. Requisitos generales'                                                                                                                                                                                                                                                                                    ,
-      '•2. Estructura de soporte (bastidor) y cerramiento'                                                                                                                                                                                                                                                                                    ,
-      '•3. Escalones, placa, banda'                                                                                                                                                                                                                                                                                    ,
-      '•4. Unidad de almacenamiento                                                                                                                                                                                                                                                                                    ',
-      '•5.  Balaustrada                                                                                                                                                                                                                                                                                    ',
-      '•6.  Pasamanos                                                                                                                                                                                                                                                                                    ',
-      '•7.  Rellanos                                                                                                                                                                                                                                                                                    ',
-      '•8.  Cuartos de maquinaria, estaciones de accionamiento y de retorno                                                                                                                                                                                                                                                                                    ',
-      '•11. Instalaciones y aparatos eléctricos                                                                                                                                                                                                                                                                                    ',
-      '•12. Protección contra fallos eléctricos-maniobra                                                                                                                                                                                                                                                                                    ',
-      '•13. Interfaces con el edificio                                                                                                                                                                                                                                                                                    ',
-      '•14. Señales de seguridad para los usuarios                                                                                                                                                                                                                                                                                    ',
-      '•15. Utilización de carros de compra y de carros de equipaje                                                                                                                                                                                                                                                                                    '
+      '•1. Requisitos generales',
+      '•2. Estructura de soporte (bastidor) y cerramiento',
+      '•3. Escalones, placa, banda',
+      '•4. Unidad de almacenamiento',
+      '•5.  Balaustrada',
+      '•6.  Pasamanos',
+      '•7.  Rellanos',
+      '•8.  Cuartos de maquinaria, estaciones de accionamiento y de retorno',
+      '•11. Instalaciones y aparatos eléctricos',
+      '•12. Protección contra fallos eléctricos-maniobra',
+      '•13. Interfaces con el edificio',
+      '•14. Señales de seguridad para los usuarios',
+      '•15. Utilización de carros de compra y de carros de equipaje'
     ]
 
 
-    cumple_text = cumple.map { |index| "#{aux[index]}                                                                                                                                                       " }.join("\n")
+    cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
 
     doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
 
 
-    errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                                                                                                                                                         " }.join("\n")
-    errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                                                                                        " }.join("\n")
+    errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
+    errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
 
     doc.replace('{{revision_errors_leves}}', errors_leves_text)
     doc.replace('{{revision_errors_graves}}', errors_graves_text)
@@ -458,7 +458,7 @@ class DocumentGeneratorLadder
         next_code_different = (revision.codes[index+1] != code rescue true)
 
         if has_matching_photo && next_code_different
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)
@@ -470,7 +470,7 @@ class DocumentGeneratorLadder
           set_of_errors = []
 
         elsif index == revision.codes.length - 1
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)

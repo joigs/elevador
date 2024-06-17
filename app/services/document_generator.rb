@@ -299,7 +299,7 @@ class DocumentGenerator
 
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
-          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                          " }.join("\n")
+          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                                   " }.join("\n")
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
@@ -404,39 +404,39 @@ class DocumentGenerator
 
     if detail.sala_maquinas == "Si"
       aux = [
-        '•1. Carpeta cero.                                                                                                                                                             ',
-        '•2. Caja de elevadores.                                                                                                                                                             ',
-        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).                                                                                        ',
-        '•4. Puerta de piso.                                                                                                                                                                 ',
-        '•5. Cabina, contrapeso y masa de equilibrio.                                                                                                                                        ',
-        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.                                                               ',
-        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.                                                                                                        ',
-        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.                                                                                ',
-        '•10. Ascensores sin sala de máquinas.                                                                                                                                                ',
-        '•11. Protección contra defectos eléctricos, mandos y prioridades.                                                                                                                    ',
-        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular'
+        '•1. Carpeta cero.',
+        '•2. Caja de elevadores.',
+        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+        '•4. Puerta de piso.',
+        '•5. Cabina, contrapeso y masa de equilibrio.',
+        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.',
+        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.',
+        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.',
+        '•10. Ascensores sin sala de máquinas.',
+        '•11. Protección contra defectos eléctricos, mandos y prioridades.',
+        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular.'
       ]
 
 
     else
       aux = [
-        '•1. Carpeta cero.                                                                                                                                                             ',
-        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).                                                                                        ',
-        '•4. Puerta de piso.                                                                                                                                                                 ',
-        '•5. Cabina, contrapeso y masa de equilibrio.                                                                                                                                        ',
-        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.                                                               ',
-        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.                                                                                                        ',
-        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.                                                                                ',
-        '•9. Máquina.                                                                                                                                                                        ',
-        '•10. Ascensores sin sala de máquinas.                                                                                                                                                ',
-        '•11. Protección contra defectos eléctricos, mandos y prioridades.                                                                                                                    ',
-        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular'
+        '•1. Carpeta cero.',
+        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+        '•4. Puerta de piso.',
+        '•5. Cabina, contrapeso y masa de equilibrio.',
+        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.',
+        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.',
+        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.',
+        '•9. Máquina.',
+        '•10. Ascensores sin sala de máquinas.',
+        '•11. Protección contra defectos eléctricos, mandos y prioridades.',
+        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular.'
       ]
     end
 
 
-    cumple_text = cumple.map { |index| "#{aux[index]}                                                                                                                                                       " }.join("\n")
-    no_cumple_text = no_cumple.map { |index| "#{aux[index]}                                                                                                                                                 " }.join("\n")
+    cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
+    no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                                     "}.join("\n")
 
     if cumple.any?
       doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
@@ -484,7 +484,7 @@ class DocumentGenerator
 
 
     if errors_leves.any?
-      errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                                                                                                                                                         " }.join("\n")
+      errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                     "}.join("\n")
       doc.replace('{{revision_errors_leves}}', errors_leves_text)
       doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
     else
@@ -493,7 +493,7 @@ class DocumentGenerator
     end
 
     if errors_graves.any?
-      errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                                                                                        " }.join("\n")
+      errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                  "}.join("\n")
       doc.replace('{{revision_errors_graves}}', errors_graves_text)
       doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Faltas Graves, encontradas en la inspección son las siguientes:')
     else
@@ -593,7 +593,7 @@ class DocumentGenerator
         next_code_different = (revision.codes[index+1] != code rescue true)
 
         if has_matching_photo && next_code_different
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                       "}.join("\n")
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)
@@ -605,7 +605,7 @@ class DocumentGenerator
           set_of_errors = []
 
         elsif index == revision.codes.length - 1
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                                                                                                                                     " }.join("\n")
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                      "}.join("\n")
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)
