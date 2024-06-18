@@ -12,6 +12,9 @@ class PrincipalsController < ApplicationController
   # GET /principals/1 or /principals/1.json
   def show
     principal
+    @q = principal.items.ransack(params[:q])
+    @items = @q.result(distinct: true).order(created_at: :desc)
+    @pagy, @items = pagy_countless(@items, items: 10)
   end
 
   # GET /principals/new

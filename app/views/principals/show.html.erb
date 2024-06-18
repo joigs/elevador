@@ -15,4 +15,30 @@
 
     <%= link_to "Volver a empresas", principals_path, class: "w-40 text-center px-4 py-2 bg-gray-700 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-800 active:shadow-lg transition duration-150 ease-in-out" %>
   </div>
+
+  <br>
+  <br>
+
+  <div class="bg-gray-900 shadow overflow-hidden sm:rounded-md max-w-7xl mx-auto px-4">
+    <h1 class="text-2xl text-white font-bold mb-6 mt-4 ml-4">Activos pertenecientes a <%= @principal.name %></h1>
+
+
+    <%= turbo_frame_tag 'items' do %>
+      <div class="px-4 py-6 bg-gray-800">
+        <%= render 'shared/search_form', form_url: principal_path(@principal), search_keys: 'identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont', frame_id: 'items' %>
+      </div>
+      <%= turbo_frame_tag "items-#{ @pagy.page }", class: 'bg-gray-800 py-6' do %>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <%= render partial: 'items/item', collection: @items %>
+          </div>
+        </div>
+
+        <% if @pagy.next.present? %>
+          <br>
+          <%= turbo_frame_tag "items-#{ @pagy.next }", class: 'items', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
 </div>
