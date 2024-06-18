@@ -117,30 +117,27 @@ class DocumentGeneratorLadder
     doc.replace('{{urm_fecha}}', aux_date)
     doc.replace('{{item_identificador}}', item.identificador)
 
-    doc.replace('{{ld_marca}}', detail.marca)
-    doc.replace('{{ld_modelo}}', detail.modelo)
-    doc.replace('{{ld_nserie}}', detail.nserie)
-    doc.replace('{{mm_marca}}', detail.mm_marca)
-    doc.replace('{{mm_nserie}}', detail.mm_nserie)
+    doc.replace('{{detail_modelo}}', detail.modelo)
+    doc.replace('{{detail_n_serie}}', detail.nserie)
 
     if detail.potencia
-      doc.replace('{{potencia}}', "#{detail.potencia.to_s} Kw")
+      doc.replace('{{detail_potencia}}', "#{detail.potencia.to_s} Kw")
     else
-      doc.replace('{{potencia}}', "S/I")
+      doc.replace('{{detail_potencia}}', "S/I")
     end
 
     if detail.capacidad
-      doc.replace('{{capacidad}}', "#{detail.capacidad.to_s} Kg")
+      doc.replace('{{detail_capacidad}}', "#{detail.capacidad.to_s} Kg")
     else
-      doc.replace('{{capacidad}}', "S/I")
+      doc.replace('{{detail_capacidad}}', "S/I")
 
     end
 
 
     if detail.personas
-      doc.replace('{{personas}}', detail.personas.to_s)
+      doc.replace('{{detail_personas}}', detail.personas.to_s)
     else
-      doc.replace('{{personas}}', "S/I")
+      doc.replace('{{detail_personas}}', "S/I")
 
     end
 
@@ -184,9 +181,14 @@ class DocumentGeneratorLadder
     end
     doc.replace('{{procedencia}}', detail.procedencia)
     doc.replace('{{detail_descripcion}}', detail.descripcion)
+    doc.replace('{{detail_detalle}}', detail.detalle)
     doc.replace('{{detail_rol_n}}', detail.rol_n)
+    doc.replace('{{detail_mm_marca}}', detail.mm_marca)
+    doc.replace('{{detail_marca}}', detail.marca)
+    doc.replace('{{detail_mm_n_serie}}', detail.mm_nserie)
+
     if detail.numero_permiso
-      doc.replace('{{detail_numero_permiso}}', detail.numero_permiso)
+      doc.replace('{{detail_numero_permiso}}', "#N°{detail.numero_permiso}")
     else
       doc.replace('{{detail_numero_permiso}}', "S/I")
     end
@@ -216,6 +218,7 @@ class DocumentGeneratorLadder
 
     last_revision = LadderRevision.where(item_id: item.id).order(created_at: :desc).offset(1).first
     last_errors = []
+    last_errors_lift = []
 
 
     if report.cert_ant == 'Si'
@@ -223,12 +226,13 @@ class DocumentGeneratorLadder
       if last_revision.nil?
         doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
         doc.replace('{{revision_past_errors_level}}', "")
-
+        doc.replace('{{revision_past_errors_level_lift}}', "")
       end
 
       if last_revision&.levels.blank?
         doc.replace('{{informe_anterior}}', "")
         doc.replace('{{revision_past_errors_level}}', "")
+        doc.replace('{{revision_past_errors_level_lift}}', "")
       else
 
         last_revision_pikachu = []
@@ -238,27 +242,32 @@ class DocumentGeneratorLadder
             if revision.codes.include?(last_revision.codes[index])
               if revision.points.include?(last_revision.points[index])
                 last_errors << last_revision.codes[index] + " " + last_revision.points[index]
+              else
+                last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
               end
+            else
+              last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
             last_revision_pikachu << last_revision.codes[index] + " " + last_revision.points[index]
           end
         end
 
+        formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                            " }.join("\n")
 
         if last_errors.blank?
-          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                                                                                                          "}.join("\n")
+          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                                     "}.join("\n")
           doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
           doc.replace('{{revision_past_errors_level}}', formatted_pikachu)
-
+          doc.replace('{{revision_past_errors_level_lift}}', "")
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
-          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                                                          "}.join("\n")
+          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                          "}.join("\n")
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
             doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
-
+            doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
           else
 
             if report.empresa_anterior=="S/I"
@@ -267,6 +276,7 @@ class DocumentGeneratorLadder
               doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
             end
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
+            doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
           end
 
 
@@ -276,6 +286,7 @@ class DocumentGeneratorLadder
     else
       doc.replace('{{informe_anterior}}', "No presenta certificación anterior")
       doc.replace('{{revision_past_errors_level}}', "")
+      doc.replace('{{revision_past_errors_level_lift}}', "")
     end
 
 
@@ -288,7 +299,7 @@ class DocumentGeneratorLadder
     output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date.strftime('%m')}-#{inspection.ins_date.strftime('%Y')}.docx")
     doc.commit(output_path)
 
-    template_path = Rails.root.join('app', 'templates', 'template_ladder3.docx')
+    template_path = Rails.root.join('app', 'templates', 'template_3.docx')
 
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
@@ -331,10 +342,13 @@ class DocumentGeneratorLadder
       doc.replace('{{buen/regular/mal}}', "mal")
     end
     cumple = []
+    no_cumple = []
     numbers = [1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
     numbers.each do |index|
       unless revision.codes.any? { |code| code.match?(/^5\.#{index}\./) }
         cumple << index
+      else
+        no_cumple << index
       end
     end
 
@@ -356,9 +370,42 @@ class DocumentGeneratorLadder
 
 
     cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
+    no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
+    if cumple.any?
+      doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
+      doc.replace('{{texto_comprobacion_cumple}}', 'De acuerdo a esta inspección, CUMPLE, con los requisitos normativos evaluados:')
+    else
+      doc.replace('{{lista_comprobacion_cumple}}', '')
+      doc.replace('{{texto_comprobacion_cumple}}', 'No cumple con ningún requisito normativo')
+    end
 
-    doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
+    if no_cumple.any?
+      doc.replace('{{lista_comprobacion_no_cumple}}', no_cumple_text)
+      doc.replace('{{texto_comprobacion_no_cumple}}', "El equipo inspeccionado, identificado en el ítem II, ubicado en #{inspection.place}, NO CUMPLE, con los siguientes requisitos normativos, detectándose no-conformidades:")
+    else
+      doc.replace('{{lista_comprobacion_no_cumple}}', '')
+      doc.replace('{{texto_comprobacion_no_cumple}}', 'No se encontraron no conformidades en la inspección.')
+    end
 
+
+
+    if errors_leves.any?
+      errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                     "}.join("\n")
+      doc.replace('{{revision_errors_leves}}', errors_leves_text)
+      doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
+    else
+      doc.replace('{{revision_errors_leves}}', '')
+      doc.replace('{{si_las_hubiera_leve}}', 'No se encontraron faltas leves en la inspección.')
+    end
+
+    if errors_graves.any?
+      errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                  "}.join("\n")
+      doc.replace('{{revision_errors_graves}}', errors_graves_text)
+      doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Faltas Graves, encontradas en la inspección son las siguientes:')
+    else
+      doc.replace('{{revision_errors_graves}}', '')
+      doc.replace('{{si_las_hubiera_grave}}', 'No se encontraron faltas graves en la inspección.')
+    end
 
     errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
     errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
