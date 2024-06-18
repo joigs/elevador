@@ -19,7 +19,7 @@
 
       <% current_section = "#{@color.number}- #{@nombres[@color.number]}" %>
       <%= button_tag type: 'button',
-                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal overflow-hidden",
                      data: { action: "dropdown#toggle" } do %>
         <%= "Sección actual: #{current_section}" %>
       <% end %>
