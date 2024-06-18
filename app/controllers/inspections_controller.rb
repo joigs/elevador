@@ -306,12 +306,17 @@ class InspectionsController < ApplicationController
 
 
   def download_document
+
     inspection = Inspection.find(params[:id])
 
     inspection_id = inspection.id
+    admin_id = Current.user.id
+    if inspection.user.signature.blank? || Current.user.signature.blank?
+      redirect_to inspection_path(inspection), alert: 'Falta firma del inspector o del administrador'
+      return
+    end
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
-    admin_id = Current.user.id
 
     if inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
       revision_id = LadderRevision.find_by(inspection_id: inspection.id).id
