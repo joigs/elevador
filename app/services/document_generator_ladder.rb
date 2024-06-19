@@ -335,11 +335,11 @@ class DocumentGeneratorLadder
     end
 
     if errors_all.blank?
-      doc.replace('{{buen/regular/mal}}', "buen")
+      doc.replace('{{buen/mal}}', "buen")
     elsif errors_graves.blank?
-      doc.replace('{{buen/regular/mal}}', "regular")
+      doc.replace('{{buen/mal}}', "regular")
     else
-      doc.replace('{{buen/regular/mal}}', "mal")
+      doc.replace('{{buen/mal}}', "mal")
     end
     cumple = []
     no_cumple = []
