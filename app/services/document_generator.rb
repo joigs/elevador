@@ -593,7 +593,7 @@ class DocumentGenerator
 
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'Revision')
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{day}}" => inspection.ins_date&.strftime('%d'), "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y') }, output_path, output_path)
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y') }, output_path, output_path)
 
 
 
