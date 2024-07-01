@@ -155,7 +155,7 @@ class DocumentGenerator
     doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
 
     if detail.porcentaje
-      doc.replace('{{detail_porcentaje}}', detail.porcentaje.to_s)
+      doc.replace('{{detail_porcentaje}}', "#{detail.porcentaje.to_s}%")
     else
       doc.replace('{{detail_porcentaje}}', "S/I")
     end
