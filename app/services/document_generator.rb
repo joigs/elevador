@@ -87,12 +87,12 @@ class DocumentGenerator
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si'
-      doc.replace('{{cert_si}}', 'X')
+      doc.replace('{{cert_si}}', 'x')
       doc.replace('{{cert_no}}', '')
 
     elsif report.cert_ant == 'No'
       doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_no}}', 'x')
     else
       doc.replace('{{cert_si}}', '')
       doc.replace('{{cert_no}}', '')
