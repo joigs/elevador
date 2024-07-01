@@ -5,7 +5,7 @@ class UsersController < ApplicationController
     inspections_scope = if @user.admin
                           Inspection.where(state: "Cerrado")
                         else
-                          Inspection.where(user_id: @user.id).where("number > 0")
+                          Inspection.joins(:users).where(users: { id: @user.id }).where("number > 0")
                         end
 
     @q = inspections_scope.ransack(params[:q])

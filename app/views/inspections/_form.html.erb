@@ -49,8 +49,8 @@
     </div>
 
     <div class="mt-3">
-      <%= form.label :"Inspector asignado", class: "block text-gray-300" %>
-      <%= form.select :user_id, options_for_select(User.where(admin: false).map { |u| [u.real_name, u.id] }, @inspection.user_id), {include_blank: true}, {class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: {controller: 'slim'}} %>
+      <%= form.label :"Inspectores asignados", class: "block text-gray-300" %>
+      <%= form.collection_select :user_ids, User.where(admin: false), :id, :real_name, {}, { multiple: true, size: 5, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim' } } %>
     </div>
 
     <div class="mt-6">

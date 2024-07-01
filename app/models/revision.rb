@@ -24,7 +24,7 @@ class Revision < ApplicationRecord
 
   def only_owner?
     inspection = Inspection.find_by(id: self.inspection_id)
-    inspection.user_id == Current.user&.id
+    inspection.users.exists?(id: Current.user&.id)
   end
 
 

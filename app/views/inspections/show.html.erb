@@ -10,8 +10,12 @@
       <p><strong>Resultado de la inspección:</strong> <%= @inspection.result %></p>
       <p><strong>Lugar de la inspección:</strong> <%= @inspection.place %></p>
       <p><strong>Fecha de emisión del informe:</strong> <%= format_date(@inspection.inf_date) %></p>
-      <p><strong>Inspector asignado:</strong> <%= @inspection.user&.real_name %></p>
-    </div>
+      <p><strong>Inspectores asignados:</strong></p>
+      <ul>
+        <% @inspection.users.each do |user| %>
+          <li>-<%= user.real_name %></li>
+        <% end %>
+      </ul>    </div>
 
     <% if @inspection.state == "Cerrado" %>
       <div class="lg:w-1/3 lg:pl-4">

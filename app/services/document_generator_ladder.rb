@@ -12,7 +12,7 @@ class DocumentGeneratorLadder
     detail = item.ladder_detail
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
-    inspector = inspection.user
+    inspectors = inspection.users
 
 
     template_path = Rails.root.join('app', 'templates', 'template_ladder1.docx')
@@ -69,7 +69,10 @@ class DocumentGeneratorLadder
 
     doc.replace('{{inspection_place}}', inspection.place)
     doc.replace('{{ins_date}}', inspection.ins_date.strftime('%d/%m/%Y'))
-    doc.replace('{{inspector}}', inspection.user.real_name)
+    inspector_names = inspection.users.map(&:real_name).join(' / ')
+
+    doc.replace('{{inspector}}', inspector_names)
+
     doc.replace('{{admin}}', admin.real_name)
     doc.replace('{{inf_date}}', inspection.inf_date.strftime('%d/%m/%Y'))
 
@@ -299,8 +302,12 @@ class DocumentGeneratorLadder
     output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date.strftime('%m')}-#{inspection.ins_date.strftime('%Y')}.docx")
     doc.commit(output_path)
 
-    template_path = Rails.root.join('app', 'templates', 'template_3.docx')
 
+    if inspectors.second
+      template_path = Rails.root.join('app', 'templates', 'template_3.docx')
+    else
+      template_path = Rails.root.join('app', 'templates', 'template_3_1user.docx')
+    end
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
@@ -468,11 +475,16 @@ class DocumentGeneratorLadder
 
 
     doc.replace('{{admin}}', admin.real_name)
-    doc.replace('{{inspector}}', inspector.real_name)
+    doc.replace('{{inspector}}', inspectors.first.real_name)
 
 
+    doc.replace('{{inspector_profesion}}', inspectors.first.profesion)
 
-    doc.replace('{{inspector_profesion}}', inspector.profesion)
+    if inspectors.second
+      doc.replace('{{inspector}}', inspectors.second.real_name)
+      doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
+    end
+
     doc.replace('{{admin_profesion}}', admin.profesion)
 
 
@@ -531,53 +543,76 @@ class DocumentGeneratorLadder
     original_files << output_path2
 
 
-    inspector_signature_path = Rails.root.join('tmp', 'inspector_signature.jpg')
-    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
-    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')  # Path for the third image
+    # Rutas de firma de inspectores
+    inspector1_signature_path = Rails.root.join('tmp', 'inspector1_signature.jpg')
+    inspector2_signature_path = inspectors.second ? Rails.root.join('tmp', 'inspector2_signature.jpg') : nil
 
-    [inspector_signature_path, admin_signature_path].each do |path|
-      File.open(path, 'wb') do |file|
-        file.write(path == inspector_signature_path ? inspector.signature.download : admin.signature.download)
-      end
-      image = MiniMagick::Image.open(path)
+    # Ruta de firma del administrador
+    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
+
+    # Imagen en blanco
+    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')
+
+    # Procesamiento de las firmas
+    File.open(inspector1_signature_path, 'wb') { |file| file.write(inspectors.first.signature.download) }
+    MiniMagick::Image.open(inspector1_signature_path).tap do |image|
       image.resize "300x"
-      image.write(path)
+      image.write(inspector1_signature_path)
     end
 
-    third_image = MiniMagick::Image.open(third_image_path)
-    third_image.resize "100x"
-    third_image.write(third_image_path)  # Save the resized image temporarily
+    # Procesar segundo inspector si existe
+    if inspector2_signature_path
+      File.open(inspector2_signature_path, 'wb') { |file| file.write(inspectors.second.signature.download) }
+      MiniMagick::Image.open(inspector2_signature_path).tap do |image|
+        image.resize "300x"
+        image.write(inspector2_signature_path)
+      end
+    end
 
+    # Procesar firma del administrador
+    File.open(admin_signature_path, 'wb') { |file| file.write(admin.signature.download) }
+    MiniMagick::Image.open(admin_signature_path).tap do |image|
+      image.resize "300x"
+      image.write(admin_signature_path)
+    end
+
+    # Procesar imagen en blanco
+    MiniMagick::Image.open(third_image_path).tap do |image|
+      image.resize "100x"
+      image.write(third_image_path)
+    end
+
+    # Lista de imágenes para el montaje
     images = [
-      inspector_signature_path,
-      third_image_path,
+      inspector1_signature_path,
+      (inspector2_signature_path || third_image_path), # Si no hay inspector2, usar imagen en blanco
       admin_signature_path
     ]
 
+    # Añadir la imagen en blanco al final si hay inspector2
+    images.insert(3, third_image_path) if inspector2_signature_path
+
+    # Generación de la imagen combinada
     random_hex = SecureRandom.hex(4)
-    output_filename = "inspector_#{inspector.username}_admin_#{admin.username}_#{random_hex}.jpg"
+    output_filename = "inspector_#{inspectors.first.username}_admin_#{admin.username}_#{random_hex}.jpg"
     output_path_image = Rails.root.join('tmp', output_filename)
 
     MiniMagick::Tool::Montage.new do |montage|
-      montage.geometry "300x+0+0"  # Each image is 400 pixels wide
-      montage.tile "3x1"  # Adjust tile to 3x1 for three images
+      montage.geometry "300x+0+0"
+      montage.tile "3x1"
       images.each { |i| montage << i }
       montage << output_path_image.to_s
     end
 
-    images_to_write = [
-      {
-        :path => output_path_image.to_s,
-        :height => 300,
-        :width => 800
-      }
-    ]
-
+    # Escritura de la imagen combinada en un documento
+    images_to_write = [{ path: output_path_image.to_s, height: 300, width: 900 }]
     Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
 
-    [inspector_signature_path, admin_signature_path, output_path_image].each do |path|
+    # Limpieza de archivos temporales
+    [inspector1_signature_path, admin_signature_path, output_path_image].concat([inspector2_signature_path].compact).each do |path|
       File.delete(path) if File.exist?(path)
     end
+
 
 
 

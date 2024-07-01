@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_03_162833) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_01_065321) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -86,6 +86,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_03_162833) do
     t.index ["number"], name: "index_groups_on_number", unique: true
   end
 
+  create_table "inspection_users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "inspection_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inspection_id"], name: "index_inspection_users_on_inspection_id"
+    t.index ["user_id"], name: "index_inspection_users_on_user_id"
+  end
+
   create_table "inspections", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "number", null: false
     t.string "place", null: false
@@ -96,13 +105,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_03_162833) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "state", default: "Abierto"
-    t.bigint "user_id"
     t.bigint "item_id"
     t.bigint "principal_id", null: false
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
     t.index ["principal_id"], name: "index_inspections_on_principal_id"
-    t.index ["user_id"], name: "index_inspections_on_user_id"
   end
 
   create_table "items", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -302,9 +309,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_03_162833) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "details", "items"
+  add_foreign_key "inspection_users", "inspections"
+  add_foreign_key "inspection_users", "users"
   add_foreign_key "inspections", "items"
   add_foreign_key "inspections", "principals"
-  add_foreign_key "inspections", "users"
   add_foreign_key "items", "groups"
   add_foreign_key "items", "principals"
   add_foreign_key "ladder_details", "items"

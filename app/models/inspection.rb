@@ -32,7 +32,8 @@ class Inspection < ApplicationRecord
   validates :inf_date, date: true
 
 
-  belongs_to :user
+  has_many :inspection_users
+  has_many :users, through: :inspection_users
   belongs_to :item
   belongs_to :principal
   accepts_nested_attributes_for :item
@@ -44,7 +45,7 @@ class Inspection < ApplicationRecord
 
   #sirve para revisar si el usuario es el inspector encargado de la inspeccion, o si es admin
   def owner?
-    user_id == Current.user&.id
+    users.exists?(id: Current.user&.id)
   end
 
 

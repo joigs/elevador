@@ -35,7 +35,7 @@ class User < ApplicationRecord
 
 
 
-  has_many :inspections
-
+  has_many :inspection_users
+  has_many :inspections, through: :inspection_users
 
 end

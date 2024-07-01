@@ -311,7 +311,7 @@ class InspectionsController < ApplicationController
 
     inspection_id = inspection.id
     admin_id = Current.user.id
-    if inspection.user.signature.blank? || Current.user.signature.blank?
+    if inspection.users.any? { |user| user.signature.blank? } || Current.user.signature.blank?
       redirect_to inspection_path(inspection), alert: 'Falta firma del inspector o del administrador'
       return
     end
@@ -405,7 +405,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :user_id, :ending, item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
+    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :ending, user_ids: [], item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
       if whitelisted[:item_attributes] && whitelisted[:item_attributes][:identificador]
         whitelisted[:item_attributes][:identificador].gsub!(/\s+/, "")
       end

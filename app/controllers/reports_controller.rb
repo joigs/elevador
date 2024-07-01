@@ -23,7 +23,7 @@ class ReportsController < ApplicationController
 
       if @report[:cert_ant] == 'Si' && @item.inspections.where('number > 0').count == 1
         black_number = inspection.number*-1
-         black_inspection = Inspection.find_by(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black', user_id: inspection.user_id)
+         black_inspection = Inspection.find_by(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black')
 
         if black_inspection
           was_created = false
@@ -32,7 +32,10 @@ class ReportsController < ApplicationController
         end
 
         if was_created
-          black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black', user_id: inspection.user_id)
+          black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black')
+          inspection.users.each do |user|
+            black_inspection.users << user
+          end
           black_inspection.created_at = DateTime.new(1000, 1, 1)
           puts(black_inspection.inspect)
           black_inspection.save

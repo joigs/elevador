@@ -23,11 +23,10 @@ class Item < ApplicationRecord
   has_many :ladder_revisions, dependent: :destroy
   def inspector?
     self.inspections.each do |inspection|
-      if inspection.user_id == Current.user&.id
-        return true
-      end
+      return true if inspection.users.exists?(id: Current.user&.id)
     end
-    return false
+    false
   end
+
 
 end
