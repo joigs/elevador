@@ -17,6 +17,7 @@ class DocumentGenerator
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
     inspector = inspection.user
+    rules = group.rules.ordered_by_code.drop(11)
 
     template_path = Rails.root.join('app', 'templates', 'template_1.docx')
 
@@ -703,6 +704,98 @@ class DocumentGenerator
     original_files.each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
+
+
+    if group.number == 1
+      tabla_path = Rails.root.join('app', 'templates', 'tabla_grupo_1.docx')
+    elsif group.number == 2
+      tabla_path = Rails.root.join('app', 'templates', 'tabla_grupo_2.docx')
+    elsif group.number == 3
+      tabla_path = Rails.root.join('app', 'templates', 'tabla_grupo_3.doc')
+    end
+
+    Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, false)
+
+
+    doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+
+
+    rules.each_with_index do |rule, index|
+      if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
+        index2 = revision.points.index(rule.point)
+
+        doc.replace('{{tabla_si}}', '')
+        doc.replace('{{tabla_no}}', 'x')
+
+
+        level121 = revision.levels[index2]
+
+        if level121 == 'L'
+          doc.replace('{{tabla_g}}', '')
+          doc.replace('{{tabla_l}}', 'x')
+
+        else
+          doc.replace('{{tabla_g}}', 'x')
+          doc.replace('{{tabla_l}}', '')
+
+        end
+
+
+      else
+        doc.replace('{{tabla_si}}', 'x')
+        doc.replace('{{tabla_no}}', '')
+        doc.replace('{{tabla_g}}', '')
+        doc.replace('{{tabla_l}}', '')
+
+      end
+
+    end
+
+    if detail.sala_maquinas == "Si"
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+
+
+    elsif detail.sala_maquinas == "No. Máquina en la parte superior"
+      doc.replace('{{cert_si}}', 'X')
+      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+    elsif detail.sala_maquinas == "No. Máquina en foso"
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', 'X')
+      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+    elsif detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', '')
+      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_si}}', 'X')
+      doc.replace('{{cert_no}}', '')
+    end
+
+    doc.replace('{{cert_si}}', '')
+    doc.replace('{{cert_no}}', 'X')
+
+
+    doc.commit(output_path)
 
 
     return output_path

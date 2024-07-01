@@ -56,7 +56,6 @@ class ReportsController < ApplicationController
 
         else
           if was_created
-            puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             @revision = Revision.create!(inspection_id: black_inspection.id, item_id: @item.id, group_id: @item.group_id)
             @revision.created_at = DateTime.new(1000, 1, 1)
             @revision.save
