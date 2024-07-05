@@ -410,8 +410,13 @@ class DocumentGenerator
     output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}.docx")
     doc.commit(output_path)
 
+    condicion = false
 
     if inspectors.second
+      condicion = admin.real_name == inspectors.first.real_name || admin.real_name == inspectors.second.real_name || admin.email == inspectors.first.email || admin.email == inspectors.second.email
+    end
+
+    if inspectors.second && !condicion
       template_path = Rails.root.join('app', 'templates', 'template_3.docx')
     else
       template_path = Rails.root.join('app', 'templates', 'template_3_1user.docx')
@@ -513,7 +518,7 @@ class DocumentGenerator
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningún comentario)"
 
         else
-          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}}"
+          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: #{revision.comment[index]}"
 
         end
@@ -595,7 +600,9 @@ class DocumentGenerator
       doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
     end
 
-
+    if condicion
+      doc.replace('{{y_inspector}}', 'Inspector y')
+    end
 
     doc.replace('{{admin_profesion}}', admin.profesion)
 
@@ -665,6 +672,7 @@ class DocumentGenerator
 
     original_files << 'tmp/part3.docx'
 
+=begin
 
 
     # Rutas de firma de inspectores
@@ -736,6 +744,7 @@ class DocumentGenerator
     [inspector1_signature_path, admin_signature_path, output_path_image].concat([inspector2_signature_path].compact).each do |path|
       File.delete(path) if File.exist?(path)
     end
+=end
 
 
 
@@ -760,61 +769,86 @@ class DocumentGenerator
 
 
     rules.each_with_index do |rule, index|
-      if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
-        index2 = revision.points.index(rule.point)
+      apply_weird = false
 
-        doc.replace('{{tabla_si}}', 'NO')
-
-
-        level121 = revision.levels[index2]
-
-        if level121 == 'L'
-          doc.replace('{{tabla_l}}', 'Leve')
-
-        else
-          doc.replace('{{tabla_l}}', 'Grave')
-
+      if rule.code.start_with?('9', '2')
+        case detail.sala_maquinas
+        when "Si"
+          if rule.code.start_with?('9')
+            doc.replace('{{tabla_si}}', 'N/A')
+            doc.replace('{{tabla_l}}', '')
+            apply_weird = true
+          end
+        when "No. Máquina en la parte superior"
+          if rule.code.start_with?('2') || rule.code.start_with?('9.3') || rule.code.start_with?('9.4')
+            doc.replace('{{tabla_si}}', 'N/A')
+            doc.replace('{{tabla_l}}', '')
+            apply_weird = true
+          end
+        when "No. Máquina en foso"
+          if rule.code.start_with?('2') || rule.code.start_with?('9.2') || rule.code.start_with?('9.4')
+            doc.replace('{{tabla_si}}', 'N/A')
+            doc.replace('{{tabla_l}}', '')
+            apply_weird = true
+          end
+        when "No. Maquinaria fuera de la caja de elevadores"
+          if rule.code.start_with?('2') || rule.code.start_with?('9.2') || rule.code.start_with?('9.3')
+            doc.replace('{{tabla_si}}', 'N/A')
+            doc.replace('{{tabla_l}}', '')
+            apply_weird = true
+          end
         end
-
-
-      else
-        doc.replace('{{tabla_si}}', 'SI')
-        doc.replace('{{tabla_l}}', '')
-
       end
 
+      unless apply_weird
+        if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
+          index2 = revision.points.index(rule.point)
+          doc.replace('{{tabla_si}}', 'NO')
+          level121 = revision.levels[index2]
+          if level121 == 'L'
+            doc.replace('{{tabla_l}}', 'Leve')
+          else
+            doc.replace('{{tabla_l}}', 'Grave')
+          end
+        else
+          doc.replace('{{tabla_si}}', 'SI')
+          doc.replace('{{tabla_l}}', '')
+        end
+      end
     end
 
+
+
     if detail.sala_maquinas == "Si"
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert1_si}}', '')
+      doc.replace('{{cert1_no}}', 'X')
+      doc.replace('{{cert2_si}}', '')
+      doc.replace('{{cert2_no}}', 'X')
+      doc.replace('{{cert3_si}}', '')
+      doc.replace('{{cert3_no}}', 'X')
 
 
     elsif detail.sala_maquinas == "No. Máquina en la parte superior"
-      doc.replace('{{cert_si}}', 'X')
-      doc.replace('{{cert_no}}', '')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert1_si}}', 'X')
+      doc.replace('{{cert1_no}}', '')
+      doc.replace('{{cert2_si}}', '')
+      doc.replace('{{cert2_no}}', 'X')
+      doc.replace('{{cert3_si}}', '')
+      doc.replace('{{cert3_no}}', 'X')
     elsif detail.sala_maquinas == "No. Máquina en foso"
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', 'X')
-      doc.replace('{{cert_no}}', '')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert1_si}}', '')
+      doc.replace('{{cert1_no}}', 'X')
+      doc.replace('{{cert2_si}}', 'X')
+      doc.replace('{{cert2_no}}', '')
+      doc.replace('{{cert3_si}}', '')
+      doc.replace('{{cert3_no}}', 'X')
     elsif detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', 'X')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert1_si}}', '')
+      doc.replace('{{cert1_no}}', 'X')
+      doc.replace('{{cert2_si}}', '')
+      doc.replace('{{cert2_no}}', 'X')
+      doc.replace('{{cert3_si}}', 'X')
+      doc.replace('{{cert3_no}}', '')
     end
 
 

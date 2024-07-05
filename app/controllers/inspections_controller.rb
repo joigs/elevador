@@ -311,10 +311,12 @@ class InspectionsController < ApplicationController
 
     inspection_id = inspection.id
     admin_id = Current.user.id
+=begin
     if inspection.users.any? { |user| user.signature.blank? } || Current.user.signature.blank?
       redirect_to inspection_path(inspection), alert: 'Falta firma del inspector o del administrador'
       return
     end
+=end
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
 
