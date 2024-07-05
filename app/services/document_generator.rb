@@ -763,27 +763,22 @@ class DocumentGenerator
       if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
         index2 = revision.points.index(rule.point)
 
-        doc.replace('{{tabla_si}}', '')
-        doc.replace('{{tabla_no}}', 'x')
+        doc.replace('{{tabla_si}}', 'NO')
 
 
         level121 = revision.levels[index2]
 
         if level121 == 'L'
-          doc.replace('{{tabla_g}}', '')
-          doc.replace('{{tabla_l}}', 'x')
+          doc.replace('{{tabla_l}}', 'Leve')
 
         else
-          doc.replace('{{tabla_g}}', 'x')
-          doc.replace('{{tabla_l}}', '')
+          doc.replace('{{tabla_l}}', 'Grave')
 
         end
 
 
       else
-        doc.replace('{{tabla_si}}', 'x')
-        doc.replace('{{tabla_no}}', '')
-        doc.replace('{{tabla_g}}', '')
+        doc.replace('{{tabla_si}}', 'SI')
         doc.replace('{{tabla_l}}', '')
 
       end
@@ -791,14 +786,6 @@ class DocumentGenerator
     end
 
     if detail.sala_maquinas == "Si"
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
       doc.replace('{{cert_si}}', '')
       doc.replace('{{cert_no}}', 'X')
       doc.replace('{{cert_si}}', '')
@@ -830,8 +817,7 @@ class DocumentGenerator
       doc.replace('{{cert_no}}', '')
     end
 
-    doc.replace('{{cert_si}}', '')
-    doc.replace('{{cert_no}}', 'X')
+
 
 
     doc.commit(output_path)
