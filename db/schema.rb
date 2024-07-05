@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_01_065321) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_05_203623) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -91,6 +91,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_065321) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "seccion", default: -1, null: false
     t.index ["inspection_id"], name: "index_inspection_users_on_inspection_id"
     t.index ["user_id"], name: "index_inspection_users_on_user_id"
   end
@@ -292,6 +293,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_065321) do
     t.string "gygatype_number"
   end
 
+  create_table "section_locks", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "inspection_id", null: false
+    t.integer "section", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inspection_id", "section"], name: "index_section_locks_on_inspection_id_and_section", unique: true
+    t.index ["user_id"], name: "fk_rails_a415e059d8"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "username", null: false
     t.string "password_digest", null: false
@@ -326,4 +337,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_01_065321) do
   add_foreign_key "rules", "ruletypes"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"
+  add_foreign_key "section_locks", "inspections"
+  add_foreign_key "section_locks", "users"
 end
