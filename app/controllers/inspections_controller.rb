@@ -149,6 +149,8 @@ class InspectionsController < ApplicationController
     item_params = inspection_params[:item_attributes]
     old_item = Item.find_by(identificador: item_params[:identificador])
 
+    @black_inspection = Inspection.find_by(number: inspection.number*-1)
+
     @item = inspection.item
     if item_params[:identificador].blank?
       item_params[:identificador] = "CAMBIAME(Empresa: #{inspection.principal.name}. Lugar de inspeccion: #{inspection.place} #{SecureRandom.hex(10)})"
@@ -180,6 +182,19 @@ class InspectionsController < ApplicationController
         @revision.update(item_id: old_item.id)
         @report.update(item_id: old_item.id)
         inspection.update(item_id: old_item.id)
+      if @black_inspection
+
+        if @item.group.name.include? "Escala"
+          @black_revision = LadderRevision.find_by(inspection: @black_inspection)
+        else
+          @black_revision = Revision.find_by(inspection: @black_inspection)
+        end
+
+
+        @black_inspection.update(item_id: old_item.id)
+        @black_revision.update(item_id: old_item.id)
+      end
+
 
         @item.destroy!
 
@@ -215,6 +230,7 @@ class InspectionsController < ApplicationController
 
   def update
     authorize! inspection
+
 
     ActiveRecord::Base.transaction do
       item_params = inspection_params[:item_attributes]
