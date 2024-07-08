@@ -6,7 +6,7 @@ class LadderRevisionsController < ApplicationController
   def edit
 
     unless params[:section].present?
-      redirect_to edit_ladder_revision_path(inspection_id: params[:inspection_id], section: 1)
+      redirect_to edit_ladder_revision_path(inspection_id: params[:inspection_id], section: 0)
       return
     end
 
@@ -38,7 +38,8 @@ class LadderRevisionsController < ApplicationController
     @group = Group.where("name LIKE ?", "%Escala%").first
     @detail = LadderDetail.find_by(item_id: @item.id)
     @colors = @revision.revision_colors
-    @nombres = ['. Requisitos generales',
+    @nombres = ['. DOCUMENTAL CARPETA 0',
+                '. Requisitos generales',
                 '. Estructura de soporte (bastidor) y cerramiento',
                 '. Escalones, placa, banda',
                 '. Unidad de almacenamiento',
@@ -63,7 +64,7 @@ class LadderRevisionsController < ApplicationController
     end
 
 
-    @numbers = [1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
+    @numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
 
 
 
@@ -154,6 +155,11 @@ class LadderRevisionsController < ApplicationController
           end
         end
 
+        if params[:revision][:null_condition].present?
+          params[:revision][:null_condition].each do |null_condition|
+            @revision.revision_nulls.create(point: null_condition)
+          end
+        end
 
 
       end
@@ -335,7 +341,22 @@ class LadderRevisionsController < ApplicationController
     @revision_photos = @revision.revision_photos
     if params[:ladder_revision].present?
 
+      @revision_nulls.each do |null|
+        code_start = null.point.split('.')[1].first.to_i
 
+
+        if code_start == current_section_num
+          if params[:revision][:null_condition].present?
+
+            if !params[:revision][:null_condition].include?(null.point)
+              null.destroy
+            end
+          else
+            null.destroy
+          end
+        end
+
+      end
 
       @revision_photos.each do |photo|
         code_start = photo.code.split('.')[1].to_i
@@ -353,6 +374,14 @@ class LadderRevisionsController < ApplicationController
 
     else
 
+
+      @revision_nulls.each do |null|
+        code_start = null.point.split('.')[1].first.to_i
+        if code_start == current_section_num
+          null.destroy
+        end
+      end
+
       @revision_photos.each do |photo|
         code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
@@ -367,8 +396,6 @@ class LadderRevisionsController < ApplicationController
     if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
       params[:revision_photos][:photo].each_with_index do |photo, index|
         if photo.present?
-
-
 
           code = params[:revision_photos][:code][index]
           @revision.revision_photos.create(photo: photo, code: code)

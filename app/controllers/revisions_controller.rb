@@ -391,8 +391,6 @@ class RevisionsController < ApplicationController
     if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
       params[:revision_photos][:photo].each_with_index do |photo, index|
         if photo.present?
-          # Procesar la imagen para cambiar su tamaño y guardarla temporalmente
-
 
           code = params[:revision_photos][:code][index]
           @revision.revision_photos.create(photo: photo, code: code)

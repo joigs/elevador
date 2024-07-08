@@ -627,6 +627,50 @@ class DocumentGeneratorLadder
 
 
 
+    carpetas = [
+      '0.1.1',
+      '0.1.2',
+      '0.1.3',
+      '0.1.4',
+      '0.1.5',
+      '0.1.6',
+      '0.1.7',
+      '0.1.8',
+      '0.1.9',
+      '0.1.10',
+      '0.1.11'
+    ]
+
+    revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
+
+    carpetas.each do |carpeta|
+      indice = revision.codes.find_index(carpeta)
+      if indice
+        doc.replace('{{carpeta_si}}', 'No')
+        doc.replace('{{carpeta_no_aplica}}', '')
+        if revision.levels[indice] == 'L'
+          doc.replace('{{carpeta_f}}', 'FL')
+        else
+          doc.replace('{{carpeta_f}}', 'FG')
+        end
+        doc.replace('{{carpeta_comentario}}', revision.comment[indice])
+
+      elsif revision_nulls.any? { |null| null.point.start_with?("#{carpeta}_") }
+        doc.replace('{{carpeta_si}}', '')
+        doc.replace('{{carpeta_f}}', '')
+        doc.replace('{{carpeta_comentario}}', '')
+        doc.replace('{{carpeta_no_aplica}}', 'X')
+
+
+      else
+        doc.replace('{{carpeta_si}}', 'Si')
+        doc.replace('{{carpeta_no_aplica}}', '')
+        doc.replace('{{carpeta_f}}', '')
+        doc.replace('{{carpeta_comentario}}', '')
+      end
+    end
+
+
 
     rules.each_with_index do |rule, index|
       if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
