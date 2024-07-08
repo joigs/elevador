@@ -13,7 +13,7 @@ class DocumentGeneratorLadder
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
     inspectors = inspection.users
-
+    rules = Ladder.all.drop(11)
 
     template_path = Rails.root.join('app', 'templates', 'template_ladder1.docx')
 
@@ -541,6 +541,7 @@ class DocumentGeneratorLadder
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
     original_files << output_path2
+=begin
 
 
     # Rutas de firma de inspectores
@@ -613,6 +614,53 @@ class DocumentGeneratorLadder
       File.delete(path) if File.exist?(path)
     end
 
+=end
+
+
+    tabla_path = Rails.root.join('app', 'templates', 'tabla_escala.docx')
+
+
+    Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, false)
+
+
+    doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+
+
+
+
+    rules.each_with_index do |rule, index|
+      if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
+        index2 = revision.points.index(rule.point)
+
+        doc.replace('{{tabla_si}}', 'NO')
+
+
+        level121 = revision.levels[index2]
+
+        if level121 == 'L'
+          doc.replace('{{tabla_l}}', 'Leve')
+
+        else
+          doc.replace('{{tabla_l}}', 'Grave')
+
+        end
+        if revision.comment[index2].blank?
+          doc.replace('{{tabla_comentario}}', 'No se hizo ningún comentario')
+        else
+          doc.replace('{{tabla_comentario}}', revision.comment[index2])
+        end
+
+
+      else
+        doc.replace('{{tabla_si}}', 'SI')
+        doc.replace('{{tabla_l}}', '')
+
+      end
+      doc.replace('{{tabla_na}}', ' ')
+    end
+
+
+    doc.commit(output_path)
 
 
 
