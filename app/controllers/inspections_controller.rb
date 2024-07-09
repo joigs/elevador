@@ -279,7 +279,7 @@ class InspectionsController < ApplicationController
 
         if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
           @revision = LadderRevision.find_by(inspection: @inspection)
-          @revision.update(item: @inspection.item, group: @inspection.item.group)
+          @revision.update(item: @inspection.item)
           if is_new_item
             LadderDetail.create!(item: new_item)
             LadderDetail.destroy_by(item: current_item)

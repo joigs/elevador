@@ -340,7 +340,7 @@ class RevisionsController < ApplicationController
     @revision_photos = @revision.revision_photos
     if params[:revision].present?
 
-      @revision_nulls.each do |null|
+      @revision_nulls&.each do |null|
         code_start = null.point.split('.').first.to_i
 
 
@@ -357,7 +357,7 @@ class RevisionsController < ApplicationController
 
       end
 
-      @revision_photos.each do |photo|
+      @revision_photos&.each do |photo|
         code_start = photo.code.split('.').first.to_i
         if code_start == current_section_num
           if params[:revision][:codes].present?
@@ -372,13 +372,13 @@ class RevisionsController < ApplicationController
       end
 
     else
-      @revision_nulls.each do |null|
+      @revision_nulls&.each do |null|
         code_start = null.point.split('.').first.to_i
         if code_start == current_section_num
           null.destroy
         end
       end
-      @revision_photos.each do |photo|
+      @revision_photos&.each do |photo|
         code_start = photo.code.split('.').first.to_i
         if code_start == current_section_num
           photo.destroy

@@ -32,7 +32,7 @@ class Inspection < ApplicationRecord
   validates :inf_date, date: true
 
 
-  has_many :inspection_users
+  has_many :inspection_users, dependent: :destroy
   has_many :users, through: :inspection_users
   belongs_to :item
   belongs_to :principal

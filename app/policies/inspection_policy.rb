@@ -20,7 +20,7 @@ class InspectionPolicy < BasePolicy
   end
 
   def update_ending
-    Current.user.admin || record.user == Current.user
+    Current.user.admin || record.users.exists?(id: Current.user&.id)
   end
 
 end

@@ -5,6 +5,7 @@ class LadderRevisionsController < ApplicationController
 
   def edit
 
+
     unless params[:section].present?
       redirect_to edit_ladder_revision_path(inspection_id: params[:inspection_id], section: 0)
       return
@@ -61,6 +62,8 @@ class LadderRevisionsController < ApplicationController
       section_code_start = "#{params[:section]}."
       @rules = @rules.select { |rule| rule.code.starts_with?("5.#{section_code_start}") }
       @color = @revision.revision_colors.find_by(number: section_code_start.to_i)
+      @section = params[:section]
+
     end
 
 
@@ -121,8 +124,8 @@ class LadderRevisionsController < ApplicationController
         black_params = ladder_revision_params[:past_revision]
       end
     end
-
     if params[:ladder_revision].present?
+
       if params[:ladder_revision][:fail].present?
         # Revisar la información de cada campo donde hubo una falla
         params[:ladder_revision][:fail].each do |fail_status|
@@ -138,6 +141,8 @@ class LadderRevisionsController < ApplicationController
             counter = counter + 1
           end
         end
+
+
 
         if @black_inspection and black_params.present?
           codes.each_with_index do |code, index|
@@ -155,8 +160,10 @@ class LadderRevisionsController < ApplicationController
           end
         end
 
-        if params[:revision][:null_condition].present?
-          params[:revision][:null_condition].each do |null_condition|
+
+
+        if params[:ladder_revision][:null_condition].present?
+          params[:ladder_revision][:null_condition].each do |null_condition|
             @revision.revision_nulls.create(point: null_condition)
           end
         end
@@ -211,9 +218,7 @@ class LadderRevisionsController < ApplicationController
     black_codes2, black_points2, black_levels2, black_fail_statuses2 = [], [], [], []
 
 
-
     if @black_revision
-
 
 
       @black_revision.codes.each_with_index do |code, index|
@@ -245,6 +250,7 @@ class LadderRevisionsController < ApplicationController
         end
       end
     end
+
     if control
       black_codes.each_with_index do |code2, index2|
         black_codes2 << black_codes[index2]
@@ -262,8 +268,8 @@ class LadderRevisionsController < ApplicationController
       black_fail_statuses2 = black_fail_statuses
     end
 
-    @black_revision&.update(codes: black_codes2, points: black_points2, levels: black_levels2, fail: black_fail_statuses2)
 
+    @black_revision&.update(codes: black_codes2, points: black_points2, levels: black_levels2, fail: black_fail_statuses2)
 
 
 
@@ -337,18 +343,20 @@ class LadderRevisionsController < ApplicationController
       @revision.fail = fail_statuses2
     end
 
+    @revision_nulls = @revision.revision_nulls
 
     @revision_photos = @revision.revision_photos
     if params[:ladder_revision].present?
 
+      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
       @revision_nulls.each do |null|
         code_start = null.point.split('.')[1].first.to_i
 
-
         if code_start == current_section_num
-          if params[:revision][:null_condition].present?
+          if params[:ladder_revision][:null_condition].present?
 
-            if !params[:revision][:null_condition].include?(null.point)
+            if !params[:ladder_revision][:null_condition].include?(null.point)
               null.destroy
             end
           else
