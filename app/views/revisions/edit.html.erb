@@ -132,11 +132,12 @@
               <% else %>
                 <% if rule.level.include?('G') && rule.level.include?('L') %>
                   <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
-                    <%= button_tag type: 'button', class: 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline' do %>
-                      <span data-level-target="label">G</span>
-                    <% end %>
+                    <% level_value = @revision.points.include?(rule.point) ? @revision.levels[@revision.points.index(rule.point)] : "G" %>
 
-                    <%= hidden_field_tag "revision[levels][]", "G", data: { level_target: "field", rules_form_target: "level" } %>
+                    <%= button_tag type: 'button', class: 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline' do %>
+                      <span data-level-target="label"><%= level_value %></span>
+                  <% end %>
+                    <%= hidden_field_tag "revision[levels][]", level_value, data: { level_target: "field", rules_form_target: "level" } %>
                   </div>
                 <% else %>
                   <%= label_tag "level_#{index}", display_rule_level_short(rule)%>
