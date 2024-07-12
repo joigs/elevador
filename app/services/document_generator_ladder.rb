@@ -303,6 +303,13 @@ class DocumentGeneratorLadder
     doc.commit(output_path)
 
 
+    condicion = false
+
+    if inspectors.second
+      condicion = admin.real_name == inspectors.first.real_name || admin.real_name == inspectors.second.real_name || admin.email == inspectors.first.email || admin.email == inspectors.second.email
+    end
+
+
     if inspectors.second
       template_path = Rails.root.join('app', 'templates', 'template_3.docx')
     else
@@ -483,6 +490,10 @@ class DocumentGeneratorLadder
     if inspectors.second
       doc.replace('{{inspector}}', inspectors.second.real_name)
       doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
+    end
+
+    if condicion
+      doc.replace('{{y_inspector}}', 'Inspector y')
     end
 
     doc.replace('{{admin_profesion}}', admin.profesion)
@@ -698,7 +709,7 @@ class DocumentGeneratorLadder
       else
         doc.replace('{{tabla_si}}', 'SI')
         doc.replace('{{tabla_l}}', '')
-
+        doc.replace('{{tabla_comentario}}', '')
       end
       doc.replace('{{tabla_na}}', ' ')
     end
