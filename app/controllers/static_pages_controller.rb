@@ -1,11 +1,12 @@
 class StaticPagesController < ApplicationController
   def warnings
+    params[:filter] ||= "expiring_soon"
     inspections_scope = case params[:filter]
                         when "expiring_soon"
                           Inspection.joins(:report)
                                     .where("reports.ending > ?", Date.today)
                                     .where("reports.ending <= ?", Date.today + 2.months)
-                                    .where(state: 'Cerrado')
+                                    .where(state: 'Cerrado').where(result: 'Aprobado')
                         when "vencido"
                           Inspection.where(result: 'Vencido')
                         else

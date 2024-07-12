@@ -19,6 +19,7 @@
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
           <ul class="divide-y divide-gray-700">
             <%= render partial: 'inspections/inspection', collection: @inspections %>
+
           </ul>
           <% if @pagy.next %>
             <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
