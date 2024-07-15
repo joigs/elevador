@@ -38,7 +38,3 @@ gem install rails
 rbenv rehash
 
 
-#para latex
-sudo apt-get install texlive
-
-sudo apt-get install pandoc 
