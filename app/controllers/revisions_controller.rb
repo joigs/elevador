@@ -27,6 +27,12 @@ class RevisionsController < ApplicationController
     authorize! @revision
 
 
+    if @inspection.state == "Cerrado"
+      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      return
+    end
+
+
     @black_inspection = Inspection.find_by(number: @inspection.number*-1)
     if @black_inspection
       @black_revision = Revision.find_by(inspection_id: @black_inspection.id)

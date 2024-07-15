@@ -27,6 +27,11 @@ class LadderRevisionsController < ApplicationController
 
     authorize! @revision
 
+    if @inspection.state == "Cerrado"
+      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      return
+    end
+
 
     @black_inspection = Inspection.find_by(number: @inspection.number*-1)
     if @black_inspection
