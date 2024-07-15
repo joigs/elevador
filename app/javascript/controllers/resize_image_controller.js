@@ -1,45 +1,61 @@
 import { Controller } from "@hotwired/stimulus"
-export default class ResizeImageController extends Controller {
-    static targets = ["file"];
+export default class extends Controller {
+    static targets = ["file", "filename"];
 
-    resizeImage(event) {
-        const input = event.target;
-        if (!input.files.length) return;
-        const file = input.files[0];
+    connect() {
+        this.fileTargets.forEach((input, index) => {
+            input.addEventListener('change', (event) => this.fileChanged(event, index));
+        });
+    }
 
-        if (!file.type.startsWith('image/')) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
+    fileChanged(event, index) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const canvas = document.getElementById('canvas_' + index);
+            const ctx = canvas.getContext('2d');
             const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
 
-                const maxWidth = 400;
-                const scaleFactor = maxWidth / img.width;
+            img.onload = function() {
+                const MAX_WIDTH = 400;
+                const MAX_HEIGHT = 400;
+                let width = img.width;
+                let height = img.height;
 
-                canvas.width = maxWidth;
-                canvas.height = img.height * scaleFactor;
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
 
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
 
-                canvas.toBlob((blob) => {
-                    const newFile = new File([blob], file.name, {
-                        type: file.type,
-                        lastModified: Date.now()
-                    });
-
+                canvas.toBlob(function(blob) {
+                    const newFile = new File([blob], file.name, { type: file.type });
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(newFile);
-                    input.files = dataTransfer.files;
+                    event.target.files = dataTransfer.files;
 
-                    // Trigger any existing change handlers after updating the file input
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    // Update the label to show the resized file name
+                    const filenameSpan = event.target.nextElementSibling.querySelector('span');
+                    if (filenameSpan) {
+                        filenameSpan.textContent = newFile.name;
+                    }
                 }, file.type);
             };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     }
 }
