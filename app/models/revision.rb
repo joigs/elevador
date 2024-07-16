@@ -7,6 +7,7 @@ class Revision < ApplicationRecord
   serialize :fail, type: Array, coder: JSON
   serialize :comment, type: Array, coder: JSON
 
+  validates :lock_version, presence: true
 
   belongs_to :item
   belongs_to :group

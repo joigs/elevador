@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_15_203059) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_15_203430) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -260,6 +260,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_15_203059) do
     t.text "levels"
     t.text "fail"
     t.text "comment"
+    t.integer "lock_version", default: 0, null: false
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_revisions_on_item_id"
