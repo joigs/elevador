@@ -22,12 +22,15 @@ class RulesController < ApplicationController
     @with_new_code = params[:with_new_code]
     @with_same_code = params[:with_same_code]
     @last_used_rule = Rule.last&.ruletype_id
+    @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
   end
 
   def new_with_new_code
     @rule = Rule.new
     @with_new_code = true
     @last_used_rule = Rule.last&.ruletype_id
+    @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
+
     render :new
   end
 
@@ -36,16 +39,38 @@ class RulesController < ApplicationController
     @rule = Rule.new
     @with_same_code = true
     @last_used_rule = Rule.last&.ruletype_id
+    @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
+
     render :new
   end
   def create
     @rule = Rule.new(rule_params)
+
+
+
     if params[:with_same_code]
       last_rule = Rule.where(ruletype_id: @rule.ruletype_id).last
       @rule.code = last_rule.code if last_rule
     end
+    ruletype = Ruletype.find(@rule.ruletype_id)
 
-    respond_to do |format|
+    if ruletype.rtype.downcase == "placeholder"
+
+      groups = Group.where(id: rule_params[:group_ids])
+      if groups.empty?
+        flash.now[:alert] = "No se seleccionó ningún grupo"
+        render :new and return
+      end
+      if groups.any? { |group| group.type_of == "ascensor" }
+        flash.now[:alert] =  "Si se selecciona un grupo de ascensores, se debe seleccionar una comprobación"
+        render :new and return
+      end
+      @rule.code = "100.1.1"
+
+    end
+
+
+      respond_to do |format|
       if @rule.save
         format.html { redirect_to rules_url, notice: 'Rule was successfully created.' }
       else
@@ -55,7 +80,19 @@ class RulesController < ApplicationController
   end
   def create_with_new_code
     @rule = Rule.new(rule_params)
+    ruletype = Ruletype.find(@rule.ruletype_id)
 
+    if ruletype.rtype.downcase == "placeholder"
+
+      groups = Group.where(id: rule_params[:group_ids])
+      if groups.empty?
+        flash.now[:alert] = "No se seleccionó ningún grupo"
+        render :new and return
+      end
+
+      @rule.code = "100.1.1"
+
+    end
 
     respond_to do |format|
       if @rule.save
@@ -68,9 +105,26 @@ class RulesController < ApplicationController
 
   def create_with_same_code
     @rule = Rule.new(rule_params)
+
+
     last_rule = Rule.where(ruletype_id: @rule.ruletype_id).last
     @rule.code = last_rule.code if last_rule
+    ruletype = Ruletype.find(@rule.ruletype_id)
 
+    if ruletype.rtype.downcase == "placeholder"
+
+      groups = Group.where(id: rule_params[:group_ids])
+      if groups.empty?
+        flash.now[:alert] = "No se seleccionó ningún grupo"
+        render :new and return
+      end
+      if groups.any? { |group| group.type_of == "ascensor" }
+        flash.now[:alert] =  "Si se selecciona un grupo de ascensores, se debe seleccionar una comprobación"
+        render :new and return
+      end
+      @rule.code = "100.1.1"
+
+    end
     respond_to do |format|
       if @rule.save
         format.html { redirect_to rules_url, notice: 'Rule was successfully created with the same code.' }
@@ -85,11 +139,28 @@ class RulesController < ApplicationController
   def edit
     authorize! rule
     rule
+    @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
+
   end
 
   def update
     authorize! rule
+    ruletype = Ruletype.find(@rule.ruletype_id)
 
+    if ruletype.rtype.downcase == "placeholder"
+
+      groups = Group.where(id: rule_params[:group_ids])
+      if groups.empty?
+        flash.now[:alert] = "No se seleccionó ningún grupo"
+        render :new and return
+      end
+      if groups.any? { |group| group.type_of == "ascensor" }
+        flash.now[:alert] =  "Si se selecciona un grupo de ascensores, se debe seleccionar una comprobación"
+        render :new and return
+      end
+      @rule.code = "100.1.1"
+
+    end
     respond_to do |format|
       if rule.update(rule_params)
         format.html { redirect_to rules_url, notice: 'Rule was successfully updated.' }

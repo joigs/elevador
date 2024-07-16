@@ -2,6 +2,8 @@
 class Group < ApplicationRecord
   validates :number, presence: true, uniqueness: true, non_negative: true
   validates :name, presence: true, uniqueness: true
+  validates :type_of, inclusion: { in: %w[ascensor escala libre], message: "%{value} no es un tipo válido" }
+
 
   attribute :number, :integer, default: -> { calculate_new_number }
 
@@ -11,7 +13,6 @@ class Group < ApplicationRecord
 
   has_many :items, dependent: :restrict_with_exception
   has_many :rulesets, dependent: :destroy
-  acts_as_paranoid
   has_many :revisions
   has_many :rules, through: :rulesets
   accepts_nested_attributes_for :rules

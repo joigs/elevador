@@ -28,7 +28,11 @@ Rails.application.routes.draw do
       get :new_with_last
     end
   end
-  resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups'
+  resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups' do
+    collection do
+      get 'libre', to: 'groups#libre', as: 'libre'
+    end
+  end
   resources :rules  , path: '/rules' do
     collection do
       get :new_with_new_code

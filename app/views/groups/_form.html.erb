@@ -21,6 +21,12 @@
     <%= form.text_field :name, class: "mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-600 focus:border-blue-600 sm:text-sm" %>
   </div>
 
+  <div class="flex flex-col mt-4">
+    <%= form.label :type_of, "Tipo de checklist a utilizar:", class: "text-gray-300" %>
+    <%= form.select :type_of, options_for_select([["Ascensor", "ascensor"], ["Libre", "libre"], ["Escala", "escala"]]), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-600 focus:border-blue-600 sm:text-sm" %>
+  </div>
+
+
   <div class="mt-6">
     <%= form.submit "Crear clasificación", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600" %>
   </div>

@@ -143,12 +143,14 @@ es:
         image: "Imagen"
         comment: "Comentario"
         fail: "Falla"
-      rule:
-        point: "Defecto"
-        ruletype_id: "Comprobación a la que corresponde"
-        group_ids: "Clasificación del ascensor"
-        level: "Nivel de importancia"
-        ins_type: "Tipo de defecto"
+        rule:
+          point: "Defecto"
+          ruletype_id: "Comprobación a la que corresponde"
+          group_ids: "Clasificación del ascensor"
+          level: "Nivel de importancia"
+          ins_type: "Tipo de defecto"
+
+
       ruletype:
         rtype: "Comprobación"
         gygatype: "Conjunto de la comprobación"
@@ -158,14 +160,22 @@ es:
     messages:
       record_invalid: 'Validación fallida: %{errors}'
       inclusion: "no está incluido en la lista"
-      blank: "no puede estar en blanco"
+      blank:
+        one: "no puede estar en blanco"
+        other: "no pueden estar en blanco"
       invalid: "es inválido"
       confirmation: "no coincide con la confirmación"
       accepted: "debe ser aceptado"
       empty: "no puede estar vacío"
-      too_long: "es demasiado largo (máximo %{count} caracteres)"
-      too_short: "es demasiado corto (mínimo %{count} caracteres)"
-      wrong_length: "es la longitud incorrecta (debe ser de %{count} caracteres)"
+      too_long:
+        one: "es demasiado largo (máximo %{count} carácter)"
+        other: "es demasiado largo (máximo %{count} caracteres)"
+      too_short:
+        one: "es demasiado corto (mínimo %{count} carácter)"
+        other: "es demasiado corto (mínimo %{count} caracteres)"
+      wrong_length:
+        one: "es la longitud incorrecta (debe ser de %{count} carácter)"
+        other: "es la longitud incorrecta (debe ser de %{count} caracteres)"
       not_a_number: "no es un número"
       not_an_integer: "no es un entero"
       greater_than: "debe ser mayor que %{count}"
@@ -178,6 +188,16 @@ es:
       not_saved:
         one: "1 error impidió que este %{resource} se guarde"
         other: "%{count} errores impidieron que este %{resource} se guarde"
+    models:
+      rule:
+        attributes:
+          ins_type:
+            blank:
+              one: "no puede estar en blanco"
+              other: "no pueden estar en blanco"
+            presence:
+              one: "Debe asignar el tipo de defecto"
+              other: "Debe asignar los tipos de defecto"
   helpers:
     select:
       prompt: "Por favor seleccione"

@@ -20,6 +20,11 @@ class RuletypesController < ApplicationController
   def create
     @ruletype = Ruletype.new(ruletype_params)
 
+    if @ruletype.rtype.downcase == "placeholder"
+      @ruletype.gygatype = "100"
+      @ruletype.gygatype_number = "100"
+    end
+
     if @ruletype.save
       redirect_to ruletypes_url, notice: "Tipo de regla creada"
     else
