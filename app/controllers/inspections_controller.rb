@@ -240,80 +240,75 @@ class InspectionsController < ApplicationController
   def update
     authorize! inspection
 
+    item_params = inspection_params[:item_attributes]
+    current_item = @inspection.item
 
-    ActiveRecord::Base.transaction do
-      item_params = inspection_params[:item_attributes]
-      current_item = @inspection.item
+    if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
+      @inspection.errors.add(:base, 'Ingrese una empresa')
+      render :new, status: :unprocessable_entity
+      return
+    end
 
-      if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
-        @inspection.errors.add(:base, 'Ingrese una empresa')
-        render :new, status: :unprocessable_entity
-        return
-      end
+    @principal = Principal.find(item_params[:principal_id])
 
+    new_item = Item.find_or_initialize_by(identificador: item_params[:identificador], principal_id: @principal.id)
+    is_new_item = new_item.new_record?
 
-      @principal = Principal.find(item_params[:principal_id])
+    if !is_new_item && new_item.group_id.to_s != item_params[:group_id] && !current_item.identificador.starts_with?('CAMBIAME')
+      flash.now[:alert] = "Activo con identificador #{new_item.identificador} pertenece a #{new_item.group.name}, seleccione el grupo correspondiente"
+      render :edit, status: :unprocessable_entity
+      return
+    end
 
-      new_item = Item.find_or_initialize_by(identificador: item_params[:identificador], principal_id: @principal.id)
-      is_new_item = new_item.new_record?
-
-      if !is_new_item && new_item.group_id.to_s != item_params[:group_id]
-        flash.now[:alert] = "Activo con identificador #{new_item.identificador} pertenece a #{new_item.group.name}, seleccione el grupo correspondiente"
+    if item_params[:identificador] != current_item.identificador
+      if is_new_item && Item.exists?(identificador: item_params[:identificador])
+        flash.now[:alert] = "El activo con id #{item_params[:identificador]} pertenece a la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
         render :edit, status: :unprocessable_entity
         return
       end
 
-      if item_params[:identificador] != current_item.identificador
+      item_params = item_params.except(:id)
+      new_item.assign_attributes(item_params)
+      new_item.save!
+      @inspection.item = new_item
+    end
 
 
-        if is_new_item && Item.exists?(identificador: item_params[:identificador])
-          flash.now[:alert] = "El activo con id #{item_params[:identificador]} pertenece a la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
-          render :edit, status: :unprocessable_entity
-          return
+
+    if @inspection.update(inspection_params.except(:user_ids))
+
+      @report = Report.find_by(inspection: @inspection)
+      @report.update(item: @inspection.item)
+
+      if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
+        @revision = LadderRevision.find_by(inspection: @inspection)
+        @revision.update(item: @inspection.item)
+        if is_new_item
+          LadderDetail.create!(item: new_item)
+          LadderDetail.destroy_by(item: current_item)
         end
-
-        item_params = item_params.except(:id)
-
-        new_item.assign_attributes(item_params)
-        new_item.save!
-
-
-
-        @inspection.item = new_item
-      end
-
-      if @inspection.update(inspection_params)
-        @report = Report.find_by(inspection: @inspection)
-        @report.update(item: @inspection.item)
-
-        if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
-          @revision = LadderRevision.find_by(inspection: @inspection)
-          @revision.update(item: @inspection.item)
-          if is_new_item
-            LadderDetail.create!(item: new_item)
-            LadderDetail.destroy_by(item: current_item)
-          end
-
-        else
-          if is_new_item
-            Detail.create!(item: new_item)
-            Detail.destroy_by(item: current_item)
-          end
-          @revision = Revision.find_by(inspection: @inspection)
-          @revision.update(item: @inspection.item, group: @inspection.item.group)
-        end
-
-
-
-        redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
       else
-        render :edit, status: :unprocessable_entity
+        if is_new_item
+          Detail.create!(item: new_item)
+          Detail.destroy_by(item: current_item)
+        end
+        @revision = Revision.find_by(inspection: @inspection)
+        @revision.update(item: @inspection.item, group: @inspection.item.group)
       end
+
+      if params[:inspection][:user_ids].present?
+        @inspection.users = User.find(params[:inspection][:user_ids].reject(&:blank?))
+      end
+
+      redirect_to inspection_path(@inspection), notice: 'Inspección actualizada'
+    else
+      render :edit, status: :unprocessable_entity
     end
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
     render :edit, status: :unprocessable_entity
   end
+
 
 
 
