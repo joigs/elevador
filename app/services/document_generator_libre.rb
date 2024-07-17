@@ -659,34 +659,34 @@ class DocumentGeneratorLibre
 
 
 
-
     set_of_errors = []
 
-    revision.codes.each_with_index.chunk_while { |(_, i), (_, j)| revision.codes[i] == revision.codes[j] }.each_with_index do |group, group_index|
-      group.each do |code, index|
+    revision.points.each_with_index.chunk_while { |(_, i), (_, j)| revision.points[i] == revision.points[j] }.each_with_index do |group, group_index|
+      group.each do |point, index|
 
         template_path = Rails.root.join('app', 'templates', 'template_2.docx')
         doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
         set_of_errors << errors_all[index]
 
-        has_matching_photo = revision_photos.any? { |photo| photo.code == code }
+        # Extraer la razón después de "|||"
+        has_matching_photo = revision_photos.any? { |photo| photo.code.split('|||').last == point }
 
-        next_code_different = (revision.codes[index+1] != code rescue true)
+        next_point_different = (revision.points[index + 1] != point rescue true)
 
-        if has_matching_photo && next_code_different
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                       "}.join("\n")
+        if has_matching_photo && next_point_different
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                       " }.join("\n")
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)
           original_files << output_path_var # Track the file for later deletion
+          images_to_write = prepare_images_for_document(revision_id, point)
           Omnidocx::Docx.merge_documents([output_path, output_path_var], output_path, false)
-          images_to_write = prepare_images_for_document(revision_id, code)
           Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
           cleanup_temporary_images(images_to_write)
           set_of_errors = []
 
-        elsif index == revision.codes.length - 1
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                      "}.join("\n")
+        elsif index == revision.points.length - 1
+          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                                      " }.join("\n")
           doc.replace('{{loop_falla}}', errors_all_text)
           output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
           doc.commit(output_path_var)
@@ -695,6 +695,8 @@ class DocumentGeneratorLibre
         end
       end
     end
+
+
 
 
 
@@ -851,23 +853,25 @@ class DocumentGeneratorLibre
 
   private
 
-  def self.prepare_images_for_document(revision_id, code)
-    revision_photos = RevisionPhoto.where(revision_id: revision_id, code: code, revision_type: 'Revision')
+  def self.prepare_images_for_document(revision_id, point)
+    revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'Revision')
 
     max_width_per_image = 400
 
-    images_to_write = revision_photos.map do |revision_photo|
+    images_to_write = revision_photos.select { |photo| photo.code.split('|||').last == point }.map do |revision_photo|
       if revision_photo.photo.attached?
         temp_path = save_temp_image(revision_photo.photo)
         {
-          :path => temp_path,
-          :height => 250,
-          :width => max_width_per_image,
+          path: temp_path,
+          height: 250,
+          width: max_width_per_image,
         }
       end
     end.compact
     images_to_write
   end
+
+
 
   def self.save_temp_image(attachment)
     temp_dir = Rails.root.join('tmp', 'images')
