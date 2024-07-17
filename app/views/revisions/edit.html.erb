@@ -172,7 +172,11 @@
 
 
             <td class="px-6 py-4">
-              <% comment_index = @revision.codes.index(rule.code) %>
+              <% comment_index = if @revision_map[rule.code] && @revision_map[rule.code][rule.point]
+                                   @revision_map[rule.code][rule.point]
+                                 else
+                                   nil
+                                 end %>
               <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" }, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
             </td>
             <%= hidden_field_tag "revision_photos[code][]", rule.code, data: { rules_form_target: "photoCode" } %>

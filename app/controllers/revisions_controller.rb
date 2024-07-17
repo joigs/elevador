@@ -44,6 +44,12 @@ class RevisionsController < ApplicationController
     @group = @item.group
     @detail = Detail.find_by(item_id: @item.id)
     @colors = @revision.revision_colors
+    @revision_map = {}
+    @revision.codes.each_with_index do |code, index|
+      point = @revision.points[index]
+      @revision_map[code] ||= {}
+      @revision_map[code][point] = index
+    end
     @nombres = ['. DOCUMENTAL CARPETA 0',
                '. CAJA DE ELEVADORES.',
                '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
@@ -148,6 +154,12 @@ class RevisionsController < ApplicationController
     @group = @item.group
     @detail = Detail.find_by(item_id: @item.id)
     @colors = @revision.revision_colors
+    @revision_map = {}
+    @revision.codes.each_with_index do |code, index|
+      point = @revision.points[index]
+      @revision_map[code] ||= {}
+      @revision_map[code][point] = index
+    end
     @nombres = ['. DOCUMENTAL CARPETA 0',
                '. Defectos libres.',]
 
@@ -464,19 +476,38 @@ class RevisionsController < ApplicationController
 
       end
 
-      @revision_photos&.each do |photo|
-        code_start = photo.code.split('.').first.to_i
-        if code_start == current_section_num
-          if params[:revision][:codes].present?
-            if params[:revision][:codes].exclude?(photo.code)
+      if @revision.item.group == "ascensor"
+        @revision_photos&.each do |photo|
+          code_start = photo.code.split('.').first.to_i
+          if code_start == current_section_num
+            if params[:revision][:codes].present?
+              if params[:revision][:codes].exclude?(photo.code)
+                photo.destroy
+              end
+            else
               photo.destroy
             end
-          else
-            photo.destroy
           end
-        end
 
+        end
+      else
+        @revision_photos&.each do |photo|
+          code_start = photo.code.split('.').first.to_i
+          if code_start == current_section_num
+            if params[:revision][:codes].present?
+              if params[:revision][:codes].exclude?(photo.code.split('|||').first)
+                photo.destroy
+              end
+            else
+              photo.destroy
+            end
+          end
+
+        end
       end
+
+
+
 
     else
       @revision_nulls&.each do |null|
@@ -515,7 +546,51 @@ class RevisionsController < ApplicationController
 
 
 
+  def new_rule
 
+    @inspection = Inspection.find_by(id: params[:inspection_id])
+
+
+    if @inspection.nil?
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      return
+    end
+
+    @revision = Revision.find_by(inspection_id: @inspection.id)
+    if @revision.nil?
+      redirect_to(home_path, alert: "Checklist no disponible.")
+      return
+    end
+
+    authorize! @revision
+
+
+    if @inspection.state == "Cerrado"
+      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      return
+    end
+    @rule = Rule.new
+  end
+
+  def create_rule
+    @revision = Revision.find_by(inspection_id: params[:inspection_id])
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(params[:inspection_id].inspect)
+
+    puts(@revision.inspect)
+    authorize! @revision
+    @rule = Rule.new(rule_params)
+    @group = @revision.item.group
+    @rule.code="100.1.1"
+    ruletype = Ruletype.find_by('LOWER(rtype) = ?', "placeholder".downcase)
+    @rule.ruletype = ruletype
+    if @rule.save
+      Ruleset.create(rule: @rule, group: @group)
+      redirect_to edit_libre_revision_path(inspection_id: @revision.inspection_id, section: 100), notice: 'Defecto creado.'
+    else
+      render :new_rule
+    end
+  end
 
   private
 
@@ -539,5 +614,8 @@ class RevisionsController < ApplicationController
     params.permit(past_revision: {fail: [], codes: [], points: [], levels: []})[:past_revision] || {}
   end
 
+  def rule_params
+    params.require(:rule).permit(:point, { ins_type: [] }, { level: [] })
+  end
 
 end

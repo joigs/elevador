@@ -44,6 +44,12 @@ class LadderRevisionsController < ApplicationController
     @group = Group.where("name LIKE ?", "%Escala%").first
     @detail = LadderDetail.find_by(item_id: @item.id)
     @colors = @revision.revision_colors
+    @revision_map = {}
+    @revision.codes.each_with_index do |code, index|
+      point = @revision.points[index]
+      @revision_map[code] ||= {}
+      @revision_map[code][point] = index
+    end
     @nombres = ['. DOCUMENTAL CARPETA 0',
                 '. Requisitos generales',
                 '. Estructura de soporte (bastidor) y cerramiento',

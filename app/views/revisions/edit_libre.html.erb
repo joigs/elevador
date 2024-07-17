@@ -47,6 +47,11 @@
 
 
   <br>
+  <% if @section.to_s =='100' %>
+
+  <%= link_to 'Definir defecto para esta inspección', new_rule_revision_path(inspection_id: @inspection.id), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300", data: { controller: "submit-redirect", action: "click->submit-redirect#submitAndRedirect", submit_redirect_redirect_url: new_rule_revision_path(inspection_id: @inspection.id) } %>
+  <% end %>
+
   <br>
 
   <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>
@@ -176,7 +181,11 @@
 
 
               <td class="px-6 py-4">
-                <% comment_index = @revision.codes.index(rule.code) %>
+                <% comment_index = if @revision_map[rule.code] && @revision_map[rule.code][rule.point]
+                                     @revision_map[rule.code][rule.point]
+                                   else
+                                     nil
+                                   end %>
                 <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" }, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
               </td>
               <%= hidden_field_tag "revision_photos[code][]", rule.code + "|||" + rule.point, data: { rules_form_target: "photoCode" } %>
