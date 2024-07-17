@@ -77,7 +77,7 @@ class InspectionsController < ApplicationController
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
 
-      if @item.group == Group.where("name LIKE ?", "%Escala%").first
+      if @item.group.type_of == "escala"
         @revision = LadderRevision.create!(inspection: @inspection, item: @inspection.item)
         numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
         numbers.each do |number|
@@ -86,10 +86,19 @@ class InspectionsController < ApplicationController
         if is_new_item
           @detail = LadderDetail.create!(item: @item)
         end
-      else
+      elsif @item.group.type_of == "ascensor"
         @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
         (0..11).each do |index|
           @revision.revision_colors.create!(number: index, color: false)
+        end
+        if is_new_item
+          @detail = Detail.create!(item: @item)
+        end
+      elsif @item.group.type_of == "libre"
+        @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
+        numbers = [0, 100]
+        numbers.each do |number|
+          @revision.revision_colors.create!(number: number, color: false)
         end
         if is_new_item
           @detail = Detail.create!(item: @item)
@@ -129,7 +138,7 @@ class InspectionsController < ApplicationController
 
   def edit
     authorize! inspection
-    inspection_not_modifiable!(inspection)
+    #inspection_not_modifiable!(inspection)
 
     @items = Item.all
     @item = inspection.item
@@ -336,13 +345,16 @@ class InspectionsController < ApplicationController
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
 
-    if inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
+    if inspection.item.group.type_of == "escala"
       revision_id = LadderRevision.find_by(inspection_id: inspection.id).id
       new_doc_path = DocumentGeneratorLadder.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
-    else
+    elsif inspection.item.group.type_of == "ascensor"
       revision_id = Revision.find_by(inspection_id: inspection.id).id
       new_doc_path = DocumentGenerator.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
 
+      elsif inspection.item.group.type_of == "libre"
+      revision_id = Revision.find_by(inspection_id: inspection.id).id
+      new_doc_path = DocumentGeneratorLibre.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     end
 
 
@@ -353,7 +365,7 @@ class InspectionsController < ApplicationController
 
   def close_inspection
     @inspection = Inspection.find(params[:id])
-    if @inspection.item.group == Group.where("name LIKE ?", "%Escala%").first
+    if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
       detail = @inspection.item.ladder_detail

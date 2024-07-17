@@ -61,7 +61,11 @@ Rails.application.routes.draw do
     get :items, on: :member
     get :places, on: :member
   end
-  resources :revisions, path: '/revisions'
+  resources :revisions, path: '/revisions' do
+    member do
+      get 'edit_libre', to: 'revisions#edit_libre'
+    end
+  end
   resources :ladder_revisions, path: '/ladder_revisions'
   get 'warnings', to: 'static_pages#warnings'
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -6,6 +6,9 @@
   </div>
 
   <div class="text-center mt-4">
-    <%= link_to "Volver a inspecciones", inspections_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+    <%= link_to "Volver a inspecciones", inspections_path,
+                class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300",
+                data: { turbo_method: :get, turbo_confirm: "¿Estás seguro de que deseas salir?" } %>
   </div>
+
 </div>

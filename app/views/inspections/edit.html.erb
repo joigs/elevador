@@ -2,7 +2,12 @@
   <h1 class="text-2xl font-bold text-gray-100 mb-6 text-center">Modificar Inspección N° <%= @inspection.number %></h1>
   <%= render "form", inspection: @inspection %>
   <div class="flex justify-center mt-4">
-    <%= link_to "Cancelar", @inspection, class: "text-md text-gray-300 hover:text-gray-400 transition duration-150 ease-in-out mr-4 px-4 py-2 border border-gray-700 rounded hover:bg-gray-700" %>
-    <%= link_to "Volver a inspecciones", inspection_path, class: "text-md text-blue-400 hover:text-blue-500 transition duration-150 ease-in-out px-4 py-2 border border-blue-500 rounded hover:bg-blue-600" %>
+    <%= link_to "Cancelar", @inspection,
+                class: "text-md text-gray-300 hover:text-gray-400 transition duration-150 ease-in-out mr-4 px-4 py-2 border border-gray-700 rounded hover:bg-gray-700",
+                data: { turbo_method: :get, turbo_confirm: "¿Estás seguro de que deseas cancelar?" } %>
+    <%= link_to "Volver a inspecciones", inspections_path,
+                class: "text-md text-blue-400 hover:text-blue-500 transition duration-150 ease-in-out px-4 py-2 border border-blue-500 rounded hover:bg-blue-600",
+                data: { turbo_method: :get, turbo_confirm: "¿Estás seguro de que deseas volver a inspecciones?" } %>
   </div>
+
 </div>

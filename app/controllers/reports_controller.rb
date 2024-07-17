@@ -41,7 +41,7 @@ class ReportsController < ApplicationController
           black_inspection.save
         end
 
-        if @item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
+        if @item.group.type_of == "escala"
           if was_created
             @revision = LadderRevision.create!(inspection_id: black_inspection.id, item_id: @item.id)
             @revision.created_at = DateTime.new(1000, 1, 1)
@@ -62,9 +62,21 @@ class ReportsController < ApplicationController
             @revision = Revision.create!(inspection_id: black_inspection.id, item_id: @item.id, group_id: @item.group_id)
             @revision.created_at = DateTime.new(1000, 1, 1)
             @revision.save
-            (0..11).each do |index|
-              @revision.revision_colors.create!(number: index, color: false)
+
+            if @item.group.type_of == "ascensor"
+              (0..11).each do |index|
+                @revision.revision_colors.create!(number: index, color: false)
+              end
+
+            elsif @item.group.type_of == "libre"
+              numbers = [0,100]
+              numbers.each do |number|
+                @revision.revision_colors.create!(number: number, color: false)
+              end
+
             end
+
+
           else
             @revision = Revision.find_by(inspection_id: black_inspection.id)
           end
@@ -79,9 +91,12 @@ class ReportsController < ApplicationController
         end
       end
 
-      if @item.group.name == Group.where("name LIKE ?", "%Escala%").first&.name
+      if @item.group.type_of == "escala"
         redirect_to edit_ladder_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
-      else
+
+      elsif @item.group.type_of == "libre"
+        redirect_to edit_libre_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
+      elsif @item.group.type_of == "ascensor"
         redirect_to edit_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
       end
 

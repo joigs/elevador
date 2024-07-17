@@ -60,7 +60,7 @@
   </div>
   <div class="mt-4 w-full flex-wrap">
 
-  <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin && @inspection.ins_date > Date.today %>
+  <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin%>
   </div>
 
     <div class="mt-4 w-full flex-wrap">

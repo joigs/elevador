@@ -600,8 +600,11 @@ class DocumentGenerator
       doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
     end
 
+
     if condicion
       doc.replace('{{y_inspector}}', 'Inspector y')
+    else
+      doc.replace('{{y_inspector}}', '')
     end
 
     doc.replace('{{admin_profesion}}', admin.profesion)

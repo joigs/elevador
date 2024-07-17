@@ -102,23 +102,119 @@ class RevisionsController < ApplicationController
 
 
 
-  def show
-    @revision = Revision.find_by!(inspection_id: params[:inspection_id])
+
+
+
+
+
+  def edit_libre
+
+    unless params[:section].present?
+      redirect_to edit_libre_revision_path(inspection_id: params[:inspection_id], section: 0)
+      return
+    end
+
     @inspection = Inspection.find_by(id: params[:inspection_id])
-    @revision_photos = @revision.revision_photos
+
 
     if @inspection.nil?
       redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
       return
     end
 
+    @revision = Revision.find_by(inspection_id: @inspection.id)
+    if @revision.nil?
+      redirect_to(home_path, alert: "Checklist no disponible.")
+      return
+    end
 
-    # hashmap para agrupar las fotos por código
-    @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
-      if photo.photo.attached?
-        (hash[photo.code] ||= []) << photo
+    authorize! @revision
+
+
+    if @inspection.state == "Cerrado"
+      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      return
+    end
+
+
+    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+    if @black_inspection
+      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    end
+
+    #acceder a los objetos asociados a la revision
+    @item = @revision.item
+    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
+    @group = @item.group
+    @detail = Detail.find_by(item_id: @item.id)
+    @colors = @revision.revision_colors
+    @nombres = ['. DOCUMENTAL CARPETA 0',
+               '. Defectos libres.',]
+
+    @rules = @group.rules.ordered_by_code
+    if params[:section].present?
+      section_code_start = "#{params[:section]}."
+      @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start) }
+      @color = @revision.revision_colors.find_by(number: section_code_start.to_i)
+      @section = params[:section]
+    end
+
+
+
+
+
+    @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+
+  rescue ActiveRecord::RecordNotFound
+    # This rescue block might be redundant if you are handling the nil cases above
+    redirect_to(home_path, alert: "Error al guardar la inspección")
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  def show
+    @revision = Revision.find_by!(inspection_id: params[:inspection_id])
+    @inspection = Inspection.find_by(id: params[:inspection_id])
+    @revision_photos = @revision.revision_photos
+    @group = @revision.item.group
+    if @inspection.nil?
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      return
+    end
+
+
+
+
+    if @group.type_of == "ascensor"
+      # hashmap para agrupar las fotos por código
+      @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
+        if photo.photo.attached?
+          (hash[photo.code] ||= []) << photo
+        end
+      end
+    elsif @group.type_of == "libre"
+      @photos_by_reason = @revision_photos.each_with_object({}) do |photo, hash|
+        if photo.photo.attached?
+          reason = photo.code.split('|||').last
+          (hash[reason] ||= []) << photo
+        end
       end
     end
+
   end
 
 
@@ -157,6 +253,8 @@ class RevisionsController < ApplicationController
             end
           end
       end
+
+
 
 
       if @black_inspection and black_params.present?
@@ -315,7 +413,10 @@ class RevisionsController < ApplicationController
           end
 
         end
-      end
+    end
+
+
+
       if control
         codes.each_with_index do |code2, index2|
           codes2 << codes[index2]
@@ -411,6 +512,8 @@ class RevisionsController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
+
+
 
 
 
