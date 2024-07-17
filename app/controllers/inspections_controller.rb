@@ -251,10 +251,14 @@ class InspectionsController < ApplicationController
 
     @principal = Principal.find(item_params[:principal_id])
 
+
+
     new_item = Item.find_or_initialize_by(identificador: item_params[:identificador], principal_id: @principal.id)
     is_new_item = new_item.new_record?
 
-    if !is_new_item && new_item.group_id.to_s != item_params[:group_id] && !current_item.identificador.starts_with?('CAMBIAME')
+
+
+    if !is_new_item && new_item.group_id.to_s != item_params[:group_id] && !new_item.identificador.starts_with?('CAMBIAME') && current_item.identificador == new_item.identificador && new_item.group.type_of != "escala" && current_item.group.type_of != "escala"
       flash.now[:alert] = "Activo con identificador #{new_item.identificador} pertenece a #{new_item.group.name}, seleccione el grupo correspondiente"
       render :edit, status: :unprocessable_entity
       return
