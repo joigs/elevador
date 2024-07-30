@@ -55,9 +55,6 @@
     <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin && @report.ending%>
   </div>
 
-<div class="mt-4 w-full flex-wrap">
-    <%= link_to "Modificar identificador", edit_identificador_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 text-gray-900 font-bold hover:bg-purple-800 transition duration-300" if Current.user.admin && @control3 %>
-  </div>
   <div class="mt-4 w-full flex-wrap">
 
   <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin%>
