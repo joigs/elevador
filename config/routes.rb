@@ -6,8 +6,14 @@ Rails.application.routes.draw do
   resources :details
   resources :ladder_details
   resources :reports
-  resources :items
-
+  resources :items do
+    member do
+      get 'edit_identificador'
+      patch 'update_identificador'
+      get 'edit_empresa'
+      patch 'update_empresa'
+    end
+  end
   root 'home#index', as: 'home'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :authentication, path: '', as: '' do
@@ -20,8 +26,6 @@ Rails.application.routes.draw do
     member do
       get :download_document
       patch :close_inspection
-      get :edit_identificador
-      patch :update_identificador
       patch :update_ending
     end
     collection do

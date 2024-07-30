@@ -11,25 +11,27 @@
       </div>
     <% end %>
 
-    <%= form.fields_for :item, @inspection.item || @inspection.build_item do |item_form| %>
-      <div>
-        <%= item_form.label :group_id, "Clasificación del ascensor", class: "block text-gray-300" %>
-        <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.name, g.id] }, selected: item_form.object.group_id), {}, readonly: @from_last_inspection, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-      </div>
-
-      <div data-controller="principal-select">
+    <% if %w[new new_with_last].include?(params[:action]) %>
+      <%= form.fields_for :item, @inspection.item || @inspection.build_item do |item_form| %>
         <div>
-          <%= item_form.label :empresa, "Empresa", class: "block text-gray-300" %>
-          <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una empresa' }, { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim', principal_select_target: "principal", action: "change->principal-select#updateItems" }, readonly: @from_last_inspection } %>
+          <%= item_form.label :group_id, "Clasificación del ascensor", class: "block text-gray-300" %>
+          <%= item_form.select :group_id, options_for_select(Group.all.map { |g| [g.name, g.id] }, selected: item_form.object.group_id), {}, readonly: @from_last_inspection, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
         </div>
-        <div class="mt-3">
-          <label for="inspection_item_attributes_identificador" class="block text-gray-300">Identificador</label>
-          <input list="identificador-options" type="text" name="inspection[item_attributes][identificador]" id="inspection_item_attributes_identificador" value="<%= item_form.object.identificador %>" class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" <%= 'readonly' if @from_last_inspection %>>
-          <p id="floating_helper_text" class="mt-2 text-xs text-white-500 dark:text-gray-400">Dejar en blanco si no se conoce</p>
-          <datalist id="identificador-options" data-principal-select-target="identificadorList">
-          </datalist>
+
+        <div data-controller="principal-select">
+          <div>
+            <%= item_form.label :empresa, "Empresa", class: "block text-gray-300" %>
+            <%= item_form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una empresa' }, { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim', principal_select_target: "principal", action: "change->principal-select#updateItems" }, readonly: @from_last_inspection } %>
+          </div>
+          <div class="mt-3">
+            <label for="inspection_item_attributes_identificador" class="block text-gray-300">Identificador</label>
+            <input list="identificador-options" type="text" name="inspection[item_attributes][identificador]" id="inspection_item_attributes_identificador" value="<%= item_form.object.identificador %>" class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" <%= 'readonly' if @from_last_inspection %>>
+            <p id="floating_helper_text" class="mt-2 text-xs text-white-500 dark:text-gray-400">Dejar en blanco si no se conoce</p>
+            <datalist id="identificador-options" data-principal-select-target="identificadorList">
+            </datalist>
+          </div>
         </div>
-      </div>
+      <% end %>
     <% end %>
 
     <div data-controller="place-select" class="mt-3">

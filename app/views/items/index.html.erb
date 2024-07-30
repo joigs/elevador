@@ -6,24 +6,43 @@
 
     <%= render 'shared/back_home' %>
 
+    <% if @duplicate_items.any? %>
+      <div class="bg-red-800 text-white p-4 rounded-md">
+        <p>Hay identificadores duplicados:</p>
+        <ul>
+          <% @duplicate_items.each do |identificador, items| %>
+            <li>
+              <strong><%= identificador %>:</strong>
+              <% items.each do |item| %>
+                | <%= link_to "Ver activo ##{item.id}", item_path(item), class: "text-blue-500 underline mx-2" %>
+              <% end %> |
+            </li>
 
-
-    <br>
-    <%= turbo_frame_tag 'items' do %>
-      <div class="px-4 py-6 bg-gray-800">
-        <%= render 'shared/search_form', form_url: items_path, search_keys: 'identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont', frame_id: 'items' %>
+          <% end %>
+        </ul>
       </div>
-  <%= turbo_frame_tag "items-#{ @pagy.page }", class: 'bg-gray-800 py-6' do %>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <%= render partial: 'item', collection: @items %>
-      </div>
-    </div>
-
-    <% if @pagy.next.present? %>
-        <br>
-      <%= turbo_frame_tag "items-#{ @pagy.next }", class: 'items', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
     <% end %>
-  <% end %>
-</div>
-<% end %>
+
+
+
+    <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+      <%= turbo_frame_tag 'items' do %>
+        <div class="p-6">
+          <%= render 'shared/search_form', form_url: items_path, search_keys: 'identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont', frame_id: 'items' %>
+
+          <%= turbo_frame_tag "items-#{@pagy.page}", class: 'items' do %>
+            <ul class="divide-y divide-gray-700">
+              <% @items.each_with_index do |item, index| %>
+                <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                  <%= render 'item', item: item %>
+                </li>
+              <% end %>
+            </ul>
+            <% if @pagy.next %>
+              <%= turbo_frame_tag "items-#{@pagy.next}", class: 'items', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>

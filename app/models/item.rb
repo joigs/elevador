@@ -11,7 +11,7 @@ class Item < ApplicationRecord
   end
 
 
-  validates :identificador, presence: true, uniqueness: true
+  validates :identificador, presence: true
 
   belongs_to :group
   belongs_to :principal
