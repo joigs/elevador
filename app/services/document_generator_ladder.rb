@@ -303,18 +303,22 @@ class DocumentGeneratorLadder
     doc.commit(output_path)
 
 
-    condicion = false
 
     if inspectors.second
       condicion = admin.real_name == inspectors.first.real_name || admin.real_name == inspectors.second.real_name || admin.email == inspectors.first.email || admin.email == inspectors.second.email
+    else
+      condicion = admin.real_name == inspectors.first.real_name || admin.email == inspectors.first.email
     end
 
 
-    if inspectors.second
+    if inspectors.second && !condicion
       template_path = Rails.root.join('app', 'templates', 'template_3.docx')
+    elsif !inspectors.second && condicion
+      template_path = Rails.root.join('app', 'templates', 'template_3_0user.docx')
     else
       template_path = Rails.root.join('app', 'templates', 'template_3_1user.docx')
     end
+
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
