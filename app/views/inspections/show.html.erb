@@ -72,7 +72,7 @@
 
 
   <div class="mt-4 w-full">
-    <%= link_to 'Descargar JSON', download_json_inspection_path(@inspection), class: "px-4 py-2 rounded bg-indigo-500 text-white hover:bg-indigo-600 transition duration-300" if Current.user.admin || @inspection.owner? %>
+    <%= link_to 'Descargar JSON', download_json_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 text-white hover:bg-indigo-600 transition duration-300" if Current.user.admin || @inspection.owner? %>
   </div>
 
 
