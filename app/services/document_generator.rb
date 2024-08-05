@@ -87,15 +87,12 @@ class DocumentGenerator
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si'
-      doc.replace('{{cert_si}}', 'x')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_ant}}', 'Si')
 
     elsif report.cert_ant == 'No'
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'x')
+      doc.replace('{{cert_ant}}', 'No')
     else
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_ant}}', 'S/I')
     end
 
     doc.replace('{{instalation_number}}', item.identificador)
@@ -165,18 +162,14 @@ class DocumentGenerator
 
 
     if group.number == 1
-      doc.replace('{{grupo1}}', 'X')
-      doc.replace('{{grupo2}}', '')
-      doc.replace('{{grupo3}}', '')
+      doc.replace('{{grupo}}', 'Grupo 1')
     elsif group.number == 2
-      doc.replace('{{grupo1}}', '')
-      doc.replace('{{grupo2}}', 'X')
-      doc.replace('{{grupo3}}', '')
 
+      doc.replace('{{grupo}}', 'Grupo 2')
     elsif group.number == 3
-      doc.replace('{{grupo1}}', '')
-      doc.replace('{{grupo2}}', '')
-      doc.replace('{{grupo3}}', 'X')
+      doc.replace('{{grupo}}', 'Grupo 3')
+    else
+      doc.replace('{{grupo}}', 'S/I')
     end
     doc.replace('{{detail_mm_marca}}', detail.mm_marca)
     doc.replace('{{detail_mm_n_serie}}', detail.mm_n_serie)
@@ -829,35 +822,24 @@ class DocumentGenerator
 
 
     if detail.sala_maquinas == "Si"
-      doc.replace('{{cert1_si}}', '')
-      doc.replace('{{cert1_no}}', 'X')
-      doc.replace('{{cert2_si}}', '')
-      doc.replace('{{cert2_no}}', 'X')
-      doc.replace('{{cert3_si}}', '')
-      doc.replace('{{cert3_no}}', 'X')
+      doc.replace('{{tabla_aplica1}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica2}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica3}}', 'NO APLICA A ÉSTA INSPECCIÓN')
 
 
     elsif detail.sala_maquinas == "No. Máquina en la parte superior"
-      doc.replace('{{cert1_si}}', 'X')
-      doc.replace('{{cert1_no}}', '')
-      doc.replace('{{cert2_si}}', '')
-      doc.replace('{{cert2_no}}', 'X')
-      doc.replace('{{cert3_si}}', '')
-      doc.replace('{{cert3_no}}', 'X')
+      doc.replace('{{tabla_aplica1}}', 'SI APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica2}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica3}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+
     elsif detail.sala_maquinas == "No. Máquina en foso"
-      doc.replace('{{cert1_si}}', '')
-      doc.replace('{{cert1_no}}', 'X')
-      doc.replace('{{cert2_si}}', 'X')
-      doc.replace('{{cert2_no}}', '')
-      doc.replace('{{cert3_si}}', '')
-      doc.replace('{{cert3_no}}', 'X')
+      doc.replace('{{tabla_aplica1}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica2}}', 'SI APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica3}}', 'NO APLICA A ÉSTA INSPECCIÓN')
     elsif detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
-      doc.replace('{{cert1_si}}', '')
-      doc.replace('{{cert1_no}}', 'X')
-      doc.replace('{{cert2_si}}', '')
-      doc.replace('{{cert2_no}}', 'X')
-      doc.replace('{{cert3_si}}', 'X')
-      doc.replace('{{cert3_no}}', '')
+      doc.replace('{{tabla_aplica1}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica2}}', 'NO APLICA A ÉSTA INSPECCIÓN')
+      doc.replace('{{tabla_aplica3}}', 'SI APLICA A ÉSTA INSPECCIÓN')
     end
 
 

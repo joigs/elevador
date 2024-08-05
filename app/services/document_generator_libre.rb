@@ -86,16 +86,14 @@ class DocumentGeneratorLibre
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si'
-      doc.replace('{{cert_si}}', 'x')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_ant}}', 'Si')
 
     elsif report.cert_ant == 'No'
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'x')
+      doc.replace('{{cert_ant}}', 'No')
     else
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_ant}}', 'S/I')
     end
+
 
     doc.replace('{{instalation_number}}', item.identificador)
 
@@ -163,24 +161,10 @@ class DocumentGeneratorLibre
 
 
 
-    if group.number == 1
-      doc.replace('{{grupo1}}', 'X')
-      doc.replace('{{grupo2}}', '')
-      doc.replace('{{grupo3}}', '')
-    elsif group.number == 2
-      doc.replace('{{grupo1}}', '')
-      doc.replace('{{grupo2}}', 'X')
-      doc.replace('{{grupo3}}', '')
+    doc.replace('{{grupo}}', group.name)
 
-    elsif group.number == 3
-      doc.replace('{{grupo1}}', '')
-      doc.replace('{{grupo2}}', '')
-      doc.replace('{{grupo3}}', 'X')
-    else
-      doc.replace('{{grupo1}}', '')
-      doc.replace('{{grupo2}}', '')
-      doc.replace('{{grupo3}}', '')
-    end
+
+
     doc.replace('{{detail_mm_marca}}', detail.mm_marca)
     doc.replace('{{detail_mm_n_serie}}', detail.mm_n_serie)
 

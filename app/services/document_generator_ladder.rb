@@ -79,16 +79,14 @@ class DocumentGeneratorLadder
     doc.replace('{{inspection_validation}}', report.ending.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si'
-      doc.replace('{{cert_si}}', 'X')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_ant}}', 'Si')
 
     elsif report.cert_ant == 'No'
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', 'X')
+      doc.replace('{{cert_ant}}', 'No')
     else
-      doc.replace('{{cert_si}}', '')
-      doc.replace('{{cert_no}}', '')
+      doc.replace('{{cert_ant}}', 'S/I')
     end
+
 
     doc.replace('{{instalation_number}}', item.identificador)
 
