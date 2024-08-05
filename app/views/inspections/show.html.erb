@@ -70,6 +70,12 @@
   </div>
 
 
+
+  <div class="mt-4 w-full">
+    <%= link_to 'Descargar JSON', download_json_inspection_path(@inspection), class: "px-4 py-2 rounded bg-indigo-500 text-white hover:bg-indigo-600 transition duration-300" if Current.user.admin || @inspection.owner? %>
+  </div>
+
+
   <div class="mt-4 w-full">
 
     <%= link_to 'Eliminar inspección', inspection_path(@inspection), data: { turbo_method: :delete, turbo_confirm: 'Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if Current.user.admin %>

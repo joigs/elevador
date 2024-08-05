@@ -291,7 +291,68 @@ class InspectionsController < ApplicationController
 
   end
 
+  def download_json
+    inspection
 
+    if @inspection.nil?
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      return
+    end
+
+    @revision = Revision.find_by(inspection_id: @inspection.id)
+    if @revision.nil?
+      redirect_to(home_path, alert: "Checklist no disponible.")
+      return
+    end
+
+    @black_inspection = Inspection.find_by(number: @inspection.number * -1)
+    if @black_inspection
+      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    end
+
+    @item = @revision.item
+    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
+    @group = @item.group
+    @detail = Detail.find_by(item_id: @item.id)
+    @colors = @revision.revision_colors
+    @rules = @group.rules.includes(:ruletype)
+    @nombres = ['. DOCUMENTAL CARPETA 0',
+                '. CAJA DE ELEVADORES.',
+                '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+                '. PUERTA DE PISO.',
+                '. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
+                '. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
+                '. GUÍAS, AMORTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
+                '. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
+                '. MÁQUINA.',
+                '. ASCENSORES SIN SALA DE MÁQUINAS.',
+                '. ESPACIO DE MÁQUINAS.',
+                '. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
+                '. ASCENSORES CON MÁQUINAS EN FOSO.',
+                '. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
+                '. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
+                '. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR']
+
+    json_data = {
+      inspection: @inspection,
+      revision: @revision,
+      black_inspection: @black_inspection,
+      black_revision: @black_revision,
+      item: @item,
+      revision_nulls: @revision_nulls,
+      group: @group,
+      detail: @detail,
+      colors: @colors,
+      revision_map: @revision_map,
+      nombres: @nombres,
+      last_revision: @last_revision,
+      rules: @rules
+    }
+
+    send_data json_data.to_json, filename: "inspection_#{params[:inspection_id]}.json", type: 'application/json'
+  rescue ActiveRecord::RecordNotFound
+    redirect_to(home_path, alert: "Error al guardar la inspección")
+  end
 
 
   private

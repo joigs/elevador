@@ -27,6 +27,8 @@ Rails.application.routes.draw do
       get :download_document
       patch :close_inspection
       patch :update_ending
+      get :download_json
+
     end
     collection do
       get :new_with_last
