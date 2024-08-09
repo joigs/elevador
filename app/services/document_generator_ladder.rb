@@ -14,6 +14,8 @@ class DocumentGeneratorLadder
     admin = User.find(admin_id)
     inspectors = inspection.users
     rules = Ladder.all.drop(11)
+    item_rol = item.identificador.chars.last(4).join
+
 
     template_path = Rails.root.join('app', 'templates', 'template_ladder1.docx')
 
@@ -22,6 +24,7 @@ class DocumentGeneratorLadder
     doc.replace('{{XXX}}', inspection.number.to_s)
     doc.replace('{{MM}}', inspection.ins_date.strftime('%m'))
     doc.replace('{{XX}}', inspection.ins_date.strftime('%Y'))
+    doc.replace('{{rol}}', item_rol)
 
 
     doc.replace('{{principal_name}}', principal.name)
@@ -297,7 +300,7 @@ class DocumentGeneratorLadder
 
 
 
-    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date.strftime('%m')}-#{inspection.ins_date.strftime('%Y')}.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}-#{item_rol}.docx")
     doc.commit(output_path)
 
 
@@ -512,7 +515,7 @@ class DocumentGeneratorLadder
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'LadderRevision')
     set_of_errors = []
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y') }, output_path, output_path)
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y'), "{{rol}}" => item_rol }, output_path, output_path)
 
 
 

@@ -17,6 +17,7 @@ class DocumentGeneratorLibre
     admin = User.find(admin_id)
     inspectors = inspection.users
     rules = group.rules.ordered_by_code.drop(11)
+    item_rol = item.identificador.chars.last(4).join
 
     template_path = Rails.root.join('app', 'templates', 'template_1.docx')
 
@@ -25,6 +26,7 @@ class DocumentGeneratorLibre
     doc.replace('{{XXX}}', inspection.number.to_s)
     doc.replace('{{MM}}', inspection.ins_date&.strftime('%m'))
     doc.replace('{{XX}}', inspection.ins_date&.strftime('%Y'))
+    doc.replace('{{rol}}', item_rol)
 
     doc.replace('{{principal_name}}', principal.name)
     doc.replace('{{principal_business_name}}', principal.business_name)
@@ -419,7 +421,7 @@ class DocumentGeneratorLibre
     end
 
 
-    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}.docx")
+    output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}-#{item_rol}.docx")
     doc.commit(output_path)
 
 
@@ -637,8 +639,7 @@ class DocumentGeneratorLibre
 
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'Revision')
 
-    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y') }, output_path, output_path)
-
+    Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y'), "{{rol}}" => item_rol }, output_path, output_path)
 
 
 
