@@ -42,7 +42,15 @@
 
     <div class="form-group">
       <%= form.label :recepcion, class: "block text-gray-300" %>
-      <%= form.text_field :recepcion, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.date_field :recepcion, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <hr class="my-4 border-gray-500">
+
+
+    <div class="form-group">
+      <%= form.label :empresa_instaladora_rut, class: "block text-gray-300" %>
+      <%= form.text_field :empresa_instaladora_rut, data: { controller: "rut", rut_target: "rut" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <div class="form-group">
@@ -50,11 +58,8 @@
       <%= form.text_field :empresa_instaladora, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
-    <div class="form-group">
-      <%= form.label :empresa_instaladora_rut, class: "block text-gray-300" %>
-      <%= form.text_field :empresa_instaladora_rut, data: { controller: "rut", rut_target: "rut" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
-    </div>
 
+    <hr class="my-4 border-gray-500">
 
     <div class="form-group">
       <%= form.label :detalle, class: "block text-gray-300" %>
@@ -81,6 +86,8 @@
       <%= form.label :n_serie, "N° de serie", class: "block text-gray-300" %>
       <%= form.text_field :n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
+
+    <hr class="my-4 border-gray-500">
 
     <div class="text-white text-lg font-semibold mt-6 mb-2">
       Motor Motriz
@@ -111,6 +118,9 @@
       <%= form.number_field :personas, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
+    <hr class="my-4 border-gray-500">
+
+
     <div class="text-white text-lg font-semibold mt-6 mb-2">
       Cables de Tracción
     </div>
@@ -135,6 +145,12 @@
       <%= form.text_field :medidas_cintas, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
+    <hr class="my-4 border-gray-500">
+
+
+    <div class="text-white text-lg font-semibold mt-6 mb-2">
+      Regulador de Velocidad
+    </div>
 
     <div class="form-group">
       <%= form.label :velocidad, "Velocidad m/s", class: "block text-gray-300" %>
@@ -150,6 +166,8 @@
       <%= form.label :rv_n_serie, "N° serie", class: "block text-gray-300" %>
       <%= form.text_field :rv_n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
+
+    <hr class="my-4 border-gray-500">
 
     <div class="form-group">
       <%= form.label :paradas, "Paradas", class: "block text-gray-300" %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_30_201554) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_09_170614) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -67,7 +67,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_30_201554) do
     t.integer "numero_permiso"
     t.date "fecha_permiso"
     t.string "destino"
-    t.string "recepcion"
+    t.date "recepcion"
     t.string "empresa_instaladora"
     t.string "empresa_instaladora_rut"
     t.integer "porcentaje"
@@ -148,7 +148,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_30_201554) do
     t.integer "numero_permiso"
     t.date "fecha_permiso"
     t.string "destino"
-    t.string "recepcion"
+    t.date "recepcion"
     t.string "empresa_instaladora"
     t.string "empresa_instaladora_rut"
     t.integer "porcentaje"

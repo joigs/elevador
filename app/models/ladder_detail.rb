@@ -12,6 +12,7 @@ class LadderDetail < ApplicationRecord
   validates :fecha_permiso, date: true
   validates :porcentaje, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
   validates :numero_permiso, non_negative: true, allow_nil: true
+  validates :recepcion, date: true
 
 
   before_validation :format_rut, if: -> { empresa_instaladora_rut.present? }
