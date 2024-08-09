@@ -1,4 +1,6 @@
 class InspectionsController < ApplicationController
+  require 'fileutils'
+  require 'open3'
 
   def index
     @q = Inspection.ransack(params[:q])
@@ -291,69 +293,103 @@ class InspectionsController < ApplicationController
 
   end
 
+
+
+
+
+
   def download_json
-    inspection
+    # Directorio temporal para guardar el archivo LaTeX
+    latex_dir = Rails.root.join('tmp', 'latex')
+    FileUtils.mkdir_p(latex_dir)
 
-    if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
-      return
+    # Nombre del archivo LaTeX
+    latex_file = File.join(latex_dir, 'document.tex')
+
+    # Contenido LaTeX con solo las imágenes y sus descripciones
+    latex_content = <<-LATEX
+\\documentclass{article}
+\\usepackage{graphicx}
+\\usepackage{geometry}
+\\geometry{a4paper, margin=1in}
+
+\\begin{document}
+
+\\begin{figure}[h!]
+  \\centering
+  \\begin{minipage}[b]{0.45\\textwidth}
+    \\centering
+    \\includegraphics[width=\\textwidth]{ayame.jpg}
+    \\caption{Imagen 1}
+    \\label{fig:imagen1}
+  \\end{minipage}
+  \\hfill
+  \\begin{minipage}[b]{0.45\\textwidth}
+    \\centering
+    \\includegraphics[width=\\textwidth]{ayame.jpg}
+    \\caption{Imagen 2}
+    \\label{fig:imagen2}
+  \\end{minipage}
+\\end{figure}
+
+\\begin{figure}[h!]
+  \\centering
+  \\begin{minipage}[b]{0.45\\textwidth}
+    \\centering
+    \\includegraphics[width=\\textwidth]{ayame.jpg}
+    \\caption{Imagen 3}
+    \\label{fig:imagen3}
+  \\end{minipage}
+  \\hfill
+  \\begin{minipage}[b]{0.45\\textwidth}
+    \\centering
+    \\includegraphics[width=\\textwidth]{ayame.jpg}
+    \\caption{Imagen 4}
+    \\label{fig:imagen4}
+  \\end{minipage}
+\\end{figure}
+
+\\begin{figure}[h!]
+  \\centering
+  \\begin{minipage}[b]{0.45\\textwidth}
+    \\centering
+    \\includegraphics[width=\\textwidth]{ayame.jpg}
+    \\caption{Imagen 5}
+    \\label{fig:imagen5}
+  \\end{minipage}
+  \\hfill
+  \\begin{minipage}[b]{0.45\\textwidth}
+    \\centering
+    \\includegraphics[width=\\textwidth]{ayame.jpg}
+    \\caption{Imagen 6}
+    \\label{fig:imagen6}
+  \\end{minipage}
+\\end{figure}
+
+\\end{document}
+    LATEX
+
+    # Guardar el contenido en el archivo LaTeX
+    File.open(latex_file, 'w') { |file| file.write(latex_content) }
+
+    # Copiar la imagen al directorio temporal
+    image_source = Rails.root.join('app', 'assets', 'images', 'ayame.jpg')
+    image_destination = File.join(latex_dir, 'ayame.jpg')
+    FileUtils.cp(image_source, image_destination)
+
+    # Compilar el archivo LaTeX a PDF usando el comando pdflatex
+    Dir.chdir(latex_dir) do
+      stdout, stderr, status = Open3.capture3("pdflatex document.tex")
+      unless status.success?
+        render plain: "Error al compilar LaTeX: #{stderr}", status: :internal_server_error
+        return
+      end
     end
 
-    @revision = Revision.find_by(inspection_id: @inspection.id)
-    if @revision.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
-      return
-    end
-
-    @black_inspection = Inspection.find_by(number: @inspection.number * -1)
-    if @black_inspection
-      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
-    end
-
-    @item = @revision.item
-    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
-    @group = @item.group
-    @detail = Detail.find_by(item_id: @item.id)
-    @colors = @revision.revision_colors
-    @rules = @group.rules.includes(:ruletype)
-    @nombres = ['. DOCUMENTAL CARPETA 0',
-                '. CAJA DE ELEVADORES.',
-                '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
-                '. PUERTA DE PISO.',
-                '. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
-                '. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
-                '. GUÍAS, AMORTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
-                '. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
-                '. MÁQUINA.',
-                '. ASCENSORES SIN SALA DE MÁQUINAS.',
-                '. ESPACIO DE MÁQUINAS.',
-                '. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
-                '. ASCENSORES CON MÁQUINAS EN FOSO.',
-                '. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
-                '. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
-                '. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR']
-
-    json_data = {
-      inspection: @inspection,
-      revision: @revision,
-      black_inspection: @black_inspection,
-      black_revision: @black_revision,
-      item: @item,
-      revision_nulls: @revision_nulls,
-      group: @group,
-      detail: @detail,
-      colors: @colors,
-      revision_map: @revision_map,
-      nombres: @nombres,
-      last_revision: @last_revision,
-      rules: @rules
-    }
-
-    send_data json_data.to_json, filename: "inspection_#{params[:inspection_id]}.json", type: 'application/json'
-  rescue ActiveRecord::RecordNotFound
-    redirect_to(home_path, alert: "Error al guardar la inspección")
+    # Enviar el archivo PDF como descarga
+    pdf_file = File.join(latex_dir, 'document.pdf')
+    send_file(pdf_file, filename: "document.pdf", type: "application/pdf")
   end
-
 
   private
   def inspection_params
