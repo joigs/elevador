@@ -208,6 +208,11 @@ class RevisionsController < ApplicationController
       return
     end
 
+    @revision_codes = []
+
+    @revision.codes.each_with_index do |code, index|
+      @revision_codes << "#{code} #{@revision.points[index]}"
+    end
 
 
 
@@ -476,19 +481,20 @@ class RevisionsController < ApplicationController
 
       end
 
-      if @revision.item.group == "ascensor"
+      if @revision.item.group.type_of == "ascensor"
         @revision_photos&.each do |photo|
           code_start = photo.code.split('.').first.to_i
           if code_start == current_section_num
             if params[:revision][:codes].present?
-              if params[:revision][:codes].exclude?(photo.code)
+              constructed_code = "#{params[:revision][:codes][params[:revision][:codes].index(photo.code.split(' ').first)]} #{params[:revision][:points][params[:revision][:codes].index(photo.code.split(' ').first)]}"
+
+              if constructed_code != photo.code
                 photo.destroy
               end
             else
               photo.destroy
             end
           end
-
         end
       else
         @revision_photos&.each do |photo|
@@ -574,7 +580,6 @@ class RevisionsController < ApplicationController
 
   def create_rule
     @revision = Revision.find_by(inspection_id: params[:inspection_id])
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     puts(params[:inspection_id].inspect)
 
     puts(@revision.inspect)
@@ -595,7 +600,7 @@ class RevisionsController < ApplicationController
   private
 
   def revision
-    @revision = Principal.find(params[:id])
+    @revision = Revision.find(params[:id])
   end
 
 

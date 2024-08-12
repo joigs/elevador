@@ -299,7 +299,7 @@ class InspectionsController < ApplicationController
 
 
   def download_json
-    # Directorio temporal para guardar el archivo LaTeX
+    # Directorio temporal para guardar el archivo LaTeX y las imágenes
     latex_dir = Rails.root.join('tmp', 'latex')
     FileUtils.mkdir_p(latex_dir)
 
@@ -386,8 +386,16 @@ class InspectionsController < ApplicationController
       end
     end
 
-    # Enviar el archivo PDF como descarga
+    # Convertir PDF a imágenes (una por página)
     pdf_file = File.join(latex_dir, 'document.pdf')
+    image_output_base = File.join(latex_dir, 'page')
+    stdout, stderr, status = Open3.capture3("pdftoppm -png #{pdf_file} #{image_output_base}")
+    unless status.success?
+      render plain: "Error al convertir PDF a imágenes: #{stderr}", status: :internal_server_error
+      return
+    end
+
+    # Enviar el archivo PDF como descarga
     send_file(pdf_file, filename: "document.pdf", type: "application/pdf")
   end
 

@@ -3,9 +3,7 @@
     <h1 class="text-3xl font-bold mb-4">Inspección N° <%= @inspection.number %></h1>
     <h2 class="text-2xl font-semibold mb-3">Defectos Encontrados</h2>
 
-    <% if @group.type_of=="ascensor" %>
-
-
+    <% if @group.type_of == "ascensor" %>
       <% @revision.points.each_with_index.chunk_while { |(_, i), (_, j)| @revision.codes[i] == @revision.codes[j] }.each do |group| %>
         <% group.each do |(point, index)| %>
           <div class="p-3 bg-gray-700 rounded-lg mb-2">
@@ -18,7 +16,8 @@
         <% last_index = group.last[1] %>
         <% next_code_different = (@revision.codes[last_index] != @revision.codes[last_index + 1]) rescue true %>
         <% if next_code_different %>
-          <% photos = @photos_by_code[@revision.codes[last_index]] || [] %>
+          <% constructed_code = "#{@revision.codes[last_index]} #{@revision.points[last_index]}" %>
+          <% photos = @photos_by_code[constructed_code] || [] %>
           <% photos.each do |photo| %>
             <%= image_tag photo.photo, width: 200, class: "w-48 rounded-lg shadow-lg m-1" %>
           <% end %>
