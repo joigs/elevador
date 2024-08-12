@@ -296,9 +296,19 @@ class InspectionsController < ApplicationController
 
 
 
-
-
   def download_json
+    # Autorización y selección de la revisión
+    authorize! inspection
+
+    if inspection.item.group.type_of == "escala"
+      revision = LadderRevision.find_by(inspection_id: inspection.id)
+    else
+      revision = Revision.find_by(inspection_id: inspection.id)
+    end
+
+    # Obtener las fotos ordenadas por `revision_photo.code`
+    revision_photos = revision.revision_photos.ordered_by_code
+
     # Directorio temporal para guardar el archivo LaTeX y las imágenes
     latex_dir = Rails.root.join('tmp', 'latex')
     FileUtils.mkdir_p(latex_dir)
@@ -306,76 +316,36 @@ class InspectionsController < ApplicationController
     # Nombre del archivo LaTeX
     latex_file = File.join(latex_dir, 'document.tex')
 
-    # Contenido LaTeX con solo las imágenes y sus descripciones
-    latex_content = <<-LATEX
-\\documentclass{article}
-\\usepackage{graphicx}
-\\usepackage{geometry}
-\\geometry{a4paper, margin=1in}
+    # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
+    latex_content = "\\documentclass{article}\n"
+    latex_content += "\\usepackage{graphicx}\n"
+    latex_content += "\\usepackage{geometry}\n"
+    latex_content += "\\geometry{a4paper, margin=1in}\n"
+    latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
+    latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
+    latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
+    latex_content += "\\begin{document}\n"
 
-\\begin{document}
+    revision_photos.each_slice(2) do |photos|
+      latex_content += "\\begin{figure}[h!]\n"
+      photos.each do |photo|
+        image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
+        FileUtils.cp(image_path, File.join(latex_dir, "#{photo.id}.jpg"))
 
-\\begin{figure}[h!]
-  \\centering
-  \\begin{minipage}[b]{0.45\\textwidth}
-    \\centering
-    \\includegraphics[width=\\textwidth]{ayame.jpg}
-    \\caption{Imagen 1}
-    \\label{fig:imagen1}
-  \\end{minipage}
-  \\hfill
-  \\begin{minipage}[b]{0.45\\textwidth}
-    \\centering
-    \\includegraphics[width=\\textwidth]{ayame.jpg}
-    \\caption{Imagen 2}
-    \\label{fig:imagen2}
-  \\end{minipage}
-\\end{figure}
+        latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
+        latex_content += "    \\centering\n"
+        latex_content += "    \\includegraphics[width=\\textwidth]{#{photo.id}.jpg}\n"
+        latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
+        latex_content += "  \\end{minipage}\n"
+        latex_content += "  \\hfill\n" if photos.size > 1
+      end
+      latex_content += "\\end{figure}\n"
+    end
 
-\\begin{figure}[h!]
-  \\centering
-  \\begin{minipage}[b]{0.45\\textwidth}
-    \\centering
-    \\includegraphics[width=\\textwidth]{ayame.jpg}
-    \\caption{Imagen 3}
-    \\label{fig:imagen3}
-  \\end{minipage}
-  \\hfill
-  \\begin{minipage}[b]{0.45\\textwidth}
-    \\centering
-    \\includegraphics[width=\\textwidth]{ayame.jpg}
-    \\caption{Imagen 4}
-    \\label{fig:imagen4}
-  \\end{minipage}
-\\end{figure}
-
-\\begin{figure}[h!]
-  \\centering
-  \\begin{minipage}[b]{0.45\\textwidth}
-    \\centering
-    \\includegraphics[width=\\textwidth]{ayame.jpg}
-    \\caption{Imagen 5}
-    \\label{fig:imagen5}
-  \\end{minipage}
-  \\hfill
-  \\begin{minipage}[b]{0.45\\textwidth}
-    \\centering
-    \\includegraphics[width=\\textwidth]{ayame.jpg}
-    \\caption{Imagen 6}
-    \\label{fig:imagen6}
-  \\end{minipage}
-\\end{figure}
-
-\\end{document}
-    LATEX
+    latex_content += "\\end{document}\n"
 
     # Guardar el contenido en el archivo LaTeX
     File.open(latex_file, 'w') { |file| file.write(latex_content) }
-
-    # Copiar la imagen al directorio temporal
-    image_source = Rails.root.join('app', 'assets', 'images', 'ayame.jpg')
-    image_destination = File.join(latex_dir, 'ayame.jpg')
-    FileUtils.cp(image_source, image_destination)
 
     # Compilar el archivo LaTeX a PDF usando el comando pdflatex
     Dir.chdir(latex_dir) do
