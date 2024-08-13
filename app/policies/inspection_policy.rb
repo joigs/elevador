@@ -12,7 +12,9 @@ class InspectionPolicy < BasePolicy
   end
 
 
-
+  def download_json
+      Current.user.admin || record.users.exists?(id: Current.user&.id)
+  end
 
   def update_ending
     Current.user.admin || record.users.exists?(id: Current.user&.id)

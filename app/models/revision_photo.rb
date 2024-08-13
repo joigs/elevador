@@ -8,6 +8,17 @@ class RevisionPhoto < ApplicationRecord
   before_save :sanitize_filename
 
 
+
+  scope :ordered_by_code, -> {
+    select("revision_photos.*")
+      .order(Arel.sql("
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 1), '.', -1) AS UNSIGNED),
+    CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 2), '.', -1) AS UNSIGNED),
+    CAST(IF(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 3), '.', -1) = '', '0', SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 3), '.', -1)) AS UNSIGNED),
+    CAST(IF(SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 4), '.', -1) = '', '0', SUBSTRING_INDEX(SUBSTRING_INDEX(code, '.', 4), '.', -1)) AS UNSIGNED)
+    "))
+  }
+
   private
 
   # Method to set the filename of the photo to the record's ID

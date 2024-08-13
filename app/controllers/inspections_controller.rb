@@ -1,6 +1,4 @@
 class InspectionsController < ApplicationController
-  require 'fileutils'
-  require 'open3'
 
   def index
     @q = Inspection.ransack(params[:q])
@@ -296,78 +294,70 @@ class InspectionsController < ApplicationController
 
 
 
+
   def download_json
-    # Autorización y selección de la revisión
     authorize! inspection
 
-    if inspection.item.group.type_of == "escala"
-      revision = LadderRevision.find_by(inspection_id: inspection.id)
-    else
-      revision = Revision.find_by(inspection_id: inspection.id)
-    end
-
-    # Obtener las fotos ordenadas por `revision_photo.code`
-    revision_photos = revision.revision_photos.ordered_by_code
-
-    # Directorio temporal para guardar el archivo LaTeX y las imágenes
-    latex_dir = Rails.root.join('tmp', 'latex')
-    FileUtils.mkdir_p(latex_dir)
-
-    # Nombre del archivo LaTeX
-    latex_file = File.join(latex_dir, 'document.tex')
-
-    # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
-    latex_content = "\\documentclass{article}\n"
-    latex_content += "\\usepackage{graphicx}\n"
-    latex_content += "\\usepackage{geometry}\n"
-    latex_content += "\\geometry{a4paper, margin=1in}\n"
-    latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
-    latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
-    latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
-    latex_content += "\\begin{document}\n"
-
-    revision_photos.each_slice(2) do |photos|
-      latex_content += "\\begin{figure}[h!]\n"
-      photos.each do |photo|
-        image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
-        FileUtils.cp(image_path, File.join(latex_dir, "#{photo.id}.jpg"))
-
-        latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
-        latex_content += "    \\centering\n"
-        latex_content += "    \\includegraphics[width=\\textwidth]{#{photo.id}.jpg}\n"
-        latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
-        latex_content += "  \\end{minipage}\n"
-        latex_content += "  \\hfill\n" if photos.size > 1
-      end
-      latex_content += "\\end{figure}\n"
-    end
-
-    latex_content += "\\end{document}\n"
-
-    # Guardar el contenido en el archivo LaTeX
-    File.open(latex_file, 'w') { |file| file.write(latex_content) }
-
-    # Compilar el archivo LaTeX a PDF usando el comando pdflatex
-    Dir.chdir(latex_dir) do
-      stdout, stderr, status = Open3.capture3("pdflatex document.tex")
-      unless status.success?
-        render plain: "Error al compilar LaTeX: #{stderr}", status: :internal_server_error
-        return
-      end
-    end
-
-    # Convertir PDF a imágenes (una por página)
-    pdf_file = File.join(latex_dir, 'document.pdf')
-    image_output_base = File.join(latex_dir, 'page')
-    stdout, stderr, status = Open3.capture3("pdftoppm -png #{pdf_file} #{image_output_base}")
-    unless status.success?
-      render plain: "Error al convertir PDF a imágenes: #{stderr}", status: :internal_server_error
+    if @inspection.nil?
+      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
       return
     end
 
-    # Enviar el archivo PDF como descarga
-    send_file(pdf_file, filename: "document.pdf", type: "application/pdf")
+    @revision = Revision.find_by(inspection_id: @inspection.id)
+    if @revision.nil?
+      redirect_to(home_path, alert: "Checklist no disponible.")
+      return
+    end
+
+    @black_inspection = Inspection.find_by(number: @inspection.number * -1)
+    if @black_inspection
+      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    end
+
+    @item = @revision.item
+    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
+    @group = @item.group
+    @detail = Detail.find_by(item_id: @item.id)
+    @colors = @revision.revision_colors
+    @rules = @group.rules.includes(:ruletype)
+    @nombres = ['. DOCUMENTAL CARPETA 0',
+                '. CAJA DE ELEVADORES.',
+                '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+                '. PUERTA DE PISO.',
+                '. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
+                '. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
+                '. GUÍAS, AMORTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
+                '. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
+                '. MÁQUINA.',
+                '. ASCENSORES SIN SALA DE MÁQUINAS.',
+                '. ESPACIO DE MÁQUINAS.',
+                '. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
+                '. ASCENSORES CON MÁQUINAS EN FOSO.',
+                '. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
+                '. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
+                '. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR']
+
+    json_data = {
+      inspection: @inspection,
+      revision: @revision,
+      black_inspection: @black_inspection,
+      black_revision: @black_revision,
+      item: @item,
+      revision_nulls: @revision_nulls,
+      group: @group,
+      detail: @detail,
+      colors: @colors,
+      revision_map: @revision_map,
+      nombres: @nombres,
+      last_revision: @last_revision,
+      rules: @rules
+    }
+
+    send_data json_data.to_json, filename: "inspection_#{params[:inspection_id]}.json", type: 'application/json'
+  rescue ActiveRecord::RecordNotFound
+    redirect_to(home_path, alert: "Error al guardar la inspección")
   end
+
 
   private
   def inspection_params
