@@ -106,3 +106,6 @@ gem 'whenever', require: false
 
 #para busquedas
 gem 'ransack'
+
+gem 'pdflatex'
+gem 'fileutils'

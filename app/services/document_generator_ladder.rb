@@ -512,8 +512,6 @@ class DocumentGeneratorLadder
 
     original_files = []
 
-    revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'LadderRevision')
-    set_of_errors = []
 
     Omnidocx::Docx.replace_footer_content(replacement_hash={ "{{month}}" => inspection.ins_date&.strftime('%m'), "{{year}}" => inspection.ins_date&.strftime('%Y'), "{{rol}}" => item_rol }, output_path, output_path)
 
@@ -524,39 +522,6 @@ class DocumentGeneratorLadder
 
 
 
-    revision.codes.each_with_index.chunk_while { |(_, i), (_, j)| revision.codes[i] == revision.codes[j] }.each_with_index do |group, group_index|
-      group.each do |code, index|
-
-        template_path = Rails.root.join('app', 'templates', 'template_2.docx')
-        doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
-        set_of_errors << errors_all[index]
-
-        has_matching_photo = revision_photos.any? { |photo| photo.code == code }
-
-        next_code_different = (revision.codes[index+1] != code rescue true)
-
-        if has_matching_photo && next_code_different
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
-          doc.replace('{{loop_falla}}', errors_all_text)
-          output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
-          doc.commit(output_path_var)
-          original_files << output_path_var
-          Omnidocx::Docx.merge_documents([output_path, output_path_var], output_path, false)
-          images_to_write = prepare_images_for_document(revision_id, code)
-          Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
-          cleanup_temporary_images(images_to_write)
-          set_of_errors = []
-
-        elsif index == revision.codes.length - 1
-          errors_all_text = set_of_errors.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
-          doc.replace('{{loop_falla}}', errors_all_text)
-          output_path_var = Rails.root.join('tmp', "part2.#{group_index}.docx")
-          doc.commit(output_path_var)
-          original_files << output_path_var
-          Omnidocx::Docx.merge_documents([output_path, output_path_var], output_path, false)
-        end
-      end
-    end
 
     Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
     original_files << output_path2
@@ -634,6 +599,87 @@ class DocumentGeneratorLadder
     end
 
 =end
+
+
+
+    # Obtener las fotos ordenadas por `revision_photo.code`
+    revision_photos = revision.revision_photos.ordered_by_code
+
+    # Directorio temporal para guardar el archivo LaTeX y las imágenes
+    latex_dir = Rails.root.join('tmp', 'latex')
+    FileUtils.mkdir_p(latex_dir)
+
+    # Nombre base que incluye `inspection.number`
+    base_name = inspection.number.to_s + '_' + inspection.ins_date.strftime('%m') + '_' + inspection.ins_date.strftime('%Y') + '_' + item_rol
+
+    # Nombre del archivo LaTeX
+    latex_file = File.join(latex_dir, "#{base_name}_document.tex")
+
+    # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
+    latex_content = "\\documentclass{article}\n"
+    latex_content += "\\usepackage{graphicx}\n"
+    latex_content += "\\usepackage{geometry}\n"
+    latex_content += "\\geometry{a4paper, margin=1in}\n"
+    latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
+    latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
+    latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
+    latex_content += "\\begin{document}\n"
+
+    revision_photos.each_slice(2) do |photos|
+      latex_content += "\\begin{figure}[h!]\n"
+      photos.each do |photo|
+        image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
+        # Usar `inspection.number` para el nombre de la imagen
+        image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
+        FileUtils.cp(image_path, image_destination)
+
+        latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
+        latex_content += "    \\centering\n"
+        latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
+        latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
+        latex_content += "  \\end{minipage}\n"
+        latex_content += "  \\hfill\n" if photos.size > 1
+      end
+      latex_content += "\\end{figure}\n"
+    end
+
+    latex_content += "\\end{document}\n"
+
+    # Guardar el contenido en el archivo LaTeX
+    File.open(latex_file, 'w') { |file| file.write(latex_content) }
+
+    # Compilar el archivo LaTeX a PDF usando el comando pdflatex
+    Dir.chdir(latex_dir) do
+      stdout, stderr, status = Open3.capture3("pdflatex #{File.basename(latex_file)}")
+      unless status.success?
+        render plain: "Error al compilar LaTeX: #{stderr}", status: :internal_server_error
+        return
+      end
+    end
+
+    # Convertir PDF a imágenes (una por página)
+    pdf_file = File.join(latex_dir, "#{base_name}_document.pdf")
+    image_output_base = File.join(latex_dir, "#{base_name}_page")
+    stdout, stderr, status = Open3.capture3("pdftoppm -png #{pdf_file} #{image_output_base}")
+    unless status.success?
+      render plain: "Error al convertir PDF a imágenes: #{stderr}", status: :internal_server_error
+      return
+    end
+
+    images_to_write = Dir.glob("#{image_output_base}-*.png").map do |image|
+      {
+        path: image,
+        height: 1100,
+        width: 700
+      }
+    end
+
+    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+
+    # Buscar y eliminar todos los archivos que comiencen con `base_name`
+    Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
+      File.delete(file_path) if File.exist?(file_path)
+    end
 
 
     tabla_path = Rails.root.join('app', 'templates', 'tabla_escala.docx')

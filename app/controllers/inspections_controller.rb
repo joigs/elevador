@@ -291,8 +291,12 @@ class InspectionsController < ApplicationController
 
   end
 
+
+
+
+
   def download_json
-    inspection
+    authorize! inspection
 
     if @inspection.nil?
       redirect_to(home_path, alert: "No se encontró la inspección para el activo.")

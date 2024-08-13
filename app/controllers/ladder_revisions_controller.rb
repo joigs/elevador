@@ -103,6 +103,12 @@ class LadderRevisionsController < ApplicationController
     end
 
 
+    @revision_codes = []
+
+    @revision.codes.each_with_index do |code, index|
+      @revision_codes << "#{code} #{@revision.points[index]}"
+    end
+
     # hashmap para agrupar las fotos por código
     @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
       if photo.photo.attached?
@@ -381,7 +387,9 @@ class LadderRevisionsController < ApplicationController
         code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
           if params[:ladder_revision][:codes].present?
-            if params[:ladder_revision][:codes].exclude?(photo.code)
+            constructed_code = "#{params[:revision][:codes][params[:revision][:codes].index(photo.code.split(' ').first)]} #{params[:revision][:points][params[:revision][:codes].index(photo.code.split(' ').first)]}"
+
+            if constructed_code != photo.code
               photo.destroy
             end
           else
