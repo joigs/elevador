@@ -161,6 +161,15 @@ class InspectionsController < ApplicationController
     end
   end
 
+  def update_inf_date
+    authorize! inspection
+    inf_date = inspection_params[:inf_date]
+    if @inspection.update(inf_date: inf_date)
+      redirect_to @inspection, notice: 'Fecha de emisión de informe actualizada'
+    else
+      render @inspection, status: :unprocessable_entity
+    end
+  end
 
 
 
@@ -361,7 +370,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :ending, user_ids: [], item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
+    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :ending, :inf_date, user_ids: [], item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
       if whitelisted[:item_attributes] && whitelisted[:item_attributes][:identificador]
         whitelisted[:item_attributes][:identificador].gsub!(/\s+/, "")
       end

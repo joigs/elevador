@@ -20,4 +20,8 @@ class InspectionPolicy < BasePolicy
     Current.user.admin || record.users.exists?(id: Current.user&.id)
   end
 
+  def update_inf_date
+    Current.user.admin
+  end
+
 end

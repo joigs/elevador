@@ -28,6 +28,8 @@ Rails.application.routes.draw do
       patch :close_inspection
       patch :update_ending
       get :download_json
+      patch :update_inf_date
+
 
     end
     collection do
