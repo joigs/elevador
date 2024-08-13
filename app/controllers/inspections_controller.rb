@@ -215,6 +215,10 @@ class InspectionsController < ApplicationController
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
 
+    if inspection.inf_date.nil?
+      inspection.update(inf_date: Time.zone.now.to_date)
+    end
+
     if inspection.item.group.type_of == "escala"
       revision_id = LadderRevision.find_by(inspection_id: inspection.id).id
       new_doc_path = DocumentGeneratorLadder.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
@@ -286,7 +290,7 @@ class InspectionsController < ApplicationController
           else
             @inspection.update(result: "Aprobado")
           end
-          if @inspection.update(state: "Cerrado", inf_date: Time.zone.now.to_date)
+          if @inspection.update(state: "Cerrado")
             redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
           else
             redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
