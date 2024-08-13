@@ -451,41 +451,40 @@ class DocumentGenerator
       end
     end
 
-    if detail.sala_maquinas == "Si"
+
       aux = [
-        '•1. Carpeta cero.',
-        '•2. Caja de elevadores.',
-        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).',
-        '•4. Puerta de piso.',
-        '•5. Cabina, contrapeso y masa de equilibrio.',
-        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.',
-        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.',
-        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.',
-        '•10. Ascensores sin sala de máquinas.',
-        '•11. Protección contra defectos eléctricos, mandos y prioridades.',
-        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular.'
+        '•0.  Carpeta cero.',
+        '•1.  Caja de elevadores.',
+        '•2.  Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).',
+        '•3.  Puerta de piso.',
+        '•4.  Cabina, contrapeso y masa de equilibrio.',
+        '•5.  Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.',
+        '•6.  Guías, amortiguadores y dispositivos de seguridad de final de recorrido.',
+        '•7.  Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.',
+        '•8.  Máquina.',
+        '•9.  Ascensor sin sala de máquinas.',
+        '•10. Protección contra defectos eléctricos, mandos y prioridades.',
+        '•11. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular.'
       ]
 
 
-    else
-      aux = [
-        '•1. Carpeta cero.',
-        '•3. Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).',
-        '•4. Puerta de piso.',
-        '•5. Cabina, contrapeso y masa de equilibrio.',
-        '•6. Suspensión, compensación, protección contra la sobre velocidad y protección contra el movimiento incontrolado de la cabina.',
-        '•7. Guías, amortiguadores y dispositivos de seguridad de final de recorrido.',
-        '•8. Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.',
-        '•9. Máquina.',
-        '•10. Ascensores sin sala de máquinas.',
-        '•11. Protección contra defectos eléctricos, mandos y prioridades.',
-        '•12. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular.'
-      ]
-    end
 
 
     cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
     no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                                     "}.join("\n")
+
+
+    # Eliminar el elemento correspondiente en los textos generados
+    if detail.sala_maquinas == "Si"
+      cumple_text.gsub!('•9.  Ascensor sin sala de máquinas.', '')
+      no_cumple_text.gsub!('•9.  Ascensor sin sala de máquinas.', '')
+    else
+      cumple_text.gsub!('•2.  Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).', '')
+      no_cumple_text.gsub!('•2.  Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).', '')
+    end
+
+
+
 
     if cumple.any?
       doc.replace('{{lista_comprobacion_cumple}}', cumple_text)

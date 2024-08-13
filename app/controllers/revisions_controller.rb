@@ -70,24 +70,39 @@ class RevisionsController < ApplicationController
     if @detail.sala_maquinas == "Responder más tarde"
       @rules = @group.rules.includes(:ruletype).where.not('code LIKE ?', '2%').where.not('code LIKE ?', '9%').ordered_by_code
 
+      indices= [10, 11, 12, 13]
+
 
     elsif @detail.sala_maquinas == "Si"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '9%').ordered_by_code
       @nope = 9
+      indices= [10, 11, 12, 13]
+
 
     elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.3%').where.not('code LIKE ?', '9.4%').ordered_by_code
       @nope = 2
+      indices= [10, 9, 12, 13]
+
 
     elsif @detail.sala_maquinas == "No. Máquina en foso"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.2%').where.not('code LIKE ?', '9.4%').ordered_by_code
       @nope = 2
+      indices= [10, 11, 9, 13]
+
 
     elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
       @rules = @group.rules.includes(:ruletype).where('code NOT LIKE ?', '2%').where.not('code LIKE ?', '9.2%').where.not('code LIKE ?', '9.3%').ordered_by_code
       @nope = 2
+      indices= [10, 11, 12, 9]
+
 
     end
+    elementos = @nombres.values_at(*indices)
+
+    elementos.each { |elemento| @nombres.delete(elemento) }
+
+
     if params[:section].present?
       section_code_start = "#{params[:section]}."
       @rules = @rules.select { |rule| rule.code.starts_with?(section_code_start) }
