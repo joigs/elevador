@@ -312,13 +312,8 @@ class DocumentGeneratorLadder
     end
 
 
-    if inspectors.second && !condicion
-      template_path = Rails.root.join('app', 'templates', 'template_3.docx')
-    elsif !inspectors.second && condicion
-      template_path = Rails.root.join('app', 'templates', 'template_3_0user.docx')
-    else
-      template_path = Rails.root.join('app', 'templates', 'template_3_1user.docx')
-    end
+    template_path = Rails.root.join('app', 'templates', 'template_1.1.docx')
+
 
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
@@ -408,30 +403,68 @@ class DocumentGeneratorLadder
 
 
 
-    if errors_leves.any?
-      errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                                     "}.join("\n")
-      doc.replace('{{revision_errors_leves}}', errors_leves_text)
-      doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
-    else
-      doc.replace('{{revision_errors_leves}}', '')
-      doc.replace('{{si_las_hubiera_leve}}', 'No se encontraron faltas leves en la inspección.')
-    end
-
     if errors_graves.any?
-      errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                                  "}.join("\n")
-      doc.replace('{{revision_errors_graves}}', errors_graves_text)
       doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Faltas Graves, encontradas en la inspección son las siguientes:')
     else
-      doc.replace('{{revision_errors_graves}}', '')
       doc.replace('{{si_las_hubiera_grave}}', 'No se encontraron faltas graves en la inspección.')
     end
 
-    errors_leves_text = errors_leves.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
-    errors_graves_text = errors_graves.map { |error| "• #{error}\n                                                                                                                          "}.join("\n")
+    output_path1_1 = Rails.root.join('tmp', "#{inspection.number}_part1.1.docx")
+    doc.commit(output_path1_1)
 
-    doc.replace('{{revision_errors_leves}}', errors_leves_text)
-    doc.replace('{{revision_errors_graves}}', errors_graves_text)
+    Omnidocx::Docx.merge_documents([output_path, output_path1_1], output_path, false)
 
+    original_files = []
+    original_files << output_path1_1
+
+    template_path = Rails.root.join('app', 'templates', 'template_2.docx')
+
+
+
+    errors_graves.each_with_index do |error, index|
+      doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+      doc.replace('{{revision_errors}}', error)
+      output_path3 = Rails.root.join('tmp', "#{inspection.number}_part2_#{index}.docx")
+      doc.commit(output_path3)
+      Omnidocx::Docx.merge_documents([output_path, output_path3], output_path, false)
+      original_files << output_path3
+    end
+
+
+
+    template_path = Rails.root.join('app', 'templates', 'template_1.2.docx')
+
+    doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+
+
+
+
+    if errors_leves.any?
+      doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
+    else
+      doc.replace('{{si_las_hubiera_leve}}', 'No se encontraron faltas leves en la inspección.')
+    end
+
+    output_path1_2 = Rails.root.join('tmp', "#{inspection.number}_part1.2.docx")
+    doc.commit(output_path1_2)
+    Omnidocx::Docx.merge_documents([output_path, output_path1_2], output_path, false)
+    original_files << output_path1_2
+
+
+
+
+    template_path = Rails.root.join('app', 'templates', 'template_2.docx')
+
+
+
+    errors_leves.each_with_index do |error, index|
+      doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+      doc.replace('{{revision_errors}}', error)
+      output_path3 = Rails.root.join('tmp', "#{inspection.number}_part2_2_#{index}.docx")
+      doc.commit(output_path3)
+      Omnidocx::Docx.merge_documents([output_path, output_path3], output_path, false)
+      original_files << output_path3
+    end
 
 
     month_number = report.ending.month
@@ -453,6 +486,22 @@ class DocumentGeneratorLadder
     }
 
     month_name = months[month_number]
+
+
+
+    if inspectors.second && !condicion
+      template_path = Rails.root.join('app', 'templates', 'template_3.docx')
+    elsif !inspectors.second && condicion
+      template_path = Rails.root.join('app', 'templates', 'template_3_0user.docx')
+    else
+      template_path = Rails.root.join('app', 'templates', 'template_3_1user.docx')
+    end
+
+
+    doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
+
+
+
 
     if revision.levels.blank?
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple")
