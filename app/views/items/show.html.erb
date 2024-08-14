@@ -1,9 +1,13 @@
 <%= render @item %>
 <div class="flex flex-col items-center justify-center mt-8 space-y-4">
-  <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "w-40 text-center px-6 py-3 bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
 
-  <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "w-40 text-center px-6 py-3 bg-blue-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>
+  <% if @condicion  %>
+    <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "w-40 text-center px-6 py-3 bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
+  <% end %>
 
+  <% if Current.user.admin %>
+    <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "w-40 text-center px-6 py-3 bg-blue-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>
+  <% end %>
   <%= link_to "Ver última inspección", inspection_path(@inspection), class: "w-40 text-center px-6 py-3 bg-green-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-green-700 hover:shadow-lg focus:bg-green-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-800 active:shadow-lg transition duration-150 ease-in-out" if @inspection %>
 
   <%= link_to "Volver a activos", items_path, class: "w-40 text-center px-6 py-3 bg-gray-600 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-gray-500 hover:shadow-lg focus:bg-gray-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-800 active:shadow-lg transition duration-150 ease-in-out" %>
