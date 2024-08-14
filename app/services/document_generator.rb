@@ -549,23 +549,26 @@ class DocumentGenerator
       doc.replace('{{si_las_hubiera_grave}}', 'No se encontraron faltas graves en la inspección.')
     end
 
-    identificador_rol = item.identificador.split("-").first
-    identificador_rol_last = identificador_rol[/\d(?=[^\d]*$)/]
+    month_number = report.ending.month
+
 
     months = {
-      "0" => "Enero, Febrero o Marzo",
-      "1" => "Abril",
-      "2" => "Mayo",
-      "3" => "Junio",
-      "4" => "Julio",
-      "5" => "Agosto",
-      "6" => "Septiembre",
-      "7" => "Octubre",
-      "8" => "Noviembre",
-      "9" => "Diciembre"
+      1 => "Enero",
+      2 => "Febrero",
+      3 => "Marzo",
+      4 => "Abril",
+      5 => "Mayo",
+      6 => "Junio",
+      7 => "Julio",
+      8 => "Agosto",
+      9 => "Septiembre",
+      10 => "Octubre",
+      11 => "Noviembre",
+      12 => "Diciembre"
     }
 
-    mapped_month = months[identificador_rol_last]
+    month_name = months[month_number]
+
 
     if revision.levels.blank?
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple")
@@ -580,7 +583,7 @@ class DocumentGenerator
       doc.replace('{{esta/no_esta}}', "no está")
       doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Faltas Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
       if !errors_leves.empty?
-        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{mapped_month}.")
+        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{month_name}.")
       else
         doc.replace('{{texto_leve}}', "")
       end
@@ -591,7 +594,7 @@ class DocumentGenerator
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple parcialmente")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
-      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{mapped_month}.")
+      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{month_name}.")
     end
 
     doc.replace('{{admin}}', admin.real_name)
