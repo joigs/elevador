@@ -38,7 +38,7 @@
 
 
     <%= form.label :"Empresa Instaladora", class: "block text-gray-300" %>
-    <%= form.text_field :empresa_instaladora, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :empresa_instaladora, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"RUT Empresa Instaladora", class: "block text-gray-300" %>
     <%= form.text_field :empresa_instaladora_rut, data: { controller: "rut", rut_target: "rut" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
@@ -56,7 +56,7 @@
     <%= form.text_field :modelo, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"M° Serie", class: "block text-gray-300" %>
-    <%= form.text_field :nserie, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :nserie, data: { controller: "uppercase", uppercase_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <hr class="my-4 border-gray-500">
 
@@ -68,7 +68,7 @@
     <%= form.text_field :mm_marca, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"N° Serie", class: "block text-gray-300" %>
-    <%= form.text_field :mm_nserie, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :mm_nserie, data: { controller: "uppercase", uppercase_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Potencia", class: "block text-gray-300" %>
     <%= form.number_field :potencia, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>

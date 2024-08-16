@@ -55,8 +55,9 @@
 
     <div class="form-group">
       <%= form.label :empresa_instaladora, class: "block text-gray-300" %>
-      <%= form.text_field :empresa_instaladora, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
-    </div>
+      <%= form.text_field :empresa_instaladora,
+                          data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" },
+                          class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>    </div>
 
     <hr class="my-4 border-gray-500">
 
@@ -83,7 +84,7 @@
 
     <div class="form-group">
       <%= form.label :n_serie, "N° de serie", class: "block text-gray-300" %>
-      <%= form.text_field :n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.text_field :n_serie, data: { controller: "uppercase", uppercase_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <hr class="my-4 border-gray-500">
@@ -100,7 +101,7 @@
 
     <div class="form-group">
       <%= form.label :mm_n_serie, "N° de serie", class: "block text-gray-300" %>
-      <%= form.text_field :mm_n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.text_field :mm_n_serie, data: { controller: "uppercase", uppercase_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <div class="form-group">
@@ -163,7 +164,7 @@
 
     <div class="form-group">
       <%= form.label :rv_n_serie, "N° serie", class: "block text-gray-300" %>
-      <%= form.text_field :rv_n_serie, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.text_field :rv_n_serie, data: { controller: "uppercase", uppercase_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <hr class="my-4 border-gray-500">

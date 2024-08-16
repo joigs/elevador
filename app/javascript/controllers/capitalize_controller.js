@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
+//primera letra con mayuscula
+
 export default class extends Controller {
     static targets = ["input"];
 
