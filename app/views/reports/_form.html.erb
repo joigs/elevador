@@ -34,7 +34,7 @@
 
         <div>
           <%= form.label :empresa_anterior, "Empresa certificadora anterior", class: "block text-gray-300" %>
-          <%= form.text_field :empresa_anterior, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+          <%= form.text_field :empresa_anterior, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
         </div>
 
         <div>
@@ -57,7 +57,7 @@
 
     <div>
       <%= form.label :empresa_mantenedora, "Empresa mantenedora", class: "block text-gray-300" %>
-      <%= form.text_field :empresa_mantenedora, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.text_field :empresa_mantenedora, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <div>

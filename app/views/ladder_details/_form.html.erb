@@ -14,10 +14,10 @@
 
 
     <%= form.label :"Detalle", class: "block text-gray-300" %>
-    <%= form.text_field :detalle, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :detalle, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Descripción", class: "block text-gray-300" %>
-    <%= form.text_field :descripcion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :descripcion, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Rol N°", class: "block text-gray-300" %>
     <%= form.text_field :rol_n, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
@@ -38,7 +38,7 @@
 
 
     <%= form.label :"Empresa Instaladora", class: "block text-gray-300" %>
-    <%= form.text_field :empresa_instaladora, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :empresa_instaladora, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"RUT Empresa Instaladora", class: "block text-gray-300" %>
     <%= form.text_field :empresa_instaladora_rut, data: { controller: "rut", rut_target: "rut" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
@@ -50,10 +50,10 @@
     <%= form.number_field :porcentaje, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Marca", class: "block text-gray-300" %>
-    <%= form.text_field :marca, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :marca, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Modelo", class: "block text-gray-300" %>
-    <%= form.text_field :modelo, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :modelo, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"M° Serie", class: "block text-gray-300" %>
     <%= form.text_field :nserie, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
@@ -65,7 +65,7 @@
     </div>
 
     <%= form.label :"Marca", class: "block text-gray-300" %>
-    <%= form.text_field :mm_marca, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :mm_marca, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"N° Serie", class: "block text-gray-300" %>
     <%= form.text_field :mm_nserie, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
@@ -101,7 +101,7 @@
     <%= form.number_field :fabricacion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Procedencia", class: "block text-gray-300" %>
-    <%= form.text_field :procedencia, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :procedencia, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.submit "Actualizar información del activo", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
   <% end %>
