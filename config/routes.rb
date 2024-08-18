@@ -29,12 +29,11 @@ Rails.application.routes.draw do
       patch :update_ending
       get :download_json
       patch :update_inf_date
-
-
-    end
-    collection do
       get :new_with_last
+
+
     end
+
   end
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups' do
     collection do

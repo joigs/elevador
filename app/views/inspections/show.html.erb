@@ -72,7 +72,7 @@
 
 
   <div class="mt-6 w-full ">
-    <%= link_to 'Programar nueva inspección para este activo', new_with_last_inspections_path(@inspection.id), class: 'px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300' if Current.user.admin && @inspection.state=="Cerrado" && @inspection==@last_inspection %>
+    <%= link_to 'Programar nueva inspección para este activo', new_with_last_inspection_path(@inspection), class: 'px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300' if Current.user.admin && @inspection.state=="Cerrado" && @inspection==@last_inspection %>
   </div>
 
 

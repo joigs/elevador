@@ -119,7 +119,8 @@ class InspectionsController < ApplicationController
 
   def new_with_last
     @from_last_inspection = true
-    last_inspection = Inspection.order(created_at: :desc).find_by(params[:inspection_id])
+    last_inspection = Inspection.find(params[:id])
+
     @inspection = Inspection.new(
       place: last_inspection.place,
       validation: last_inspection.validation
