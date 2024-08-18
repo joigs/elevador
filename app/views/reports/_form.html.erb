@@ -16,19 +16,53 @@
       <%= form.text_field :certificado_minvu, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
-    <div data-controller="certificacion-anterior">
-      <%= form.label :cert_ant, "Certificacion anterior", class: "block text-gray-300" %>
+    <div data-controller="certificacion-anterior tarjeta">
+      <%= form.label :cert_ant, "Certificación anterior", class: "block text-gray-300" %>
       <div class="flex items-center space-x-4">
-        <%= form.radio_button :cert_ant, 'Si', checked: true, data: { action: "certificacion-anterior#toggleFields" }, class: "form-radio" %>
+        <%= form.radio_button :cert_ant, 'Si', checked: true, data: { action: "certificacion-anterior#toggleFields tarjeta#toggleCard" }, class: "form-radio" %>
         <%= form.label :cert_ant, 'Si', value: 'Si', class: "text-gray-300" %>
-        <label></label>
-        <%= form.radio_button :cert_ant, 'No', data: { action: "certificacion-anterior#toggleFields" }, class: "form-radio" %>
+
+        <%= form.radio_button :cert_ant, 'No', data: { action: "certificacion-anterior#toggleFields tarjeta#toggleCard" }, class: "form-radio" %>
         <%= form.label :cert_ant, 'No', value: 'No', class: "text-gray-300" %>
+
+        <% if @show_third_radio_button %>
+          <%= form.radio_button :cert_ant, 'sistema', data: { action: "certificacion-anterior#toggleFields tarjeta#toggleCard" }, class: "form-radio" %>
+          <%= form.label :cert_ant, 'Última certificación en sistema', value: 'sistema', class: "text-gray-300" %>
+        <% end %>
       </div>
+
+      <% if @show_third_radio_button %>
+        <div data-tarjeta-target="inspectionNumber" class="hidden mt-4">
+            <%= render partial: 'inspections/inspection', locals: { inspection: @report.inspection } %>
+          <div  class="space-y-4 mt-4">
+            <div>
+              <%= form.label :fecha, "Fecha certificación anterior", class: "block text-gray-300" %>
+              <%= form.date_field :fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+            </div>
+
+            <div>
+              <%= form.label :empresa_anterior, "Empresa certificadora anterior", class: "block text-gray-300" %>
+              <%= form.text_field :empresa_anterior, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+            </div>
+
+            <div>
+              <%= form.label :ea_rol, "Rol", class: "block text-gray-300" %>
+              <%= form.text_field :ea_rol, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+            </div>
+
+            <div>
+              <%= form.label :ea_rut, "Rut", class: "block text-gray-300" %>
+              <%= form.text_field :ea_rut, data: { controller: "rut", rut_target: "rut" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+            </div>
+          </div>
+
+        </div>
+      <% end %>
+
 
       <div data-certificacion-anterior-target="toggleable" class="space-y-4 mt-4">
         <div>
-          <%= form.label :fecha, "Fecha certificacion anterior", class: "block text-gray-300" %>
+          <%= form.label :fecha, "Fecha certificación anterior", class: "block text-gray-300" %>
           <%= form.date_field :fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
         </div>
 

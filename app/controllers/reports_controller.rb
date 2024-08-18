@@ -4,12 +4,29 @@ class ReportsController < ApplicationController
   def edit
     authorize! report
     @item = @report.item
+    @inspections = @item.inspections.order(ins_date: :desc)
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(@inspections.size)
+    if @inspections.size == 1 || (@inspections.size == 2 && @inspections.last.number < 0)
+      @show_third_radio_button = false
+    elsif @inspections.size == 2 && @inspections.last.number > 0
+      @show_third_radio_button = true
+      @previous_inspection = @inspections.last
+    elsif @inspections.size >= 3 && @inspections.second.number < 0
+      @show_third_radio_button = true
+      @previous_inspection = @inspections.third
+    else
+      @show_third_radio_button = true
+      @previous_inspection = @inspections.second
+    end
+
     if @item.group.name.downcase.include?("escala")
       @detail = LadderDetail.find_by(item_id: @item.id)
     else
       @detail = Detail.find_by(item_id: @item.id)
     end
   end
+
 
 
 
