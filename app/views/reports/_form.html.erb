@@ -32,27 +32,45 @@
       </div>
 
       <% if @show_third_radio_button %>
-        <div data-tarjeta-target="inspectionNumber" class="hidden mt-4">
-            <%= render partial: 'inspections/inspection', locals: { inspection: @report.inspection } %>
+        <div data-tarjeta-target="inspectionNumber" class="hidden mt-4 ">
+          <div  class="max-w-md mx-auto bg-gray-700 rounded-xl shadow-lg overflow-hidden md:max-w-2xl">
+            <div class="p-8">
+              <p class="text-gray-400">
+                <strong class="text-gray-200">Número de inspección:</strong>
+                <%= @previous_inspection.number %>
+              </p>
+              <p class="text-gray-400">
+                <strong class="text-gray-200">Fecha de Inspección:</strong>
+                <%= @previous_inspection.ins_date&.strftime("%d/%m/%Y") %>
+              </p>
+              <p class="text-gray-400">
+                <strong class="text-gray-200">Resultado:</strong>
+                <%= @previous_inspection.result %>
+              </p>
+
+
+
+            </div>
+            </div>
           <div  class="space-y-4 mt-4">
             <div>
               <%= form.label :fecha, "Fecha certificación anterior", class: "block text-gray-300" %>
-              <%= form.date_field :fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.date_field :fecha, value: @previous_inspection.ins_date, readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
               <%= form.label :empresa_anterior, "Empresa certificadora anterior", class: "block text-gray-300" %>
-              <%= form.text_field :empresa_anterior, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.text_field :empresa_anterior, value: "Chcert", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
               <%= form.label :ea_rol, "Rol", class: "block text-gray-300" %>
-              <%= form.text_field :ea_rol, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.text_field :ea_rol, value: "Rol Fijo", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
               <%= form.label :ea_rut, "Rut", class: "block text-gray-300" %>
-              <%= form.text_field :ea_rut, data: { controller: "rut", rut_target: "rut" }, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.text_field :ea_rut, value: "12.345.678-9", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
           </div>
 

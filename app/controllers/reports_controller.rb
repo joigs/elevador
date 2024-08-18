@@ -5,8 +5,6 @@ class ReportsController < ApplicationController
     authorize! report
     @item = @report.item
     @inspections = @item.inspections.order(ins_date: :desc)
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(@inspections.size)
     if @inspections.size == 1 || (@inspections.size == 2 && @inspections.last.number < 0)
       @show_third_radio_button = false
     elsif @inspections.size == 2 && @inspections.last.number > 0
@@ -36,6 +34,10 @@ class ReportsController < ApplicationController
     @item = @report.item
     @detail = Detail.find_by(item_id: @item.id)
     inspection = @report.inspection
+
+
+
+
     if @report.update(report_params)
 
       if @report[:cert_ant] == 'Si' && @item.inspections.where('number > 0').count == 1

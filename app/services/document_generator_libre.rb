@@ -87,7 +87,7 @@ class DocumentGeneratorLibre
 
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
-    if report.cert_ant == 'Si'
+    if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
       doc.replace('{{cert_ant}}', 'Si')
 
     elsif report.cert_ant == 'No'
@@ -296,7 +296,7 @@ class DocumentGeneratorLibre
     last_errors_lift = []
 
 
-    if report.cert_ant == 'Si'
+    if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
 
       if last_revision.nil?
 
