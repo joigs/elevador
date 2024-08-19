@@ -120,7 +120,7 @@ class Authentication::UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :signature, :profesion)
+    params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion)
   end
 
 end
