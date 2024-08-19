@@ -138,7 +138,13 @@ class DocumentGenerator
     doc.replace('{{detail_marca}}', detail.marca)
     doc.replace('{{detail_modelo}}', detail.modelo)
     doc.replace('{{detail_n_serie}}', detail.n_serie)
-    doc.replace('{{detail_velocidad}}', detail.velocidad)
+
+    if detail.velocidad
+      doc.replace('{{detail_velocidad}}', "#{detail.velocidad} m/s")
+    else
+      doc.replace('{{detail_velocidad}}', "S/I")
+    end
+
     doc.replace('{{detail_rol_n}}', detail.rol_n)
 
     if detail.numero_permiso
@@ -667,8 +673,9 @@ class DocumentGenerator
     end
 
 
+
     if condicion
-      doc.replace('{{y_inspector}}', 'Inspector y')
+      doc.replace('{{y_inspector}}', 'Inspector y ')
     else
       doc.replace('{{y_inspector}}', '')
     end
@@ -700,7 +707,7 @@ class DocumentGenerator
 
 
 
-    Omnidocx::Docx.merge_documents([output_path, output_path2], output_path, true)
+    Omnidocx::Docx.merge_documents([output_path, output_path2], output_path, false)
 
     original_files << output_path2
 

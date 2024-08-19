@@ -133,7 +133,14 @@ class DocumentGeneratorLibre
     doc.replace('{{detail_marca}}', detail.marca)
     doc.replace('{{detail_modelo}}', detail.modelo)
     doc.replace('{{detail_n_serie}}', detail.n_serie)
-    doc.replace('{{detail_velocidad}}', detail.velocidad)
+
+    if detail.velocidad
+      doc.replace('{{detail_velocidad}}', "#{detail.velocidad} m/s")
+    else
+      doc.replace('{{detail_velocidad}}', "S/I")
+    end
+
+
     doc.replace('{{detail_rol_n}}', detail.rol_n)
 
     if detail.numero_permiso
@@ -690,7 +697,7 @@ class DocumentGeneratorLibre
 
     doc.replace('{{admin_profesion}}', admin.profesion)
 
-    output_path2 = Rails.root.join('tmp', "part3.docx")
+    output_path2 = Rails.root.join('tmp', "#{inspection.number}_part3.docx")
     doc.commit(output_path2)
 
 
@@ -716,9 +723,9 @@ class DocumentGeneratorLibre
 
 
 
-    Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
+    Omnidocx::Docx.merge_documents([output_path, output_path2], output_path, false)
 
-    original_files << 'tmp/part3.docx'
+    original_files << output_path2
 
 =begin
 

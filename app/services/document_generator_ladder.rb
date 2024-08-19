@@ -561,7 +561,7 @@ class DocumentGeneratorLadder
     doc.replace('{{admin_profesion}}', admin.profesion)
 
 
-    output_path2 = Rails.root.join('tmp', "part3.docx")
+    output_path2 = Rails.root.join('tmp', "#{inspection.number}_part3.docx")
     doc.commit(output_path2)
 
     original_files = []
@@ -577,7 +577,7 @@ class DocumentGeneratorLadder
 
 
 
-    Omnidocx::Docx.merge_documents([output_path, 'tmp/part3.docx'], output_path, true)
+    Omnidocx::Docx.merge_documents([output_path, output_path2], output_path, false)
     original_files << output_path2
 =begin
 
