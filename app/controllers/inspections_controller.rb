@@ -21,15 +21,19 @@ class InspectionsController < ApplicationController
   end
   def new
     @inspection = Inspection.new
-    @inspection.build_item
     @items = Item.all
+    @item = Item.new
   end
 
   def create
     ActiveRecord::Base.transaction do
-      @inspection = Inspection.new(inspection_params.except(:item_attributes))
+      @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id))
 
-      item_params = inspection_params[:item_attributes]
+      # Separar los parámetros del item
+      item_params = inspection_params.slice(:identificador, :group_id, :principal_id)
+
+      # Eliminar espacios en blanco de identificador
+      item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
 
       if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
         @inspection.errors.add(:base, 'Ingrese una empresa')
@@ -60,6 +64,7 @@ class InspectionsController < ApplicationController
         render :new, status: :unprocessable_entity
         return
       end
+
 
 
       if !@item.new_record? && current_group != item_params[:group_id]
@@ -123,16 +128,12 @@ class InspectionsController < ApplicationController
 
     @inspection = Inspection.new(
       place: last_inspection.place,
-      validation: last_inspection.validation
+      validation: last_inspection.validation,
+      ins_date: Date.today # Establecer la fecha de inspección como la fecha actual o la que desees
     )
 
-    if last_inspection.item
-      @inspection.build_item(
-        identificador: last_inspection.item.identificador,
-        group_id: last_inspection.item.group_id,
-        principal_id: last_inspection.item.principal_id
-      )
-    end
+    @item = last_inspection.item
+
 
     render :new
   end
@@ -375,11 +376,8 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:number, :place, :validation, :ins_date, :ending, :inf_date, user_ids: [], item_attributes: [:id, :identificador, :group_id, :principal_id]).tap do |whitelisted|
-      if whitelisted[:item_attributes] && whitelisted[:item_attributes][:identificador]
-        whitelisted[:item_attributes][:identificador].gsub!(/\s+/, "")
-      end
-    end
+    params.require(:inspection).permit(:place, :ins_date, :validation, :identificador, :group_id, :principal_id, user_ids: [])
+
   end
   #indices para ordenar
   def inspection_params_index
