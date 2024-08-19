@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_19_183433) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_19_192849) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -72,24 +72,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_183433) do
     t.string "empresa_instaladora_rut"
     t.integer "porcentaje"
     t.index ["item_id"], name: "index_details_on_item_id"
-  end
-
-  create_table "empresa_certificadora_anteriores", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.string "rut", null: false
-    t.string "rol", null: false
-    t.string "nombre"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["rut"], name: "index_empresa_certificadora_anteriores_on_rut", unique: true
-  end
-
-  create_table "empresa_mantenedoras", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.string "rut", null: false
-    t.string "rol", null: false
-    t.string "nombre"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["rut"], name: "index_empresa_mantenedoras_on_rut", unique: true
   end
 
   create_table "groups", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -227,10 +209,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_183433) do
     t.datetime "updated_at", null: false
     t.string "cert_ant"
     t.date "ending"
-    t.bigint "empresa_mantenedora_id"
-    t.bigint "empresa_certificadora_anterior_id"
-    t.index ["empresa_certificadora_anterior_id"], name: "index_reports_on_empresa_certificadora_anterior_id"
-    t.index ["empresa_mantenedora_id"], name: "index_reports_on_empresa_mantenedora_id"
+    t.string "empresa_anterior"
+    t.string "ea_rol"
+    t.string "ea_rut"
+    t.string "empresa_mantenedora"
+    t.string "em_rol"
+    t.string "em_rut"
+    t.string "nom_tec_man"
+    t.string "tm_rut"
     t.index ["inspection_id"], name: "index_reports_on_inspection_id"
     t.index ["item_id"], name: "index_reports_on_item_id"
   end
@@ -308,16 +294,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_183433) do
     t.string "gygatype_number"
   end
 
-  create_table "tecnico_mantenedors", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.string "rut", null: false
-    t.string "nombre"
-    t.bigint "empresa_mantenedora_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["empresa_mantenedora_id"], name: "index_tecnico_mantenedors_on_empresa_mantenedora_id"
-    t.index ["rut"], name: "index_tecnico_mantenedors_on_rut", unique: true
-  end
-
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "username", null: false
     t.string "password_digest", null: false
@@ -344,8 +320,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_183433) do
   add_foreign_key "ladder_details", "items"
   add_foreign_key "ladder_revisions", "inspections"
   add_foreign_key "ladder_revisions", "items"
-  add_foreign_key "reports", "empresa_certificadora_anteriores", column: "empresa_certificadora_anterior_id"
-  add_foreign_key "reports", "empresa_mantenedoras"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
   add_foreign_key "revisions", "groups"
@@ -354,5 +328,4 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_183433) do
   add_foreign_key "rules", "ruletypes"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"
-  add_foreign_key "tecnico_mantenedors", "empresa_mantenedoras"
 end
