@@ -33,9 +33,20 @@ class LadderRevisionsController < ApplicationController
     end
 
 
-    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
-    if @black_inspection
-      @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
+    @report = Report.find_by(inspection: @inspection)
+    if @report.cert_ant == "Si"
+      @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+      if @black_inspection
+        @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
+        @last_revision = nil
+      end
+
+    elsif @report.cert_ant == "sistema"
+      @last_revision = LadderRevision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+
+    elsif @report.cert_ant == "No"
+      @last_revision = nil
+
     end
 
     #acceder a los objetos asociados a la revision
@@ -82,7 +93,6 @@ class LadderRevisionsController < ApplicationController
 
 
 
-    @last_revision = LadderRevision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
 
 
 

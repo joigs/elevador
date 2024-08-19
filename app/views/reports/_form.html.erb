@@ -54,23 +54,23 @@
             </div>
           <div  class="space-y-4 mt-4">
             <div>
-              <%= form.label :fecha, "Fecha certificación anterior", class: "block text-gray-300" %>
-              <%= form.date_field :fecha, value: @previous_inspection.ins_date, readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.label :fecha_sistema, "Fecha certificación anterior", class: "block text-gray-300" %>
+              <%= form.date_field :fecha_sistema, value: @previous_inspection.ins_date, readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
-              <%= form.label :empresa_anterior, "Empresa certificadora anterior", class: "block text-gray-300" %>
-              <%= form.text_field :empresa_anterior, value: "Chcert", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.label :empresa_anterior_sistema, "Empresa certificadora anterior", class: "block text-gray-300" %>
+              <%= form.text_field :empresa_anterior_sistema, value: "empresa fija", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
-              <%= form.label :ea_rol, "Rol", class: "block text-gray-300" %>
-              <%= form.text_field :ea_rol, value: "Rol Fijo", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.label :ea_rol_sistema, "Rol", class: "block text-gray-300" %>
+              <%= form.text_field :ea_rol_sistema, value: "Rol Fijo", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
-              <%= form.label :ea_rut, "Rut", class: "block text-gray-300" %>
-              <%= form.text_field :ea_rut, value: "12.345.678-9", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.label :ea_rut_sistema, "Rut", class: "block text-gray-300" %>
+              <%= form.text_field :ea_rut_sistema, value: "20.848.288-2", readonly: true, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
           </div>
 

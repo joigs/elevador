@@ -151,8 +151,11 @@ class DocumentGeneratorLibre
     doc.replace('{{detail_destino}}', detail.destino)
     doc.replace('{{detail_recepcion}}', detail.recepcion)
     doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
-    doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
-
+    if detail.empresa_instaladora_rut
+      doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
+    else
+      doc.replace('{{detail_empresa_instaladora_rut}}', "S/I")
+    end
     if detail.porcentaje
       doc.replace('{{detail_porcentaje}}', "#{detail.porcentaje.to_s}%")
     else

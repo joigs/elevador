@@ -156,7 +156,11 @@ class DocumentGenerator
     doc.replace('{{detail_destino}}', detail.destino)
     doc.replace('{{detail_recepcion}}', detail.recepcion)
     doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
-    doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
+    if detail.empresa_instaladora_rut
+      doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
+    else
+      doc.replace('{{detail_empresa_instaladora_rut}}', "S/I")
+    end
 
     if detail.porcentaje
       doc.replace('{{detail_porcentaje}}', "#{detail.porcentaje.to_s}%")
@@ -305,7 +309,7 @@ class DocumentGenerator
           end
         end
 
-        formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                      " }.join("\n")
+        formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                                   " }.join("\n")
 
 
         if last_errors.blank?
@@ -318,7 +322,7 @@ class DocumentGenerator
 
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
-          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                 " }.join("\n")
+          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                   " }.join("\n")
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date

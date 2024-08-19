@@ -25,6 +25,7 @@ class RevisionsController < ApplicationController
     end
 
     authorize! @revision
+    @item = @revision.item
 
 
     if @inspection.state == "Cerrado"
@@ -32,14 +33,30 @@ class RevisionsController < ApplicationController
       return
     end
 
+    @report = Report.find_by(inspection: @inspection)
+    if @report.cert_ant == "Si"
+      @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+      if @black_inspection
+        @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+        @last_revision = nil
+      end
 
-    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
-    if @black_inspection
-      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    elsif @report.cert_ant == "sistema"
+      @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+
+    elsif @report.cert_ant == "No"
+      @last_revision = nil
+
     end
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts("report: " + @report.inspect)
+    puts("report.cert_ant: " + @report.cert_ant)
+    puts("black_inspection: " + @black_inspection.inspect)
+    puts("black_revision: " + @black_revision.inspect)
+    puts("last_revision: " + @last_revision.inspect)
+
 
     #acceder a los objetos asociados a la revision
-    @item = @revision.item
     @revision_nulls = RevisionNull.where(revision_id: @revision.id)
     @group = @item.group
     @detail = Detail.find_by(item_id: @item.id)
@@ -114,7 +131,6 @@ class RevisionsController < ApplicationController
 
 
 
-    @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
@@ -158,10 +174,25 @@ class RevisionsController < ApplicationController
     end
 
 
-    @black_inspection = Inspection.find_by(number: @inspection.number*-1)
-    if @black_inspection
-      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    @report = Report.find_by(inspection: @inspection)
+    if @report.cert_ant == "Si"
+      @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+      if @black_inspection
+        @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+        @last_revision = nil
+      end
+
+    elsif @report.cert_ant == "sistema"
+      @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+
+    elsif @report.cert_ant == "No"
+      @last_revision = nil
+
     end
+
+
+
+
 
     #acceder a los objetos asociados a la revision
     @item = @revision.item
@@ -190,7 +221,6 @@ class RevisionsController < ApplicationController
 
 
 
-    @last_revision = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
