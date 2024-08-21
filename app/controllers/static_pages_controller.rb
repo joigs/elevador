@@ -7,6 +7,7 @@ class StaticPagesController < ApplicationController
                                     .where("reports.ending > ?", Date.today)
                                     .where("reports.ending <= ?", Date.today + 2.months)
                                     .where(state: 'Cerrado').where(result: 'Aprobado')
+                                    .includes(:report)
                         when "vencido"
                           Inspection.where(result: 'Vencido')
                         else

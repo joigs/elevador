@@ -375,7 +375,6 @@ class LadderRevisionsController < ApplicationController
     @revision_photos = @revision.revision_photos
     if params[:ladder_revision].present?
 
-      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
       @revision_nulls.each do |null|
         code_start = null.point.split('.')[1].first.to_i

@@ -6,7 +6,7 @@
   </div>
 
   <div class="mt-4">
-    <% if @item.group.name.downcase.include?("escala") %>
+    <% if @item.group.type_of == "escala" %>
       <%= link_to "Volver al detalle de la escalera", edit_ladder_detail_path(@detail), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out" %>
     <% else %>
       <%= link_to "Volver al detalle del activo", edit_detail_path(@detail), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out" %>

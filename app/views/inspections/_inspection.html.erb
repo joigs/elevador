@@ -1,13 +1,13 @@
 <div id="<%= dom_id inspection %>" class="max-w-md mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden md:max-w-2xl">
   <div class="p-8">
     <p class="text-gray-400">
-      <strong class="text-gray-200">Número de inspección:</strong>
-      <%= inspection.number %>
+      <strong class="text-gray-200 text-4xl">Inspección N°: <%= inspection.number %></strong>
+
     </p>
 
     <p class="text-gray-400">
-      <strong class="text-gray-200">Identificador:</strong>
-      <%= inspection.item&.identificador %>
+      <strong class="text-gray-200 text-2xl">Identificador: <%= inspection.item&.identificador %></strong>
+
     </p>
 
     <p class="text-gray-400">
@@ -33,6 +33,12 @@
     <p class="text-gray-400">
       <strong class="text-gray-200">Resultado de la inspección:</strong>
       <%= inspection.result %>
+    </p>
+
+
+    <p class="text-gray-400">
+      <strong class="text-gray-200">Fecha de término certificación:</strong>
+      <%= format_date(inspection.report&.ending) %>
     </p>
 
     <div class="mt-4">

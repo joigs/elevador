@@ -2,7 +2,7 @@ class InspectionsController < ApplicationController
 
   def index
     @q = Inspection.ransack(params[:q])
-    @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal).order(number: :desc)
+    @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal, :report).order(number: :desc)
     @pagy, @inspections = pagy_countless(@inspections, items: 10)
   end
   def show
@@ -186,7 +186,7 @@ class InspectionsController < ApplicationController
   def update
     authorize! inspection
     @manual_action_name = inspection_params[:manual_action_name]
-    if @inspection.update(inspection_params)
+    if @inspection.update(inspection_params.except(:manual_action_name))
 
 
       redirect_to @inspection, notice: 'Inspección actualizada con éxito.'
@@ -384,7 +384,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :identificador, :group_id, :principal_id, user_ids: [])
+    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :group_id, :principal_id, user_ids: [])
 
   end
   #indices para ordenar

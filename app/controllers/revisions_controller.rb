@@ -625,7 +625,6 @@ class RevisionsController < ApplicationController
 
   def create_rule
     @revision = Revision.find_by(inspection_id: params[:inspection_id])
-    puts(params[:inspection_id].inspect)
 
     puts(@revision.inspect)
     authorize! @revision

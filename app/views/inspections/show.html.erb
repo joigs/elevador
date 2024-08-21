@@ -1,8 +1,8 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
   <div class="flex flex-wrap">
     <div class="text-white lg:w-2/3 pr-4">
-      <h2 class="text-xl font-bold">Inspección N°<%= @inspection.number %></h2>
-      <p><strong>Identificador:</strong> <%= @inspection.item&.identificador %></p>
+      <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %></p>
+      <p class="text-2xl mt-2"><strong>Identificador:</strong> <%= @inspection.item&.identificador %></p>
       <p><strong>Empresa:</strong> <%= @inspection.item&.principal&.name %></p>
       <p><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
       <p><strong>Periodicidad:</strong> <%= display_periodicity(@inspection.validation) %></p>
@@ -10,6 +10,7 @@
       <p><strong>Resultado de la inspección:</strong> <%= @inspection.result %></p>
       <p><strong>Lugar de la inspección:</strong> <%= @inspection.place %></p>
       <p><strong>Fecha de emisión del informe:</strong> <%= format_date(@inspection.inf_date) %></p>
+      <p><strong>Fecha de término de certificación:</strong> <%= format_date(@report.ending) %></p>
       <p><strong>Inspectores asignados:</strong></p>
       <ul>
         <% @inspection.users.each do |user| %>
@@ -27,14 +28,15 @@
           <%= form.submit "Actualizar fecha", class: "btn btn-primary w-full py-2 mt-2 text-sm text-gray-800 font-medium bg-blue-500 hover:bg-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" %>
         <% end %>
 
-        <%= form_with model: @inspection, url: update_inf_date_inspection_path(@inspection), local: true do |form| %>
-          <div class="form-group mb-4 mt-8">
-            <%= form.label :inf_date, "Fecha de emisión del informe", class: "block text-sm font-medium text-white mb-1" %>
-            <%= form.date_field :inf_date, value: @inspection.inf_date&.strftime('%Y-%m-%d'), class: "form-control block w-full px-3 py-2 rounded-md bg-gray-800 border-2 border-gray-600 focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
-          </div>
-          <%= form.submit "Actualizar fecha de emisión", class: "btn btn-primary w-full py-2 mt-2 text-sm text-gray-800 font-medium bg-blue-500 hover:bg-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" %>
+        <% if Current.user.admin %>
+          <%= form_with model: @inspection, url: update_inf_date_inspection_path(@inspection), local: true do |form| %>
+            <div class="form-group mb-4 mt-8">
+              <%= form.label :inf_date, "Fecha de emisión del informe", class: "block text-sm font-medium text-white mb-1" %>
+              <%= form.date_field :inf_date, value: @inspection.inf_date&.strftime('%Y-%m-%d'), class: "form-control block w-full px-3 py-2 rounded-md bg-gray-800 border-2 border-gray-600 focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
+            </div>
+            <%= form.submit "Actualizar fecha de emisión", class: "btn btn-primary w-full py-2 mt-2 text-sm text-gray-800 font-medium bg-blue-500 hover:bg-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" %>
+          <% end %>
         <% end %>
-
       </div>
 
     <% end %>

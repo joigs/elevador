@@ -41,7 +41,7 @@ class Detail < ApplicationRecord
     verifier = clean_rut[-1].upcase
 
     unless valid_rut?(rut_body, verifier)
-      errors.add(:rut, 'es invalido')
+      errors.add(:empresa_instaladora_rut, 'es invalido')
     end
   end
 

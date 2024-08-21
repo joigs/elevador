@@ -1,14 +1,7 @@
 class LadderDetailsController < ApplicationController
 
   # GET /details or /details.json
-  def index
-    @details = LadderDetail.all
-  end
 
-  # GET /details/1 or /details/1.json
-  def show
-    detail
-  end
 
   # GET /details/1/edit
   def edit
@@ -20,24 +13,13 @@ class LadderDetailsController < ApplicationController
   end
 
 
-  # GET /details/new
-  def new
-    authorize! @detail = LadderDetail.new
-    if params[:item_id].present?
-      @item = Item.find(params[:item_id])
-    else
-      redirect_to items_path, alert: 'No se ha encontrado el item'
-    end
-  end
 
-  def create
-    authorize! @detail = LadderDetail.new(ladder_detail_params)
-  end
 
   # PATCH/PUT /details/1 or /details/1.json
   def update
     authorize! detail
     @report = Report.where(item_id: detail.item_id).last
+    @inspection = @report.inspection
 
     if detail.update(ladder_detail_params)
 
@@ -50,10 +32,6 @@ class LadderDetailsController < ApplicationController
   end
 
   # DELETE /details/1 or /details/1.json
-  def destroy
-    authorize! @detail.destroy!
-    redirect_to ladder_details_path, notice: "Detalle eliminado"
-  end
 
   private
   # Use callbacks to share common setup or constraints between actions.

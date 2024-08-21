@@ -18,7 +18,7 @@ class ReportsController < ApplicationController
       @previous_inspection = @inspections.second
     end
 
-    if @item.group.name.downcase.include?("escala")
+    if @item.group.type_of == "escala"
       @detail = LadderDetail.find_by(item_id: @item.id)
     else
       @detail = Detail.find_by(item_id: @item.id)
@@ -81,7 +81,6 @@ class ReportsController < ApplicationController
             black_inspection.users << user
           end
           black_inspection.created_at = Time.current - 1.minute
-          puts(black_inspection.inspect)
           black_inspection.save
           inspection.created_at = Time.current
           inspection.save

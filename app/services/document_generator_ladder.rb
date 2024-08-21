@@ -100,9 +100,25 @@ class DocumentGeneratorLadder
     end
 
     doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
-    doc.replace('{{empresa_anterior}}', report.empresa_anterior)
-    doc.replace('{{ea_rol}}', report.ea_rol)
-    doc.replace('{{ea_rut}}', report.ea_rut)
+    if report.empresa_anterior
+      doc.replace('{{empresa_anterior}}', report.empresa_anterior)
+    else
+      doc.replace('{{empresa_anterior}}', "S/I")
+    end
+
+
+    if report.ea_rol
+      doc.replace('{{ea_rol}}', report.ea_rol)
+    else
+      doc.replace('{{ea_rol}}', "S/I")
+    end
+
+
+    if report.ea_rut
+      doc.replace('{{ea_rut}}', report.ea_rut)
+    else
+      doc.replace('{{ea_rut}}', "S/I")
+    end
     doc.replace('{{empresa_mantenedora}}', report.empresa_mantenedora)
     doc.replace('{{em_rol}}', report.em_rol)
     doc.replace('{{em_rut}}', report.em_rut)
@@ -192,7 +208,7 @@ class DocumentGeneratorLadder
     doc.replace('{{detail_mm_n_serie}}', detail.mm_nserie)
 
     if detail.numero_permiso
-      doc.replace('{{detail_numero_permiso}}', "#N°{detail.numero_permiso}")
+      doc.replace('{{detail_numero_permiso}}', "N°#{detail.numero_permiso}")
     else
       doc.replace('{{detail_numero_permiso}}', "S/I")
     end
@@ -231,7 +247,11 @@ class DocumentGeneratorLadder
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
 
       if last_revision.nil?
-        doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
+        if report.fecha
+          doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
+        else
+          doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha desconocida:")
+        end
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
       end
@@ -360,7 +380,7 @@ class DocumentGeneratorLadder
     end
     cumple = []
     no_cumple = []
-    numbers = [1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
+    numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
     numbers.each do |index|
       unless revision.codes.any? { |code| code.match?(/^5\.#{index}\./) }
         cumple << index
@@ -370,6 +390,7 @@ class DocumentGeneratorLadder
     end
 
     aux = [
+      '•0.  Carpeta cero.',
       '•1. Requisitos generales',
       '•2. Estructura de soporte (bastidor) y cerramiento',
       '•3. Escalones, placa, banda',
@@ -378,6 +399,8 @@ class DocumentGeneratorLadder
       '•6.  Pasamanos',
       '•7.  Rellanos',
       '•8.  Cuartos de maquinaria, estaciones de accionamiento y de retorno',
+      '•9.  placeholder',
+      '•10.  placeholder',
       '•11. Instalaciones y aparatos eléctricos',
       '•12. Protección contra fallos eléctricos-maniobra',
       '•13. Interfaces con el edificio',
@@ -385,6 +408,10 @@ class DocumentGeneratorLadder
       '•15. Utilización de carros de compra y de carros de equipaje'
     ]
 
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts("aux " + aux.inspect)
+    puts("cumple " + cumple.inspect)
+    puts("no_cumple " + no_cumple.inspect)
 
     cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
     no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
@@ -393,7 +420,7 @@ class DocumentGeneratorLadder
       doc.replace('{{texto_comprobacion_cumple}}', 'De acuerdo a esta inspección, CUMPLE, con los requisitos normativos evaluados:')
     else
       doc.replace('{{lista_comprobacion_cumple}}', '')
-      doc.replace('{{texto_comprobacion_cumple}}', 'No cumple con ningún requisito normativo')
+      doc.replace('{{texto_comprobacion_cumple}}', 'De acuerdo a esta inspección, NO CUMPLE con ningún requisito normativo')
     end
 
     if no_cumple.any?
@@ -522,7 +549,7 @@ class DocumentGeneratorLadder
       doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Faltas Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
       if !errors_leves.empty?
         doc.replace('{{if_leves}}', "Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:")
-        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{month_name}.")
+        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name}.")
       else
         doc.replace('{{texto_leve}}', "")
         doc.replace('{{if_leves}}', "")
@@ -536,7 +563,7 @@ class DocumentGeneratorLadder
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
       doc.replace('{{if_leves}}', "Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:")
-      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en mes de #{month_name}.")
+      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name}.")
     end
 
 
@@ -659,88 +686,93 @@ class DocumentGeneratorLadder
     # Obtener las fotos ordenadas por `revision_photo.code`
     revision_photos = revision.revision_photos.ordered_by_code
 
-    # Directorio temporal para guardar el archivo LaTeX y las imágenes
-    latex_dir = Rails.root.join('tmp', 'latex')
-    FileUtils.mkdir_p(latex_dir)
+    unless revision_photos.empty?
+      # Directorio temporal para guardar el archivo LaTeX y las imágenes
+      latex_dir = Rails.root.join('tmp', 'latex')
+      FileUtils.mkdir_p(latex_dir)
 
-    # Nombre base que incluye `inspection.number`
-    base_name = inspection.number.to_s + '_' + inspection.ins_date.strftime('%m') + '_' + inspection.ins_date.strftime('%Y') + '_' + item_rol
+      # Nombre base que incluye `inspection.number`
+      base_name = inspection.number.to_s + '_' + inspection.ins_date.strftime('%m') + '_' + inspection.ins_date.strftime('%Y') + '_' + item_rol
 
-    # Nombre del archivo LaTeX
-    latex_file = File.join(latex_dir, "#{base_name}_document.tex")
+      # Nombre del archivo LaTeX
+      latex_file = File.join(latex_dir, "#{base_name}_document.tex")
 
-    # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
-    latex_content = "\\documentclass{article}\n"
-    latex_content += "\\usepackage{graphicx}\n"
-    latex_content += "\\usepackage{geometry}\n"
-    latex_content += "\\geometry{a4paper, margin=1in}\n"
-    latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
-    latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
-    latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
-    latex_content += "\\begin{document}\n"
+      # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
+      latex_content = "\\documentclass{article}\n"
+      latex_content += "\\usepackage{graphicx}\n"
+      latex_content += "\\usepackage{geometry}\n"
+      latex_content += "\\geometry{a4paper, margin=1in}\n"
+      latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
+      latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
+      latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
+      latex_content += "\\begin{document}\n"
 
-    revision_photos.each_slice(2) do |photos|
-      latex_content += "\\begin{figure}[h!]\n"
-      photos.each do |photo|
-        image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
-        # Usar `inspection.number` para el nombre de la imagen
-        image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
-        FileUtils.cp(image_path, image_destination)
+      revision_photos.each_slice(2) do |photos|
+        latex_content += "\\begin{figure}[h!]\n"
+        photos.each do |photo|
+          image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
+          # Usar `inspection.number` para el nombre de la imagen
+          image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
+          FileUtils.cp(image_path, image_destination)
 
-        latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
-        latex_content += "    \\centering\n"
-        latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-        latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
-        latex_content += "  \\end{minipage}\n"
-        latex_content += "  \\hfill\n" if photos.size > 1
+          latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
+          latex_content += "    \\centering\n"
+          latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
+          latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
+          latex_content += "  \\end{minipage}\n"
+          latex_content += "  \\hfill\n" if photos.size > 1
+        end
+        latex_content += "\\end{figure}\n"
       end
-      latex_content += "\\end{figure}\n"
-    end
 
-    latex_content += "\\end{document}\n"
+      latex_content += "\\end{document}\n"
 
-    # Guardar el contenido en el archivo LaTeX
-    File.open(latex_file, 'w') { |file| file.write(latex_content) }
+      # Guardar el contenido en el archivo LaTeX
+      File.open(latex_file, 'w') { |file| file.write(latex_content) }
 
-    # Compilar el archivo LaTeX a PDF usando el comando pdflatex
-    Dir.chdir(latex_dir) do
-      stdout, stderr, status = Open3.capture3("pdflatex #{File.basename(latex_file)}")
+      # Compilar el archivo LaTeX a PDF usando el comando pdflatex
+      Dir.chdir(latex_dir) do
+        stdout, stderr, status = Open3.capture3("pdflatex #{File.basename(latex_file)}")
+        unless status.success?
+          render plain: "Error al compilar LaTeX: #{stderr}", status: :internal_server_error
+          return
+        end
+      end
+
+      # Convertir PDF a imágenes (una por página)
+      pdf_file = File.join(latex_dir, "#{base_name}_document.pdf")
+      image_output_base = File.join(latex_dir, "#{base_name}_page")
+      stdout, stderr, status = Open3.capture3("pdftoppm -png #{pdf_file} #{image_output_base}")
       unless status.success?
-        render plain: "Error al compilar LaTeX: #{stderr}", status: :internal_server_error
+        render plain: "Error al convertir PDF a imágenes: #{stderr}", status: :internal_server_error
         return
       end
-    end
 
-    # Convertir PDF a imágenes (una por página)
-    pdf_file = File.join(latex_dir, "#{base_name}_document.pdf")
-    image_output_base = File.join(latex_dir, "#{base_name}_page")
-    stdout, stderr, status = Open3.capture3("pdftoppm -png #{pdf_file} #{image_output_base}")
-    unless status.success?
-      render plain: "Error al convertir PDF a imágenes: #{stderr}", status: :internal_server_error
-      return
-    end
+      images_to_write = Dir.glob("#{image_output_base}-*.png").map do |image|
+        {
+          path: image,
+          height: 1100,
+          width: 700
+        }
+      end
 
-    images_to_write = Dir.glob("#{image_output_base}-*.png").map do |image|
-      {
-        path: image,
-        height: 1100,
-        width: 700
-      }
-    end
+      Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
 
-    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
-
-    # Buscar y eliminar todos los archivos que comiencen con `base_name`
-    Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
-      File.delete(file_path) if File.exist?(file_path)
+      # Buscar y eliminar todos los archivos que comiencen con `base_name`
+      Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
+        File.delete(file_path) if File.exist?(file_path)
+      end
     end
 
 
     tabla_path = Rails.root.join('app', 'templates', 'tabla_escala.docx')
 
 
-    Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, false)
-
+    if revision_photos.empty?
+      Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, true)
+    else
+      Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, false)
+    end
 
     doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
