@@ -72,6 +72,7 @@ es:
           ins_date: "Fecha de inspección"
           validation: "Periocidad"
           user_id: "Inspector asignado"
+          number: "Número de inspección"
       item:
         identificador: "Identificador"
         group_id: "Clasificación del ascensor"

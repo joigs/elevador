@@ -23,11 +23,17 @@ class InspectionsController < ApplicationController
     @inspection = Inspection.new
     @items = Item.all
     @item = Item.new
+    @manual_action_name = "new"
   end
 
   def create
     ActiveRecord::Base.transaction do
-      @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id))
+
+      @manual_action_name = inspection_params[:manual_action_name]
+
+      @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id, :manual_action_name))
+
+
 
       # Separar los parámetros del item
       item_params = inspection_params.slice(:identificador, :group_id, :principal_id)
@@ -133,6 +139,7 @@ class InspectionsController < ApplicationController
     )
 
     @item = last_inspection.item
+    @manual_action_name = "new_with_last"
 
 
     render :new
@@ -141,6 +148,7 @@ class InspectionsController < ApplicationController
   def edit
     authorize! inspection
     #inspection_not_modifiable!(inspection)
+    @manual_action_name = "edit"
 
     @items = Item.all
     @item = inspection.item
@@ -177,7 +185,7 @@ class InspectionsController < ApplicationController
 
   def update
     authorize! inspection
-
+    @manual_action_name = inspection_params[:manual_action_name]
     if @inspection.update(inspection_params)
 
 
@@ -376,7 +384,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:place, :ins_date, :validation, :identificador, :group_id, :principal_id, user_ids: [])
+    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :identificador, :group_id, :principal_id, user_ids: [])
 
   end
   #indices para ordenar
