@@ -249,7 +249,7 @@ class LadderRevisionsController < ApplicationController
 
 
       @black_revision.codes.each_with_index do |code, index|
-        code_start = code.split('.').first.to_i
+        code_start = code.split('.')[1].to_i
         if code_start >= current_section_num && control
           control = false
 
