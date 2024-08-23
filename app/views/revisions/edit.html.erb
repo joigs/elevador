@@ -100,7 +100,7 @@
                                   data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
                 <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
                 <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
-                <%= hidden_field_tag "past_revision[levels][]", rule.level, data: { past_submit_target: "level" } %>
+                <%= hidden_field_tag "past_revision[levels][]", "L", data: { past_submit_target: "level" } %>
                   </div>
               </td>
             <% end %>

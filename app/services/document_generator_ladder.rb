@@ -247,60 +247,65 @@ class DocumentGeneratorLadder
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
 
       if last_revision.nil?
+
         if report.fecha
           doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
         else
           doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha desconocida:")
         end
+
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
+
       end
 
       if last_revision&.levels.blank?
-        doc.replace('{{informe_anterior}}', "")
+        doc.replace('{{informe_anterior}}', "Informe anterior sin fallas registradas")
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
+
       else
 
-        last_revision_pikachu = []
+
 
         last_revision.levels.each_with_index do |level, index|
-          if level.include?("L")
-            if revision.codes.include?(last_revision.codes[index])
-              if revision.points.include?(last_revision.points[index])
-                last_errors << last_revision.codes[index] + " " + last_revision.points[index]
-              else
-                last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
-              end
+          if revision.codes.include?(last_revision.codes[index])
+            if revision.points.include?(last_revision.points[index])
+              last_errors << last_revision.codes[index] + " " + last_revision.points[index]
             else
               last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
-            last_revision_pikachu << last_revision.codes[index] + " " + last_revision.points[index]
+          else
+            last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
           end
         end
 
-        formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                            " }.join("\n")
+        formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                                   " }.join("\n")
+
 
         if last_errors.blank?
-          formatted_pikachu = last_revision_pikachu.map { |last_error| "• #{last_error}\n                                                     "}.join("\n")
-          doc.replace('{{informe_anterior}}', "Se levantan las conformidades Faltas Leves, indicadas en certificación anterior.")
-          doc.replace('{{revision_past_errors_level}}', formatted_pikachu)
-          doc.replace('{{revision_past_errors_level_lift}}', "")
+
+
+          doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas, indicadas en certificación anterior.")
+          doc.replace('{{revision_past_errors_level}}', "")
+          doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+
+
         else
           last_inspection = Inspection.find(last_revision.inspection_id)
-          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                          "}.join("\n")
+          formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                   " }.join("\n")
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
-            doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+            doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
           else
 
             if report.empresa_anterior=="S/I"
-              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por empresa sin identificar, las cuales se detallan a continuación:")
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior realizado por empresa sin identificar, las cuales se detallan a continuación:")
             else
-              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
             end
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
@@ -311,7 +316,7 @@ class DocumentGeneratorLadder
       end
 
     else
-      doc.replace('{{informe_anterior}}', "No presenta certificación anterior")
+      doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
       doc.replace('{{revision_past_errors_level}}', "")
       doc.replace('{{revision_past_errors_level_lift}}', "")
     end

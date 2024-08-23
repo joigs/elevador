@@ -7,17 +7,25 @@ class InspectionsController < ApplicationController
   end
   def show
     inspection
+    puts("inspeccioooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooon")
     @item = inspection.item
+    puts(@item.inspect)
     @last_inspection = Inspection.where(item: @item).order(created_at: :desc).first
+    puts(@last_inspection.inspect)
     @control2 =  @item.group == Group.where("name LIKE ?", "%Escala%").first
+    puts(@control2)
     if @control2
       @detail = LadderDetail.find_by(item_id: @item.id)
     else
       @detail = Detail.find_by(item_id: @item.id)
     end
+    puts(@detail.inspect)
     @control = @inspection == Inspection.where(item: @item).order(created_at: :desc).first
+    puts(@control)
     @control3 = @item.identificador.include? "CAMBIAME"
+    puts(@control3)
     @report = Report.find_by(inspection: inspection)
+    puts(@report.inspect)
   end
   def new
     @inspection = Inspection.new

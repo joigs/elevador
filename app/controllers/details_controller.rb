@@ -14,6 +14,8 @@ class DetailsController < ApplicationController
   def edit
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(@inspection)
     @inspection.update(state: 'Abierto', result: 'En revisión')
     @group = Group.find(Item.find(detail.item_id).group_id)
   end

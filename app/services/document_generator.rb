@@ -340,7 +340,6 @@ class DocumentGenerator
 
 
         last_revision.levels.each_with_index do |level, index|
-          if level.include?("L")
             if revision.codes.include?(last_revision.codes[index])
               if revision.points.include?(last_revision.points[index])
                 last_errors << last_revision.codes[index] + " " + last_revision.points[index]
@@ -350,7 +349,6 @@ class DocumentGenerator
             else
               last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
-          end
         end
 
         formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                                   " }.join("\n")
@@ -359,7 +357,7 @@ class DocumentGenerator
         if last_errors.blank?
 
 
-          doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas Leves, indicadas en certificación anterior.")
+          doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas, indicadas en certificación anterior.")
           doc.replace('{{revision_past_errors_level}}', "")
           doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
 
@@ -370,15 +368,15 @@ class DocumentGenerator
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
-            doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+            doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
           else
 
             if report.empresa_anterior=="S/I"
-              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por empresa sin identificar, las cuales se detallan a continuación:")
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior realizado por empresa sin identificar, las cuales se detallan a continuación:")
             else
-              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades leves indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
             end
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)

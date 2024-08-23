@@ -51,8 +51,8 @@
     <% if @control2 %>
       <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today %>
     <% else %>
-      <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today%>
-    <% end %>
+    <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today%>
+<% end %>
   </div>
 
 <div class="mt-6 w-full">

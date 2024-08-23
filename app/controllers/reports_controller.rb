@@ -4,19 +4,15 @@ class ReportsController < ApplicationController
   def edit
     authorize! report
     @item = @report.item
-    @inspections = @item.inspections.order(ins_date: :desc)
-    if @inspections.size == 1 || (@inspections.size == 2 && @inspections.last.number < 0)
-      @show_third_radio_button = false
-    elsif @inspections.size == 2 && @inspections.last.number > 0
+    @previous_inspection = @item.inspections.where(state: "Cerrado").order(ins_date: :desc).first
+
+
+    if @previous_inspection
       @show_third_radio_button = true
-      @previous_inspection = @inspections.last
-    elsif @inspections.size >= 3 && @inspections.second.number < 0
-      @show_third_radio_button = true
-      @previous_inspection = @inspections.third
     else
-      @show_third_radio_button = true
-      @previous_inspection = @inspections.second
+      @show_third_radio_button = false
     end
+
 
     if @item.group.type_of == "escala"
       @detail = LadderDetail.find_by(item_id: @item.id)
@@ -62,6 +58,8 @@ class ReportsController < ApplicationController
       @previous_inspection = @inspections.second
     end
 
+    puts("mierdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(@previous_inspection.inspect)
 
     if @report.update(report_params)
 
@@ -143,7 +141,6 @@ class ReportsController < ApplicationController
         if @black_inspection
           @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
           @black_inspection.destroy
-          @black_revision.destroy
         end
       end
 
