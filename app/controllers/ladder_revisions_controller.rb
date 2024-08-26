@@ -51,11 +51,11 @@ class LadderRevisionsController < ApplicationController
     end
 
     #acceder a los objetos asociados a la revision
-    @item = @revision.item
+    @item = @revision_base.item
     @revision_nulls = RevisionNull.where(revision_id: @revision_base.id)
     @group = Group.where("name LIKE ?", "%Escala%").first
     @detail = LadderDetail.find_by(item_id: @item.id)
-    @colors = @revision.revision_colors.select(:section, :color)
+    @colors = @revision_base.revision_colors.select(:section, :color)
 
     @nombres = ['. DOCUMENTAL CARPETA 0',
                 '. Requisitos generales',
