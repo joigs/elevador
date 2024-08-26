@@ -1,19 +1,10 @@
 <%= form_with(model: inspection, local: true, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
-  <% if inspection.errors.any? %>
-    <div class="text-red-400 bg-red-800 p-2 rounded">
-      <h2><%= "Error: " %> No se pudo guardar esta inspección:</h2>
-      <ul>
-        <% inspection.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+
 
   <% if @manual_action_name == 'new' %>
     <div>
       <%= form.label :group_id, "Clasificación del ascensor", class: "block text-gray-300" %>
-      <%= form.select :group_id, options_for_select(Group.all.map { |g| [g.name, g.id] }, selected: @item&.group_id), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+      <%= form.select :group_id, options_for_select([['Seleccione un grupo', 'bad']] + Group.all.map { |g| [g.name, g.id] }, selected: @item&.group_id), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
     </div>
 
     <div data-controller="principal-select">

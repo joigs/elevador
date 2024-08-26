@@ -34,6 +34,7 @@ class InspectionsController < ApplicationController
       @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id, :manual_action_name))
 
 
+      control = true
 
       # Separar los parámetros del item
       item_params = inspection_params.slice(:identificador, :group_id, :principal_id)
@@ -41,10 +42,17 @@ class InspectionsController < ApplicationController
       # Eliminar espacios en blanco de identificador
       item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
 
+      if item_params[:group_id] == "bad"
+        flash.now[:alert] = "Seleccione un grupo"
+        control = false
+      end
+
       if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
-        @inspection.errors.add(:base, 'Ingrese una empresa')
-        render :new, status: :unprocessable_entity
-        return
+        flash.now[:alert] = "Seleccione una empresa"
+        control = false
+      else
+        @principal = Principal.find(item_params[:principal_id])
+
       end
 
       if item_params[:identificador].blank?
@@ -52,10 +60,17 @@ class InspectionsController < ApplicationController
       end
 
 
-      @principal = Principal.find(item_params[:principal_id])
 
-      @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
 
+      if control == false
+        @item = Item.new(item_params)
+
+        render :new, status: :unprocessable_entity
+        return
+      else
+        @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
+
+      end
 
       current_group = @item.group&.id.to_s
 
