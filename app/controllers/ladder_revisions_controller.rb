@@ -1,5 +1,6 @@
 class LadderRevisionsController < ApplicationController
 
+  require "ostruct"
 
 
 

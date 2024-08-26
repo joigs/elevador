@@ -7,6 +7,8 @@ require 'tempfile'
 require 'securerandom'
 require 'fileutils'
 require 'open3'
+require "ostruct"
+
 
 
 class DocumentGenerator

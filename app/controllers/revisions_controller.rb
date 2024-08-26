@@ -1,5 +1,6 @@
 class RevisionsController < ApplicationController
 
+  require "ostruct"
 
 
 

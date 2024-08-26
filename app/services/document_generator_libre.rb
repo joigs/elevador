@@ -5,6 +5,8 @@ require 'fileutils'
 require 'mini_magick'
 require 'tempfile'
 require 'securerandom'
+require "ostruct"
+
 class DocumentGeneratorLibre
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     inspection = Inspection.find(inspection_id)

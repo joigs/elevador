@@ -1,6 +1,8 @@
 require 'docx_replace'
 require 'omnidocx'
 require 'fileutils'
+require "ostruct"
+
 
 class DocumentGeneratorLadder
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
