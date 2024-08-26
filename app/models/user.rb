@@ -18,8 +18,6 @@ class User < ApplicationRecord
     # List of associations you want to be searchable
     [
       "inspections",  # Assuming inspections are related records that could be relevant for searches
-      "signature_attachment",  # Allows searching by the attached signature file metadata
-      "signature_blob"  # Allows searching by the blob properties of the signature
     ]
   end
 

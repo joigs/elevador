@@ -9,7 +9,7 @@ class DocumentGeneratorLibre
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     inspection = Inspection.find(inspection_id)
     principal = Principal.find(principal_id)
-    revision = Revision.find(revision_id)
+    revision_base = Revision.find(revision_id)
     item = Item.find(item_id)
     group = item.group
     detail = item.detail
@@ -18,6 +18,17 @@ class DocumentGeneratorLibre
     inspectors = inspection.users
     rules = group.rules.ordered_by_code.drop(11)
     item_rol = item.identificador.chars.last(4).join
+
+
+    revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
+
+    revision_base.revision_colors.order(:section).each do |revision_color|
+      revision.codes.concat(revision_color.codes || [])
+      revision.points.concat(revision_color.points || [])
+      revision.levels.concat(revision_color.levels || [])
+      revision.comment.concat(revision_color.comment || [])
+    end
+
 
     template_path = Rails.root.join('app', 'templates', 'template_1.docx')
 
@@ -273,7 +284,19 @@ class DocumentGeneratorLibre
 
 
 
-    last_revision = Revision.where(item_id: item.id).order(created_at: :desc).offset(1).first
+
+    last_revision_base = Revision.where(item_id: item.id).order(created_at: :desc).offset(1).first
+
+    last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
+
+    last_revision_base.revision_colors.order(:section).each do |revision_color|
+      last_revision.codes.concat(revision_color.codes || [])
+      last_revision.points.concat(revision_color.points || [])
+      last_revision.levels.concat(revision_color.levels || [])
+      last_revision.comment.concat(revision_color.comment || [])
+    end
+
+
 
     rules.each_with_index do |rule, index|
       if revision.points.include?(rule.point)
@@ -370,7 +393,7 @@ class DocumentGeneratorLibre
 
 
         else
-          last_inspection = Inspection.find(last_revision.inspection_id)
+          last_inspection = Inspection.find(last_revision_base.inspection_id)
           formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                   " }.join("\n")
 
           if last_inspection.number > 0
@@ -749,82 +772,8 @@ class DocumentGeneratorLibre
 
     original_files << output_path2
 
-=begin
-
-
-    # Rutas de firma de inspectores
-    inspector1_signature_path = Rails.root.join('tmp', 'inspector1_signature.jpg')
-    inspector2_signature_path = inspectors.second ? Rails.root.join('tmp', 'inspector2_signature.jpg') : nil
-
-    # Ruta de firma del administrador
-    admin_signature_path = Rails.root.join('tmp', 'admin_signature.jpg')
-
-    # Imagen en blanco
-    third_image_path = Rails.root.join('app', 'templates', 'blanco.jpg')
-
-    # Procesamiento de las firmas
-    File.open(inspector1_signature_path, 'wb') { |file| file.write(inspectors.first.signature.download) }
-    MiniMagick::Image.open(inspector1_signature_path).tap do |image|
-      image.resize "300x"
-      image.write(inspector1_signature_path)
-    end
-
-    # Procesar segundo inspector si existe
-    if inspector2_signature_path
-      File.open(inspector2_signature_path, 'wb') { |file| file.write(inspectors.second.signature.download) }
-      MiniMagick::Image.open(inspector2_signature_path).tap do |image|
-        image.resize "300x"
-        image.write(inspector2_signature_path)
-      end
-    end
-
-    # Procesar firma del administrador
-    File.open(admin_signature_path, 'wb') { |file| file.write(admin.signature.download) }
-    MiniMagick::Image.open(admin_signature_path).tap do |image|
-      image.resize "300x"
-      image.write(admin_signature_path)
-    end
-
-    # Procesar imagen en blanco
-    MiniMagick::Image.open(third_image_path).tap do |image|
-      image.resize "100x"
-      image.write(third_image_path)
-    end
-
-    # Lista de imágenes para el montaje
-    images = [
-      inspector1_signature_path,
-      (inspector2_signature_path || third_image_path), # Si no hay inspector2, usar imagen en blanco
-      admin_signature_path
-    ]
-
-    # Añadir la imagen en blanco al final si hay inspector2
-    images.insert(3, third_image_path) if inspector2_signature_path
-
-    # Generación de la imagen combinada
-    random_hex = SecureRandom.hex(4)
-    output_filename = "inspector_#{inspectors.first.username}_admin_#{admin.username}_#{random_hex}.jpg"
-    output_path_image = Rails.root.join('tmp', output_filename)
-
-    MiniMagick::Tool::Montage.new do |montage|
-      montage.geometry "300x+0+0"
-      montage.tile "3x1"
-      images.each { |i| montage << i }
-      montage << output_path_image.to_s
-    end
-
-    # Escritura de la imagen combinada en un documento
-    images_to_write = [{ path: output_path_image.to_s, height: 250, width: 800 }]
-    Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
-
-    # Limpieza de archivos temporales
-    [inspector1_signature_path, admin_signature_path, output_path_image].concat([inspector2_signature_path].compact).each do |path|
-      File.delete(path) if File.exist?(path)
-    end
-=end
-
     # Obtener las fotos ordenadas por `revision_photo.code`
-    revision_photos = revision.revision_photos.ordered_by_code
+    revision_photos = revision_base.revision_photos.ordered_by_code
 
     unless revision_photos.empty?
       # Directorio temporal para guardar el archivo LaTeX y las imágenes

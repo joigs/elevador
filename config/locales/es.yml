@@ -27,7 +27,6 @@ es:
         email: "Email"
         password: "Contraseña"
         password_confirmation: "Confirmar contraseña"
-        signature: "Firma"
         real_name: "Nombre real"
         admin: "Rol"
         profesion: "Profesión"

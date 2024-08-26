@@ -1,40 +1,19 @@
 class DetailsController < ApplicationController
 
-  # GET /details or /details.json
-  def index
-    @details = Detail.all
-  end
-
-  # GET /details/1 or /details/1.json
-  def show
-    detail
-  end
 
   # GET /details/1/edit
   def edit
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(@inspection)
+
     @inspection.update(state: 'Abierto', result: 'En revisión')
     @group = Group.find(Item.find(detail.item_id).group_id)
   end
 
 
   # GET /details/new
-  def new
-    authorize! @detail = Detail.new
-    if params[:item_id].present?
-      @item = Item.find(params[:item_id])
-      @inspection = Inspection.where(item_id: @item.id).where.not(result: 'black').order(created_at: :desc).first
-    else
-      redirect_to items_path, alert: 'No se ha encontrado el item'
-    end
-  end
 
-  def create
-    authorize! @detail = Detail.new(detail_params)
-  end
+
 
   # PATCH/PUT /details/1 or /details/1.json
   def update
@@ -42,7 +21,9 @@ class DetailsController < ApplicationController
     authorize! detail
     @report = Report.where(item_id: detail.item_id).last
     @inspection = Inspection.find(@report.inspection_id)
-    revision = Revision.find_by(inspection_id: @inspection.id)
+    @revision = @inspection.revision
+    revision_2 = @revision.revision_colors.find_by(section: 2)
+    revision_9 = @revision.revision_colors.find_by(section: 9)
 
     if detail.update(detail_params)
 
@@ -50,115 +31,24 @@ class DetailsController < ApplicationController
 
 
       if @detail.sala_maquinas == "Responder más tarde"
-
-        codes, points, levels, comment, fail_statuses = [], [], [], [], []
-        revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') || code.starts_with?('9'))
-            codes << code
-            points << revision.points[index]
-            levels << revision.levels[index]
-            comment << revision.comment[index]
-            fail_statuses << revision.fail[index]
-          end
-        end
-        revision.codes = codes
-        revision.points = points
-        revision.levels = levels
-        revision.comment = comment
-        revision.fail = fail_statuses
-        revision.save!
+        # Eliminar defectos que comienzan con 2 o 9
+        remove_unwanted_rules([revision_2, revision_9], ['2', '9'])
 
       elsif @detail.sala_maquinas == "Si"
-
-
-        codes, points, levels, comment, fail_statuses = [], [], [], [], []
-        revision.codes.each_with_index do |code, index|
-          if !code.starts_with?('9')
-            codes << code
-            points << revision.points[index]
-            levels << revision.levels[index]
-            comment << revision.comment[index]
-            fail_statuses << revision.fail[index]
-          end
-        end
-        revision.codes = codes
-        revision.points = points
-        revision.levels = levels
-        revision.comment = comment
-        revision.fail = fail_statuses
-        revision.save!
+        # Eliminar defectos que comienzan con 9
+        remove_unwanted_rules([revision_9], ['9'])
 
       elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
-        codes, points, levels, comment, fail_statuses = [], [], [], [], []
-        revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') || code.starts_with?('9.3') || code.starts_with?('9.4'))
-            codes << code
-            points << revision.points[index]
-            levels << revision.levels[index]
-            comment << revision.comment[index]
-            fail_statuses << revision.fail[index]
-          end
-        end
-        revision.codes = codes
-        revision.points = points
-        revision.levels = levels
-        revision.comment = comment
-        revision.fail = fail_statuses
-        revision.save!
+        # Eliminar defectos que comienzan con 2, 9.3 y 9.4
+        remove_unwanted_rules([revision_2, revision_9], ['2', '9.3', '9.4'])
 
       elsif @detail.sala_maquinas == "No. Máquina en foso"
-        codes, points, levels, comment, fail_statuses = [], [], [], [], []
-        revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') || code.starts_with?('9.2') || code.starts_with?('9.4'))
-            codes << code
-            points << revision.points[index]
-            levels << revision.levels[index]
-            comment << revision.comment[index]
-            fail_statuses << revision.fail[index]
-          end
-        end
-        revision.codes = codes
-        revision.points = points
-        revision.levels = levels
-        revision.comment = comment
-        revision.fail = fail_statuses
-        revision.save!
+        # Eliminar defectos que comienzan con 2, 9.2 y 9.4
+        remove_unwanted_rules([revision_2, revision_9], ['2', '9.2', '9.4'])
 
       elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
-        codes, points, levels, comment, fail_statuses = [], [], [], [], []
-        revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') || code.starts_with?('9.2') || code.starts_with?('9.3'))
-            codes << code
-            points << revision.points[index]
-            levels << revision.levels[index]
-            comment << revision.comment[index]
-            fail_statuses << revision.fail[index]
-          end
-        end
-        revision.codes = codes
-        revision.points = points
-        revision.levels = levels
-        revision.comment = comment
-        revision.fail = fail_statuses
-        revision.save!
-
-      elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
-        codes, points, levels, comment, fail_statuses = [], [], [], [], []
-        revision.codes.each_with_index do |code, index|
-          if !(code.starts_with?('2') || code.starts_with?('9.2') || code.starts_with?('9.3'))
-            codes << code
-            points << revision.points[index]
-            levels << revision.levels[index]
-            comment << revision.comment[index]
-            fail_statuses << revision.fail[index]
-          end
-        end
-        revision.codes = codes
-        revision.points = points
-        revision.levels = levels
-        revision.comment = comment
-        revision.fail = fail_statuses
-        revision.save!
+        # Eliminar defectos que comienzan con 2, 9.2 y 9.3
+        remove_unwanted_rules([revision_2, revision_9], ['2', '9.2', '9.3'])
 
       end
 
@@ -185,4 +75,28 @@ class DetailsController < ApplicationController
     def detail_params
       params.require(:detail).permit(:descripcion, :detalle, :marca, :modelo, :n_serie, :mm_marca, :mm_n_serie, :porcentaje, :potencia, :capacidad, :personas, :ct_marca, :ct_cantidad, :ct_diametro, :medidas_cintas, :rol_n, :numero_permiso, :fecha_permiso, :destino, :recepcion, :empresa_instaladora, :empresa_instaladora_rut, :rv_marca, :rv_n_serie, :paradas, :embarques, :sala_maquinas, :velocidad, :item_id)
     end
+
+  def remove_unwanted_rules(revision_colors, eliminados)
+    revision_colors.each do |revision_color|
+      next unless revision_color
+
+      codes, points, levels, comment = [], [], [], []
+
+      revision_color.codes.each_with_index do |code, index|
+        unless eliminados.any? { |codigo| code.starts_with?(codigo) }
+          codes << code
+          points << revision_color.points[index]
+          levels << revision_color.levels[index]
+          comment << revision_color.comment[index]
+        end
+      end
+
+      revision_color.update!(
+        codes: codes,
+        points: points,
+        levels: levels,
+        comment: comment
+      )
+    end
+  end
 end

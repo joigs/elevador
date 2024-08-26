@@ -1,9 +1,9 @@
-<%= form_with(model: @revision, builder: CustomFormBuilder, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off" }) do |form| %>
-  <% if @revision.errors.any? %>
+<%= form_with(model: @revision_base, builder: CustomFormBuilder, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off" }) do |form| %>
+  <% if @revision_base.errors.any? %>
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
       <strong class="font-bold"><%= "Error: " %> No se pudo guardar la revisión:</strong>
       <ul>
-        <% @revision.errors.each do |error| %>
+        <% @revision_base.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
       </ul>
@@ -17,7 +17,7 @@
 
     <div class="flex justify-center">
 
-      <% current_section = "#{@color.number}- #{@nombres[@color.number/100]}" %>
+      <% current_section = "#{@color.section}- #{@nombres[@color.section/100]}" %>
       <%= button_tag type: 'button',
                      class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal overflow-hidden",
                      data: { action: "dropdown#toggle" } do %>
@@ -28,14 +28,14 @@
     <div data-dropdown-target="menu" class="grid gap-4 hidden">
       <% [0,100].each_with_index do |number, index| %>
         <div class="flex justify-center">
-          <% color_for_number = @colors.find { |c| c.number == number } %>
-          <% is_current_color = @color.number == number %>
+          <% color_for_number = @colors.find { |c| c.section == number } %>
+          <% is_current_color = @color.section == number %>
           <% is_nope = number == @nope %>
           <%= button_tag type: 'button',
                          class: "section-button #{'bg-red-800 text-white' if is_nope} #{'bg-white' if is_current_color && !is_nope} #{'bg-green-600 text-white' if color_for_number&.color && !is_current_color && !is_nope} #{'bg-gray-500' if !color_for_number&.color && !is_current_color && !is_nope} w-full py-2 rounded",
                          data: { action: "section-submit#submitAndNavigate",
                                  section_submit_target: "button",
-                                 url: edit_libre_revision_path(id: @revision, inspection_id: @inspection.id, section: number) },
+                                 url: edit_libre_revision_path(id: @revision_base, inspection_id: @inspection.id, section: number) },
                          disabled: is_current_color || is_nope do %>
             <%= number %>-<%= @nombres[index] %>
           <% end %>

@@ -33,12 +33,16 @@
       <%= form.text_field :real_name, required: true, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
     </div>
 
-    <div>
-      <%= form.label :"Rol", class: "block text-gray-300" %>
-      <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]], selected: @user.admin), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-    </div>
+
+    <% if action_name!="edit" && action_name!="update" %>
 
 
+      <div>
+        <%= form.label :"Rol", class: "block text-gray-300" %>
+        <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]], selected: @user.admin), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+      </div>
+
+    <% end %>
     <div>
       <%= form.label :"Profesión", class: "block text-gray-300" %>
       <%= form.text_field :profesion, required: true, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>

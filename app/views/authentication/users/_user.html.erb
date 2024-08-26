@@ -27,14 +27,7 @@
       <%= user.profesion %>
     </p>
 
-    <div class="mt-2">
-      <strong class="text-gray-200">Firma:</strong>
-      <% if user.signature.attached? %>
-        <%= image_tag user.signature, style: "width: 300px; height: auto;" %>
-      <% else %>
-        <p class="text-gray-400">No hay firma cargada.</p>
-      <% end %>
-    </div>
+
 
 
     <div class="mt-4">

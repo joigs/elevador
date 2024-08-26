@@ -7,25 +7,17 @@ class InspectionsController < ApplicationController
   end
   def show
     inspection
-    puts("inspeccioooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooon")
     @item = inspection.item
-    puts(@item.inspect)
     @last_inspection = Inspection.where(item: @item).order(created_at: :desc).first
-    puts(@last_inspection.inspect)
     @control2 =  @item.group == Group.where("name LIKE ?", "%Escala%").first
-    puts(@control2)
     if @control2
       @detail = LadderDetail.find_by(item_id: @item.id)
     else
       @detail = Detail.find_by(item_id: @item.id)
     end
-    puts(@detail.inspect)
     @control = @inspection == Inspection.where(item: @item).order(created_at: :desc).first
-    puts(@control)
     @control3 = @item.identificador.include? "CAMBIAME"
-    puts(@control3)
     @report = Report.find_by(inspection: inspection)
-    puts(@report.inspect)
   end
   def new
     @inspection = Inspection.new
@@ -100,7 +92,7 @@ class InspectionsController < ApplicationController
         @revision = LadderRevision.create!(inspection: @inspection, item: @inspection.item)
         numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
         numbers.each do |number|
-          @revision.revision_colors.create!(number: number, color: false)
+          @revision.revision_colors.create!(section: number, color: false)
         end
         if is_new_item
           @detail = LadderDetail.create!(item: @item)
@@ -108,7 +100,7 @@ class InspectionsController < ApplicationController
       elsif @item.group.type_of == "ascensor"
         @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
         (0..11).each do |index|
-          @revision.revision_colors.create!(number: index, color: false)
+          @revision.revision_colors.create!(section: index, color: false)
         end
         if is_new_item
           @detail = Detail.create!(item: @item)
@@ -117,7 +109,7 @@ class InspectionsController < ApplicationController
         @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
         numbers = [0, 100]
         numbers.each do |number|
-          @revision.revision_colors.create!(number: number, color: false)
+          @revision.revision_colors.create!(section: number, color: false)
         end
         if is_new_item
           @detail = Detail.create!(item: @item)
@@ -224,12 +216,7 @@ class InspectionsController < ApplicationController
 
     inspection_id = inspection.id
     admin_id = Current.user.id
-=begin
-    if inspection.users.any? { |user| user.signature.blank? } || Current.user.signature.blank?
-      redirect_to inspection_path(inspection), alert: 'Falta firma del inspector o del administrador'
-      return
-    end
-=end
+
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
 
@@ -275,7 +262,7 @@ class InspectionsController < ApplicationController
     else
       control1 = true
       control2 = true
-      @revision.revision_colors.each do |color|
+      @revision.revision_colors.select(:section, :color).each do |color|
         if color.color == false
           if control1 == true
             control1 = false
@@ -287,8 +274,8 @@ class InspectionsController < ApplicationController
       if control2 == false
         redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se han completado todos los controles de calidad'
       else
-
-        if isladder == false && !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } || @revision.codes[0]=='0.1.1') && (report.certificado_minvu == '' || report.certificado_minvu == nil || report.certificado_minvu == 'No' || report.certificado_minvu == 'no')
+        revision_color_section_0 = @revision.revision_colors.find_by(section: 0)
+        if isladder == false && !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } || revision_color_section_0&.codes&.first == '0.1.1') && (report.certificado_minvu == '' || report.certificado_minvu == nil || report.certificado_minvu == 'No' || report.certificado_minvu == 'no')
           redirect_to inspection_path(@inspection), alert: 'Se ingresó que no hay certificado MINVU, pero en la checklist se ingresó que si hay'
         else
 
@@ -303,7 +290,7 @@ class InspectionsController < ApplicationController
               report.update_attribute(attr_name, "S/I")
             end
           end
-          if @revision.levels.include?("G")
+          if @revision.revision_colors.any? { |rc| rc.levels.include?("G") }
             @inspection.update(result: "Rechazado")
           else
             @inspection.update(result: "Aprobado")

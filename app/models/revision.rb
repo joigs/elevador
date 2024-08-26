@@ -1,11 +1,6 @@
 class Revision < ApplicationRecord
 
 
-  serialize :codes, type: Array,coder: JSON
-  serialize :points, type: Array, coder: JSON
-  serialize :levels, type: Array, coder: JSON
-  serialize :fail, type: Array, coder: JSON
-  serialize :comment, type: Array, coder: JSON
 
   validates :lock_version, presence: true
 

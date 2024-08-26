@@ -26,17 +26,13 @@ class RulesImporter
       point = row[0].cell_value
       code = row[1].cell_value
 
-      puts(code)
-      puts(level)
-      puts("1: #{row[3]&.cell_value}")
-      puts("2: #{row[4]&.cell_value}")
-        rules_data << Rule.new(
-          point: point,
-          code: code,
-          ins_type: ins_type,
-          level: level,
-          ruletype_id: ruletype.id
-        )
+      rules_data << Rule.new(
+        point: point,
+        code: code,
+        ins_type: ins_type,
+        level: level,
+        ruletype_id: ruletype.id
+      )
 
 
     end

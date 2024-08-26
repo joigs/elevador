@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_19_192849) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_26_035216) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -157,13 +157,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_192849) do
   end
 
   create_table "ladder_revisions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.text "codes"
-    t.text "points"
-    t.text "levels"
-    t.text "fail"
-    t.text "comment"
-    t.text "number"
-    t.text "priority"
     t.bigint "inspection_id", null: false
     t.bigint "item_id", null: false
     t.datetime "created_at", null: false
@@ -222,12 +215,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_192849) do
   end
 
   create_table "revision_colors", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-    t.integer "number"
+    t.string "number"
     t.boolean "color"
     t.string "revision_type", null: false
     t.bigint "revision_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "codes"
+    t.text "points"
+    t.text "levels"
+    t.text "comment"
+    t.integer "section"
+    t.text "priority"
     t.index ["revision_type", "revision_id"], name: "index_revision_colors_on_revision"
   end
 
@@ -255,11 +254,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_19_192849) do
     t.bigint "item_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "codes"
-    t.text "points"
-    t.text "levels"
-    t.text "fail"
-    t.text "comment"
     t.integer "lock_version", default: 0, null: false
     t.index ["group_id"], name: "index_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_revisions_on_inspection_id"

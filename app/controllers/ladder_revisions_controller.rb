@@ -19,13 +19,13 @@ class LadderRevisionsController < ApplicationController
       return
     end
 
-    @revision = LadderRevision.find_by(inspection_id: @inspection.id)
-    if @revision.nil?
+    @revision_base = LadderRevision.find_by(inspection_id: @inspection.id)
+    if @revision_base.nil?
       redirect_to(home_path, alert: "Checklist no disponible.")
       return
     end
 
-    authorize! @revision
+    authorize! @revision_base
 
     if @inspection.state == "Cerrado"
       redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
@@ -37,30 +37,25 @@ class LadderRevisionsController < ApplicationController
     if @report.cert_ant == "Si"
       @black_inspection = Inspection.find_by(number: @inspection.number*-1)
       if @black_inspection
-        @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
-        @last_revision = nil
+        @black_revision_base = LadderRevision.find_by(inspection_id: @black_inspection.id)
+        @last_revision_base = nil
       end
 
     elsif @report.cert_ant == "sistema"
-      @last_revision = LadderRevision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+      @last_revision_base = LadderRevision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
 
     elsif @report.cert_ant == "No"
-      @last_revision = nil
+      @last_revision_base = nil
 
     end
 
     #acceder a los objetos asociados a la revision
     @item = @revision.item
-    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
+    @revision_nulls = RevisionNull.where(revision_id: @revision_base.id)
     @group = Group.where("name LIKE ?", "%Escala%").first
     @detail = LadderDetail.find_by(item_id: @item.id)
-    @colors = @revision.revision_colors
-    @revision_map = {}
-    @revision.codes.each_with_index do |code, index|
-      point = @revision.points[index]
-      @revision_map[code] ||= {}
-      @revision_map[code][point] = index
-    end
+    @colors = @revision.revision_colors.select(:section, :color)
+
     @nombres = ['. DOCUMENTAL CARPETA 0',
                 '. Requisitos generales',
                 '. Estructura de soporte (bastidor) y cerramiento',
@@ -83,9 +78,24 @@ class LadderRevisionsController < ApplicationController
     if params[:section].present?
       section_code_start = "#{params[:section]}."
       @rules = @rules.select { |rule| rule.code.starts_with?("5.#{section_code_start}") }
-      @color = @revision.revision_colors.find_by(number: section_code_start.to_i)
+      @color = @revision_base.revision_colors.select(:section, :color).find_by(section: section_code_start.to_i)
       @section = params[:section]
+      @revision = @revision_base.revision_colors.find_by(section: @section)
 
+
+    end
+
+    @revision_map = {}
+    @revision.codes.each_with_index do |code, index|
+      point = @revision.points[index]
+      @revision_map[code] ||= {}
+      @revision_map[code][point] = index
+    end
+    if @black_revision_base
+      @black_revision = @black_revision_base.revision_colors.find_by(section: @section)
+    end
+    if @last_revision_base
+      @last_revision = @last_revision_base&.revision_colors&.find_by(section: @section)
     end
 
 
@@ -103,15 +113,26 @@ class LadderRevisionsController < ApplicationController
 
 
   def show
-    @revision = LadderRevision.find_by!(inspection_id: params[:inspection_id])
+    @revision_base = LadderRevision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
-    @revision_photos = @revision.revision_photos
+    @revision_photos = @revision_base.revision_photos
 
     if @inspection.nil?
       redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
       return
     end
 
+
+    @revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
+
+    @revision_base.revision_colors.order(:section).each do |revision_color|
+      @revision.codes.concat(revision_color.codes || [])
+      @revision.points.concat(revision_color.points || [])
+      @revision.levels.concat(revision_color.levels || [])
+      @revision.comment.concat(revision_color.comment || [])
+      @revision.number.concat(revision_color.number || [])
+      @revision.priority.concat(revision_color.priority || [])
+    end
 
     @revision_codes = []
 
@@ -129,7 +150,7 @@ class LadderRevisionsController < ApplicationController
 
 
   def update
-    @revision = LadderRevision.find_by!(inspection_id: params[:inspection_id])
+    @revision_base = LadderRevision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
 
@@ -141,11 +162,16 @@ class LadderRevisionsController < ApplicationController
     current_section = params[:section]
 
 
+    @revision = @revision_base.revision_colors.find_by(section: current_section)
+
+
     @black_inspection = Inspection.find_by(number: @inspection.number*-1)
 
     if @black_inspection
-      @black_revision = LadderRevision.find_by(inspection_id: @black_inspection.id)
-
+      @black_revision_base = Revision.find_by(inspection_id: @black_inspection.id)
+      if @black_revision_base
+        @black_revision = @black_revision_base.revision_colors.find_by(section: current_section)
+      end
       if ladder_revision_params[:past_revision].present?
 
         black_params = ladder_revision_params[:past_revision]
@@ -191,7 +217,7 @@ class LadderRevisionsController < ApplicationController
 
         if params[:ladder_revision][:null_condition].present?
           params[:ladder_revision][:null_condition].each do |null_condition|
-            @revision.revision_nulls.create(point: null_condition)
+            @revision_base.revision_nulls.create(point: null_condition)
           end
         end
 
@@ -228,151 +254,33 @@ class LadderRevisionsController < ApplicationController
 
 
 
-    control = true
-
-    codes2, points2, levels2, comment2, number2, priority2, fail_statuses2 = [], [], [], [], [], [], []
-
 
     current_section_num = current_section.to_i
 
-    @color = @revision.revision_colors.find_by(number: current_section_num)
     if params[:color].present? && params[:color] == "1"
-      @color.update!(color: true)
+      color = true
     else
-      @color.update!(color: false)
+      color = false
     end
 
-    black_codes2, black_points2, black_levels2, black_fail_statuses2 = [], [], [], []
 
 
     if @black_revision
-
-
-      @black_revision.codes.each_with_index do |code, index|
-        code_start = code.split('.')[1].to_i
-        if code_start >= current_section_num && control
-          control = false
-
-          black_codes.each_with_index do |code2, index2|
-            black_codes2 << black_codes[index2]
-            black_points2 << black_points[index2]
-            black_levels2 << black_levels[index2]
-            black_fail_statuses2 << black_fail_statuses[index2]
-          end
-          if code_start > current_section_num
-            black_codes2 << code
-            black_points2 << @black_revision.points[index]
-            black_levels2 << @black_revision.levels[index]
-            black_fail_statuses2 << @black_revision.fail[index]
-          end
-        else
-          if code_start != current_section_num
-
-            black_codes2 << code
-            black_points2 << @black_revision.points[index]
-            black_levels2 << @black_revision.levels[index]
-            black_fail_statuses2 << @black_revision.fail[index]
-          end
-
-        end
-      end
-    end
-
-    if control
-      black_codes.each_with_index do |code2, index2|
-        black_codes2 << black_codes[index2]
-        black_points2 << black_points[index2]
-        black_levels2 << black_levels[index2]
-        black_fail_statuses2 << black_fail_statuses[index2]
-      end
+      @black_revision&.update(color: color, codes: black_codes, points: black_points, levels: black_levels)
     end
 
 
-    if @black_revision&.codes.blank?
-      black_codes2 = black_codes
-      black_points2 = black_points
-      black_levels2 = black_levels
-      black_fail_statuses2 = black_fail_statuses
-    end
-
-
-    @black_revision&.update(codes: black_codes2, points: black_points2, levels: black_levels2, fail: black_fail_statuses2)
 
 
 
-    control = true
 
 
-    @revision.codes.each_with_index do |code, index|
-      code_start = code.split('.')[1].to_i
-      if code_start >= current_section_num && control
-        control = false
-        codes.each_with_index do |code2, index2|
-          codes2 << codes[index2]
-          points2 << points[index2]
-          levels2 << levels[index2]
-          comment2 << comment[index2]
-          number2 << number[index2]
-          priority2 << priority[index2]
-          fail_statuses2 << fail_statuses[index2]
-        end
-        if code_start > current_section_num
-          codes2 << code
-          points2 << @revision.points[index]
-          levels2 << @revision.levels[index]
-          comment2 << @revision.comment[index]
-          number2 << @revision.number[index]
-          priority2 << @revision.priority[index]
-          fail_statuses2 << @revision.fail[index]
-        end
-      else
-        if code_start != current_section_num
-
-          codes2 << code
-          points2 << @revision.points[index]
-          levels2 << @revision.levels[index]
-          comment2 << @revision.comment[index]
-          number2 << @revision.number[index]
-          priority2 << @revision.priority[index]
-          fail_statuses2 << @revision.fail[index]
-        end
-
-      end
-    end
-    if control
-      codes.each_with_index do |code2, index2|
-        codes2 << codes[index2]
-        points2 << points[index2]
-        levels2 << levels[index2]
-        comment2 << comment[index2]
-        number2 << number[index2]
-        priority2 << priority[index2]
-        fail_statuses2 << fail_statuses[index2]
-      end
-    end
 
 
-    if @revision.codes.blank?
-      @revision.codes = codes
-      @revision.points = points
-      @revision.levels = levels
-      @revision.comment = comment
-      @revision.number = number
-      @revision.priority = priority
-      @revision.fail = fail_statuses
-    else
-      @revision.codes = codes2
-      @revision.points = points2
-      @revision.levels = levels2
-      @revision.comment = comment2
-      @revision.number = number2
-      @revision.priority = priority2
-      @revision.fail = fail_statuses2
-    end
+    @revision_nulls = @revision_base.revision_nulls
+    @revision_photos = @revision_base.revision_photos
 
-    @revision_nulls = @revision.revision_nulls
 
-    @revision_photos = @revision.revision_photos
     if params[:ladder_revision].present?
 
 
@@ -434,14 +342,14 @@ class LadderRevisionsController < ApplicationController
         if photo.present?
 
           code = params[:revision_photos][:code][index]
-          @revision.revision_photos.create(photo: photo, code: code)
+          @revision_base.revision_photos.create(photo: photo, code: code)
         end
       end
     end
 
 
 
-    if @revision.save
+    if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment, number: number, priority: priority)
       redirect_to ladder_revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
     else
       render :edit, status: :unprocessable_entity
@@ -459,7 +367,7 @@ class LadderRevisionsController < ApplicationController
 
   def ladder_revision_params
     params.fetch(:ladder_revision, {}).permit(
-      :inspection_id, :group_id, :item_id, :color,
+      :inspection_id, :group_id, :item_id, :color, :section, :id,
       codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: []
     ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end

@@ -58,8 +58,7 @@ class ReportsController < ApplicationController
       @previous_inspection = @inspections.second
     end
 
-    puts("mierdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(@previous_inspection.inspect)
+
 
     if @report.update(report_params)
 
@@ -97,7 +96,7 @@ class ReportsController < ApplicationController
 
             numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
             numbers.each do |number|
-              @revision.revision_colors.create!(number: number, color: false)
+              @revision.revision_colors.create!(section: number, color: false)
             end
           else
             @revision = LadderRevision.find_by(inspection_id: black_inspection.id)
@@ -119,7 +118,7 @@ class ReportsController < ApplicationController
 
             if @item.group.type_of == "ascensor"
               (0..11).each do |index|
-                @revision.revision_colors.create!(number: index, color: false)
+                @revision.revision_colors.create!(section: index, color: false)
               end
 
             elsif @item.group.type_of == "libre"

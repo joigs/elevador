@@ -66,7 +66,6 @@ class Authentication::UsersController < ApplicationController
   def update
     if Current.user&.admin
       @user = User.find(params[:id])
-
       if user_params[:password].present? && user_params[:password_confirmation].present?
         unless user_params[:password] == user_params[:password_confirmation]
           flash.now[:alert] = "Las contraseñas no coinciden"
