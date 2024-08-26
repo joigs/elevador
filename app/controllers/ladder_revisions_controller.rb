@@ -305,8 +305,14 @@ class LadderRevisionsController < ApplicationController
         code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
           if params[:ladder_revision][:codes].present?
-            constructed_code = "#{params[:revision][:codes][params[:revision][:codes].index(photo.code.split(' ').first)]} #{params[:revision][:points][params[:revision][:codes].index(photo.code.split(' ').first)]}"
+            code_first_part = photo.code.split(' ').first
 
+            if params[:revision][:codes].include?(code_first_part)
+              index = params[:revision][:codes].index(code_first_part)
+              constructed_code = "#{params[:revision][:codes][index]} #{params[:revision][:points][index]}"
+            else
+              constructed_code = nil
+            end
             if constructed_code != photo.code
               photo.destroy
             end

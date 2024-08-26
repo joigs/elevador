@@ -375,7 +375,10 @@ class RevisionsController < ApplicationController
 
       if params[:revision][:null_condition].present?
         params[:revision][:null_condition].each do |null_condition|
-          @revision_base.revision_nulls.create(point: null_condition)
+          unless @revision_base.revision_nulls.exists?(point: null_condition)
+            @revision_base.revision_nulls.create(point: null_condition)
+          end
+
         end
       end
 
@@ -462,8 +465,14 @@ class RevisionsController < ApplicationController
           code_start = photo.code.split('.').first.to_i
           if code_start == current_section_num
             if params[:revision][:codes].present?
-              constructed_code = "#{params[:revision][:codes][params[:revision][:codes].index(photo.code.split(' ').first)]} #{params[:revision][:points][params[:revision][:codes].index(photo.code.split(' ').first)]}"
+              code_first_part = photo.code.split(' ').first
 
+              if params[:revision][:codes].include?(code_first_part)
+                index = params[:revision][:codes].index(code_first_part)
+                constructed_code = "#{params[:revision][:codes][index]} #{params[:revision][:points][index]}"
+              else
+                constructed_code = nil
+              end
               if constructed_code != photo.code
                 photo.destroy
               end
@@ -520,6 +529,39 @@ class RevisionsController < ApplicationController
 
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
+
+      if @revision_base.item.group.type_of == "ascensor"
+        @revision_photos&.each do |photo|
+          code_start = photo.code.split('.').first.to_i
+          if code_start == current_section_num
+              code_first_part = photo.code.split(' ').first
+
+              if @revision.codes.include?(code_first_part)
+                index = @revision.codes.index(code_first_part)
+                constructed_code = "#{@revision.codes[index]} #{@revision.points[index]}"
+              else
+                constructed_code = nil
+              end
+              if constructed_code != photo.code
+                photo.destroy
+              end
+
+          end
+        end
+      else
+        @revision_photos&.each do |photo|
+          code_start = photo.code.split('.').first.to_i
+          if code_start == current_section_num
+              if @revision.codes.exclude?(photo.code.split('|||').first)
+                photo.destroy
+              end
+          end
+
+        end
+      end
+
+
+
       redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
     else
       render :edit, status: :unprocessable_entity
