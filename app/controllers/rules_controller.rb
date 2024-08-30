@@ -80,6 +80,11 @@ class RulesController < ApplicationController
   end
   def create_with_new_code
     @rule = Rule.new(rule_params)
+
+    @with_new_code = true
+    @last_used_rule = Rule.last&.ruletype_id
+    @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
+
     ruletype = Ruletype.find(@rule.ruletype_id)
 
     if ruletype.rtype.downcase == "placeholder"
@@ -106,6 +111,9 @@ class RulesController < ApplicationController
   def create_with_same_code
     @rule = Rule.new(rule_params)
 
+    @with_same_code = true
+    @last_used_rule = Rule.last&.ruletype_id
+    @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
 
     last_rule = Rule.where(ruletype_id: @rule.ruletype_id).last
     @rule.code = last_rule.code if last_rule

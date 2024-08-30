@@ -1,19 +1,14 @@
 <%= form_with(model: ruletype, builder: CustomFormBuilder, local: true) do |form| %>
   <% if ruletype.errors.any? %>
     <div class="bg-red-800 text-white text-sm font-bold px-4 py-3 rounded relative" role="alert">
-      <strong class="font-bold">¡Error!</strong>
-      <span><%= "Error: " %> no permitieron crear la comprobación:</span>
-      <ul class="mt-3 list-disc list-inside text-sm">
-        <% ruletype.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+      <span><%= "Error: " %> no se pudo ingresar la comprobación:</span>
+
     </div>
   <% end %>
 
   <div class="mb-4">
     <%= form.label :Comprobación, class: "block text-gray-400 font-bold mb-2" %>
-    <%= form.text_area :rtype, rows: 7, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-300 bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <%= form.text_area :rtype, rows: 7, maxlength: 1000, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-300 bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
   </div>
 
   <div class="mb-4">

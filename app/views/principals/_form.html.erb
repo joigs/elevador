@@ -2,11 +2,7 @@
   <% if principal.errors.any? %>
     <div class="text-red-400 bg-red-800 p-2 rounded">
       <h2><%= "Error: " %> Empresa no pudo ser guardada:</h2>
-      <ul>
-        <% principal.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+
     </div>
   <% end %>
 

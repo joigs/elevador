@@ -185,7 +185,7 @@
                                    else
                                      nil
                                    end %>
-                <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" }, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+                <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" },maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
               </td>
               <%= hidden_field_tag "revision_photos[code][]", rule.code + "|||" + rule.point, data: { rules_form_target: "photoCode" } %>
             </tr>
