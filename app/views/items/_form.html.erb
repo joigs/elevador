@@ -13,7 +13,7 @@
 
   <div class="mt-4">
     <%= form.label :identificador, class: "block font-medium text-gray-300" %>
-    <%= form.text_field :identificador, class: "form-input mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm" %>
+    <%= form.text_field :identificador, maxlength: 100, class: "form-input mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm" %>
   </div>
 
   <% if Current.user&.admin && item.new_record?%>

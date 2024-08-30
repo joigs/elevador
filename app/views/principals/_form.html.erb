@@ -12,48 +12,48 @@
 
   <div>
     <%= form.label :"Rut de la empresa", class: "block text-gray-300" %>
-    <%= form.text_field :rut, data: { controller: "rut", rut_target: "rut" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :rut, data: { controller: "rut", rut_target: "rut" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Nombre de la empresa:", class: "block text-gray-300" %>
-    <%= form.text_field :name, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :name, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Razón social:", class: "block text-gray-300" %>
-    <%= form.text_field :business_name, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :business_name, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Email de empresa:", class: "block text-gray-300" %>
-    <%= form.text_field :email, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :email, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Teléfono de empresa:", class: "block text-gray-300" %>
-    <%= form.text_field :phone, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :phone, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
 
   <div>
     <%= form.label :"Dirección:", class: "block text-gray-300" %>
-    <%= form.text_field :place, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :place, maxlength: 200, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Nombre del contacto:", class: "block text-gray-300" %>
-    <%= form.text_field :contact_name, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :contact_name, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Email del contacto:", class: "block text-gray-300" %>
-    <%= form.text_field :contact_email, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :contact_email, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :"Teléfono de contacto", class: "block text-gray-300" %>
-    <%= form.text_field :cellphone, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.text_field :cellphone, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
