@@ -36,11 +36,20 @@ class GroupsController < ApplicationController
     else
       respond_to do |format|
         if @group.save
-          grupo1 = Group.find_by(number: 1)
-          rules = grupo1.rules.ordered_by_code.limit(11)
-          rules.each do |rule|
-            Ruleset.create(group: @group, rule: rule)
+          if @group.type_of == 'libre'
+            grupo1 = Group.joins(:rules)
+                          .group('groups.id')
+                          .having('COUNT(rules.id) >= 11')
+                          .find_by(type_of: 'ascensor')
+            if grupo1
+              rules = grupo1.rules.ordered_by_code.limit(11)
+              rules.each do |rule|
+                Ruleset.create(group: @group, rule: rule)
+              end
+            end
+
           end
+
           format.html { redirect_to groups_url, notice: "Se creó la clasificación con éxito." }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -53,13 +62,33 @@ class GroupsController < ApplicationController
 
   # DELETE /groups/1 or /groups/1.json
   def destroy
-    group.destroy!
 
-    respond_to do |format|
-      format.html { redirect_to groups_url, notice: "Se eliminó la clasificación" }
-      format.json { head :no_content }
+    if group.items.exists?
+      redirect_to group_path(group), alert: "No se pudo eliminar el grupo porque tiene elementos asociados."
+    else
+      rules = group.rules.to_a
+
+      if group.destroy
+
+        rules.each_with_index do |rule, index|
+
+          if rule.groups.count == 0
+
+            rule.destroy
+          end
+
+        end
+
+
+
+        redirect_to groups_path, notice: "Grupo eliminado con éxito."
+      else
+        redirect_to group_path(group), alert: "No se pudo eliminar el grupo por un motivo desconocido."
+      end
     end
   end
+
+
 
 
 

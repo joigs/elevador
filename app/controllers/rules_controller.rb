@@ -147,6 +147,7 @@ class RulesController < ApplicationController
   def edit
     authorize! rule
     rule
+    @cosa_edit_combobox = rule.ruletype_id
     @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
 
   end
@@ -169,13 +170,11 @@ class RulesController < ApplicationController
       @rule.code = "100.1.1"
 
     end
-    respond_to do |format|
       if rule.update(rule_params)
-        format.html { redirect_to rules_url, notice: 'Rule was successfully updated.' }
+        redirect_to rule_path(rule), notice: 'Defecto actualizado'
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        redirect_to edit_rule_path(rule), alert: 'No se pudo actualizar el defecto'
       end
-    end
   end
 
   def destroy

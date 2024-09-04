@@ -11,7 +11,7 @@ class Group < ApplicationRecord
     newest: "created_at DESC",
   }
 
-  has_many :items, dependent: :restrict_with_exception
+  has_many :items, dependent: :restrict_with_error
   has_many :rulesets, dependent: :destroy
   has_many :revisions
   has_many :rules, through: :rulesets
@@ -22,8 +22,16 @@ class Group < ApplicationRecord
 
   #para calcular automaticamente el numero de grupo
   def self.calculate_new_number
-    newest_record = Group.order(ORDER_BY[:newest]).first
+    records = Group.order(number: :asc)
+
+    records.each_with_index do |record, index|
+      return record.number + 1 if index == (records.size - 1)
+      return record.number + 1 if record.number != (records[index+1].number - 1)
+    end
 
     newest_record ? newest_record.number.to_i + 1 : 1
   end
+
+
+
 end

@@ -342,33 +342,46 @@ class InspectionsController < ApplicationController
       return
     end
 
-    @black_inspection = Inspection.find_by(number: @inspection.number * -1)
-    if @black_inspection
-      @black_revision = Revision.find_by(inspection_id: @black_inspection.id)
+    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+    if @revision_base.nil?
+      redirect_to(home_path, alert: "Checklist no disponible.")
+      return
     end
 
-    @item = @revision.item
-    @revision_nulls = RevisionNull.where(revision_id: @revision.id)
+    authorize! @revision_base
+
+    @item = @revision_base.item
+
+
+    @report = Report.find_by(inspection: @inspection)
+    if @report.cert_ant == "Si"
+      @black_inspection = Inspection.find_by(number: @inspection.number*-1)
+      if @black_inspection
+        @black_revision_base = Revision.find_by(inspection_id: @black_inspection.id)
+        @last_revision_base = nil
+      end
+
+    elsif @report.cert_ant == "sistema"
+      @last_revision_base = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+
+    elsif @report.cert_ant == "No"
+      @last_revision_base = nil
+
+    else
+      @last_revision_base = Revision.where(item_id: @item.id).order(created_at: :desc).offset(1).first
+    end
+
     @group = @item.group
-    @detail = Detail.find_by(item_id: @item.id)
-    @colors = @revision.revision_colors
-    @rules = @group.rules.includes(:ruletype)
-    @nombres = ['. DOCUMENTAL CARPETA 0',
-                '. CAJA DE ELEVADORES.',
-                '. ESPACIO DE MÁQUINAS Y POLEAS (para ascensores sin cuarto de máquinas aplica cláusula 9).',
-                '. PUERTA DE PISO.',
-                '. CABINA, CONTRAPESO Y MASA DE EQUILIBRIO.',
-                '. SUSPENSIÓN, COMPENSACIÓN, PROTECCIÓN CONTRA LA SOBRE VELOCIDAD Y PROTECCIÓN CONTRA EL MOVIMIENTO INCONTROLADO DE LA CABINA.',
-                '. GUÍAS, AMORTIGUADORES Y DISPOSITIVOS DE SEGURIDAD DE FINAL DE RECORRIDO.',
-                '. HOLGURAS ENTRE CABINA Y PAREDES DE LOS ACCESOS, ASÍ COMO ENTRE CONTRAPESO O MASA DE EQUILIBRADO.',
-                '. MÁQUINA.',
-                '. ASCENSORES SIN SALA DE MÁQUINAS.',
-                '. ESPACIO DE MÁQUINAS.',
-                '. ASCENSORES SIN SALA DE MÁQUINAS, CON MÁQUINA EN LA PARTE SUPERIOR DE LA CAJA DE ELEVADORES.',
-                '. ASCENSORES CON MÁQUINAS EN FOSO.',
-                '. MAQUINARIA FUERA DE LA CAJA DE ELEVADORES.',
-                '. PROTECCIÓN CONTRA DEFECTOS ELÉCTRICOS, MANDOS Y PRIORIDADES.',
-                '. ASCENSORES CON EXCEPCIONES AUTORIZADAS, EN LOS QUE SE HAYAN REALIZADO MODIFICACIONES IMPORTANTES, O QUE CUMPLAN NORMATIVA PARTICULAR']
+
+
+    if @group.type_of == "escala"
+      @detail = LadderDetail.find_by(item_id: @item.id)
+    elsif @group.type_of == "ascensor"
+      @detail = Detail.find_by(item_id: @item.id)
+    end
+
+    @colors = @revision_base.revision_colors.select(:section, :color)
+    @last_revision_colors = @last_revision_base&.revision_colors&.select(:section, :color) if @last_revision_base
 
     json_data = {
       inspection: @inspection,
