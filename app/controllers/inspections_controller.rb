@@ -1,4 +1,5 @@
 class InspectionsController < ApplicationController
+  require "ostruct"
 
   def index
     @q = Inspection.ransack(params[:q])
@@ -351,7 +352,21 @@ class InspectionsController < ApplicationController
     authorize! @revision_base
 
     @item = @revision_base.item
+    @revision_photos = @revision_base.revision_photos
 
+    @revision_photos_data = @revision_photos.map do |photo|
+      if photo.photo.attached?
+        {
+          code: photo.code,
+          photo: Base64.encode64(photo.photo.download)
+        }
+      else
+        {
+          code: photo.code,
+          photo: nil
+        }
+      end
+    end
 
     @report = Report.find_by(inspection: @inspection)
     if @report.cert_ant == "Si"
@@ -375,28 +390,74 @@ class InspectionsController < ApplicationController
 
 
     if @group.type_of == "escala"
+      @revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
+    elsif @group.type_of == "ascensor"
+      @revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
+    end
+
+
+
+    @revision_base.revision_colors.order(:section).each do |revision_color|
+      @revision.codes.concat(revision_color.codes || [])
+      @revision.points.concat(revision_color.points || [])
+      @revision.levels.concat(revision_color.levels || [])
+      @revision.comment.concat(revision_color.comment || [])
+
+      if @group.type_of == "escala"
+        @revision.number.concat(revision_color.number || [])
+        @revision.priority.concat(revision_color.priority || [])
+      end
+
+    end
+
+    if @last_revision_base
+      @last_revision_base_real = @last_revision_base
+    elsif @black_revision_base
+      @last_revision_base_real = @black_revision_base
+    end
+
+    if @last_revision_base_real
+
+      if @group.type_of == "escala"
+        @last_revision_real = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
+      elsif @group.type_of == "ascensor"
+        @last_revision_real = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
+      end
+
+      @last_revision_base_real.revision_colors.order(:section).each do |revision_color|
+        @last_revision_real.codes.concat(revision_color.codes || [])
+        @last_revision_real.points.concat(revision_color.points || [])
+        @last_revision_real.levels.concat(revision_color.levels || [])
+        @last_revision_real.comment.concat(revision_color.comment || [])
+
+        if @group.type_of == "escala"
+          @last_revision_real.number.concat(revision_color.number || [])
+          @last_revision_real.priority.concat(revision_color.priority || [])
+        end
+
+      end
+    end
+
+
+
+    if @group.type_of == "escala"
       @detail = LadderDetail.find_by(item_id: @item.id)
     elsif @group.type_of == "ascensor"
       @detail = Detail.find_by(item_id: @item.id)
     end
 
     @colors = @revision_base.revision_colors.select(:section, :color)
-    @last_revision_colors = @last_revision_base&.revision_colors&.select(:section, :color) if @last_revision_base
 
     json_data = {
       inspection: @inspection,
       revision: @revision,
-      black_inspection: @black_inspection,
-      black_revision: @black_revision,
       item: @item,
       revision_nulls: @revision_nulls,
       group: @group,
       detail: @detail,
       colors: @colors,
-      revision_map: @revision_map,
-      nombres: @nombres,
-      last_revision: @last_revision,
-      rules: @rules
+      last_revision: @last_revision_real,
+      revision_photos: @revision_photos_data
     }
 
     send_data json_data.to_json, filename: "inspection_#{params[:inspection_id]}.json", type: 'application/json'
