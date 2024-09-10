@@ -24,6 +24,10 @@ class Group < ApplicationRecord
   def self.calculate_new_number
     records = Group.order(number: :asc)
 
+    unless records
+      return 1
+    end
+
     records.each_with_index do |record, index|
       return record.number + 1 if index == (records.size - 1)
       return record.number + 1 if record.number != (records[index+1].number - 1)
