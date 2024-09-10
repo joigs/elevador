@@ -29,7 +29,6 @@ class Group < ApplicationRecord
       return record.number + 1 if record.number != (records[index+1].number - 1)
     end
 
-    newest_record ? newest_record.number.to_i + 1 : 1
   end
 
 
