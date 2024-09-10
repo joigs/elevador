@@ -31,6 +31,7 @@ class Group < ApplicationRecord
       return record.number + 1 if record.number != (records[index+1].number - 1)
     end
 
+    return 1
 
 
   end
