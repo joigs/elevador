@@ -325,6 +325,51 @@ class RevisionsController < ApplicationController
 
     @revision = @revision_base.revision_colors.find_by(section: current_section)
 
+    real_codes_fail, real_codes_null, real_numbers, real_priority, real_comment_fail, real_comment_null = [], [], [], [], [], []
+
+
+
+    if current_section == "0"
+
+
+
+      #Obtener los códigos de fail y null_condition
+      fails = revision_params["codes"]
+      nulls = revision_params["null_condition"].map { |nc| nc.split('_').first } # Solo el código numérico
+
+      #Recorrer los 'codes' e identificar los que deben mantenerse
+      revision_params["code"].each_with_index do |code, index|
+        #Extraer el código numérico de 'code' (antes del primer espacio)
+        numeric_code = code.split(' ').first
+
+        #Si no es ni fail ni null, se debe eliminar este código
+        if fails.include?(numeric_code)
+
+
+          real_codes_fail << numeric_code
+          real_numbers << revision_params["number"][index]
+          real_priority << revision_params["priority"][index]
+          real_comment_fail << revision_params["comment"][index]
+
+
+
+        end
+        if nulls.include?(numeric_code)
+          real_codes_null << code
+          real_numbers << revision_params["number"][index]
+          real_priority << revision_params["priority"][index]
+          real_comment_null << revision_params["comment"][index]
+
+        end
+
+      end
+
+
+    end
+
+
+
+
 
     @black_inspection = Inspection.find_by(number: @inspection.number * -1)
     if @black_inspection
@@ -346,7 +391,13 @@ class RevisionsController < ApplicationController
             codes << params[:revision][:codes][counter]
             points << params[:revision][:points][counter]
             levels << params[:revision][:levels][counter]
-            comment << params[:revision][:comment][counter]
+            if current_section == "0"
+              comment << real_comment_fail[counter]
+            else
+              comment << params[:revision][:comment][counter]
+
+            end
+
             fail_statuses << true
             counter = counter + 1
             end
@@ -374,13 +425,38 @@ class RevisionsController < ApplicationController
 
 
       if params[:revision][:null_condition].present?
-        params[:revision][:null_condition].each do |null_condition|
-          unless @revision_base.revision_nulls.exists?(point: null_condition)
-            @revision_base.revision_nulls.create(point: null_condition)
-          end
+        params[:revision][:null_condition].each_with_index do |null_condition, index|
+          # Extraer el código numérico (antes del "_") para comparar con real_codes_null
+          numeric_code = null_condition.split('_').first
 
+          # Extraer el código numérico del valor en real_codes_null
+          real_code_numeric = real_codes_null[index].split(' ').first
+
+          if real_code_numeric == numeric_code
+
+            # Obtener el comentario correspondiente (puede ser vacío)
+            comment_null = real_comment_null[index]
+
+            # Verificar si el point ya existe
+            existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
+
+            if existing_revision_null
+              # Si el comentario es diferente, actualizarlo
+              if existing_revision_null.comment != comment_null
+                existing_revision_null.update(comment: comment_null)
+
+              end
+            else
+              # Si no existe, crear uno nuevo con point y comment
+              @revision_base.revision_nulls.create(point: null_condition, comment: comment_null)
+            end
+
+          end
         end
       end
+
+
+
 
 
 

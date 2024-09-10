@@ -21,7 +21,12 @@ class InspectionsController < ApplicationController
     @report = Report.find_by(inspection: inspection)
   end
   def new
+
+
+
     @inspection = Inspection.new
+
+    authorize! @inspection
     @items = Item.all
     @item = Item.new
     @manual_action_name = "new"
@@ -34,6 +39,8 @@ class InspectionsController < ApplicationController
 
       @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id, :manual_action_name))
 
+
+      !authorize! @inspection
 
       control = true
 

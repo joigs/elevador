@@ -165,6 +165,50 @@ class LadderRevisionsController < ApplicationController
 
     @revision = @revision_base.revision_colors.find_by(section: current_section)
 
+    real_codes_fail, real_codes_null, real_numbers, real_priority, real_comment_fail, real_comment_null = [], [], [], [], [], []
+
+
+
+
+    if current_section == "0"
+
+
+
+      #Obtener los códigos de fail y null_condition
+      fails = ladder_revision_params["codes"]
+      nulls = ladder_revision_params["null_condition"].map { |nc| nc.split('_').first } # Solo el código numérico
+
+      #Recorrer los 'codes' e identificar los que deben mantenerse
+      ladder_revision_params["code"].each_with_index do |code, index|
+        #Extraer el código numérico de 'code' (antes del primer espacio)
+        numeric_code = code.split(' ').first
+
+        #Si no es ni fail ni null, se debe eliminar este código
+        if fails.include?(numeric_code)
+
+
+          real_codes_fail << numeric_code
+          real_numbers << ladder_revision_params["number"][index]
+          real_priority << ladder_revision_params["priority"][index]
+          real_comment_fail << ladder_revision_params["comment"][index]
+
+
+
+        end
+        if nulls.include?(numeric_code)
+          real_codes_null << code
+          real_numbers << ladder_revision_params["number"][index]
+          real_priority << ladder_revision_params["priority"][index]
+          real_comment_null << ladder_revision_params["comment"][index]
+
+        end
+
+      end
+
+
+    end
+
+
 
     @black_inspection = Inspection.find_by(number: @inspection.number*-1)
 
@@ -188,9 +232,18 @@ class LadderRevisionsController < ApplicationController
             codes << params[:ladder_revision][:codes][counter]
             points << params[:ladder_revision][:points][counter]
             levels << params[:ladder_revision][:levels][counter]
-            comment << params[:ladder_revision][:comment][counter]
-            number << params[:ladder_revision][:number][counter]
-            priority << params[:ladder_revision][:priority][counter]
+
+            if current_section == "0"
+              comment << real_comment_fail[counter]
+              priority << real_priority[counter]
+              number << real_numbers[counter]
+            else
+              comment << params[:ladder_revision][:comment][counter]
+              number << params[:ladder_revision][:number][counter]
+              priority << params[:ladder_revision][:priority][counter]
+            end
+
+
             fail_statuses << true
             counter = counter + 1
           end
@@ -216,11 +269,39 @@ class LadderRevisionsController < ApplicationController
 
 
 
+
         if params[:ladder_revision][:null_condition].present?
-          params[:ladder_revision][:null_condition].each do |null_condition|
-            @revision_base.revision_nulls.create(point: null_condition)
+          params[:ladder_revision][:null_condition].each_with_index do |null_condition, index|
+            # Extraer el código numérico (antes del "_") para comparar con real_codes_null
+            numeric_code = null_condition.split('_').first
+
+            # Extraer el código numérico del valor en real_codes_null
+            real_code_numeric = real_codes_null[index].split(' ').first
+
+            if real_code_numeric == numeric_code
+
+              # Obtener el comentario correspondiente (puede ser vacío)
+              comment_null = real_comment_null[index]
+
+              # Verificar si el point ya existe
+              existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
+
+              if existing_revision_null
+                # Si el comentario es diferente, actualizarlo
+                if existing_revision_null.comment != comment_null
+                  existing_revision_null.update(comment: comment_null)
+
+                end
+              else
+                # Si no existe, crear uno nuevo con point y comment
+                @revision_base.revision_nulls.create(point: null_condition, comment: comment_null)
+              end
+
+            end
           end
         end
+
+
 
 
       end

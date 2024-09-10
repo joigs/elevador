@@ -84,8 +84,8 @@
             <td <% unless @section.to_s == '0' %>style="display: none;"<% end %>>
               <div class="flex justify-center items-center">
 
-                <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-                <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}",class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+                <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+                <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
                                   data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" }  %>
                 <%= label_tag "null_condition_#{index}", "" %>
               </div>
@@ -168,16 +168,31 @@
                 </label>
               </div>
             </td>
-
-
+            <% comment_index = if @revision_map[rule.code] && @revision_map[rule.code][rule.point]
+                                 @revision_map[rule.code][rule.point]
+                               else
+                                 nil
+                               end %>
             <td class="px-6 py-4">
-              <% comment_index = if @revision_map[rule.code] && @revision_map[rule.code][rule.point]
-                                   @revision_map[rule.code][rule.point]
-                                 else
-                                   nil
-                                 end %>
-              <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" }, maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+
+            <% if @section != "0" %>
+
+
+                <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, data: { rules_form_target: "comment" }, maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+
+              <% else %>
+
+                <% if is_checked_null %>
+                  <% revision_null = @revision_nulls.find { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+                  <%= text_area_tag "revision[comment][]", revision_null.comment, rows: 6, cols: 25, maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+                <% else %>
+                  <%= text_area_tag "revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 25, maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+                <% end %>
+
+            <% end %>
             </td>
+
+
             <%= hidden_field_tag "revision_photos[code][]", "#{rule.code} #{rule.point}", data: { rules_form_target: "photoCode" } %>
           </tr>
         <% end %>

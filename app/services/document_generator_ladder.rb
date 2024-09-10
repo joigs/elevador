@@ -748,7 +748,31 @@ class DocumentGeneratorLadder
 
     revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
 
-    carpetas.each do |carpeta|
+
+
+
+    comments_hash = {}
+
+    revision.codes.each_with_index do |code, index|
+      if carpetas.include?(code)
+        comments_hash[code] = revision.comment[index]
+      end
+    end
+
+    revision_nulls.each do |null|
+      numeric_code = null.point.split('_').first
+      if carpetas.include?(numeric_code)
+        comments_hash[numeric_code] = null.comment
+      end
+    end
+
+    ordered_comments = carpetas.map { |code| comments_hash[code] || "" }
+
+
+
+
+
+    carpetas.each_with_index do |carpeta, index|
       indice = revision.codes.find_index(carpeta)
       if indice
         doc.replace('{{carpeta_si}}', 'No')
@@ -758,12 +782,12 @@ class DocumentGeneratorLadder
         else
           doc.replace('{{carpeta_f}}', 'FG')
         end
-        doc.replace('{{carpeta_comentario}}', revision.comment[indice])
+        doc.replace('{{carpeta_comentario}}', ordered_comments[index])
 
       elsif revision_nulls.any? { |null| null.point.start_with?("#{carpeta}_") }
         doc.replace('{{carpeta_si}}', '')
         doc.replace('{{carpeta_f}}', '')
-        doc.replace('{{carpeta_comentario}}', '')
+        doc.replace('{{carpeta_comentario}}', ordered_comments[index])
         doc.replace('{{carpeta_no_aplica}}', 'X')
 
 
