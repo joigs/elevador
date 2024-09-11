@@ -209,9 +209,10 @@
                   <% revision_null = @revision_nulls.find { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
                   <%= text_area_tag "ladder_revision[comment][]", comment_index.nil? ? nil : revision_null.comment, rows: 6, cols: 30, maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
 
-            <% else %>
+                <% else %>
                   <%= text_area_tag "ladder_revision[comment][]", comment_index.nil? ? nil : @revision.comment[comment_index], rows: 6, cols: 30, maxlength: 1000, class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
                 <% end %>
+                <%= hidden_field_tag "ladder_revision[garbage][]", "", data: { rules_form_target: "comment" } %>
 
               <% end %>
 

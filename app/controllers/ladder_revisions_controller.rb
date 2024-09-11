@@ -176,15 +176,28 @@ class LadderRevisionsController < ApplicationController
 
       #Obtener los códigos de fail y null_condition
       fails = ladder_revision_params["codes"]
-      nulls = ladder_revision_params["null_condition"].map { |nc| nc.split('_').first } # Solo el código numérico
+      nulls = ladder_revision_params["null_condition"]&.map { |nc| nc.split('_').first } # Solo el código numérico
+
+
+      carpetas = [
+        '0.1.1',
+        '0.1.2',
+        '0.1.3',
+        '0.1.4',
+        '0.1.5',
+        '0.1.6',
+        '0.1.7',
+        '0.1.8',
+        '0.1.9',
+        '0.1.10',
+        '0.1.11'
+      ]
 
       #Recorrer los 'codes' e identificar los que deben mantenerse
-      ladder_revision_params["code"].each_with_index do |code, index|
-        #Extraer el código numérico de 'code' (antes del primer espacio)
-        numeric_code = code.split(' ').first
+      carpetas.each_with_index do |numeric_code, index|
 
         #Si no es ni fail ni null, se debe eliminar este código
-        if fails.include?(numeric_code)
+        if fails&.include?(numeric_code)
 
 
           real_codes_fail << numeric_code
@@ -195,7 +208,7 @@ class LadderRevisionsController < ApplicationController
 
 
         end
-        if nulls.include?(numeric_code)
+        if nulls&.include?(numeric_code)
           real_codes_null << code
           real_numbers << ladder_revision_params["number"][index]
           real_priority << ladder_revision_params["priority"][index]
@@ -276,7 +289,7 @@ class LadderRevisionsController < ApplicationController
             numeric_code = null_condition.split('_').first
 
             # Extraer el código numérico del valor en real_codes_null
-            real_code_numeric = real_codes_null[index].split(' ').first
+            real_code_numeric = real_codes_null[index]
 
             if real_code_numeric == numeric_code
 
@@ -456,7 +469,7 @@ class LadderRevisionsController < ApplicationController
   def ladder_revision_params
     params.fetch(:ladder_revision, {}).permit(
       :inspection_id, :group_id, :item_id, :color, :section, :id,
-      codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: []
+      codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: [], garbage: []
     ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end
 
