@@ -356,7 +356,6 @@ class InspectionsController < ApplicationController
       return
     end
 
-    authorize! @revision_base
 
     @item = @revision_base.item
     @revision_photos = @revision_base.revision_photos
