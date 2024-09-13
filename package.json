@@ -12,6 +12,7 @@
   },
   "private": true,
   "dependencies": {
-    "@rails/request.js": "^0.0.9"
+    "@rails/request.js": "^0.0.9",
+    "flowbite": "^2.5.1"
   }
 }
