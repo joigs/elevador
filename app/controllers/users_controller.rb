@@ -17,4 +17,19 @@ class UsersController < ApplicationController
       format.turbo_stream
     end
   end
+
+
+  def toggle_tabla
+    if Current.user.update(tabla: params[:user][:tabla] == 'true')
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace(Current.user, partial: "users/user", locals: { user: Current.user }) }
+        format.html { redirect_to perfil_path(Current.user.username) }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.replace(Current.user, partial: "users/user", locals: { user: Current.user }) }
+        format.html { redirect_to perfil_path(Current.user.username), alert: 'Hubo un error al actualizar el estado de tabla.' }
+      end
+    end
+  end
 end

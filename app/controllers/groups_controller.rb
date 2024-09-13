@@ -32,7 +32,8 @@ class GroupsController < ApplicationController
     @group = Group.new(group_params)
 
     if @group.type_of == 'escala' && Group.exists?(type_of: 'escala')
-      redirect_to new_group_url, alert: "Ya existe un grupo con el tipo 'escala'."
+      flash.now[:alert] = "Ya existe un grupo con el tipo 'escala'."
+      redirect_to new_group_url
     else
       respond_to do |format|
         if @group.save
@@ -64,7 +65,8 @@ class GroupsController < ApplicationController
   def destroy
 
     if group.items.exists?
-      redirect_to group_path(group), alert: "No se pudo eliminar el grupo porque tiene elementos asociados."
+      flash[:alert] = "No se pudo eliminar el grupo porque tiene elementos asociados."
+      redirect_to group_path(group)
     else
       rules = group.rules.to_a
 
@@ -83,7 +85,8 @@ class GroupsController < ApplicationController
 
         redirect_to groups_path, notice: "Grupo eliminado con éxito."
       else
-        redirect_to group_path(group), alert: "No se pudo eliminar el grupo por un motivo desconocido."
+        flash[:alert] = "No se pudo eliminar el grupo por un motivo desconocido."
+        redirect_to group_path(group)
       end
     end
   end

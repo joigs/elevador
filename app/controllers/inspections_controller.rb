@@ -262,7 +262,8 @@ class InspectionsController < ApplicationController
 
     send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
   rescue StandardError => e
-    redirect_to inspection_path(inspection), alert: "Error al generar el documento: #{e.message}"
+    flash[:alert] = "Error al generar el documento: #{e.message}"
+    redirect_to inspection_path(inspection)
   end
 
   def close_inspection

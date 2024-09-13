@@ -24,13 +24,73 @@ class ItemsController < ApplicationController
   end
 
   def create
-    authorize! @item = Item.new(item_params)
-    if @item.save
-      redirect_to items_path, notice: "Activo añadido"
-    else
-      render :new, status: :unprocessable_entity
+    ActiveRecord::Base.transaction do
+      authorize! @item = Item.new(item_params)
+
+      # Eliminar espacios en blanco de identificador
+      item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
+
+      # Validación de grupo
+      if item_params[:group_id] == "bad"
+        flash.now[:alert] = "Seleccione un grupo válido"
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      # Validación de empresa
+      if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
+        flash.now[:alert] = "Seleccione una empresa válida"
+        render :new, status: :unprocessable_entity
+        return
+      else
+        @principal = Principal.find(item_params[:principal_id])
+      end
+
+      # Si el identificador está en blanco, generamos uno basado en la empresa y otros datos
+      if item_params[:identificador].blank?
+        item_params[:identificador] = "CAMBIAME(Empresa: #{item_params[:principal_id]}. #{SecureRandom.hex(10)})"
+      end
+
+      if Item.find_by(identificador: item_params[:identificador], principal_id: @principal.id, group_id: item_params[:group_id])
+        flash.now[:alert] = "El activo con id #{item_params[:identificador]} ya existe en la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      # Verificación de duplicados
+      @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
+      current_group = @item.group&.id.to_s
+      @item.assign_attributes(item_params)
+      is_new_item = @item.new_record?
+
+      if @item.new_record? && Item.exists?(identificador: item_params[:identificador])
+        flash.now[:alert] = "El activo con id #{item_params[:identificador]} ya existe en la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      if !@item.new_record? && current_group != item_params[:group_id]
+        flash.now[:alert] = "El activo con identificador #{@item.identificador} pertenece a otro grupo. Seleccione el grupo correcto."
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      @item.save!
+
+      # Crear detalles adicionales según el tipo de grupo
+      if @item.group.type_of == "escala"
+        @detail = LadderDetail.create!(item: @item)
+      elsif @item.group.type_of == "ascensor"
+        @detail = Detail.create!(item: @item)
+      end
+
+      redirect_to items_path, notice: "Activo añadido con éxito"
     end
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.record.errors.full_messages.join(', ')
+    render :new, status: :unprocessable_entity
   end
+
 
   def update
     authorize! item

@@ -5,8 +5,9 @@ class Authentication::SessionsController < ApplicationController
   def new
 
     if Current.user
-      redirect_to home_path, alert: "Ya tienes una sesion activa"
-      return
+      flash[:alert] = "Ya tienes una sesion activa"
+
+      redirect_to home_path
     end
 
   end
@@ -19,7 +20,8 @@ class Authentication::SessionsController < ApplicationController
 
     if @user&.authenticate(params[:password])
       session[:user_id] = @user.id
-      redirect_to home_path, notice: "Bienvenido"
+      flash[:notice] = "Bienvenido"
+      redirect_to home_path
     else
       redirect_to new_session_path, alert: "Credenciales invalidas"
     end
@@ -28,7 +30,8 @@ class Authentication::SessionsController < ApplicationController
 
   def destroy
     session.delete(:user_id)
-    redirect_to new_session_path, notice: "Sesion cerrada"
+    flash[:notice] = "Sesion cerrada"
+    redirect_to new_session_path
   end
 
   private

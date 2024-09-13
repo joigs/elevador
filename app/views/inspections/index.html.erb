@@ -11,6 +11,7 @@
     <%= turbo_frame_tag 'inspections' do %>
       <div class="p-6">
         <%= render 'shared/search_form', form_url: inspections_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
+      </div>
 
 
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
@@ -25,7 +26,7 @@
             <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
           <% end %>
         <% end %>
-      </div>
+
     <% end %>
   </div>
 </div>

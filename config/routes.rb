@@ -21,7 +21,13 @@ Rails.application.routes.draw do
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }
   end
 
-  resources :users, only: :show, path: '/user', param: :username, as: 'perfil'
+  resources :users, only: :show, path: '/user', param: :username, as: 'perfil' do
+    member do
+      patch :toggle_tabla
+    end
+  end
+
+
   resources :inspections, path: '/inspections' do
     member do
       get :download_document

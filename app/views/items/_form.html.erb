@@ -11,23 +11,25 @@
     </div>
   <% end %>
 
-  <div class="mt-4">
-    <%= form.label :identificador, class: "block font-medium text-gray-300" %>
-    <%= form.text_field :identificador, maxlength: 100, class: "form-input mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm" %>
-  </div>
 
-  <% if Current.user&.admin && item.new_record?%>
-    <div class="mt-4">
-      <%= form.label :group_id, "Clasificación del ascensor", class: "block font-medium text-gray-300" %>
-      <%= form.select :group_id, options_for_select(Group.all.map { |g| [g.number, g.id] }, item.group_id), {}, {class: "form-select mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm"} %>
-    </div>
-  <% end %>
+
 
 
 
   <div class="mt-4">
     <%= form.label :principal_id, "Empresa", class: "block font-medium text-gray-300" %>
     <%= form.collection_select :principal_id, Principal.all, :id, :name, {prompt: 'Selecciona una empresa'}, {class: "form-select mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm"} %>
+  </div>
+
+
+    <div class="mt-4">
+      <%= form.label :group_id, "Clasificación del ascensor", class: "block font-medium text-gray-300" %>
+      <%= form.select :group_id, options_for_select([['Seleccione un grupo', 'bad']] + Group.all.map { |g| [g.name, g.id] }, selected: @item&.group_id), {}, {class: "form-select mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm"} %>
+    </div>
+
+  <div class="mt-4">
+    <%= form.label :identificador, class: "block font-medium text-gray-300" %>
+    <%= form.text_field :identificador, maxlength: 100, class: "form-input mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm" %>
   </div>
 
   <div class="mt-6">
