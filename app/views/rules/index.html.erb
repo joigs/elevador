@@ -18,7 +18,7 @@
       <ul class="divide-y divide-gray-700">
         <%= turbo_frame_tag 'rules' do %>
 
-          <%= render 'shared/search_form', form_url: rules_path, search_keys: 'code_or_point_cont', frame_id: 'rules' %>
+          <%= render 'shared/search_form', form_url: rules_path, search_keys: 'code_or_point_cont', frame_id: 'rules', placeholder_text: 'texto o código' %>
 
 
           <%= turbo_frame_tag "rules-#{@pagy.page}", class: 'rules' do %>

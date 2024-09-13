@@ -1,6 +1,6 @@
 <%= form_with url: form_url, method: :get, local: true, scope: :q, data: { controller: "search", action: "search#toggleClearButton", search_target: "form" } do |form| %>
   <div class="flex flex-wrap gap-4 mb-6 items-center">
-    <%= form.search_field search_keys, placeholder: 'Buscar', onchange: 'this.form.requestSubmit()', value: params.dig(:q, search_keys), class: "shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-grow", data: { search_target: "searchField" } %>
+    <%= form.search_field search_keys, placeholder: "Buscar por #{placeholder_text}", onchange: 'this.form.requestSubmit()', value: params.dig(:q, search_keys), class: "shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-grow", data: { search_target: "searchField" } %>
     <%= form.button 'Buscar', type: 'submit', class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2 flex-shrink-0" %>
 
     <div data-search-target="clearButton" style="display: none;">

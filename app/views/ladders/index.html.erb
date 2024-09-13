@@ -8,7 +8,7 @@
   </div>
 
   <ul class="divide-y divide-gray-700 mt-4">
-    <%= render 'shared/search_form', form_url: ladders_path, search_keys: 'point_or_code_or_number_cont', frame_id: 'ladders' %>
+    <%= render 'shared/search_form', form_url: ladders_path, search_keys: 'point_or_code_or_number_cont', frame_id: 'ladders', placeholder_text: 'número, texto o código' %>
 
     <% @ladders.each do |rule| %>
       <li class="px-4 py-4 bg-gray-800 text-gray-400 hover:bg-gray-700">

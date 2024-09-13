@@ -8,7 +8,7 @@
   <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
     <%= render 'shared/back_home' %>
     <div class="p-6">
-      <%= render 'shared/search_form', form_url: principals_path, search_keys: 'name_or_rut_or_business_name_cont', frame_id: 'principal_frame' %>
+      <%= render 'shared/search_form', form_url: principals_path, search_keys: 'name_or_rut_or_business_name_cont', frame_id: 'principal_frame', placeholder_text: 'nombre, RUT o razón social' %>
     </div>
     <%= turbo_frame_tag 'principals' do %>
 

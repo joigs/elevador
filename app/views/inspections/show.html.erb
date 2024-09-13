@@ -1,7 +1,18 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
   <div class="flex flex-wrap">
     <div class="text-white lg:w-2/3 pr-4">
-      <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %></p>
+      <div class="flex items-center justify-between w-full">
+        <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %></p>
+        <div class="mt-0">
+          <% if @control2 %>
+            <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today %>
+          <% else %>
+            <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today %>
+          <% end %>
+        </div>
+      </div>
+
+
       <p class="text-2xl mt-2"><strong>Identificador:</strong> <%= @inspection.item&.identificador %></p>
       <p><strong>Empresa:</strong> <%= @inspection.item&.principal&.name %></p>
       <p><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
@@ -47,13 +58,7 @@
 
 
 
-<div class="mt-6 w-full">
-    <% if @control2 %>
-      <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today %>
-    <% else %>
-    <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today%>
-<% end %>
-  </div>
+
 
 <div class="mt-6 w-full">
     <% if @control2 %>

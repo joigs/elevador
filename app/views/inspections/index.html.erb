@@ -10,7 +10,7 @@
 
     <%= turbo_frame_tag 'inspections' do %>
       <div class="p-6">
-        <%= render 'shared/search_form', form_url: inspections_path, search_keys: 'number_eq', frame_id: 'inspections' %>
+        <%= render 'shared/search_form', form_url: inspections_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
 
 
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>

@@ -28,7 +28,7 @@
     <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
       <%= turbo_frame_tag 'items' do %>
         <div class="p-6">
-          <%= render 'shared/search_form', form_url: items_path, search_keys: 'identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont', frame_id: 'items' %>
+          <%= render 'shared/search_form', form_url: items_path, search_keys: 'identificador_or_principal_rut_or_principal_name_or_principal_business_name_cont', frame_id: 'items', placeholder_text: 'identificador del activo, nombre, RUT o razón social de la empresa' %>
 
           <%= turbo_frame_tag "items-#{@pagy.page}", class: 'items' do %>
             <ul class="divide-y divide-gray-700">

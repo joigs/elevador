@@ -17,13 +17,14 @@
 
   <div>
     <%= form.label :Contraseña, class: "block text-gray-300" %>
-    <%= form.password_field :password, required: true, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.password_field :password, required: !form.object.persisted?, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <div>
     <%= form.label :Confirmar_contraseña, class: "block text-gray-300" %>
-    <%= form.password_field :password_confirmation, required: true, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.password_field :password_confirmation, required: !form.object.persisted?, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
+
 
 
 

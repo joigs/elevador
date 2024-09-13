@@ -42,7 +42,7 @@
     </p>
 
     <div class="mt-4">
-      <% if (controller_name == 'inspections' && action_name == 'index') || (controller_name == 'users' && action_name == 'show') || (controller_name == 'static_pages') %>
+      <% if (controller_name == 'inspections' && action_name == 'index') || (controller_name == 'users' && action_name == 'show') || (controller_name == 'static_pages') || (controller_name == "home") %>
         <%= link_to 'Ver inspección', inspection_path(inspection), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
       <% end %>
     </div>

@@ -78,3 +78,100 @@
     </div>
   </div>
 </section>
+
+
+
+<% if @inspections.count>0 %>
+
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+
+
+
+    <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+
+
+      <%= turbo_frame_tag 'inspections' do %>
+        <div class="p-6">
+          <%= render 'shared/search_form', form_url: home_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
+
+
+          <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+            <ul class="divide-y divide-gray-700">
+              <% @inspections.each_with_index do |inspection, index| %>
+                <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                  <% border_class = if Current.user.admin %>
+                    <% "" %>
+                  <% else %>
+                    <% if inspection.ins_date < Date.today %>
+                      <% "border border-red-600" %>
+                    <% elsif inspection.ins_date == Date.today %>
+                      <% "border border-green-500" %>
+                    <% else %>
+                      <% "border border-yellow-500" %>
+                    <% end %>
+                  <% end %>
+
+                  <div id="<%= dom_id inspection %>" class="max-w-md mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden md:max-w-2xl <%= border_class %>">
+                  <div class="p-8">
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200 text-4xl">Inspección N°: <%= inspection.number %></strong>
+
+                      </p>
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200 text-2xl">Identificador: <%= inspection.item&.identificador %></strong>
+
+                      </p>
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200">Empresa:</strong>
+                        <%= inspection.item&.principal&.name %>
+                      </p>
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200">Fecha de la inspección:</strong>
+                        <%= format_date(inspection.ins_date) %>
+                      </p>
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200">Periodicidad:</strong>
+                        <%= display_periodicity(inspection.validation) %>
+                      </p>
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200">Clasificación:</strong>
+                        <%= inspection.item&.group&.name %>
+                      </p>
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200">Resultado de la inspección:</strong>
+                        <%= inspection.result %>
+                      </p>
+
+
+                      <p class="text-gray-400">
+                        <strong class="text-gray-200">Fecha de término certificación:</strong>
+                        <%= format_date(inspection.report&.ending) %>
+                      </p>
+
+                      <div class="mt-4">
+                        <% if (controller_name == 'inspections' && action_name == 'index') || (controller_name == 'users' && action_name == 'show') || (controller_name == 'static_pages') || (controller_name == "home") %>
+                          <%= link_to 'Ver inspección', inspection_path(inspection), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+            <% if @pagy.next %>
+              <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% end %>

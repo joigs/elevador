@@ -96,7 +96,7 @@ class Authentication::UsersController < ApplicationController
       end
 
       if @user.update(user_params)
-        redirect_to perfil_path(@user.username), notice: "Usuario actualizado exitosamente"
+        redirect_to home_path, notice: "Usuario actualizado exitosamente"
       else
         render :edit, status: :unprocessable_entity
       end

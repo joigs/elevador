@@ -10,7 +10,7 @@
   <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
     <%= turbo_frame_tag 'ruletypes' do %>
       <div class="p-6">
-        <%= render 'shared/search_form', form_url: ruletypes_path, search_keys: 'rtype_or_gygatype_or_gygatype_number_cont', frame_id: 'ruletypes' %>
+        <%= render 'shared/search_form', form_url: ruletypes_path, search_keys: 'rtype_or_gygatype_or_gygatype_number_cont', frame_id: 'ruletypes', placeholder_text: 'texto o código' %>
 
         <%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
           <ul class="divide-y divide-gray-700">
