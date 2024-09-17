@@ -21,14 +21,14 @@
     <div class="mb-4">
       <%= form.label :"Comprobación a la que corresponde", class: "block text-gray-300 font-bold mb-2" %>
       <%= form.select :ruletype_id, options_for_select([['Seleccione una opción', @placeholder_id]] + Ruletype.where.not(gygatype_number: '100.1').pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id), @last_used_rule), {}, { data: { controller: "slim-select" }, class: "block appearance-none w-full bg-gray-700 border border-gray-600 text-white py-2 px-3 pr-8 rounded leading-tight focus:outline-none focus:bg-gray-500 focus:border-gray-500" } %>
-      <p id="floating_helper_text" class="mt-2 text-xs text-white-500 dark:text-gray-400">No seleccionar ninguna si el defecto pertenece solo a grupos libres</p>
+      <p id="floating_helper_text" class="mt-2 text-xs text-gray-400">No seleccionar ninguna si el defecto pertenece solo a grupos libres</p>
     </div>
 
   <% elsif @cosa_edit_combobox %>
     <div class="mb-4">
       <%= form.label :"Comprobación a la que corresponde", class: "block text-gray-300 font-bold mb-2" %>
       <%= form.select :ruletype_id, options_for_select([['Seleccione una opción', @placeholder_id]] + Ruletype.where.not(gygatype_number: '100.1').pluck(Arel.sql("CONCAT(gygatype_number, ' - ', rtype)"), :id), @rule.ruletype_id), {}, { data: { controller: "slim-select" }, class: "block appearance-none w-full bg-gray-700 border border-gray-600 text-white py-2 px-3 pr-8 rounded leading-tight focus:outline-none focus:bg-gray-500 focus:border-gray-500" } %>
-      <p id="floating_helper_text" class="mt-2 text-xs text-white-500 dark:text-gray-400">No seleccionar ninguna si el defecto pertenece solo a grupos libres</p>
+      <p id="floating_helper_text" class="mt-2 text-xs text-gray-400">No seleccionar ninguna si el defecto pertenece solo a grupos libres</p>
     </div>
   <% end %>
 
