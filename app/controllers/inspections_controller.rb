@@ -139,10 +139,8 @@ class InspectionsController < ApplicationController
         end
       end
 
-
-
-
-      redirect_to inspection_path(@inspection), notice: 'Inspección creada con éxito'
+      flash[:notice] = "Inspección creada con éxito"
+      redirect_to inspection_path(@inspection)
     end
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
@@ -282,7 +280,8 @@ class InspectionsController < ApplicationController
     report = inspection.report
     revision_nulls = @revision.revision_nulls
     if isladder == false && detail.sala_maquinas == "Responder más tarde"
-      redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se ha especificado presencia de sala de máquinas'
+      flash[:alert] = "No se puede cerrar la inspección, No se ha especificado presencia de sala de máquinas"
+      redirect_to inspection_path(@inspection)
     else
       control1 = true
       control2 = true
@@ -296,11 +295,13 @@ class InspectionsController < ApplicationController
         end
       end
       if control2 == false
-        redirect_to inspection_path(@inspection), alert: 'No se puede cerrar la inspección, No se han completado todos los controles de calidad'
+        flash[:alert] = "No se puede cerrar la inspección, No se han completado todos los controles de calidad"
+        redirect_to inspection_path(@inspection)
       else
         revision_color_section_0 = @revision.revision_colors.find_by(section: 0)
         if isladder == false && !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } || revision_color_section_0&.codes&.first == '0.1.1') && (report.certificado_minvu == '' || report.certificado_minvu == nil || report.certificado_minvu == 'No' || report.certificado_minvu == 'no')
-          redirect_to inspection_path(@inspection), alert: 'Se ingresó que no hay certificado MINVU, pero en la checklist se ingresó que si hay'
+          flash[:alert] = "No se puede cerrar la inspección, No se ha ingresado certificado MINVU"
+          redirect_to inspection_path(@inspection)
         else
 
 
@@ -322,7 +323,8 @@ class InspectionsController < ApplicationController
           if @inspection.update(state: "Cerrado")
             redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
           else
-            redirect_to inspection_path(@inspection), alert: 'Hubo un error al enviar la inspección'
+            flash[:alert] = 'Hubo un error al enviar la inspección'
+            redirect_to inspection_path(@inspection)
           end
         end
 

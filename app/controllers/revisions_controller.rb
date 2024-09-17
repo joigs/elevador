@@ -15,13 +15,15 @@ class RevisionsController < ApplicationController
 
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo."
+      redirect_to(home_path)
       return
     end
 
     @revision_base = Revision.find_by(inspection_id: @inspection.id)
     if @revision_base.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
+      flash[:alert] = "Checklist no disponible."
+      redirect_to(home_path)
       return
     end
 
@@ -34,7 +36,8 @@ class RevisionsController < ApplicationController
 
 
     if @inspection.state == "Cerrado"
-      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      flash[:alert] = "la inspección fué cerrada."
+      redirect_to(inspection_path(@inspection))
       return
     end
 
@@ -143,7 +146,8 @@ class RevisionsController < ApplicationController
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
-    redirect_to(home_path, alert: "Error al guardar la inspección")
+    flash[:alert] = "Error al guardar la inspección"
+    redirect_to(home_path)
   end
 
 
@@ -164,13 +168,15 @@ class RevisionsController < ApplicationController
 
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo."
+      redirect_to(home_path)
       return
     end
 
     @revision_base = Revision.find_by(inspection_id: @inspection.id)
     if @revision_base.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
+      flash[:alert] = "Checklist no disponible."
+      redirect_to(home_path)
       return
     end
 
@@ -178,7 +184,8 @@ class RevisionsController < ApplicationController
 
 
     if @inspection.state == "Cerrado"
-      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      flash[:alert] = "la inspección fué cerrada."
+      redirect_to(inspection_path(@inspection))
       return
     end
 
@@ -240,7 +247,8 @@ class RevisionsController < ApplicationController
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
-    redirect_to(home_path, alert: "Error al guardar la inspección")
+    flash[:alert] = "Error al guardar la inspección"
+    redirect_to(home_path)
   end
 
 
@@ -265,7 +273,8 @@ class RevisionsController < ApplicationController
     @revision_photos = @revision_base.revision_photos
     @group = @revision_base.item.group
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo."
+      redirect_to(home_path)
       return
     end
 
@@ -663,13 +672,15 @@ class RevisionsController < ApplicationController
 
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo."
+      redirect_to(home_path)
       return
     end
 
     @revision = Revision.find_by(inspection_id: @inspection.id)
     if @revision.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
+      flash[:alert] = "Checklist no disponible."
+      redirect_to(home_path)
       return
     end
 
@@ -677,7 +688,8 @@ class RevisionsController < ApplicationController
 
 
     if @inspection.state == "Cerrado"
-      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      flash[:alert] = "la inspección fué cerrada."
+      redirect_to(inspection_path(@inspection))
       return
     end
     @rule = Rule.new

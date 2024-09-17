@@ -52,18 +52,15 @@ class DetailsController < ApplicationController
 
       end
 
-
-      redirect_to edit_report_path(@report), notice: 'Información modificada exitosamente'
+      flash[:notice] = "Detalle modificado exitosamente"
+      redirect_to edit_report_path(@report)
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   # DELETE /details/1 or /details/1.json
-  def destroy
-    authorize! @detail.destroy!
-    redirect_to details_path, notice: "Detalle eliminado"
-  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

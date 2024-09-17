@@ -35,7 +35,6 @@ class GroupsController < ApplicationController
       flash.now[:alert] = "Ya existe un grupo con el tipo 'escala'."
       redirect_to new_group_url
     else
-      respond_to do |format|
         if @group.save
           if @group.type_of == 'libre'
             grupo1 = Group.joins(:rules)
@@ -50,12 +49,12 @@ class GroupsController < ApplicationController
             end
 
           end
-
-          format.html { redirect_to groups_url, notice: "Se creó la clasificación con éxito." }
+          flash[:notice] = "Se creó la clasificación con éxito."
+          redirect_to groups_url
         else
-          format.html { render :new, status: :unprocessable_entity }
+          flash.now[:alert] = "No se pudo crear la clasificación."
+          render :new, status: :unprocessable_entity
         end
-      end
     end
   end
 
@@ -81,9 +80,8 @@ class GroupsController < ApplicationController
 
         end
 
-
-
-        redirect_to groups_path, notice: "Grupo eliminado con éxito."
+        flash[:notice] = "Grupo eliminado con éxito."
+        redirect_to groups_path
       else
         flash[:alert] = "No se pudo eliminar el grupo por un motivo desconocido."
         redirect_to group_path(group)

@@ -16,20 +16,23 @@ class LadderRevisionsController < ApplicationController
 
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo."
+      redirect_to(home_path)
       return
     end
 
     @revision_base = LadderRevision.find_by(inspection_id: @inspection.id)
     if @revision_base.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
+      flash[:alert] = "Checklist no disponible."
+      redirect_to(home_path)
       return
     end
 
     authorize! @revision_base
 
     if @inspection.state == "Cerrado"
-      redirect_to(inspection_path(@inspection), alert: "La inspección fué cerrada.")
+      flash[:alert] = "La inspección fué cerrada."
+      redirect_to(inspection_path(@inspection))
       return
     end
 
@@ -108,7 +111,8 @@ class LadderRevisionsController < ApplicationController
 
 
   rescue ActiveRecord::RecordNotFound
-    redirect_to(home_path, alert: "No se encontró inspección")
+    flash[:alert] = "No se encontró la inspección"
+    redirect_to(home_path)
   end
 
 
@@ -119,7 +123,8 @@ class LadderRevisionsController < ApplicationController
     @revision_photos = @revision_base.revision_photos
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo."
+      redirect_to(home_path)
       return
     end
 

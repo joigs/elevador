@@ -173,7 +173,8 @@ class RulesController < ApplicationController
       if rule.update(rule_params)
         redirect_to rule_path(rule), notice: 'Defecto actualizado'
       else
-        redirect_to edit_rule_path(rule), alert: 'No se pudo actualizar el defecto'
+        flash[:alert] = "No se pudo actualizar el defecto"
+        redirect_to edit_rule_path(rule)
       end
   end
 
@@ -193,17 +194,20 @@ class RulesController < ApplicationController
 
   def import
     if params[:file].nil?
-      redirect_to new_import_rules_path, alert: "No se seleccionó ningún archivo"
+      flash[:alert] = "No se seleccionó ningún archivo"
+      redirect_to new_import_rules_path
       return
 
     end
     if params[:group_id].nil? || params[:group_id] == ""
-      redirect_to new_import_rules_path, alert: "No se seleccionó ningún grupo"
+      flash[:alert] = "No se seleccionó ningún archivo"
+      redirect_to new_import_rules_path
       return
 
     end
     if Ruleset.find_by(group_id: params[:group_id])
-      redirect_to new_import_rules_path, alert: "El grupo seleccionado ya tiene reglas asociadas"
+      flash[:alert] = "El grupo seleccionado ya tiene reglas asociadas"
+      redirect_to new_import_rules_path
       return
     end
 

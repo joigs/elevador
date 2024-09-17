@@ -63,7 +63,8 @@ class LaddersController < ApplicationController
 
   def import
     if params[:file].nil?
-      redirect_to new_import_ladders_path, alert: "No se seleccionó ningún archivo"
+      flash[:alert] = "No se seleccionó ningún archivo"
+      redirect_to new_import_ladders_path
       return
 
     end

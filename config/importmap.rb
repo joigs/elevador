@@ -12,3 +12,5 @@ pin_all_from "app/javascript/custom", under: "custom"
 pin "flowbite" # @2.5.1
 pin "@popperjs/core", to: "@popperjs--core.js" # @2.11.8
 pin "flowbite-datepicker" # @1.3.0
+
+pin "sweetalert2" # @11.14.0

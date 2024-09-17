@@ -28,7 +28,7 @@ class UsersController < ApplicationController
     else
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.replace(Current.user, partial: "users/user", locals: { user: Current.user }) }
-        format.html { redirect_to perfil_path(Current.user.username), alert: 'Hubo un error al actualizar el estado de tabla.' }
+        format.html { redirect_to perfil_path(Current.user.username), flash: { error: 'Hubo un error al actualizar el estado de tabla.' } }
       end
     end
   end

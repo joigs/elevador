@@ -50,20 +50,23 @@ class RuletypesController < ApplicationController
   def import
 
     if Ruletype.exists?
-      redirect_to new_import_ruletypes_path, alert: "Ya existen comprobaciones"
+      flash[:alert] = "Ya existen comprobaciones"
+      redirect_to new_import_ruletypes_path
       return
     end
 
 
 
     if params[:file].nil?
-      redirect_to new_import_ruletypes_path, alert: "No se seleccionó ningún archivo"
+      flash[:alert] = "No se seleccionó ningún archivo"
+      redirect_to new_import_ruletypes_path
       return
     end
 
 
     RuletypesImporter.import(params[:file].path)
-    redirect_to ruletypes_path, notice: "Se importaron las comprobaciones con exito"
+    flash[:notice] = "Se importaron las comprobaciones con exito"
+    redirect_to ruletypes_path
   end
 
 
