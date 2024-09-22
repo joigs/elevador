@@ -1,14 +1,16 @@
 <%= form_with(model: @rule, builder: CustomFormBuilder, local: true, url: @rule.new_record? ? (@with_same_code ? create_with_same_code_rules_path : (@with_new_code ? create_with_new_code_rules_path : rules_path)) : rule_path(@rule)) do |form| %>
   <% if @rule.errors.any? %>
-    <div class="text-red-400 bg-red-800 p-2 rounded">
-      <h2><%= "Error: " %> Defecto no pudo ser guardado:</h2>
-      <ul>
-        <% @rule.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
+    <% error_messages = @rule.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Error: Defecto no pudo ser guardado',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
   <% end %>
+
 
   <div class="mb-4">
     <%= form.label :Defecto, class: "block text-gray-300 font-bold mb-2" %>

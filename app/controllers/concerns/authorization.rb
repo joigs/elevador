@@ -5,7 +5,8 @@ module Authorization
     class NotAuthorizedError < StandardError; end
 
     rescue_from NotAuthorizedError do
-      redirect_to home_path, alert: "No tienes permiso"
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
     end
 
     private
@@ -19,7 +20,8 @@ module Authorization
 
     def inspection_not_modifiable!(inspection)
       unless Current.user.admin? && inspection.ins_date > Date.today
-        redirect_to inspection_path(inspection), alert: 'No puedes modificar esta inspección.'
+        flash[:alert] = "No puedes modificar esta inspección."
+        redirect_to inspection_path(inspection)
       end
     end
 

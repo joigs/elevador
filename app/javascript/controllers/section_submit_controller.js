@@ -1,7 +1,5 @@
-//app/javascript/controllers/section_submit_controller.js
 import { Controller } from "@hotwired/stimulus"
 
-//controlador para los botones de las secciones en la revision
 export default class extends Controller {
     static targets = ["button"]
 
@@ -21,7 +19,13 @@ export default class extends Controller {
                 if (response.ok) {
                     window.location.href = url;
                 } else {
-                    alert('Error al guardar los cambios.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error al guardar los cambios.',
+                        showCancelButton: false,
+                        showConfirmButton: false
+                    });
                 }
             });
     }

@@ -1,4 +1,6 @@
 // app/javascript/controllers/submit_redirect_controller.js
+
+//controlador usado para guardar estado actual en una revision cuando se quiere añadir un nuevo defecto, esta sin uso ya que solo se usa para la opcion descartada de libre
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
@@ -18,7 +20,11 @@ export default class extends Controller {
                 if (response.ok) {
                     window.location.href = url;
                 } else {
-                    alert('Error al guardar los cambios.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error al guardar los cambios.',
+                    });
                 }
             });
     }

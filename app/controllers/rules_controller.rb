@@ -70,13 +70,12 @@ class RulesController < ApplicationController
     end
 
 
-      respond_to do |format|
       if @rule.save
-        format.html { redirect_to rules_url, notice: 'Rule was successfully created.' }
+        flash[:notice] = "Defecto añadido con éxito"
+        redirect_to rules_url
       else
-        format.html { render :new, status: :unprocessable_entity }
+        render :new, status: :unprocessable_entity
       end
-    end
   end
   def create_with_new_code
     @rule = Rule.new(rule_params)
@@ -99,13 +98,12 @@ class RulesController < ApplicationController
 
     end
 
-    respond_to do |format|
       if @rule.save
-        format.html { redirect_to rules_url, notice: 'Rule was successfully created.' }
+        flash[:notice] = "Se definió defecto con éxito"
+        redirect_to rules_url
       else
-        format.html { render :new, status: :unprocessable_entity }
+        render :new, status: :unprocessable_entity
       end
-    end
   end
 
   def create_with_same_code
@@ -133,13 +131,12 @@ class RulesController < ApplicationController
       @rule.code = "100.1.1"
 
     end
-    respond_to do |format|
       if @rule.save
-        format.html { redirect_to rules_url, notice: 'Rule was successfully created with the same code.' }
+        flash[:notice] = "Se definió defecto con mismo código que el anterior"
+        redirect_to rules_url
       else
-        format.html { render :new, status: :unprocessable_entity }
+        render :new, status: :unprocessable_entity
       end
-    end
   end
 
 
@@ -171,7 +168,8 @@ class RulesController < ApplicationController
 
     end
       if rule.update(rule_params)
-        redirect_to rule_path(rule), notice: 'Defecto actualizado'
+        flash[:notice] = "Defecto actualizado"
+        redirect_to rule_path(rule)
       else
         flash[:alert] = "No se pudo actualizar el defecto"
         redirect_to edit_rule_path(rule)
@@ -181,10 +179,10 @@ class RulesController < ApplicationController
   def destroy
     authorize! rule
     rule.destroy
-
+    flash[:notice] = "Defecto eliminado"
     respond_to do |format|
-      format.html { redirect_to rules_url, notice: 'Rule was successfully destroyed.', status: :see_other }
-      format.json { head :no_content }
+      format.html { redirect_to rules_path }
+      format.turbo_stream { head :no_content }
     end
   end
 
@@ -212,7 +210,8 @@ class RulesController < ApplicationController
     end
 
     RulesImporter.import(params[:file].path, params[:group_id])
-    redirect_to rules_path, notice: "Se importaron las fallas con exito"
+    flash[:notice] = "Se importaron los defectos con éxito"
+    redirect_to rules_path
   end
 
 

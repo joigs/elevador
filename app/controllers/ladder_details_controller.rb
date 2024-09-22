@@ -23,9 +23,8 @@ class LadderDetailsController < ApplicationController
 
     if detail.update(ladder_detail_params)
 
-
-
-      redirect_to edit_report_path(@report), notice: 'Información modificada exitosamente'
+      flash[:notice] = "Información modificada exitosamente"
+      redirect_to edit_report_path(@report)
     else
       render :edit, status: :unprocessable_entity
     end

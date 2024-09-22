@@ -26,7 +26,8 @@ class Authentication::UsersController < ApplicationController
 
     @user = User.new(user_params)
     if @user.save
-      redirect_to user_path(@user), notice: "Usuario creado exitosamente"
+      flash[:notice] = "Usuario creado exitosamente"
+      redirect_to user_path(@user)
     else
       render :new, status: :unprocessable_entity
     end
@@ -41,7 +42,8 @@ class Authentication::UsersController < ApplicationController
 
       @pagy, @users = pagy_countless(@users, items: 10)
     else
-      redirect_to home_path, alert: "No tienes permiso"
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
     end
   end
 
@@ -50,7 +52,8 @@ class Authentication::UsersController < ApplicationController
     if Current.user&.admin
       @user = User.find(params[:id])
     else
-      redirect_to home_path, alert: "No tienes permiso"
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
     end
   end
   def edit
@@ -59,7 +62,8 @@ class Authentication::UsersController < ApplicationController
     elsif Current.user.id == params[:id].to_i
       @user = User.find(params[:id])
     else
-      redirect_to home_path, alert: "No tienes permiso"
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
     end
   end
 
@@ -75,7 +79,8 @@ class Authentication::UsersController < ApplicationController
       end
 
       if @user.update(user_params)
-        redirect_to home_path, notice: "Usuario actualizado exitosamente"
+        flash[:notice] = "Usuario modificado"
+        redirect_to home_path
       else
         render :edit, status: :unprocessable_entity
       end
@@ -83,7 +88,8 @@ class Authentication::UsersController < ApplicationController
       @user = User.find(params[:id])
 
       if user_params[:admin].present? || user_params[:real_name].present?
-        redirect_to home_path, alert: "No tienes permiso para modificar estos campos"
+        flash[:alert] = "No tienes permiso para modificar estos campos"
+        redirect_to home_path
         return
       end
 
@@ -96,12 +102,14 @@ class Authentication::UsersController < ApplicationController
       end
 
       if @user.update(user_params)
-        redirect_to home_path, notice: "Usuario actualizado exitosamente"
+        flash[:notice] = "Usuario modificado"
+        redirect_to home_path
       else
         render :edit, status: :unprocessable_entity
       end
     else
-      redirect_to home_path, alert: "No tienes permiso"
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
     end
   end
 
@@ -110,9 +118,11 @@ class Authentication::UsersController < ApplicationController
     if Current.user&.admin
       @user = User.find(params[:id])
       @user.destroy
-      redirect_to home_path, notice: "Usuario eliminado exitosamente"
+      flash[:notice] = "Usuario eliminado exitosamente"
+      redirect_to home_path
     else
-      redirect_to home_path, alert: "No tienes permiso"
+      flash[:alert] = "no tienes permiso"
+      redirect_to home_path
     end
   end
 

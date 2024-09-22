@@ -15,7 +15,6 @@ class Inspection < ApplicationRecord
   }
 
 
-  before_save :validate_inspection_date
 
   validates :ins_date, presence: { message: "Debes ingresar una fecha" }
 
@@ -88,17 +87,10 @@ class Inspection < ApplicationRecord
   #valida que no se puedan agendar revisiones los fines de semana
   def weekend_error
     if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)
-      errors.add(:ins_date, "No se hacen inspecciones los fines de semana")
-    end
-  end
-
-
-  def validate_inspection_date
-    if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)
       errors.add(:ins_date, "No se pueden programar inspecciones los fines de semana.")
-      throw(:abort)
     end
   end
+
 
   def set_principal_from_item
     self.principal_id = self.item.principal_id if self.item

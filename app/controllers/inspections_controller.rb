@@ -34,83 +34,60 @@ class InspectionsController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-
       @manual_action_name = inspection_params[:manual_action_name]
-
       @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id, :manual_action_name))
 
-
-      !authorize! @inspection
+      authorize! @inspection
 
       control = true
-
-      # Separar los parámetros del item
       item_params = inspection_params.slice(:identificador, :group_id, :principal_id)
-
-      # Eliminar espacios en blanco de identificador
       item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
 
+      # Agrega errores al objeto @inspection en lugar de flash.now
       if item_params[:group_id] == "bad"
-        flash.now[:alert] = "Seleccione un grupo"
+        @inspection.errors.add(:base, "Seleccione un grupo")
         control = false
       end
 
       if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
-        flash.now[:alert] = "Seleccione una empresa"
+        @inspection.errors.add(:base, "Seleccione una empresa")
         control = false
       else
         @principal = Principal.find(item_params[:principal_id])
-
       end
 
       if item_params[:identificador].blank?
-        item_params[:identificador] = "CAMBIAME(Empresa: #{item_params[:principal_id]}. Lugar de inspeccion: #{@inspection.place} #{SecureRandom.hex(10)})"
+        item_params[:identificador] = "CAMBIAME(Empresa: #{item_params[:principal_id]}. Lugar de inspección: #{@inspection.place} #{SecureRandom.hex(10)})"
       end
-
-
-
 
       if control == false
         @item = Item.new(item_params)
-
         render :new, status: :unprocessable_entity
         return
       else
         @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
-
       end
 
       current_group = @item.group&.id.to_s
-
       @item.assign_attributes(item_params)
       is_new_item = @item.new_record?
 
-
-
-
       if @item.new_record? && Item.exists?(identificador: item_params[:identificador])
-        flash.now[:alert] = "El activo con id #{item_params[:identificador]} pertenece a la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
+        @inspection.errors.add(:base, "El activo con id #{item_params[:identificador]} pertenece a la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}")
         render :new, status: :unprocessable_entity
         return
       end
 
-
-
       if !@item.new_record? && current_group != item_params[:group_id]
-        flash.now[:alert] = "Activo con identificador #{@item.identificador} pertenece a #{@item.group.name}, seleccione el grupo correspondiente"
+        @inspection.errors.add(:base, "Activo con identificador #{@item.identificador} pertenece a #{@item.group.name}, seleccione el grupo correspondiente")
         render :new, status: :unprocessable_entity
         return
       end
 
       @item.save!
-
       @inspection.item = @item
-
-
-
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
-
       if @item.group.type_of == "escala"
         @revision = LadderRevision.create!(inspection: @inspection, item: @inspection.item)
         numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
@@ -138,12 +115,12 @@ class InspectionsController < ApplicationController
           @detail = Detail.create!(item: @item)
         end
       end
-
       flash[:notice] = "Inspección creada con éxito"
       redirect_to inspection_path(@inspection)
     end
   rescue ActiveRecord::RecordInvalid => e
-    flash.now[:alert] = e.record.errors.full_messages.join(', ')
+    # Agregar los errores de validación al modelo
+    @inspection.errors.add(:base, e.record.errors.full_messages.uniq.join(', '))
     render :new, status: :unprocessable_entity
   end
 
@@ -186,7 +163,8 @@ class InspectionsController < ApplicationController
     ending = inspection_params[:ending]
     @report = Report.find_by(inspection: inspection)
     if @report.update(ending: ending)
-      redirect_to @inspection, notice: 'Fecha de vigencia de certificación actualizada'
+      flash[:notice] = "Fecha de término de certificación actualizada"
+      redirect_to @inspection
     else
       render @inspection, status: :unprocessable_entity
     end
@@ -196,7 +174,8 @@ class InspectionsController < ApplicationController
     authorize! inspection
     inf_date = inspection_params[:inf_date]
     if @inspection.update(inf_date: inf_date)
-      redirect_to @inspection, notice: 'Fecha de emisión de informe actualizada'
+      flash[:notice] = "Fecha de emisión de informe actualizada"
+      redirect_to @inspection
     else
       render @inspection, status: :unprocessable_entity
     end
@@ -207,14 +186,18 @@ class InspectionsController < ApplicationController
   def update
     authorize! inspection
     @manual_action_name = inspection_params[:manual_action_name]
+
+    # Intenta actualizar la inspección
     if @inspection.update(inspection_params.except(:manual_action_name))
-
-
-      redirect_to @inspection, notice: 'Inspección actualizada con éxito.'
+      flash[:notice] = "Inspección actualizada"
+      redirect_to @inspection
     else
-      render :edit
+      # Si la actualización falla debido a errores de validación, renderiza el formulario con los errores
+      flash.now[:alert] = @inspection.errors.full_messages.join(', ')
+      render :edit, status: :unprocessable_entity
     end
   end
+
 
 
 
@@ -226,7 +209,11 @@ class InspectionsController < ApplicationController
     end
 
     inspection.destroy
-    redirect_to inspections_path, notice: 'Inspección eliminada', status: :see_other
+    flash[:notice] = "Inspección eliminada"
+    respond_to do |format|
+      format.html { redirect_to inspections_path, status: :see_other }
+      format.turbo_stream { head :no_content }
+    end
   end
 
 
@@ -321,7 +308,8 @@ class InspectionsController < ApplicationController
             @inspection.update(result: "Aprobado")
           end
           if @inspection.update(state: "Cerrado")
-            redirect_to inspection_path(@inspection), notice: 'Inspección enviada con exito'
+            flash[:notice] = "Inspección cerrada con éxito"
+            redirect_to inspection_path(@inspection)
           else
             flash[:alert] = 'Hubo un error al enviar la inspección'
             redirect_to inspection_path(@inspection)
@@ -343,19 +331,22 @@ class InspectionsController < ApplicationController
     authorize! inspection
 
     if @inspection.nil?
-      redirect_to(home_path, alert: "No se encontró la inspección para el activo.")
+      flash[:alert] = "No se encontró la inspección para el activo"
+      redirect_to(home_path)
       return
     end
 
     @revision = Revision.find_by(inspection_id: @inspection.id)
     if @revision.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
+      flash[:alert] = "Checklist no disponible."
+      redirect_to(home_path)
       return
     end
 
     @revision_base = Revision.find_by(inspection_id: @inspection.id)
     if @revision_base.nil?
-      redirect_to(home_path, alert: "Checklist no disponible.")
+      flash[:alert] = "Checklist no disponible."
+      redirect_to(home_path)
       return
     end
 
@@ -464,6 +455,7 @@ class InspectionsController < ApplicationController
       revision_nulls: @revision_nulls,
       group: @group,
       detail: @detail,
+      report: @report,
       colors: @colors,
       last_revision: @last_revision_real,
       revision_photos: @revision_photos_data
@@ -471,7 +463,8 @@ class InspectionsController < ApplicationController
 
     send_data json_data.to_json, filename: "inspection_#{params[:inspection_id]}.json", type: 'application/json'
   rescue ActiveRecord::RecordNotFound
-    redirect_to(home_path, alert: "Error al guardar la inspección")
+    flash[:alert] = "Error al guardar la inspección"
+    redirect_to(home_path)
   end
 
 

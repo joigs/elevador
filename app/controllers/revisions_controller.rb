@@ -656,9 +656,8 @@ class RevisionsController < ApplicationController
         end
       end
 
-
-
-      redirect_to revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
+      flash[:notice] = "Checklist actualizada"
+      redirect_to revision_path(inspection_id: @inspection.id)
     else
       render :edit, status: :unprocessable_entity
     end
@@ -706,7 +705,8 @@ class RevisionsController < ApplicationController
     @rule.ruletype = ruletype
     if @rule.save
       Ruleset.create(rule: @rule, group: @group)
-      redirect_to edit_libre_revision_path(inspection_id: @revision.inspection_id, section: 100), notice: 'Defecto creado.'
+      flash[:notice] = "Defecto definido"
+      redirect_to edit_libre_revision_path(inspection_id: @revision.inspection_id, section: 100)
     else
       render :new_rule
     end

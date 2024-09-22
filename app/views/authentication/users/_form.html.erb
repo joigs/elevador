@@ -1,8 +1,14 @@
 <%= form_with(model: @user, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
-  <% @user.errors.full_messages.each do |error| %>
-    <div class="text-red-400 bg-red-800 p-2 rounded">
-      <%= error %>
-    </div>
+  <% if @user.errors.any? %>
+    <% error_messages = @user.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Error: No se pudo guardar el usuario',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
   <% end %>
 
   <div>

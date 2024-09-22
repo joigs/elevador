@@ -456,7 +456,8 @@ class LadderRevisionsController < ApplicationController
 
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment, number: number, priority: priority)
-      redirect_to ladder_revision_path(inspection_id: @inspection.id), notice: 'Revisión actualizada'
+      flash[:notice] = "Revisión actualizada"
+      redirect_to ladder_revision_path(inspection_id: @inspection.id)
     else
       render :edit, status: :unprocessable_entity
     end

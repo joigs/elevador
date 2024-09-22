@@ -31,7 +31,10 @@ class Authentication::SessionsController < ApplicationController
   def destroy
     session.delete(:user_id)
     flash[:notice] = "Sesion cerrada"
-    redirect_to new_session_path
+    respond_to do |format|
+      format.html { redirect_to new_session_path }
+      format.turbo_stream { head :no_content }
+    end
   end
 
   private

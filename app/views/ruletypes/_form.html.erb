@@ -1,10 +1,16 @@
 <%= form_with(model: ruletype, builder: CustomFormBuilder, local: true) do |form| %>
   <% if ruletype.errors.any? %>
-    <div class="bg-red-800 text-white text-sm font-bold px-4 py-3 rounded relative" role="alert">
-      <span><%= "Error: " %> no se pudo ingresar la comprobación:</span>
-
-    </div>
+    <% error_messages = ruletype.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Error: No se pudo ingresar la comprobación',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
   <% end %>
+
 
   <div class="mb-4">
     <%= form.label :Comprobación, class: "block text-gray-400 font-bold mb-2" %>

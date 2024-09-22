@@ -160,22 +160,14 @@ es:
     messages:
       record_invalid: 'Validación fallida: %{errors}'
       inclusion: "no está incluido en la lista"
-      blank:
-        one: "no puede estar en blanco"
-        other: "no pueden estar en blanco"
+      blank: "no puede estar en blanco"
       invalid: "es inválido"
       confirmation: "no coincide con la confirmación"
       accepted: "debe ser aceptado"
       empty: "no puede estar vacío"
-      too_long:
-        one: "es demasiado largo (máximo %{count} carácter)"
-        other: "es demasiado largo (máximo %{count} caracteres)"
-      too_short:
-        one: "es demasiado corto (mínimo %{count} carácter)"
-        other: "es demasiado corto (mínimo %{count} caracteres)"
-      wrong_length:
-        one: "es la longitud incorrecta (debe ser de %{count} carácter)"
-        other: "es la longitud incorrecta (debe ser de %{count} caracteres)"
+      too_long: "es demasiado largo (máximo %{count} caracteres)"
+      too_short: "es demasiado corto (mínimo %{count} caracteres)"
+      wrong_length:  "es la longitud incorrecta (debe ser de %{count} caracteres)"
       not_a_number: "no es un número"
       not_an_integer: "no es un entero"
       greater_than: "debe ser mayor que %{count}"
@@ -185,19 +177,8 @@ es:
       less_than_or_equal_to: "debe ser menor o igual que %{count}"
       other_than: "debe ser otro que %{count}"
       taken: "ya ha sido tomado"
-      not_saved:
-        one: "1 error impidió que este %{resource} se guarde"
-        other: "%{count} errores impidieron que este %{resource} se guarde"
-    models:
-      rule:
-        attributes:
-          ins_type:
-            blank:
-              one: "no puede estar en blanco"
-              other: "no pueden estar en blanco"
-            presence:
-              one: "Debe asignar el tipo de defecto"
-              other: "Debe asignar los tipos de defecto"
+      not_saved: "%{count} errores impidieron que este %{resource} se guarde"
+
   helpers:
     select:
       prompt: "Por favor seleccione"

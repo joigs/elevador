@@ -3,13 +3,14 @@
     <div class="text-white lg:w-2/3 pr-4">
       <div class="flex items-center justify-between w-full">
         <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %></p>
-        <div class="mt-0">
+        <div class="mt-0" data-controller="warning" data-warning-ins-date="<%= @inspection.ins_date %>" data-warning-is-owner="<%= @inspection.owner? %>" data-warning-control="<%= @control %>">
           <% if @control2 %>
-            <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today %>
+            <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300", data: { action: "click->warning#handleClick" } %>
           <% else %>
-            <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.owner? && @control && @inspection.ins_date <= Date.today %>
+            <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300", data: { action: "click->warning#handleClick" } %>
           <% end %>
         </div>
+
       </div>
 
 
@@ -90,7 +91,7 @@
 
 
   <div class="mt-6 w-full">
-    <%= link_to 'Eliminar inspección', inspection_path(@inspection), data: { turbo_method: :delete, turbo_confirm: 'Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4" if Current.user.admin %>
+    <%= link_to 'Eliminar inspección', inspection_path(@inspection), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/inspections" } if Current.user.admin %>
   </div>
 
   <div class="mt-6 w-full ">

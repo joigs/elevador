@@ -81,7 +81,10 @@ class GroupsController < ApplicationController
         end
 
         flash[:notice] = "Grupo eliminado con éxito."
-        redirect_to groups_path
+        respond_to do |format|
+          format.html { redirect_to groups_path }
+          format.turbo_stream { head :no_content }
+        end
       else
         flash[:alert] = "No se pudo eliminar el grupo por un motivo desconocido."
         redirect_to group_path(group)

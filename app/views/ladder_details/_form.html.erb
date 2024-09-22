@@ -1,15 +1,17 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
   <%= form_with(model: ladder_detail, builder: CustomFormBuilder, class: "space-y-6 bg-gray-900 p-6 rounded-lg shadow-lg") do |form| %>
     <% if ladder_detail.errors.any? %>
-      <div id="error_explanation" class="bg-red-700 text-white px-3 py-2 font-medium rounded-lg">
-        <h2><%= "Error: " %> No se pudo guardar detalle del activo:</h2>
-        <ul>
-          <% ladder_detail.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
+      <% error_messages = ladder_detail.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+      <%= javascript_tag do %>
+        Swal.fire({
+        icon: 'error',
+        title: 'Error: No se pudo guardar detalle del activo',
+        html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+        confirmButtonText: 'Entendido'
+        })
+      <% end %>
     <% end %>
+
 
 
 

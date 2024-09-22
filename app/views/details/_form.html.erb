@@ -1,15 +1,17 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
   <%= form_with(model: detail, builder: CustomFormBuilder, local: true, class: "space-y-4") do |form| %>
     <% if detail.errors.any? %>
-      <div class="text-red-500 bg-red-900 p-4 rounded">
-        <h2><%= "Error: " %> No se pudieron guardar los datos sobre el activo:</h2>
-        <ul>
-          <% detail.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
+      <% error_messages = detail.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+      <%= javascript_tag do %>
+        Swal.fire({
+        icon: 'error',
+        title: 'Error: No se pudieron guardar el detalle del activo',
+        html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+        confirmButtonText: 'Entendido'
+        })
+      <% end %>
     <% end %>
+
 
 
 

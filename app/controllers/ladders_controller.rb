@@ -1,60 +1,55 @@
 class LaddersController < ApplicationController
-  before_action :set_ladder, only: %i[ show edit update destroy ]
+  before_action :authorize!
 
-  # GET /ladders or /ladders.json
   def index
     @q = Ladder.ransack(params[:q])
     @ladders = @q.result(distinct: true).order(created_at: :desc)
+    @pagy, @ladders = pagy_countless(@ladders, items: 50)
   end
 
-  # GET /ladders/1 or /ladders/1.json
   def show
+    ladder
   end
 
-  # GET /ladders/new
   def new
     @ladder = Ladder.new
   end
 
-  # GET /ladders/1/edit
-  def edit
-  end
-
-  # POST /ladders or /ladders.json
   def create
+    authorize!
     @ladder = Ladder.new(ladder_params)
 
-    respond_to do |format|
-      if @ladder.save
-        format.html { redirect_to ladder_url(@ladder), notice: "Ladder was successfully created." }
-        format.json { render :show, status: :created, location: @ladder }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @ladder.errors, status: :unprocessable_entity }
-      end
+    if @ladder.save
+      flash[:notice] = "Se definió defecto con éxito"
+      redirect_to ladders_url
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /ladders/1 or /ladders/1.json
+  def edit
+    ladder
+  end
+
   def update
-    respond_to do |format|
-      if @ladder.update(ladder_params)
-        format.html { redirect_to ladder_url(@ladder), notice: "Ladder was successfully updated." }
-        format.json { render :show, status: :ok, location: @ladder }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @ladder.errors, status: :unprocessable_entity }
-      end
+    authorize! ladder
+
+    if ladder.update(ladder_params)
+      flash[:notice] = "Se modificó el defecto"
+      redirect_to ladder_path(ladder)
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /ladders/1 or /ladders/1.json
   def destroy
-    @ladder.destroy!
+    authorize! ladder
+    ladder.destroy
 
+    flash[:notice] = "Se eliminó el defecto"
     respond_to do |format|
-      format.html { redirect_to ladders_url, notice: "Ladder was successfully destroyed." }
-      format.json { head :no_content }
+      format.html { redirect_to ladders_path }
+      format.turbo_stream { head :no_content }
     end
   end
 
@@ -66,31 +61,20 @@ class LaddersController < ApplicationController
       flash[:alert] = "No se seleccionó ningún archivo"
       redirect_to new_import_ladders_path
       return
-
     end
-
-
 
     LaddersImporter.import(params[:file].path)
-    redirect_to ladders_path, notice: "Se importaron las fallas con exito"
+    flash[:notice] = "Se importaron los defectos con éxito"
+    redirect_to ladders_path
   end
 
-
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_ladder
-      @ladder = Ladder.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def ladder_params
-      params.require(:ladder).permit(:number, :point, :code, :priority, :level)
-    end
+  def ladder_params
+    params.require(:ladder).permit(:number, :point, :code, :priority, :level)
+  end
 
-  def process_image(upload)
-    ImageProcessing::MiniMagick
-      .source(upload)
-      .resize_to_fit(400, 250)
-      .call
+  def ladder
+    @ladder = Ladder.find(params[:id])
   end
 end

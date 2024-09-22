@@ -24,7 +24,7 @@
     <%= link_to 'Modificar defecto', edit_rule_path(@rule), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
 
     <% if Current.user&.admin %>
-      <%= link_to 'Eliminar defecto', rule_path(@rule), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro?' }, class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out" %>
+      <%= link_to 'Eliminar defecto', rule_path(@rule), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/rules" } %>
     <% end %>
 
     <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-blue-500 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-600 hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>

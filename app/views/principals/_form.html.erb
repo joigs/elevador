@@ -1,9 +1,14 @@
 <%= form_with(model: principal, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
   <% if principal.errors.any? %>
-    <div class="text-red-400 bg-red-800 p-2 rounded">
-      <h2><%= "Error: " %> Empresa no pudo ser guardada:</h2>
-
-    </div>
+    <% error_messages = principal.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Error: Empresa no pudo ser guardada',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
   <% end %>
 
   <div>
@@ -52,7 +57,7 @@
     <%= form.text_field :cellphone, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <div>
-    <%= form.submit "#{principal.new_record? ? 'Agregar' : 'Modificar'} empresa", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+  <div class="mt-4 py-5">
+    <%= form.submit "#{principal.new_record? ? 'Agregar' : 'Modificar'} empresa", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   </div>
 <% end %>

@@ -26,7 +26,8 @@ class RuletypesController < ApplicationController
     end
 
     if @ruletype.save
-      redirect_to ruletypes_url, notice: "Tipo de regla creada"
+      flash[:notice] = "Tipo de regla creada"
+      redirect_to ruletypes_url
     else
       render :new, status: :unprocessable_entity
     end
@@ -41,8 +42,11 @@ class RuletypesController < ApplicationController
     authorize! ruletype
     @ruletype.destroy!
 
-    redirect_to ruletypes_url, notice: "Tipo de regla eliminada"
-  end
+    flash[:notice] = "Tipo de regla eliminada"
+    respond_to do |format|
+      format.html { redirect_to ruletypes_path }
+      format.turbo_stream { head :no_content }
+    end  end
 
   def new_import
   end

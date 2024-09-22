@@ -11,7 +11,10 @@ module Authentication
     end
 
     def protect_pages
-      redirect_to new_session_path, alert: "Debe iniciar sesión" unless Current.user
+      unless Current.user
+        flash[:alert] = "Debe iniciar sesión"
+        redirect_to new_session_path
+      end
     end
 
 

@@ -3,7 +3,7 @@
 <div class="flex flex-col sm:flex-row sm:space-x-4 mt-6">
   <%= link_to "Volver a clasificaciones", groups_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
   <% if Current.user.admin? %>
-    <%= link_to 'Eliminar clasificación', group_path(@group), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de que quieres eliminar el grupo? ' }, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-red-700 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150 mt-2 sm:mt-0" %>
+    <%= link_to 'Eliminar clasificación', group_path(@group), class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-red-700 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150 mt-2 sm:mt-0", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/groups" } %>
   <% end %>
 </div>
 

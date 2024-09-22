@@ -1,17 +1,24 @@
-<%= render @item %>
-<div class="flex flex-col items-center justify-center mt-8 space-y-4">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
+  <%= render @item %>
+  <div class="flex flex-wrap justify-start space-x-2 mt-4">
+    <div class="lg:w-auto flex flex-col space-y-2">
+      <% if @condicion %>
+        <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold text-sm hover:bg-yellow-700 transition duration-300" %>
+      <% end %>
 
-  <% if @condicion  %>
-    <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "w-40 text-center px-6 py-3 bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
-  <% end %>
+      <% if Current.user.admin %>
+        <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "px-4 py-2 rounded bg-blue-600 text-gray-900 font-bold text-sm hover:bg-blue-700 transition duration-300" %>
+      <% end %>
 
-  <% if Current.user.admin %>
-    <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "w-40 text-center px-6 py-3 bg-blue-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>
-  <% end %>
-  <%= link_to "Ver última inspección", inspection_path(@inspection), class: "w-40 text-center px-6 py-3 bg-green-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-green-700 hover:shadow-lg focus:bg-green-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-800 active:shadow-lg transition duration-150 ease-in-out" if @inspection %>
+      <% if @inspection %>
+        <%= link_to "Ver última inspección", inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-600 text-gray-900 font-bold text-sm hover:bg-green-700 transition duration-300" %>
+      <% end %>
 
-  <%= link_to "Volver a activos", items_path, class: "w-40 text-center px-6 py-3 bg-gray-600 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-gray-500 hover:shadow-lg focus:bg-gray-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-800 active:shadow-lg transition duration-150 ease-in-out" %>
-  <% if Current.user.admin %>
-    <%= link_to "Eliminar activo", item_path(@item), data: { turbo_method: :delete, turbo_confirm: 'Estás seguro?' }, class: "w-40 text-center p6-4 py-3 bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out" %>
-  <% end %>
+      <%= link_to "Volver a activos", items_path, class: "px-4 py-2 rounded bg-gray-600 text-white font-bold text-sm hover:bg-gray-500 transition duration-300" %>
+
+      <% if Current.user.admin %>
+        <%= link_to "Eliminar item", item_path(@item), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-sm hover:bg-red-700 transition duration-300", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/items" } %>
+      <% end %>
+    </div>
+  </div>
 </div>

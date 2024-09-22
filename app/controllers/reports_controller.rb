@@ -142,14 +142,14 @@ class ReportsController < ApplicationController
           @black_inspection.destroy
         end
       end
-
+      flash[:notice] = "Información modificada exitosamente"
       if @item.group.type_of == "escala"
-        redirect_to edit_ladder_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
+        redirect_to edit_ladder_revision_path(inspection_id: inspection.id)
 
       elsif @item.group.type_of == "libre"
-        redirect_to edit_libre_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
+        redirect_to edit_libre_revision_path(inspection_id: inspection.id)
       elsif @item.group.type_of == "ascensor"
-        redirect_to edit_revision_path(inspection_id: inspection.id), notice: 'Información modificada exitosamente'
+        redirect_to edit_revision_path(inspection_id: inspection.id)
       end
 
     else

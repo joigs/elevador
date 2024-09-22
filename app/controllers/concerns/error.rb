@@ -3,7 +3,8 @@ module Error
   included do
 
     rescue_from ActiveRecord::RecordNotFound do
-      redirect_to home_path, alert: "No se ha encontrado"
+      flash[:alert] = "No se ha encontrado"
+      redirect_to home_path
     end
 
 

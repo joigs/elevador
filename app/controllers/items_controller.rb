@@ -84,7 +84,8 @@ class ItemsController < ApplicationController
         @detail = Detail.create!(item: @item)
       end
 
-      redirect_to items_path, notice: "Activo añadido con éxito"
+      flash[:notice] = "Activo añadido con éxito"
+      redirect_to items_path
     end
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.record.errors.full_messages.join(', ')
@@ -100,7 +101,8 @@ class ItemsController < ApplicationController
       @inspections.each do |inspection|
         inspection.update(principal_id: @principal.id)
       end
-      redirect_to items_path, notice: 'Se modificaron los datos del activo'
+      flash[:notice] = "Se modificarion los datos del activo"
+      redirect_to items_path
     else
       render :edit, status: :unprocessable_entity
     end
@@ -117,7 +119,8 @@ class ItemsController < ApplicationController
   def update_identificador
     authorize! item
     if @item.update(item_identificador_params)
-      redirect_to items_path, notice: 'Identificador actualizado'
+      flash[:notice] = "Identificador actualizado"
+      redirect_to items_path
     else
       render :edit_identificador, status: :unprocessable_entity
     end
@@ -138,7 +141,8 @@ class ItemsController < ApplicationController
       @inspections.each do |inspection|
         inspection.update(principal_id: @principal.id)
       end
-      redirect_to items_path, notice: 'Empresa actualizada'
+      flash[:notice] = "Empresa actualizada"
+      redirect_to items_path
     else
       render :edit_empresa, status: :unprocessable_entity
     end
@@ -148,8 +152,14 @@ class ItemsController < ApplicationController
 
   def destroy
     authorize! item.destroy
-    redirect_to items_path, notice: "Activo eliminado"
+    flash[:notice] = "Activo eliminado"
+
+    respond_to do |format|
+      format.html { redirect_to items_path }
+      format.turbo_stream { head :no_content }
+    end
   end
+
 
 
   private
