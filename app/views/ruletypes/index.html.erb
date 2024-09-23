@@ -1,26 +1,33 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-  <h1 class="text-4xl font-bold text-gray-800 mb-6">Comprobaciones</h1>
+<div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-6">
+  <%= render 'shared/back_home' %>
 
-  <div class="flex flex-wrap gap-4 mb-6">
-    <%= link_to "Crear nuevo tipo de regla", new_ruletype_path, class: "px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition duration-300" %>
-    <%= link_to 'Importar comprobaciones desde excel', new_import_ruletypes_path, class: "px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition duration-300" %>
-    <%= link_to "Volver a defectos", rules_path, class: "px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition duration-300" %>
+  <h3 class="text-lg font-semibold text-gray-200 px-4 py-5 mt-2 bg-gray-700 border-b border-gray-600">Comprobaciones:</h3>
+
+  <div class="flex flex-col sm:flex-row sm:space-x-4 mt-4 px-4">
+    <%= link_to "Crear nuevo tipo de regla", new_ruletype_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+    <%= link_to 'Importar comprobaciones desde excel', new_import_ruletypes_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+    <%= link_to "Volver a defectos", rules_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
   </div>
 
-  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
-    <%= turbo_frame_tag 'ruletypes' do %>
-      <div class="p-6">
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-4">
+    <ul class="divide-y divide-gray-700">
+      <%= turbo_frame_tag 'ruletypes' do %>
+
         <%= render 'shared/search_form', form_url: ruletypes_path, search_keys: 'rtype_or_gygatype_or_gygatype_number_cont', frame_id: 'ruletypes', placeholder_text: 'texto o código' %>
 
         <%= turbo_frame_tag "ruletypes-#{@pagy.page}", class: 'ruletypes' do %>
-          <ul class="divide-y divide-gray-700">
-            <%= render partial: 'ruletype', collection: @ruletypes %>
-          </ul>
-          <% if @pagy.next %>
-            <%= turbo_frame_tag "ruletypes-#{@pagy.next}", class: 'ruletypes', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+          <% @ruletypes.each do |ruletype| %>
+            <%= turbo_frame_tag "ruletype-#{ruletype.id}" do %>
+              <li class="px-4 py-4 bg-gray-800 text-gray-400 hover:bg-gray-700">
+                <p><%= link_to "#{ruletype.rtype} #{ruletype.gygatype}", ruletype, 'data-turbo-frame':"_top" %></p>
+              </li>
+            <% end %>
           <% end %>
+
+          <%= turbo_frame_tag "ruletypes-#{@pagy.next}", class: 'ruletypes', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy if @pagy.next.present? %>
         <% end %>
-      </div>
-    <% end %>
+      <% end %>
+
+    </ul>
   </div>
 </div>

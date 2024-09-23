@@ -16,7 +16,7 @@ class InspectionsController < ApplicationController
     else
       @detail = Detail.find_by(item_id: @item.id)
     end
-    @control = @inspection == Inspection.where(item: @item).order(created_at: :desc).first
+    @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
     @report = Report.find_by(inspection: inspection)
   end
@@ -30,6 +30,8 @@ class InspectionsController < ApplicationController
     @items = Item.all
     @item = Item.new
     @manual_action_name = "new"
+    @back_path = request.referer || inspections_path
+
   end
 
   def create

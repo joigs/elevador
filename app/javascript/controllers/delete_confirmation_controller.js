@@ -20,9 +20,8 @@ export default class extends Controller {
             cancelButtonColor: "#6c757d",  // Botón de cancelar gris
             confirmButtonText: "Sí, eliminar",
             cancelButtonText: "Cancelar",
-            reverseButtons: true,  // Cambia el orden: botón de cancelar a la izquierda y confirmar a la derecha
             customClass: {
-                confirmButton: 'ml-10'  // Aplica margen a la derecha del botón de confirmación
+                confirmButton: 'mr-10'  // Aplica margen a la derecha del botón de confirmación
             }
         }).then((result) => {
             if (result.isConfirmed) {

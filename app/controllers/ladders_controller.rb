@@ -13,11 +13,13 @@ class LaddersController < ApplicationController
 
   def new
     @ladder = Ladder.new
+    authorize! @ladder
   end
 
   def create
-    authorize!
     @ladder = Ladder.new(ladder_params)
+
+    authorize! @ladder
 
     if @ladder.save
       flash[:notice] = "Se definió defecto con éxito"
@@ -28,7 +30,7 @@ class LaddersController < ApplicationController
   end
 
   def edit
-    ladder
+    authorize! ladder
   end
 
   def update

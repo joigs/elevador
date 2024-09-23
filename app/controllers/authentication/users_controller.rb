@@ -119,8 +119,10 @@ class Authentication::UsersController < ApplicationController
       @user = User.find(params[:id])
       @user.destroy
       flash[:notice] = "Usuario eliminado exitosamente"
-      redirect_to home_path
-    else
+      respond_to do |format|
+        format.html { redirect_to users_path }
+        format.turbo_stream { head :no_content }
+      end    else
       flash[:alert] = "no tienes permiso"
       redirect_to home_path
     end

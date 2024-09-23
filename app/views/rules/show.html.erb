@@ -18,15 +18,27 @@
       <strong class="text-white">Tipo de defecto:</strong>
       <%= display_rule_ins_type(@rule) %>
     </p>
+
+
+    <div class="flex flex-wrap justify-start space-x-2 mt-4">
+      <div class="lg:w-auto flex flex-col space-y-2">
+        <% if Current.user&.admin %>
+          <%= link_to 'Modificar defecto', edit_rule_path(@rule), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+
+          <%= link_to 'Eliminar defecto', rule_path(@rule), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/rules" } %>
+        <% end %>
+        <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" %>
+
+      </div>
+    </div>
+
+
   </div>
 
-  <div class="flex space-x-4 mt-6">
-    <%= link_to 'Modificar defecto', edit_rule_path(@rule), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
 
-    <% if Current.user&.admin %>
-      <%= link_to 'Eliminar defecto', rule_path(@rule), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/rules" } %>
-    <% end %>
 
-    <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-blue-500 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-blue-600 hover:shadow-lg focus:bg-blue-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" %>
-  </div>
+
+
+
+
 </div>

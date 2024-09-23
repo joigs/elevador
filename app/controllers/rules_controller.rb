@@ -19,6 +19,7 @@ class RulesController < ApplicationController
 
   def new
     @rule = Rule.new
+    authorize! @rule
     @with_new_code = params[:with_new_code]
     @with_same_code = params[:with_same_code]
     @last_used_rule = Rule.last&.ruletype_id
@@ -27,6 +28,7 @@ class RulesController < ApplicationController
 
   def new_with_new_code
     @rule = Rule.new
+    authorize! @rule
     @with_new_code = true
     @last_used_rule = Rule.last&.ruletype_id
     @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
@@ -37,6 +39,7 @@ class RulesController < ApplicationController
 
   def new_with_same_code
     @rule = Rule.new
+    authorize! @rule
     @with_same_code = true
     @last_used_rule = Rule.last&.ruletype_id
     @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
@@ -46,6 +49,7 @@ class RulesController < ApplicationController
   def create
     @rule = Rule.new(rule_params)
 
+    authorize! @rule
 
 
     if params[:with_same_code]
@@ -80,6 +84,7 @@ class RulesController < ApplicationController
   def create_with_new_code
     @rule = Rule.new(rule_params)
 
+    authorize! @rule
     @with_new_code = true
     @last_used_rule = Rule.last&.ruletype_id
     @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
@@ -109,6 +114,7 @@ class RulesController < ApplicationController
   def create_with_same_code
     @rule = Rule.new(rule_params)
 
+    authorize! @rule
     @with_same_code = true
     @last_used_rule = Rule.last&.ruletype_id
     @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
@@ -143,7 +149,6 @@ class RulesController < ApplicationController
 
   def edit
     authorize! rule
-    rule
     @cosa_edit_combobox = rule.ruletype_id
     @placeholder_id = Ruletype.where('LOWER(rtype) = ?', 'placeholder'.downcase).first.id
 

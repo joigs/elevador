@@ -1,14 +1,22 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
+
 <%= render @user %>
 
-<div class="flex flex-col items-center justify-center mt-8 space-y-2">
-  <% if Current.user.admin %>
-    <%= link_to "Modificar usuario", edit_user_path(@user), class: "w-40 text-center px-4 py-2 bg-yellow-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-yellow-700 hover:shadow-lg focus:bg-yellow-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-yellow-800 active:shadow-lg transition duration-150 ease-in-out" %>
 
-    <%= link_to 'Eliminar usuario', user_path(@user), data: {
-      turbo_method: :delete,
-      turbo_confirm: 'Estás seguro?'
-    }, class: "w-40 text-center px-4 py-2 bg-red-600 text-gray-900 font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out" %>
-  <% end %>
 
-  <%= link_to "Volver a usuarios", users_path, class: "w-40 text-center px-4 py-2 bg-gray-700 text-white font-bold text-xs leading-tight uppercase rounded-full shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-800 active:shadow-lg transition duration-150 ease-in-out" %>
+
+<div class="flex flex-wrap justify-start space-x-2 mt-4">
+  <div class="lg:w-auto flex flex-col space-y-2">
+    <% if Current.user.admin %>
+      <%= link_to "Modificar usuario", edit_user_path(@user), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+
+      <%= link_to 'Eliminar usuario', user_path(@user), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/users" } %>
+
+    <% end %>
+
+    <%= link_to "Volver a usuarios", users_path, class: "px-4 py-2 rounded bg-gray-600 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
+
+  </div>
+
+  </div>
 </div>
