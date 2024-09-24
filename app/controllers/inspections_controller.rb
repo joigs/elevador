@@ -102,17 +102,15 @@ class InspectionsController < ApplicationController
         numbers.each do |number|
           @revision.revision_colors.create!(section: number, color: false)
         end
-        if is_new_item
-          @detail = LadderDetail.create!(item: @item)
-        end
+        @detail = LadderDetail.find_or_create_by(item: @item)
+
       elsif @item.group.type_of == "ascensor"
         @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
         (0..11).each do |index|
           @revision.revision_colors.create!(section: index, color: false)
         end
-        if is_new_item
-          @detail = Detail.create!(item: @item)
-        end
+        @detail = Detail.find_or_create_by(item: @item)
+
       elsif @item.group.type_of == "libre"
         @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
         numbers = [0, 100]
