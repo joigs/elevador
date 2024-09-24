@@ -13,6 +13,10 @@
         <%= render 'shared/search_form', form_url: users_path, search_keys: 'username_or_real_name_or_email_or_profesion_cont', frame_id: 'users', placeholder_text: 'nombre real, nombre de usuario, correo o profesión', class: "mb-5" %>
       </div>
 
+
+
+
+
       <%= turbo_frame_tag "users-#{@pagy.page}", class: 'users' do %>
         <ul class="divide-y divide-gray-700">
           <% @users.each_with_index do |user, index| %>

@@ -17,7 +17,7 @@
       <%= link_to "Volver a activos", items_path, class: "px-4 py-2 rounded bg-gray-600 text-white font-bold text-sm hover:bg-gray-500 transition duration-300" %>
 
       <% if Current.user.admin %>
-        <%= link_to "Eliminar item", item_path(@item), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-sm hover:bg-red-700 transition duration-300", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/items" } %>
+        <%= link_to "Eliminar activo", item_path(@item), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-sm hover:bg-red-700 transition duration-300", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/items" } %>
       <% end %>
     </div>
   </div>

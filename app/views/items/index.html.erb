@@ -30,68 +30,74 @@
       </div>
 
       <% if Current.user.tabla %>
-        <table id="default-table" class="min-w-full bg-white">
+        <div class="mt-2">
+          <% if @pagy.pages > 1 %>
+            <nav class="pagy-nav flex justify-center bg-gray-900 py-4 rounded-lg">
+              <% if @pagy.prev %>
+                <%= link_to 'Anterior', pagy_url_for(@pagy, @pagy.prev), class: "inline-block px-4 py-2 mx-1 bg-blue-700 text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out", data: { turbo_frame: 'items' } %>
+              <% else %>
+                <span class="inline-block px-4 py-2 mx-1 bg-gray-500 text-gray-300 rounded">Anterior</span>
+              <% end %>
+
+              <% pagy_series(@pagy).each do |page| %>
+                <% if page.is_a?(Integer) %>
+                  <%= link_to page, pagy_url_for(@pagy, page), class: "inline-block px-4 py-2 mx-1 #{'bg-blue-600 text-white' if page == @pagy.page} hover:bg-blue-600 text-white hover:text-white transition duration-150 ease-in-out rounded", data: { turbo_frame: 'items' } %>
+                <% else %>
+                  <span class="inline-block px-4 py-2 mx-1 text-white">...</span>
+                <% end %>
+              <% end %>
+
+              <% if @pagy.next %>
+                <%= link_to 'Siguiente', pagy_url_for(@pagy, @pagy.next), class: "inline-block px-4 py-2 mx-1 bg-blue-700 text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out", data: { turbo_frame: 'items' } %>
+              <% else %>
+                <span class="inline-block px-4 py-2 mx-1 bg-gray-500 text-gray-300 rounded">Siguiente</span>
+              <% end %>
+            </nav>
+          <% end %>
+        </div>
+
+        <div data-controller="pagination" data-pagination-url="<%= items_path %>" data-pagination-max-pages="<%= @pagy.pages %>" class="mt-4 mb-4 flex justify-center bg-gray-800 py-4 rounded-lg">
+          <label for="go-to-page" class="mr-2 text-gray-200">Ir a la página:</label>
+          <input type="number" id="go-to-page" data-pagination-target="input" min="1" max="<%= @pagy.pages %>" class="border rounded px-2 py-1 text-gray-900" placeholder="Página">
+          <button data-action="click->pagination#goToPage" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Ir</button>
+        </div>
+
+        <table id="default-table" class="min-w-full bg-gray-800 text-white table-fixed">
           <thead>
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identificador</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creado en</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            <th class="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider break-words">Identificador</th>
+            <th class="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider break-words">Clasificación</th>
+            <th class="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider break-words">Empresa</th>
+            <th class="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider break-words">Última inspección</th>
+            <th class="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider break-words">Estado</th>
+            <th class="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider break-words">Acciones</th>
           </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-gray-700 divide-y divide-gray-600">
           <% @items.each do |item| %>
             <tr>
-              <td class="px-6 py-4 whitespace-nowrap"><%= item.identificador %></td>
-              <td class="px-6 py-4 whitespace-nowrap"><%= item.principal&.name %></td>
-              <td class="px-6 py-4 whitespace-nowrap"><%= format_date(item.created_at) %></td>
+              <td class="px-6 py-4 whitespace-normal break-words"><%= item.identificador %></td>
+              <td class="px-6 py-4 whitespace-normal break-words">Grupo N°<%= item.group.number %></td>
+              <td class="px-6 py-4 whitespace-normal break-words"><%= item.principal&.name %></td>
+              <% inspection = last_inspection(item) %>
+              <% if inspection %>
+                <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.ins_date) %></td>
+                <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.result %></td>
+              <% else %>
+                <td class="px-6 py-4 whitespace-normal break-words">Aun no hay inspecciones</td>
+                <td class="px-6 py-4 whitespace-normal break-words">N/A</td>
+              <% end %>
               <td class="px-6 py-4 whitespace-nowrap">
-                <%= link_to 'Ver activo', item_path(item), class: "text-blue-600 hover:text-blue-900", data: { turbo_frame: "_top" } %>
+                <%= link_to 'Ver más detalles', item_path(item), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
               </td>
             </tr>
           <% end %>
           </tbody>
         </table>
 
-        <!-- Paginación avanzada -->
-        <div class="mt-4">
-          <% if @pagy.pages > 1 %>
-            <nav class="pagy-nav flex justify-center">
-              <!-- Botón Anterior -->
-              <%= link_to 'Anterior', pagy_url_for(@pagy, @pagy.prev), class: "inline-block px-4 py-2 mx-1 bg-gray-800 text-white rounded #{'disabled' unless @pagy.prev}", data: { turbo_frame: 'items' }, disabled: !@pagy.prev %>
 
-              <!-- Páginas con elipsis -->
-              <% pagy_series(@pagy).each do |page| %>
-                <% if page.is_a?(Integer) %>
-                  <%= link_to page, pagy_url_for(@pagy, page), class: "inline-block px-4 py-2 mx-1 #{'bg-blue-600 text-white' if page == @pagy.page} rounded", data: { turbo_frame: 'items' } %>
-                <% else %>
-                  <span class="inline-block px-4 py-2 mx-1 text-gray-500">...</span>
-                <% end %>
-              <% end %>
 
-              <!-- Botón Siguiente -->
-              <%= link_to 'Siguiente', pagy_url_for(@pagy, @pagy.next), class: "inline-block px-4 py-2 mx-1 bg-gray-800 text-white rounded #{'disabled' unless @pagy.next}", data: { turbo_frame: 'items' }, disabled: !@pagy.next %>
-            </nav>
-          <% end %>
-        </div>
 
-        <!-- Barra para ir a una página específica -->
-        <div class="mt-4 flex justify-center">
-          <label for="go-to-page" class="mr-2">Ir a la página:</label>
-          <input type="number" id="go-to-page" min="1" max="<%= @pagy.pages %>" class="border rounded px-2 py-1" placeholder="Página">
-          <button id="go-button" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Ir</button>
-        </div>
-
-        <script>
-            document.getElementById('go-button').addEventListener('click', function() {
-                var page = document.getElementById('go-to-page').value;
-                var maxPage = <%= @pagy.pages %>;
-                if (page >= 1 && page <= maxPage) {
-                    var url = "<%= items_path %>?page=" + page;
-                    Turbo.visit(url, { frame: 'items' });
-                }
-            });
-        </script>
       <% else %>
         <%= turbo_frame_tag "items-#{@pagy.page}", class: 'items' do %>
           <ul class="divide-y divide-gray-700">
