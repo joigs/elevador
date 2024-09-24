@@ -13,6 +13,7 @@
   "private": true,
   "dependencies": {
     "@rails/request.js": "^0.0.9",
-    "flowbite": "^2.5.1"
+    "flowbite": "^2.5.1",
+    "simple-datatables": "^9.1.0"
   }
 }

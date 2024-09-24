@@ -6,4 +6,10 @@ module ApplicationHelper
     date.strftime('%d/%m/%Y') if date
   end
 
+
+  def pagy_series(pagy)
+    series = pagy.series(size: [1, 2, 2, 1])
+    series.map { |page| page == :gap ? '...' : page }
+  end
+
 end

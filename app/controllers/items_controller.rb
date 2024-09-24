@@ -2,11 +2,17 @@ class ItemsController < ApplicationController
   def index
     @q = Item.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
-    @pagy, @items = pagy_countless(@items, items: 10)
+
+    if Current.user.tabla
+      @pagy, @items = pagy(@items, items: 10)  # Paginación tradicional para la tabla
+    else
+      @pagy, @items = pagy_countless(@items, items: 10)  # Paginación infinita para las tarjetas
+    end
+
     duplicate_identifiers = Item.group(:identificador).having('count(identificador) > 1').pluck(:identificador)
     @duplicate_items = Item.where(identificador: duplicate_identifiers).group_by(&:identificador)
-
   end
+
 
   def show
     item

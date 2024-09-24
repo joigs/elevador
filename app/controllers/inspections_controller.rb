@@ -4,8 +4,13 @@ class InspectionsController < ApplicationController
   def index
     @q = Inspection.ransack(params[:q])
     @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal, :report).order(number: :desc)
-    @pagy, @inspections = pagy_countless(@inspections, items: 10)
+    if Current.user.tabla
+      @pagy, @inspections = pagy(@inspections, items: 10) # Paginación tradicional para la tabla
+    else
+      @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
+    end
   end
+
   def show
     inspection
     @item = inspection.item

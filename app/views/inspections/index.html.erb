@@ -12,6 +12,37 @@
       <div class="p-6">
         <%= render 'shared/search_form', form_url: inspections_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
       </div>
+      <% if Current.user.tabla %>
+
+          <table id="default-table" data-controller="datatable" data-datatable-target="table" data-datatable-rows-per-page="10" class="min-w-full bg-white">
+            <thead>
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identificador</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resultado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <% @inspections.each do |inspection| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap"><%= inspection.number %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= format_date(inspection.ins_date) %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= inspection.item&.identificador %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= inspection.result %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to 'Ver inspección', inspection_path(inspection), class: "text-blue-600 hover:text-blue-900", data: { turbo_frame: "_top" } %>
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+
+
+
+
+      <% else %>
 
 
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
@@ -27,6 +58,11 @@
           <% end %>
         <% end %>
 
+
+
+      <% end %>
+
     <% end %>
+
   </div>
 </div>
