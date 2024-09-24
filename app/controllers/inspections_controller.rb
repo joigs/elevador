@@ -9,6 +9,7 @@ class InspectionsController < ApplicationController
     else
       @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
     end
+
   end
 
   def show

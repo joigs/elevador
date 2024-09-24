@@ -16,8 +16,11 @@ class StaticPagesController < ApplicationController
 
     @q = inspections_scope.ransack(params[:q])
     @inspections = @q.result(distinct: true)
-    @pagy, @inspections = pagy_countless(@inspections, items: 10)
-
+    if Current.user.tabla
+      @pagy, @inspections = pagy(@inspections, items: 10) # Paginación tradicional para la tabla
+    else
+      @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
+    end
     respond_to do |format|
       format.html
       format.turbo_stream

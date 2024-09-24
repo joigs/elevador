@@ -4,7 +4,13 @@ class PrincipalsController < ApplicationController
   def index
     @q = Principal.ransack(params[:q])
     @principals = @q.result(distinct: true).order(created_at: :desc)
-    @pagy, @principals = pagy_countless(@principals, items: 10)
+
+    if Current.user.tabla
+      @pagy, @principals = pagy(@principals, items: 10) # Paginación tradicional para la tabla
+    else
+      @pagy, @principals = pagy_countless(@principals, items: 10)
+    end
+
   end
 
 
@@ -14,7 +20,11 @@ class PrincipalsController < ApplicationController
     principal
     @q = principal.items.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
-    @pagy, @items = pagy_countless(@items, items: 10)
+    if Current.user.tabla
+      @pagy, @items = pagy(@items, items: 10)  # Paginación tradicional para la tabla
+    else
+      @pagy, @items = pagy_countless(@items, items: 10)  # Paginación infinita para las tarjetas
+    end
   end
 
   # GET /principals/new

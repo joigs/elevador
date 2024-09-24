@@ -18,7 +18,7 @@ export default class extends Controller {
             showCancelButton: true,
             confirmButtonColor: "#d33",  // Botón de confirmación rojo
             cancelButtonColor: "#6c757d",  // Botón de cancelar gris
-            confirmButtonText: "Sí, eliminar",
+            confirmButtonText: "Eliminar",
             cancelButtonText: "Cancelar",
             customClass: {
                 confirmButton: 'mr-10'  // Aplica margen a la derecha del botón de confirmación
@@ -37,7 +37,7 @@ export default class extends Controller {
                         if (response.ok) {
                             Swal.fire({
                                 title: "Eliminado",
-                                text: "El recurso ha sido eliminado.",
+                                text: "El registro ha sido eliminado.",
                                 icon: "success"
                             }).then(() => {
                                 // Redirige solo si la eliminación fue exitosa
@@ -46,7 +46,7 @@ export default class extends Controller {
                         } else {
                             Swal.fire({
                                 title: "Error",
-                                text: "No se pudo eliminar el recurso.",
+                                text: "No se pudo eliminar el registro.",
                                 icon: "error"
                             });
                         }
