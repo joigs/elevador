@@ -48,32 +48,34 @@
           <button data-action="click->pagination#goToPage" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Ir</button>
         </div>
 
-        <table id="principals-table" class="min-w-full bg-gray-800 text-white table-fixed">
-          <thead>
-          <tr>
-            <th class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
-            <th class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Rut</th>
-            <th class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Razón social</th>
-            <th class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-            <th class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
-            <th class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
-          </tr>
-          </thead>
-          <tbody class="bg-gray-700 divide-y divide-gray-600">
-          <% @principals.each do |principal| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-normal break-words"><%= principal.name %></td>
-              <td class="px-6 py-4 whitespace-normal break-words"><%= principal.rut %></td>
-              <td class="px-6 py-4 whitespace-normal break-words"><%= principal.business_name %></td>
-              <td class="px-6 py-4 whitespace-normal break-words"><%= principal.email %></td>
-              <td class="px-6 py-4 whitespace-normal break-words"><%= principal.phone %></td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <%= link_to 'Ver empresa', principal_path(principal), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
-              </td>
-            </tr>
-          <% end %>
-          </tbody>
-        </table>
+          <div class="overflow-x-auto table-responsive">
+            <table id="principals-table" class="w-full bg-gray-800 text-white">
+              <thead>
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Rut</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Razón social</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
+              </tr>
+              </thead>
+              <tbody class="bg-gray-700 divide-y divide-gray-600">
+              <% @principals.each do |principal| %>
+                <tr class="bg-gray-800 border-b border-gray-700">
+                  <td class="px-6 py-4 whitespace-normal break-words"><%= principal.name %></td>
+                  <td class="px-6 py-4 whitespace-normal break-words"><%= principal.rut %></td>
+                  <td class="px-6 py-4 whitespace-normal break-words"><%= principal.business_name %></td>
+                  <td class="px-6 py-4 whitespace-normal break-words"><%= principal.email %></td>
+                  <td class="px-6 py-4 whitespace-normal break-words"><%= principal.phone %></td>
+                  <td class="px-6 py-4">
+                    <%= link_to 'Ver empresa', principal_path(principal), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
+                  </td>
+                </tr>
+              <% end %>
+              </tbody>
+            </table>
+        </div>
 
       <% else %>
         <%= turbo_frame_tag "principals-#{@pagy.page}", class: 'principals' do %>
