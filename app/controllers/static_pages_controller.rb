@@ -21,6 +21,7 @@ class StaticPagesController < ApplicationController
     else
       @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
     end
+    @filter = params[:filter]
     respond_to do |format|
       format.html
       format.turbo_stream

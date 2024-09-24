@@ -46,11 +46,12 @@
           <% end %>
         </div>
 
-        <div data-controller="pagination" data-pagination-url="<%= warnings_path %>" data-pagination-max-pages="<%= @pagy.pages %>" class="mt-4 mb-4 flex justify-center bg-gray-800 py-4 rounded-lg">
+        <div data-controller="pagination-filter" data-pagination-filter-url="<%= warnings_path %>" data-pagination-filter-max-pages="<%= @pagy.pages %>" data-pagination-filter-filter="<%= params[:filter] %>" class="mt-4 mb-4 flex justify-center bg-gray-800 py-4 rounded-lg">
           <label for="go-to-page" class="mr-2 text-gray-200">Ir a la página:</label>
-          <input type="number" id="go-to-page" data-pagination-target="input" min="1" max="<%= @pagy.pages %>" class="border rounded px-2 py-1 text-gray-900" placeholder="Página">
-          <button data-action="click->pagination#goToPage" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Ir</button>
+          <input type="number" id="go-to-page" data-pagination-filter-target="input" min="1" max="<%= @pagy.pages %>" class="border rounded px-2 py-1 text-gray-900" placeholder="Página">
+          <button data-action="click->pagination-filter#goToPage" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Ir</button>
         </div>
+
 
         <div class="overflow-x-auto table-responsive">
           <table id="inspections-table" class="w-full bg-gray-800 text-white">
@@ -83,8 +84,7 @@
           </table>
         </div>
 
-
-  <% else %>
+      <% else %>
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
           <ul class="divide-y divide-gray-700">
             <%= render partial: 'inspections/inspection', collection: @inspections %>

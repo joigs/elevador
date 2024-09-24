@@ -72,6 +72,15 @@ class ReportsController < ApplicationController
           was_created = true
         end
 
+        puts("number" + black_number.to_s)
+        puts("item_id" + @item.id.to_s)
+        puts("principal_id" + @item.principal_id.to_s)
+        puts("place" + inspection.place)
+        puts("ins_date" + inspection.ins_date.to_s)
+        puts("state" + 'black')
+        puts("result" + 'black')
+        puts("it_was_created" + was_created.to_s)
+
         if was_created
           black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black')
           inspection.users.each do |user|
