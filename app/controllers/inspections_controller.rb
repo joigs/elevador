@@ -77,6 +77,7 @@ class InspectionsController < ApplicationController
       end
 
       current_group = @item.group&.id.to_s
+      current_group_name = @item.group&.name
       @item.assign_attributes(item_params)
       is_new_item = @item.new_record?
 
@@ -87,7 +88,7 @@ class InspectionsController < ApplicationController
       end
 
       if !@item.new_record? && current_group != item_params[:group_id]
-        @inspection.errors.add(:base, "Activo con identificador #{@item.identificador} pertenece a #{current_group}, seleccione el grupo correspondiente")
+        @inspection.errors.add(:base, "Activo con identificador #{@item.identificador} pertenece a #{current_group_name}, seleccione el grupo correspondiente")
         render :new, status: :unprocessable_entity
         return
       end
