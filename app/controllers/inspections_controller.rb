@@ -343,14 +343,13 @@ class InspectionsController < ApplicationController
       return
     end
 
-    @revision = Revision.find_by(inspection_id: @inspection.id)
-    if @revision.nil?
-      flash[:alert] = "Checklist no disponible."
-      redirect_to(home_path)
-      return
+    if @inspection.item.group.type_of == "escala"
+      @revision_base = LadderRevision.find_by(inspection_id: @inspection.id)
+    else
+      @revision_base = Revision.find_by(inspection_id: @inspection.id)
     end
 
-    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+
     if @revision_base.nil?
       flash[:alert] = "Checklist no disponible."
       redirect_to(home_path)
