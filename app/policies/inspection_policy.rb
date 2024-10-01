@@ -33,4 +33,22 @@ class InspectionPolicy < BasePolicy
     Current.user.admin
   end
 
+
+  def close_inspection
+    record.users.exists?(id: Current.user&.id)
+  end
+
+
+  def download_images
+    Current.user.admin
+  end
+
+  def download_document
+    Current.user.admin
+  end
+
+  def method_missing(m, *args, &block)
+    Current.user.admin
+  end
+
 end

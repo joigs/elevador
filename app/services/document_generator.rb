@@ -326,13 +326,16 @@ class DocumentGenerator
 
     last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
 
-    last_revision_base.revision_colors.order(:section).each do |revision_color|
-      last_revision.codes.concat(revision_color.codes || [])
-      last_revision.points.concat(revision_color.points || [])
-      last_revision.levels.concat(revision_color.levels || [])
-      last_revision.comment.concat(revision_color.comment || [])
-    end
+    if last_revision_base
 
+
+      last_revision_base.revision_colors.order(:section).each do |revision_color|
+        last_revision.codes.concat(revision_color.codes || [])
+        last_revision.points.concat(revision_color.points || [])
+        last_revision.levels.concat(revision_color.levels || [])
+        last_revision.comment.concat(revision_color.comment || [])
+      end
+    end
 
 
 

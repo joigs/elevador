@@ -258,16 +258,17 @@ class DocumentGeneratorLadder
     last_errors_lift = []
 
     last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
+    if last_revision_base
 
-    last_revision_base.revision_colors.order(:section).each do |revision_color|
-      last_revision.codes.concat(revision_color.codes || [])
-      last_revision.points.concat(revision_color.points || [])
-      last_revision.levels.concat(revision_color.levels || [])
-      last_revision.comment.concat(revision_color.comment || [])
-      last_revision.number.concat(revision_color.number || [])
-      last_revision.priority.concat(revision_color.priority || [])
+      last_revision_base.revision_colors.order(:section).each do |revision_color|
+        last_revision.codes.concat(revision_color.codes || [])
+        last_revision.points.concat(revision_color.points || [])
+        last_revision.levels.concat(revision_color.levels || [])
+        last_revision.comment.concat(revision_color.comment || [])
+        last_revision.number.concat(revision_color.number || [])
+        last_revision.priority.concat(revision_color.priority || [])
+      end
     end
-
 
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'

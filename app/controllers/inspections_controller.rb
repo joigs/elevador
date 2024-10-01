@@ -1,6 +1,8 @@
 class InspectionsController < ApplicationController
   require "ostruct"
-
+  require 'securerandom'
+  require 'fileutils'
+  require 'open3'
   def index
     @q = Inspection.ransack(params[:q])
     @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal, :report).order(number: :desc)
@@ -211,6 +213,15 @@ class InspectionsController < ApplicationController
   def destroy
     authorize! inspection
     black_inspection = Inspection.find_by(number: inspection.number*-1)
+
+
+    inspections = inspection.item.inspections.where("number > 0").order(created_at: :desc)
+
+    if inspections.second == inspection
+      flash[:alert] = "No se puede eliminar esta inspección ya que otra inspección podría hacer referencia a esta."
+      redirect_to inspections_path and return
+    end
+
     if black_inspection
       black_inspection.destroy
     end
@@ -260,6 +271,7 @@ class InspectionsController < ApplicationController
 
   def close_inspection
     @inspection = Inspection.find(params[:id])
+    authorize! @inspection
     if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
@@ -472,6 +484,101 @@ class InspectionsController < ApplicationController
     flash[:alert] = "Error al guardar la inspección"
     redirect_to(home_path)
   end
+
+
+  def download_images
+    inspection = Inspection.find(params[:id])
+
+    authorize! inspection
+
+    # Determinar si es escala o ascensor
+    if inspection.item.group.type_of == "escala"
+      revision_base = LadderRevision.find_by(inspection_id: inspection.id)
+    else
+      revision_base = Revision.find_by(inspection_id: inspection.id)
+    end
+
+    # Obtener las fotos ordenadas por `revision_photo.code`
+    revision_photos = revision_base.revision_photos.ordered_by_code
+    item = inspection.item
+    item_rol = item.identificador.chars.last(4).join
+
+    if revision_photos.empty?
+      flash[:alert] = "No se encontraron fotos para descargar."
+      redirect_to inspection_path(inspection) and return
+    end
+
+    begin
+      # Directorio temporal para guardar el archivo LaTeX y las imágenes
+      latex_dir = Rails.root.join('tmp', 'latex')
+      FileUtils.mkdir_p(latex_dir)
+
+      # Generar un nombre base que incluye `inspection.number` y un sufijo aleatorio para garantizar la unicidad
+      random_suffix = SecureRandom.hex(6)
+      base_name = "#{inspection.number}_#{inspection.ins_date.strftime('%m')}_#{inspection.ins_date.strftime('%Y')}_#{item_rol}_#{random_suffix}"
+
+      # Nombre del archivo LaTeX
+      latex_file = File.join(latex_dir, "#{base_name}.tex")
+
+      # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
+      latex_content = "\\documentclass{article}\n"
+      latex_content += "\\usepackage{graphicx}\n"
+      latex_content += "\\usepackage{geometry}\n"
+      latex_content += "\\geometry{a4paper, margin=1in}\n"
+      latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
+      latex_content += "\\renewcommand{\\figurename}{Imagen}\n"
+      latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n"
+      latex_content += "\\begin{document}\n"
+
+      revision_photos.each_slice(2) do |photos|
+        latex_content += "\\begin{figure}[h!]\n"
+        photos.each do |photo|
+          # Descargar la imagen a un archivo temporal
+          image_path = ActiveStorage::Blob.service.send(:path_for, photo.photo.key)
+          image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
+          FileUtils.cp(image_path, image_destination)
+
+          latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
+          latex_content += "    \\centering\n"
+          latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
+          latex_content += "    \\caption{#{photo.code}}\n"
+          latex_content += "  \\end{minipage}\n"
+          latex_content += "  \\hfill\n" if photos.size > 1
+        end
+        latex_content += "\\end{figure}\n"
+      end
+
+      latex_content += "\\end{document}\n"
+
+      # Guardar el contenido en el archivo LaTeX
+      File.open(latex_file, 'w') { |file| file.write(latex_content) }
+
+      # Compilar el archivo LaTeX a PDF usando pdflatex
+      Dir.chdir(latex_dir) do
+        stdout, stderr, status = Open3.capture3("pdflatex #{File.basename(latex_file)}")
+        unless status.success?
+          raise "Error al compilar LaTeX: #{stderr}"
+        end
+      end
+
+      # Descargar el PDF al cliente con un nombre único
+      pdf_file = File.join(latex_dir, "#{base_name}.pdf")
+      send_file pdf_file, type: 'application/pdf', filename: "#{inspection.number}_#{random_suffix}.pdf", disposition: 'attachment'
+
+    rescue StandardError => e
+      flash[:alert] = "Error al generar el documento PDF: #{e.message}"
+      redirect_to inspection_path(inspection)
+    ensure
+      # Limpiar archivos temporales después de enviar el archivo
+      if defined?(pdf_file) && File.exist?(pdf_file)
+        File.delete(pdf_file)
+      end
+      Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
+        File.delete(file_path) if File.exist?(file_path)
+      end
+    end
+  end
+
 
 
   private
