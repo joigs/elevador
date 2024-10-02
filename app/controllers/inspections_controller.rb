@@ -485,7 +485,6 @@ class InspectionsController < ApplicationController
     redirect_to(home_path)
   end
 
-
   def download_images
     inspection = Inspection.find(params[:id])
 
@@ -561,24 +560,22 @@ class InspectionsController < ApplicationController
         end
       end
 
-      # Descargar el PDF al cliente con un nombre único
+      # Definir la ruta del archivo PDF
       pdf_file = File.join(latex_dir, "#{base_name}.pdf")
+
+      # Eliminar todos los archivos temporales excepto el PDF
+      Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
+        File.delete(file_path) if File.exist?(file_path) && file_path != pdf_file
+      end
+
+      # Descargar el PDF al cliente con un nombre único
       send_file pdf_file, type: 'application/pdf', filename: "#{inspection.number}_#{random_suffix}.pdf", disposition: 'attachment'
 
     rescue StandardError => e
       flash[:alert] = "Error al generar el documento PDF: #{e.message}"
       redirect_to inspection_path(inspection)
-    ensure
-      # Limpiar archivos temporales después de enviar el archivo
-      if defined?(pdf_file) && File.exist?(pdf_file)
-        File.delete(pdf_file)
-      end
-      Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
-        File.delete(file_path) if File.exist?(file_path)
-      end
     end
   end
-
 
 
   private
