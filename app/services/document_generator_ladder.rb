@@ -18,10 +18,14 @@ class DocumentGeneratorLadder
     rules = Ladder.all.drop(11)
     item_rol = item.identificador.chars.last(4).join
 
-
-    revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
-
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
+    puts("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+    puts(revision_base.inspect)
+    puts("000000000000000000000000")
+    puts(revision.inspect)
     revision_base.revision_colors.order(:section).each do |revision_color|
+      puts("ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
       revision.codes.concat(revision_color.codes || [])
       revision.points.concat(revision_color.points || [])
       revision.levels.concat(revision_color.levels || [])
@@ -29,7 +33,7 @@ class DocumentGeneratorLadder
       revision.number.concat(revision_color.number || [])
       revision.priority.concat(revision_color.priority || [])
     end
-
+    puts("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
 
     template_path = Rails.root.join('app', 'templates', 'template_ladder1.docx')
 
@@ -251,16 +255,18 @@ class DocumentGeneratorLadder
     doc.replace('{{detail_descripcion}}', detail.descripcion)
 
 
-
+puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
     last_revision_base = LadderRevision.where(item_id: item.id).order(created_at: :desc).offset(1).first
     last_errors = []
     last_errors_lift = []
-
-    last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
+    puts("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+    last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
+    puts("ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
     if last_revision_base
-
+      puts("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
       last_revision_base.revision_colors.order(:section).each do |revision_color|
+        puts("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         last_revision.codes.concat(revision_color.codes || [])
         last_revision.points.concat(revision_color.points || [])
         last_revision.levels.concat(revision_color.levels || [])
@@ -268,8 +274,9 @@ class DocumentGeneratorLadder
         last_revision.number.concat(revision_color.number || [])
         last_revision.priority.concat(revision_color.priority || [])
       end
+      puts("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
     end
-
+    puts("gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
 
@@ -747,7 +754,7 @@ class DocumentGeneratorLadder
       '5.0.11'
     ]
 
-    revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
+    revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'LadderRevision')
 
 
 

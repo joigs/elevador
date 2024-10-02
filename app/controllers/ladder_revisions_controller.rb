@@ -231,7 +231,7 @@ class LadderRevisionsController < ApplicationController
     @black_inspection = Inspection.find_by(number: @inspection.number*-1)
 
     if @black_inspection
-      @black_revision_base = Revision.find_by(inspection_id: @black_inspection.id)
+      @black_revision_base = LadderRevision.find_by(inspection_id: @black_inspection.id)
       if @black_revision_base
         @black_revision = @black_revision_base.revision_colors.find_by(section: current_section)
       end
