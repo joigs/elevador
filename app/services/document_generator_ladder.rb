@@ -389,8 +389,8 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
         if revision.comment[index].blank?
-          errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningún comentario)"
+          errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (No se hizo ningún comentario)"
 
         else
           errors_graves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
@@ -399,8 +399,8 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
-          errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningún comentario)"
+          errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (No se hizo ningún comentario)"
 
         else
           errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"

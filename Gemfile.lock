@@ -116,6 +116,7 @@ GEM
     edge_rider (2.3.0)
       activerecord (>= 3.2)
     erubi (1.12.0)
+    fastimage (2.3.1)
     ffi (1.16.3)
     fileutils (1.7.2)
     globalid (1.2.1)
@@ -316,6 +317,7 @@ DEPENDENCIES
   debug
   docx
   docx_replace
+  fastimage
   fileutils
   image_processing (~> 1.2)
   importmap-rails

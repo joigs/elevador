@@ -600,8 +600,8 @@ class DocumentGenerator
     revision.levels.each_with_index do |level, index|
       if level.include?("G")
         if revision.comment[index].blank?
-          errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (Esto No ocurre. No se hizo ningún comentario)"
+          errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (No se hizo ningún comentario)"
 
         else
           errors_graves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
@@ -610,8 +610,8 @@ class DocumentGenerator
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
-          errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (Esto No ocurre. No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (Esto No ocurre. No se hizo ningún comentario)"
+          errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (No se hizo ningún comentario)"
 
         else
           errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
@@ -799,6 +799,7 @@ class DocumentGenerator
     original_files << output_path2
 
 
+
     # Obtener las fotos ordenadas por `revision_photo.code`
     revision_photos = revision_base.revision_photos.ordered_by_code
 
@@ -814,16 +815,15 @@ class DocumentGenerator
       # Nombre del archivo LaTeX
       latex_file = File.join(latex_dir, "#{base_name}_document.tex")
 
-      # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
+      # Generar el contenido LaTeX dinámicamente basado en las imágenes
       latex_content = "\\documentclass{article}\n"
       latex_content += "\\usepackage{graphicx}\n"
       latex_content += "\\usepackage{geometry}\n"
       latex_content += "\\geometry{a4paper, margin=1in}\n"
       latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
-      latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
-      latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
       latex_content += "\\begin{document}\n"
 
+      # Ciclo para procesar todas las duplas de imágenes
       revision_photos.each_slice(2) do |photos|
         latex_content += "\\begin{figure}[h!]\n"
         photos.each do |photo|
@@ -835,11 +835,11 @@ class DocumentGenerator
           latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
           latex_content += "    \\centering\n"
           latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-          latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
           latex_content += "  \\end{minipage}\n"
           latex_content += "  \\hfill\n" if photos.size > 1
         end
         latex_content += "\\end{figure}\n"
+        latex_content += "\\newpage\n" # Forzar salto de página después de cada par de imágenes
       end
 
       latex_content += "\\end{document}\n"
@@ -865,15 +865,44 @@ class DocumentGenerator
         return
       end
 
-      images_to_write = Dir.glob("#{image_output_base}-*.png").map do |image|
-        {
-          path: image,
-          height: 1100,
-          width: 700
-        }
+      # Recortar las áreas vacías alrededor de las imágenes usando `convert`
+      Dir.glob("#{image_output_base}-*.png").each do |image|
+        stdout, stderr, status = Open3.capture3("convert #{image} -trim #{image}")
+        unless status.success?
+          render plain: "Error al recortar la imagen: #{stderr}", status: :internal_server_error
+          return
+        end
       end
 
-      Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+      # Ciclo para procesar y escribir cada dupla de imágenes
+      Dir.glob("#{image_output_base}-*.png").each_slice(2) do |image_pair|
+        # Obtener la altura de ambas imágenes
+        heights = image_pair.map { |image| FastImage.size(image)[1] } # Obtener la altura (segundo valor)
+        max_height = heights.max # Altura máxima de la dupla
+
+        # Limitar la altura a un máximo de 400 px, manteniendo la escala
+        if max_height > 400
+          scale_factor = 400.0 / max_height
+          max_height = 400
+        else
+          scale_factor = 1.0
+        end
+
+        # Crear el hash con la altura ajustada para ambas imágenes
+        images_to_write = image_pair.map do |image|
+          original_width = FastImage.size(image)[0] # Obtener el ancho original
+          scaled_width = (original_width * scale_factor).to_i # Escalar el ancho proporcionalmente
+
+          {
+            path: image,
+            height: max_height, # Ajustar la altura a 400 si es necesario
+            width: scaled_width # Escalar el ancho para mantener la proporción
+          }
+        end
+
+        # Insertar la dupla de imágenes en el documento .docx usando Omnidocx
+        Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+      end
 
       # Buscar y eliminar todos los archivos que comiencen con `base_name`
       Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
