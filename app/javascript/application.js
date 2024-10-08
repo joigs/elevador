@@ -3,5 +3,7 @@ import "@hotwired/turbo-rails"
 import "controllers"
 import "@rails/request.js"
 import "custom/companion"
+import "chartkick"
+import "Chart.bundle"
 import Swal from 'sweetalert2';
 window.Swal = Swal;

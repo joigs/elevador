@@ -110,3 +110,6 @@ gem 'ransack'
 gem 'pdflatex'
 gem 'fileutils'
 gem 'fastimage'
+
+gem 'chartkick'
+gem 'groupdate'
