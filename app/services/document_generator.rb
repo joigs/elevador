@@ -926,9 +926,7 @@ class DocumentGenerator
           end
           doc_code_photo.commit(output_path)
 
-        else
-          # Si la imagen no existe, mostramos un mensaje de depuración
-          puts "No se encontró la imagen: #{image_path}"
+
         end
       end
 
