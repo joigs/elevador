@@ -649,6 +649,7 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     revision_photos = revision_base.revision_photos.ordered_by_code
 
     unless revision_photos.empty?
+
       # Directorio temporal para guardar el archivo LaTeX y las imágenes
       latex_dir = Rails.root.join('tmp', 'latex')
       FileUtils.mkdir_p(latex_dir)
@@ -659,16 +660,15 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       # Nombre del archivo LaTeX
       latex_file = File.join(latex_dir, "#{base_name}_document.tex")
 
-      # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
+      # Generar el contenido LaTeX dinámicamente basado en las imágenes
       latex_content = "\\documentclass{article}\n"
       latex_content += "\\usepackage{graphicx}\n"
       latex_content += "\\usepackage{geometry}\n"
       latex_content += "\\geometry{a4paper, margin=1in}\n"
       latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
-      latex_content += "\\renewcommand{\\figurename}{Imagen}\n" # Cambiar "Figure" por "Imagen"
-      latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n" # Cambiar el formato a "N°"
       latex_content += "\\begin{document}\n"
 
+      # Ciclo para procesar todas las duplas de imágenes
       revision_photos.each_slice(2) do |photos|
         latex_content += "\\begin{figure}[h!]\n"
         photos.each do |photo|
@@ -680,11 +680,11 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
           latex_content += "    \\centering\n"
           latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-          latex_content += "    \\caption{#{photo.code}}\n" # Mostrar "Imagen N°<número>: <código>"
           latex_content += "  \\end{minipage}\n"
           latex_content += "  \\hfill\n" if photos.size > 1
         end
         latex_content += "\\end{figure}\n"
+        latex_content += "\\newpage\n" # Forzar salto de página después de cada par de imágenes
       end
 
       latex_content += "\\end{document}\n"
@@ -710,22 +710,86 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         return
       end
 
-      images_to_write = Dir.glob("#{image_output_base}-*.png").map do |image|
-        {
-          path: image,
-          height: 1100,
-          width: 700
-        }
+      n_images = 0;
+      # Recortar las áreas vacías alrededor de las imágenes usando `convert`
+      Dir.glob("#{image_output_base}-*.png").each do |image|
+        n_images+=1
+        stdout, stderr, status = Open3.capture3("convert #{image} -trim #{image}")
+        unless status.success?
+          render plain: "Error al recortar la imagen: #{stderr}", status: :internal_server_error
+          return
+        end
       end
 
-      Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+      texto_imagen_doble_path = Rails.root.join('app', 'templates', 'texto_imagen.docx')
+      texto_imagen_singular_path = Rails.root.join('app', 'templates', 'texto_imagen-1.docx')
 
-      # Buscar y eliminar todos los archivos que comiencen con `base_name`
+      for i in (1..n_images)
+        # Construimos la ruta de la imagen basada en el índice actual
+        image_path = "#{image_output_base}-#{i}.png"
+
+        # Comprobamos si la imagen existe
+        if File.exist?(image_path)
+          # Debug para mostrar la imagen que se está procesando
+          puts "Procesando imagen: #{image_path}"
+
+          # Obtener las dimensiones de la imagen
+          image_height = FastImage.size(image_path)[1]
+          image_width = FastImage.size(image_path)[0]
+
+          # Limitar la altura a un máximo de 400 px, manteniendo la escala
+          if image_height > 400
+            scale_factor = 400.0 / image_height
+            scaled_height = 400
+            scaled_width = (image_width * scale_factor).to_i
+          else
+            scaled_height = image_height
+            scaled_width = image_width
+          end
+
+          # Crear el hash con las dimensiones ajustadas para la imagen
+          images_to_write = [
+            {
+              path: image_path,
+              height: scaled_height,
+              width: scaled_width
+            }
+          ]
+
+          # Escribimos la imagen en el documento
+          Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+
+          # Verificar si es la última iteración y si el número de imágenes es impar
+          if i == n_images && n_images.odd?
+            # Usar el texto para una sola imagen
+            Omnidocx::Docx.merge_documents([output_path, texto_imagen_singular_path], output_path, false)
+            doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+            doc_code_photo.replace('{{code}}', revision_photos.last.code)
+          else
+            # Usar el texto para imagen doble
+            Omnidocx::Docx.merge_documents([output_path, texto_imagen_doble_path], output_path, false)
+            doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+            doc_code_photo.replace('{{code_1}}', revision_photos[(i*2)-2].code)
+            doc_code_photo.replace('{{code_2}}', revision_photos[(i*2)-1].code)
+          end
+          doc_code_photo.commit(output_path)
+
+        else
+          # Si la imagen no existe, mostramos un mensaje de depuración
+          puts "No se encontró la imagen: #{image_path}"
+        end
+      end
+
+
+
+
+
       Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
         File.delete(file_path) if File.exist?(file_path)
       end
-    end
 
+
+    end
 
     tabla_path = Rails.root.join('app', 'templates', 'tabla_escala.docx')
 
@@ -848,6 +912,10 @@ puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     original_files.each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
+    Dir.glob("#{Rails.root}/tmp/#{inspection.number}_part*").each do |file_path|
+      File.delete(file_path) if File.exist?(file_path)
+    end
+
     return output_path
   end
 

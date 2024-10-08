@@ -797,9 +797,6 @@ class DocumentGenerator
     Omnidocx::Docx.merge_documents([output_path, output_path2], output_path, false)
 
     original_files << output_path2
-
-
-
     # Obtener las fotos ordenadas por `revision_photo.code`
     revision_photos = revision_base.revision_photos.ordered_by_code
 
@@ -865,8 +862,10 @@ class DocumentGenerator
         return
       end
 
+      n_images = 0;
       # Recortar las áreas vacías alrededor de las imágenes usando `convert`
       Dir.glob("#{image_output_base}-*.png").each do |image|
+        n_images+=1
         stdout, stderr, status = Open3.capture3("convert #{image} -trim #{image}")
         unless status.success?
           render plain: "Error al recortar la imagen: #{stderr}", status: :internal_server_error
@@ -874,41 +873,77 @@ class DocumentGenerator
         end
       end
 
-      # Ciclo para procesar y escribir cada dupla de imágenes
-      Dir.glob("#{image_output_base}-*.png").each_slice(2) do |image_pair|
-        # Obtener la altura de ambas imágenes
-        heights = image_pair.map { |image| FastImage.size(image)[1] } # Obtener la altura (segundo valor)
-        max_height = heights.max # Altura máxima de la dupla
+      texto_imagen_doble_path = Rails.root.join('app', 'templates', 'texto_imagen.docx')
+      texto_imagen_singular_path = Rails.root.join('app', 'templates', 'texto_imagen-1.docx')
 
-        # Limitar la altura a un máximo de 400 px, manteniendo la escala
-        if max_height > 400
-          scale_factor = 400.0 / max_height
-          max_height = 400
+      for i in (1..n_images)
+        # Construimos la ruta de la imagen basada en el índice actual
+        image_path = "#{image_output_base}-#{i}.png"
+
+        # Comprobamos si la imagen existe
+        if File.exist?(image_path)
+          # Debug para mostrar la imagen que se está procesando
+          puts "Procesando imagen: #{image_path}"
+
+          # Obtener las dimensiones de la imagen
+          image_height = FastImage.size(image_path)[1]
+          image_width = FastImage.size(image_path)[0]
+
+          # Limitar la altura a un máximo de 400 px, manteniendo la escala
+          if image_height > 400
+            scale_factor = 400.0 / image_height
+            scaled_height = 400
+            scaled_width = (image_width * scale_factor).to_i
+          else
+            scaled_height = image_height
+            scaled_width = image_width
+          end
+
+          # Crear el hash con las dimensiones ajustadas para la imagen
+          images_to_write = [
+            {
+              path: image_path,
+              height: scaled_height,
+              width: scaled_width
+            }
+          ]
+
+          # Escribimos la imagen en el documento
+          Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
+
+          # Verificar si es la última iteración y si el número de imágenes es impar
+          if i == n_images && n_images.odd?
+            # Usar el texto para una sola imagen
+            Omnidocx::Docx.merge_documents([output_path, texto_imagen_singular_path], output_path, false)
+            doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+            doc_code_photo.replace('{{code}}', revision_photos.last.code)
+          else
+            # Usar el texto para imagen doble
+            Omnidocx::Docx.merge_documents([output_path, texto_imagen_doble_path], output_path, false)
+            doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+            doc_code_photo.replace('{{code_1}}', revision_photos[(i*2)-2].code)
+            doc_code_photo.replace('{{code_2}}', revision_photos[(i*2)-1].code)
+          end
+          doc_code_photo.commit(output_path)
+
         else
-          scale_factor = 1.0
+          # Si la imagen no existe, mostramos un mensaje de depuración
+          puts "No se encontró la imagen: #{image_path}"
         end
-
-        # Crear el hash con la altura ajustada para ambas imágenes
-        images_to_write = image_pair.map do |image|
-          original_width = FastImage.size(image)[0] # Obtener el ancho original
-          scaled_width = (original_width * scale_factor).to_i # Escalar el ancho proporcionalmente
-
-          {
-            path: image,
-            height: max_height, # Ajustar la altura a 400 si es necesario
-            width: scaled_width # Escalar el ancho para mantener la proporción
-          }
-        end
-
-        # Insertar la dupla de imágenes en el documento .docx usando Omnidocx
-        Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
       end
 
-      # Buscar y eliminar todos los archivos que comiencen con `base_name`
+
+
+
+
       Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
         File.delete(file_path) if File.exist?(file_path)
       end
+
+
     end
+
+
 
 
     original_files.each do |file_path|
@@ -1012,6 +1047,10 @@ class DocumentGenerator
 
 
     doc.commit(output_path)
+
+    Dir.glob("#{Rails.root}/tmp/#{inspection.number}_part*").each do |file_path|
+      File.delete(file_path) if File.exist?(file_path)
+    end
 
 
     return output_path
