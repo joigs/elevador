@@ -3,6 +3,8 @@ class Report < ApplicationRecord
   before_save :clear_fields
   validates :ul_reg_man, non_negative: true, allow_nil: true
   validate :validate_ruts
+  validate :validate_vi_co_man_dates
+  validate :validate_urm_fecha_not_future
   validates :fecha, date: true
   validates :vi_co_man_ini, date: true
   validates :vi_co_man_ter, date: true
@@ -54,5 +56,16 @@ class Report < ApplicationRecord
     remainder == 0 ? '0' : remainder == 1 ? 'K' : (11 - remainder).to_s
   end
 
+  def validate_vi_co_man_dates
+    if vi_co_man_ini.present? && vi_co_man_ter.present? && vi_co_man_ini >= vi_co_man_ter
+      errors.add(:vi_co_man_ini, 'Fecha de contrato no valida, el inicio debe ser anterior al término')
+    end
+  end
+
+  def validate_urm_fecha_not_future
+    if urm_fecha.present? && urm_fecha > Date.today
+      errors.add(:urm_fecha, 'no puede ser una fecha futura')
+    end
+  end
 
 end

@@ -18,11 +18,11 @@
 
   <div data-controller="dropdown section-submit" class="px-8">
 
-    <div class="flex justify-center">
+    <div class="flex justify-center w-full my-4">
 
       <% current_section = "#{@color.section}- #{@nombres[@numbers.index(@color.section)]}" %>
       <%= button_tag type: 'button',
-                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal overflow-hidden",
+                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal break-words overflow-hidden max-w-[50%] w-full",
                      data: { action: "dropdown#toggle" } do %>
         <%= "Sección actual: #{current_section}" %>
       <% end %>
@@ -88,7 +88,7 @@
               <div class="flex justify-center items-center">
 
                 <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-                <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
                                   data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" }  %>
                 <%= label_tag "null_condition_#{index}", "" %>
               </div>
@@ -101,7 +101,7 @@
 
                 <% is_black_checked = @black_revision.codes.include?(rule.code) && @black_revision.points.include?(rule.point) %>
 
-                <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", class: "w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600", data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
+                <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", class: "w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600 cursor-pointer", data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
                 <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
                 <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
                 <%= hidden_field_tag "past_revision[levels][]", "L", data: { past_submit_target: "level" } %>
@@ -140,7 +140,7 @@
               <div class="flex justify-center items-center">
 
                 <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>
-                <%= check_box_tag "ladder_revision[fail][]", "1", is_checked, id: "fail_#{index}", data: { action: "change->rules-form#toggle", rules_form_target: "fail" }, class: "w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+                <%= check_box_tag "ladder_revision[fail][]", "1", is_checked, id: "fail_#{index}", data: { action: "change->rules-form#toggle", rules_form_target: "fail" }, class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
               </div>
             </td>
 
@@ -235,13 +235,13 @@
     <div class="mt-4 inline-block border-2 border-gray-300 rounded-lg p-2 bg-white">
       <%= check_box_tag :color, "1", @color.color,
                         id: "color_checkbox",
-                        class: "form-checkbox h-5 w-5 text-green-500" %>
-      <%= label_tag :color_checkbox, 'Marcar como revisado', class: "ml-2 text-sm text-gray-700" %>
+                        class: "form-checkbox h-5 w-5 text-green-500 cursor-pointer" %>
+      <%= label_tag :color_checkbox, 'Marcar como revisado', class: "ml-2 text-sm text-gray-700 cursor-pointer" %>
     </div>
   </div>
 
   <div class="px-4 mt-4 py-4">
-    <%= form.submit "Ver fallas registradas", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+    <%= form.submit "Ver fallas registradas", class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   </div>
 <% end %>
 
