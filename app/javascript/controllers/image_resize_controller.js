@@ -15,7 +15,7 @@ export default class extends Controller {
             dataTransfer.items.add(resizedFile)
             fileInput.files = dataTransfer.files
         } catch (error) {
-            console.error('Error resizing image:', error)
+            console.error('Error al redimensionar la imagen:', error)
         }
     }
 
@@ -27,8 +27,18 @@ export default class extends Controller {
                 image.onload = () => {
                     const canvas = document.createElement('canvas')
                     const ctx = canvas.getContext('2d')
-                    const width = 400
-                    const height = 300
+
+                    const maxDimension = 400
+                    let width = image.width
+                    let height = image.height
+
+                    // Calcular el factor de escala
+                    const scalingFactor = maxDimension / Math.max(width, height)
+                    if (scalingFactor < 1) {
+                        width = width * scalingFactor
+                        height = height * scalingFactor
+                    }
+
                     canvas.width = width
                     canvas.height = height
                     ctx.drawImage(image, 0, 0, width, height)
@@ -41,7 +51,7 @@ export default class extends Controller {
                             })
                             resolve(resizedFile)
                         } else {
-                            reject(new Error('Canvas toBlob failed'))
+                            reject(new Error('Canvas toBlob falló'))
                         }
                     }, file.type)
                 }
