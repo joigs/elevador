@@ -36,7 +36,7 @@ Rails.application.routes.draw do
       get :download_json
       patch :update_inf_date
       get :new_with_last
-      get :download_images
+      #get :download_images
 
     end
 
@@ -74,13 +74,16 @@ Rails.application.routes.draw do
     get :items, on: :member
     get :places, on: :member
   end
-  resources :revisions, path: '/revisions' do
-    member do
-      get 'edit_libre', to: 'revisions#edit_libre'
-      get 'new_rule', to: 'revisions#new_rule'
-      post 'create_rule', to: 'revisions#create_rule'
-    end
-  end
+  resources :revisions, path: '/revisions'
+  #do
+  #  member do
+  #    get 'edit_libre', to: 'revisions#edit_libre'
+  #    get 'new_rule', to: 'revisions#new_rule'
+  #    post 'create_rule', to: 'revisions#create_rule'
+  #  end
+  #end
+
+
   resources :ladder_revisions, path: '/ladder_revisions'
   get 'warnings', to: 'static_pages#warnings'
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

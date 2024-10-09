@@ -4,12 +4,12 @@
   <div class="flex flex-wrap justify-start space-x-2 mt-4">
     <div class="lg:w-auto flex flex-col space-y-2">
       <% if Current.user.admin? %>
-        <%= link_to 'Modificar empresa', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+        <%= link_to 'Modificar empresa', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% end %>
       <% if Current.user.admin? %>
-        <%= link_to 'Eliminar empresa', principal_path(@principal), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/principals" } %>
+        <%= link_to 'Eliminar empresa', principal_path(@principal), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/principals" } %>
       <% end %>
-      <%= link_to 'Volver a empresas', principals_path, class: "px-4 py-2 rounded bg-gray-700 text-white font-bold hover:bg-gray-600 transition duration-300" %>
+      <%= link_to 'Volver a empresas', principals_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
     </div>
   </div>
 </div>
@@ -130,7 +130,6 @@
           <% end %>
         <% end %>
       <% end %>
-      </div>
       </div>
       </div>
 <% end %>

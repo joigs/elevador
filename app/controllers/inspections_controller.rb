@@ -214,23 +214,29 @@ class InspectionsController < ApplicationController
     authorize! inspection
     black_inspection = Inspection.find_by(number: inspection.number*-1)
 
-
     inspections = inspection.item.inspections.where("number > 0").order(created_at: :desc)
 
     if inspections.second == inspection
-      flash[:alert] = "No se puede eliminar esta inspección ya que otra inspección podría hacer referencia a esta."
-      redirect_to inspections_path and return
+      message = "No se puede eliminar ya que otra inspección podría hacer referencia a esta."
+      respond_to do |format|
+        format.html do
+          flash[:alert] = message
+          redirect_to inspections_path
+        end
+        format.json { render json: { error: message }, status: :unprocessable_entity }
+      end
+      return
     end
 
-    if black_inspection
-      black_inspection.destroy
-    end
-
+    black_inspection&.destroy
     inspection.destroy
-    flash[:notice] = "Inspección eliminada"
+
     respond_to do |format|
-      format.html { redirect_to inspections_path, status: :see_other }
-      format.turbo_stream { head :no_content }
+      format.html do
+        flash[:notice] = "Inspección eliminada"
+        redirect_to inspections_path, status: :see_other
+      end
+      format.json { render json: { message: "Inspección eliminada" }, status: :ok }
     end
   end
 

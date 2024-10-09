@@ -23,11 +23,11 @@
     <div class="flex flex-wrap justify-start space-x-2 mt-4">
       <div class="lg:w-auto flex flex-col space-y-2">
         <% if Current.user&.admin %>
-          <%= link_to 'Modificar defecto', edit_rule_path(@rule), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+          <%= link_to 'Modificar defecto', edit_rule_path(@rule), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
 
           <%= link_to 'Eliminar defecto', rule_path(@rule), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/rules" } %>
         <% end %>
-        <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" %>
+        <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
 
       </div>
     </div>

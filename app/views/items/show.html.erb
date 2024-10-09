@@ -3,22 +3,24 @@
   <div class="flex flex-wrap justify-start space-x-2 mt-4">
     <div class="lg:w-auto flex flex-col space-y-2">
       <% if @condicion %>
-        <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "px-4 py-2 rounded bg-yellow-600 text-gray-900 font-bold text-sm hover:bg-yellow-700 transition duration-300" %>
+        <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% end %>
 
       <% if Current.user.admin %>
-        <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "px-4 py-2 rounded bg-blue-600 text-gray-900 font-bold text-sm hover:bg-blue-700 transition duration-300" %>
+        <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" %>
       <% end %>
 
       <% if @inspection %>
-        <%= link_to "Ver última inspección", inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-600 text-gray-900 font-bold text-sm hover:bg-green-700 transition duration-300" %>
+        <%= link_to "Ver última inspección", inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" %>
       <% end %>
-
-      <%= link_to "Volver a activos", items_path, class: "px-4 py-2 rounded bg-gray-600 text-white font-bold text-sm hover:bg-gray-500 transition duration-300" %>
 
       <% if Current.user.admin %>
-        <%= link_to "Eliminar activo", item_path(@item), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold text-sm hover:bg-red-700 transition duration-300", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/items" } %>
+        <%= link_to "Eliminar activo", item_path(@item), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/items" } %>
       <% end %>
+
+      <%= link_to "Volver a activos", inspections_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
+
+
     </div>
   </div>
 </div>
