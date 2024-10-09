@@ -745,7 +745,7 @@ class DocumentGeneratorLadder
           Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
 
           # Verificar si es la última iteración y si el número de imágenes es impar
-          if i == n_images && n_images.odd?
+          if i == n_images && revision_photos.size.odd?
             # Usar el texto para una sola imagen
             Omnidocx::Docx.merge_documents([output_path, texto_imagen_singular_path], output_path, false)
             doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
