@@ -151,9 +151,8 @@
             <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
 
             <td class="px-4 py-4 justify-center items-center overflow-hidden">
-              <div data-controller="file-upload">
+              <div data-controller="file-upload image-resize">
                 <%= file_field_tag "revision_photos[photo][]",
-                                   name: "revision_photos[photo][]",
                                    class: "w-full",
                                    id: "photo_#{index}",
                                    style: "border: 2px solid #24ACBD; border-radius: 4px; padding: 5px;",
@@ -161,7 +160,8 @@
                                    data: {
                                      rules_form_target: "photo",
                                      file_upload_target: "file",
-                                     action: "file-upload#fileChanged change->file-upload#fileChanged",
+                                     image_resize_target: "file",
+                                     action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage",
                                    },
                                    accept: "image/*",
                                    capture: "environment" %>
@@ -171,6 +171,7 @@
                 </label>
               </div>
             </td>
+
             <% comment_index = if @revision_map[rule.code] && @revision_map[rule.code][rule.point]
                                  @revision_map[rule.code][rule.point]
                                else
