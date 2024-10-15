@@ -229,6 +229,39 @@
     </div>
   </div>
 
+
+  <div data-controller="dropdown section-submit" class="px-8">
+
+    <div class="flex justify-center w-full my-4">
+
+      <% current_section = "#{@color.section}- #{@nombres[@numbers.index(@color.section)]}" %>
+      <%= button_tag type: 'button',
+                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal break-words overflow-hidden max-w-[50%] w-full",
+                     data: { action: "dropdown#toggle" } do %>
+        <%= "Sección actual: #{current_section}" %>
+      <% end %>
+    </div>
+    <div data-dropdown-target="menu" class="grid gap-4 hidden">
+
+      <% @numbers.each_with_index do |number, index| %>
+        <div class="flex justify-center">
+          <% color_for_number = @colors.find { |c| c.section == number } %>
+          <% is_current_color = @color.section == number %>
+          <%= button_tag type: 'button',
+                         class: "section-button #{'bg-white' if is_current_color} #{'bg-green-600 text-white' if color_for_number&.color && !is_current_color} #{'bg-gray-500' if !color_for_number&.color && !is_current_color} w-full py-2 rounded",
+                         data: { action: "section-submit#submitAndNavigate",
+                                 section_submit_target: "button",
+                                 url: edit_ladder_revision_path(id: @revision_base, inspection_id: @inspection.id, section: number) },
+                         disabled: is_current_color do %>
+
+            <%= number %>-<%= @nombres[index] %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+
   <div class="py-2 px-4">
 
     <div class="mt-4 inline-block border-2 border-gray-300 rounded-lg p-2 bg-white">

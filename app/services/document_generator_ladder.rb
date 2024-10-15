@@ -655,20 +655,34 @@ class DocumentGeneratorLadder
       latex_content += "\\begin{document}\n"
 
       # Ciclo para procesar todas las duplas de imágenes
+
       revision_photos.each_slice(2) do |photos|
         latex_content += "\\begin{figure}[h!]\n"
-        photos.each do |photo|
+
+        # Si solo hay una imagen en el grupo, centrarla
+        if photos.size == 1
+          photo = photos.first
           image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
-          # Usar `inspection.number` para el nombre de la imagen
           image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
           FileUtils.cp(image_path, image_destination)
 
-          latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
-          latex_content += "    \\centering\n"
-          latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-          latex_content += "  \\end{minipage}\n"
-          latex_content += "  \\hfill\n" if photos.size > 1
+          latex_content += "  \\centering\n"
+          latex_content += "  \\includegraphics[width=0.4\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
+        else
+          # Para pares de imágenes, dividirlas en columnas
+          photos.each do |photo|
+            image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
+            image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
+            FileUtils.cp(image_path, image_destination)
+
+            latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
+            latex_content += "    \\centering\n"
+            latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
+            latex_content += "  \\end{minipage}\n"
+            latex_content += "  \\hfill\n" if photos.size > 1
+          end
         end
+
         latex_content += "\\end{figure}\n"
         latex_content += "\\newpage\n" # Forzar salto de página después de cada par de imágenes
       end
