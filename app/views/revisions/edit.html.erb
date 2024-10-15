@@ -206,38 +206,36 @@
         </div>
   <% end %>
 
+
+
+
       <div data-controller="dropdown section-submit" class="px-8 my-6">
         <% current_section_number = @color.section %>
         <% total_sections = 12 %>
 
-
-        <div class="flex items-center justify-between w-full my-4">
-
+        <div class="flex items-center justify-between w-full my-8">
           <div class="w-1/5 flex justify-start">
           </div>
 
           <div class="flex justify-center w-3/5">
             <% current_section = "#{@color.section}- #{@nombres[@color.section]}" %>
             <%= button_tag type: 'button',
-                           class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal break-words overflow-hidden max-w-full",
+                           class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal break-words max-w-full",
                            data: { action: "dropdown#toggle" } do %>
               <%= "Sección actual: #{current_section}" %>
             <% end %>
           </div>
+
           <div class="w-1/5 flex justify-end">
           </div>
+        </div>
 
-          </div>
-
-
-
-          <div class="flex items-center justify-between w-full my-4">
+        <div class="flex items-center justify-between w-full mt-12"> <!-- Aumento de margen entre filas -->
           <% previous_section = current_section_number > 0 ? current_section_number - 1 : nil %>
           <% next_section = current_section_number < total_sections - 1 ? current_section_number + 1 : nil %>
 
-            <div class="w-1/5 flex justify-start">
-              <div class="mx-4">
-
+          <div class="w-1/5 flex justify-start">
+            <div class="mx-4">
               <% if previous_section %>
                 <%= button_tag type: 'button',
                                class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate flex items-center",
@@ -251,12 +249,10 @@
                 <% end %>
               <% end %>
             </div>
-            </div>
+          </div>
 
-
-            <div class="w-1/5 flex justify-end">
-              <div class = "mx-4">
-
+          <div class="w-1/5 flex justify-end">
+            <div class="mx-4">
               <% if next_section %>
                 <%= button_tag type: 'button',
                                class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate flex items-center",
@@ -269,11 +265,9 @@
                   </svg>
                 <% end %>
               <% end %>
-              </div>
-
             </div>
-
           </div>
+        </div>
 
         <div data-dropdown-target="menu" class="grid gap-4 hidden">
           <% (0..11).each do |number| %>
