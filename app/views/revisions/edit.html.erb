@@ -51,8 +51,9 @@
   <br>
   <br>
 
-  <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>
     <div class="px-4 mt-4">
+      <% @rules.each_with_index.chunk_while { |(current_rule, _), (next_rule, _)| current_rule.ruletype.rtype == next_rule.ruletype.rtype }.each_with_index do |group, group_index| %>
+        <div class="mt-4">
 
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table class="w-full text-sm text-left rtl:text-right text-gray-400">
@@ -202,40 +203,79 @@
       </table>
 
     </div>
-    </div>
+        </div>
   <% end %>
-  <div data-controller="dropdown section-submit" class="px-8">
 
-    <div class="flex justify-center w-full my-4">
-      <% current_section = "#{@color.section}- #{@nombres[@color.section]}" %>
-      <%= button_tag type: 'button',
-                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal break-words overflow-hidden max-w-[50%] w-full",
-                     data: { action: "dropdown#toggle" } do %>
-        <%= "Sección actual: #{current_section}" %>
-      <% end %>
-    </div>
+      <div data-controller="dropdown section-submit" class="px-8 my-6">
+        <% current_section_number = @color.section %>
+        <% total_sections = 12 %>
 
+        <div class="flex items-center justify-between w-full">
+          <!-- Cálculo de la sección anterior y siguiente -->
+          <% previous_section = current_section_number > 0 ? current_section_number - 1 : nil %>
+          <% next_section = current_section_number < total_sections - 1 ? current_section_number + 1 : nil %>
 
+          <!-- Botón para ir a la sección anterior (solo si no es la primera sección) -->
+          <div class="w-1/5 flex justify-start">
+            <% if previous_section %>
+              <%= button_tag type: 'button',
+                             class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate",
+                             data: { action: "section-submit#submitAndNavigate",
+                                     section_submit_target: "button",
+                                     url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: previous_section) } do %>
+                <%= "#{previous_section}-#{@nombres[previous_section]}" %>
+              <% end %>
+            <% end %>
+          </div>
 
+          <!-- Botón principal con la sección actual -->
+          <div class="flex justify-center w-3/5">
+            <% current_section = "#{@color.section}- #{@nombres[@color.section]}" %>
+            <%= button_tag type: 'button',
+                           class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded whitespace-normal break-words overflow-hidden max-w-full",
+                           data: { action: "dropdown#toggle" } do %>
+              <%= "Sección actual: #{current_section}" %>
+            <% end %>
+          </div>
 
-    <div data-dropdown-target="menu" class="grid gap-4 hidden">
-      <% (0..11).each do |number| %>
-        <div class="flex justify-center">
-          <% color_for_number = @colors.find { |c| c.section == number } %>
-          <% is_current_color = @color.section == number %>
-          <% is_nope = number == @nope %>
-          <%= button_tag type: 'button',
-                         class: "section-button #{'bg-red-800 text-white' if is_nope} #{'bg-white' if is_current_color && !is_nope} #{'bg-green-600 text-white' if color_for_number&.color && !is_current_color && !is_nope} #{'bg-gray-500' if !color_for_number&.color && !is_current_color && !is_nope} w-full py-2 ",
-                         data: { action: "section-submit#submitAndNavigate",
-                                 section_submit_target: "button",
-                                 url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: number) },
-                         disabled: is_current_color || is_nope do %>
-            <%= number %>-<%= @nombres[number] %>
+          <!-- Botón para ir a la siguiente sección (solo si no es la última sección) -->
+          <div class="w-1/5 flex justify-end">
+            <% if next_section %>
+              <%= button_tag type: 'button',
+                             class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate",
+                             data: { action: "section-submit#submitAndNavigate",
+                                     section_submit_target: "button",
+                                     url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: next_section) } do %>
+                <%= "#{next_section}-#{@nombres[next_section]}" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <div data-dropdown-target="menu" class="grid gap-4 hidden">
+          <% (0..11).each do |number| %>
+            <div class="flex justify-center">
+              <% color_for_number = @colors.find { |c| c.section == number } %>
+              <% is_current_color = @color.section == number %>
+              <% is_nope = number == @nope %>
+              <%= button_tag type: 'button',
+                             class: "section-button #{'bg-red-800 text-white' if is_nope} #{'bg-white' if is_current_color && !is_nope} #{'bg-green-600 text-white' if color_for_number&.color && !is_current_color && !is_nope} #{'bg-gray-500' if !color_for_number&.color && !is_current_color && !is_nope} w-full py-2",
+                             data: { action: "section-submit#submitAndNavigate",
+                                     section_submit_target: "button",
+                                     url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: number) },
+                             disabled: is_current_color || is_nope do %>
+                <%= number %>-<%= @nombres[number] %>
+              <% end %>
+            </div>
           <% end %>
         </div>
-      <% end %>
+      </div>
+
+
+
     </div>
-  </div>
+
+
 
   <div class="py-2 px-4">
 

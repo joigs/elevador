@@ -18,8 +18,9 @@
 
     <div class="form-group">
       <%= form.label :rol_n, "Rol N°", class: "block text-gray-300" %>
-      <%= form.text_field :rol_n, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.text_field :rol_n, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.rol_n.presence || @item_identificador %>
     </div>
+
 
     <div class="form-group">
       <%= form.label :numero_permiso, "N° de permiso", class: "block text-gray-300" %>
