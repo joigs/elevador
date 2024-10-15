@@ -4,16 +4,20 @@
       <div class="flex items-center justify-between w-full">
         <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %></p>
 
-        <div class="mt-0" data-controller="warning"
+        <div class="mt-0 mx-2" data-controller="warning"
              data-warning-ins-date="<%= @inspection.ins_date %>"
              data-warning-is-owner="<%= @inspection.owner? %>"
              data-warning-control="<%= @control %>"
              data-warning-last-inspection-url="<%= inspection_path(@last_inspection) %>">
           <% if @control2 %>
-            <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-6 py-4 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300", data: { action: "click->warning#handleClick" } %>
+            <div class="flex justify-center w-full">
+              <%= link_to 'Realizar inspección', edit_ladder_detail_path(@detail), class: "px-6 py-4 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300", data: { action: "click->warning#handleClick" } %>
+            </div>
           <% else %>
-            <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-6 py-4 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300", data: { action: "click->warning#handleClick" } %>
+            <div class="flex justify-center w-full">
+              <%= link_to 'Realizar inspección', edit_detail_path(@detail), class: "px-6 py-4 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300", data: { action: "click->warning#handleClick" } %>
           <% end %>
+          </div>
         </div>
 
 
