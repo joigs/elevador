@@ -22,7 +22,7 @@
     <%= form.text_field :descripcion, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Rol N°", class: "block text-gray-300" %>
-    <%= form.text_field :rol_n, maxlength: 100, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+    <%= form.text_field :rol_n, maxlength: 100, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full", value: @detail.rol_n.presence || @item_identificador %>
 
     <%= form.label :"N° Permiso", class: "block text-gray-300" %>
     <%= form.number_field :numero_permiso, max: 1000000, min:0, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>

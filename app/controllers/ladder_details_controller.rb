@@ -7,6 +7,7 @@ class LadderDetailsController < ApplicationController
   def edit
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
+    @item_identificador = Item.find(detail.item_id).identificador.split('-').first
     @inspection.update(state: 'Abierto', result: 'En revisión')
 
 
