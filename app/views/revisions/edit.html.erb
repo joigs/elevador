@@ -210,25 +210,12 @@
         <% current_section_number = @color.section %>
         <% total_sections = 12 %>
 
-        <div class="flex items-center justify-between w-full">
-          <!-- Cálculo de la sección anterior y siguiente -->
-          <% previous_section = current_section_number > 0 ? current_section_number - 1 : nil %>
-          <% next_section = current_section_number < total_sections - 1 ? current_section_number + 1 : nil %>
 
-          <!-- Botón para ir a la sección anterior (solo si no es la primera sección) -->
+        <div class="flex items-center justify-between w-full my-4">
+
           <div class="w-1/5 flex justify-start">
-            <% if previous_section %>
-              <%= button_tag type: 'button',
-                             class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate",
-                             data: { action: "section-submit#submitAndNavigate",
-                                     section_submit_target: "button",
-                                     url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: previous_section) } do %>
-                <%= "#{previous_section}-#{@nombres[previous_section]}" %>
-              <% end %>
-            <% end %>
           </div>
 
-          <!-- Botón principal con la sección actual -->
           <div class="flex justify-center w-3/5">
             <% current_section = "#{@color.section}- #{@nombres[@color.section]}" %>
             <%= button_tag type: 'button',
@@ -237,20 +224,56 @@
               <%= "Sección actual: #{current_section}" %>
             <% end %>
           </div>
-
-          <!-- Botón para ir a la siguiente sección (solo si no es la última sección) -->
           <div class="w-1/5 flex justify-end">
-            <% if next_section %>
-              <%= button_tag type: 'button',
-                             class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate",
-                             data: { action: "section-submit#submitAndNavigate",
-                                     section_submit_target: "button",
-                                     url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: next_section) } do %>
-                <%= "#{next_section}-#{@nombres[next_section]}" %>
-              <% end %>
-            <% end %>
           </div>
-        </div>
+
+          </div>
+
+
+
+          <div class="flex items-center justify-between w-full my-4">
+          <% previous_section = current_section_number > 0 ? current_section_number - 1 : nil %>
+          <% next_section = current_section_number < total_sections - 1 ? current_section_number + 1 : nil %>
+
+            <div class="w-1/5 flex justify-start">
+              <div class="mx-4">
+
+              <% if previous_section %>
+                <%= button_tag type: 'button',
+                               class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate flex items-center",
+                               data: { action: "section-submit#submitAndNavigate",
+                                       section_submit_target: "button",
+                                       url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: previous_section) } do %>
+                  <svg class="h-6 w-6 sm:h-8 sm:w-8 text-teal-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
+                  </svg>
+                  <%= previous_section %>
+                <% end %>
+              <% end %>
+            </div>
+            </div>
+
+
+            <div class="w-1/5 flex justify-end">
+              <div class = "mx-4">
+
+              <% if next_section %>
+                <%= button_tag type: 'button',
+                               class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded max-w-full truncate flex items-center",
+                               data: { action: "section-submit#submitAndNavigate",
+                                       section_submit_target: "button",
+                                       url: edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: next_section) } do %>
+                  <%= next_section %>
+                  <svg class="h-6 w-6 sm:h-8 sm:w-8 text-teal-500 ml-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                  </svg>
+                <% end %>
+              <% end %>
+              </div>
+
+            </div>
+
+          </div>
 
         <div data-dropdown-target="menu" class="grid gap-4 hidden">
           <% (0..11).each do |number| %>
