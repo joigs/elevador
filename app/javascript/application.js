@@ -7,6 +7,5 @@ import "chartkick"
 import "Chart.bundle"
 import Swal from 'sweetalert2';
 import 'flowbite';
-import "flowbite/dist/flowbite.turbo.js";
 
 window.Swal = Swal;
