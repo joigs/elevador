@@ -47,6 +47,10 @@ class InspectionPolicy < BasePolicy
     Current.user.admin
   end
 
+  def force_close_inspection
+    Current.user.admin
+  end
+
   def method_missing(m, *args, &block)
     Current.user.admin
   end

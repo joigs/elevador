@@ -12,7 +12,7 @@ class HomeController < ApplicationController
     end
 
     @q = inspections_scope.ransack(params[:q])
-    @inspections = @q.result(distinct: true).order(number: :desc)
+    @inspections = @q.result(distinct: true).order(ins_date: :asc)
     @pagy, @inspections = pagy_countless(@inspections, items: 10)
 
 

@@ -6,7 +6,9 @@ class DetailsController < ApplicationController
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
     @item_identificador = Item.find(detail.item_id).identificador.split('-').first
-    @inspection.update(state: 'Abierto', result: 'En revisión')
+    if @inspection.ins_date <= Date.today
+      @inspection.update(state: 'Abierto', result: 'En revisión')
+    end
     @group = Group.find(Item.find(detail.item_id).group_id)
   end
 

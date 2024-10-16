@@ -286,8 +286,9 @@ class DocumentGeneratorLibre
 
 
 
+    last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
 
-    last_revision_base = Revision.where(item_id: item.id).order(created_at: :desc).offset(1).first
+    last_revision_base = Revision.find_by(inspection_id: last_inspection.id)
 
     last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
 
@@ -395,7 +396,6 @@ class DocumentGeneratorLibre
 
 
         else
-          last_inspection = Inspection.find(last_revision_base.inspection_id)
           formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                   " }.join("\n")
 
           if last_inspection.number > 0

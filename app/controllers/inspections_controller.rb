@@ -17,7 +17,7 @@ class InspectionsController < ApplicationController
   def show
     inspection
     @item = inspection.item
-    @last_inspection = Inspection.where(item: @item).order(created_at: :desc).first
+    @last_inspection = Inspection.where(item: @item).order(number: :desc).first
     @control2 =  @item.group == Group.where("name LIKE ?", "%Escala%").first
     if @control2
       @detail = LadderDetail.find_by(item_id: @item.id)
@@ -346,6 +346,45 @@ class InspectionsController < ApplicationController
 
     end
 
+  end
+
+  def force_close_inspection
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+
+    if @inspection.item.group.type_of == "escala"
+      @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+      detail = @inspection.item.ladder_detail
+    else
+      @revision = Revision.find(params[:revision_id])
+      detail = @inspection.item.detail
+
+    end
+
+    report = inspection.report
+
+    detail.attributes.each do |attr_name, value|
+      if  value.is_a?(String) && (value.nil? || value == "") && attr_name != "empresa_instaladora_rut"
+        detail.update_attribute(attr_name, "S/I")
+      end
+    end
+    report.attributes.each do |attr_name, value|
+      if  value.is_a?(String) && (value.nil? || value == "")
+        report.update_attribute(attr_name, "S/I")
+      end
+    end
+    if @revision.revision_colors.any? { |rc| rc.levels.include?("G") }
+      @inspection.update(result: "Rechazado")
+    else
+      @inspection.update(result: "Aprobado")
+    end
+    if @inspection.update(state: "Cerrado")
+      flash[:notice] = "Inspección cerrada con éxito"
+      redirect_to inspection_path(@inspection)
+    else
+      flash[:alert] = 'Hubo un error al enviar la inspección'
+      redirect_to inspection_path(@inspection)
+    end
   end
 
 

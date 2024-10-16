@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       get :download_json
       patch :update_inf_date
       get :new_with_last
+      patch :force_close_inspection
       #get :download_images
 
     end

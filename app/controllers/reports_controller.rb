@@ -4,7 +4,7 @@ class ReportsController < ApplicationController
   def edit
     authorize! report
     @item = @report.item
-    @previous_inspection = @item.inspections.where(state: "Cerrado").order(ins_date: :desc).first
+    @previous_inspection = @item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
 
 
     if @previous_inspection
@@ -143,15 +143,26 @@ class ReportsController < ApplicationController
           @black_inspection.destroy
         end
       end
-      flash[:notice] = "Información modificada exitosamente"
-      if @item.group.type_of == "escala"
-        redirect_to edit_ladder_revision_path(inspection_id: inspection.id)
 
-      elsif @item.group.type_of == "libre"
-        redirect_to edit_libre_revision_path(inspection_id: inspection.id)
-      elsif @item.group.type_of == "ascensor"
-        redirect_to edit_revision_path(inspection_id: inspection.id)
+
+      if inspection.ins_date <= Date.today
+
+        flash[:notice] = "Información modificada exitosamente"
+        if @item.group.type_of == "escala"
+          redirect_to edit_ladder_revision_path(inspection_id: inspection.id)
+
+        elsif @item.group.type_of == "libre"
+          redirect_to edit_libre_revision_path(inspection_id: inspection.id)
+        elsif @item.group.type_of == "ascensor"
+          redirect_to edit_revision_path(inspection_id: inspection.id)
+        end
+      else
+        flash[:notice] = "Información modificada exitosamente. Vuelva el día de la inspección"
+        redirect_to inspection_path(inspection)
       end
+
+
+
 
     else
       render :edit, status: :unprocessable_entity

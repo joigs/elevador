@@ -248,8 +248,9 @@ class DocumentGeneratorLadder
     doc.replace('{{detail_descripcion}}', detail.descripcion)
 
 
+    last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
+    last_revision_base = LadderRevision.find_by(inspection_id: last_inspection.id)
 
-    last_revision_base = LadderRevision.where(item_id: item.id).order(created_at: :desc).offset(1).first
     last_errors = []
     last_errors_lift = []
     last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
@@ -312,7 +313,6 @@ class DocumentGeneratorLadder
 
 
         else
-          last_inspection = Inspection.find(last_revision_base.inspection_id)
           formatted_errors = last_errors.map { |last_error| "• #{last_error}\n                                                                                   " }.join("\n")
 
           if last_inspection.number > 0
