@@ -18,11 +18,13 @@ class InspectionsController < ApplicationController
     inspection
     @item = inspection.item
     @last_inspection = Inspection.where(item: @item).order(number: :desc).first
-    @control2 =  @item.group == Group.where("name LIKE ?", "%Escala%").first
+    @control2 = @item.group.type_of == "escala"
     if @control2
       @detail = LadderDetail.find_by(item_id: @item.id)
+      @revision = LadderRevision.find_by(inspection_id: @inspection.id)
     else
       @detail = Detail.find_by(item_id: @item.id)
+      @revision = Revision.find_by(inspection_id: @inspection.id)
     end
     @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
@@ -336,7 +338,7 @@ class InspectionsController < ApplicationController
             flash[:notice] = "Inspección cerrada con éxito"
             redirect_to inspection_path(@inspection)
           else
-            flash[:alert] = 'Hubo un error al enviar la inspección'
+            flash[:alert] = 'Hubo un error al cerrar la inspección'
             redirect_to inspection_path(@inspection)
           end
         end
@@ -349,14 +351,13 @@ class InspectionsController < ApplicationController
   end
 
   def force_close_inspection
-    @inspection = Inspection.find(params[:id])
-    authorize! @inspection
+    authorize! inspection
 
     if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       detail = @inspection.item.ladder_detail
     else
-      @revision = Revision.find(params[:revision_id])
+      @revision = Revision.find_by(inspection_id: @inspection.id)
       detail = @inspection.item.detail
 
     end
@@ -382,7 +383,7 @@ class InspectionsController < ApplicationController
       flash[:notice] = "Inspección cerrada con éxito"
       redirect_to inspection_path(@inspection)
     else
-      flash[:alert] = 'Hubo un error al enviar la inspección'
+      flash[:alert] = 'Hubo un error al cerrar la inspección'
       redirect_to inspection_path(@inspection)
     end
   end
