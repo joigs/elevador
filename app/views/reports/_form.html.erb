@@ -110,6 +110,19 @@
           <%= form.label :ea_rut, "Rut", class: "block text-gray-300" %>
           <%= form.text_field :ea_rut, data: { controller: "rut", rut_target: "rut" }, maxlength: 100, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
         </div>
+
+
+        <div>
+          <%= form.label :past_number, "Número de informe anterior", class: "block text-gray-300" %>
+          <%= form.number_field :past_number, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :past_date, "Fecha informe anterior", class: "block text-gray-300" %>
+          <%= form.date_field :past_date, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+        </div>
+
+
       </div>
     </div>
 

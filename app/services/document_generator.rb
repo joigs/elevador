@@ -398,15 +398,38 @@ class DocumentGenerator
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
+
             doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
           else
 
+            texto_posible_past = ""
+
+            if report.cert_ant == 'Si'
+
+              if report.past_number
+                texto_posible_past = " N°#{report.past_number} con fecha "
+              else
+                texto_posible_past = " de número desconocido con fecha "
+              end
+
+              if report.past_date
+                texto_posible_past += report.past_date&.strftime('%d/%m/%Y')
+              else
+                texto_posible_past += "desconocida"
+              end
+
+              if !report.past_number && !report.past_date
+                texto_posible_past = " de número y fecha desconocida"
+              end
+
+            end
+
             if report.empresa_anterior=="S/I"
-              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior realizado por empresa sin identificar, las cuales se detallan a continuación:")
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior#{texto_posible_past} realizado por empresa sin identificar, las cuales se detallan a continuación:")
             else
-              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
+              doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior#{texto_posible_past} realizado por #{report.empresa_anterior}, las cuales se detallan a continuación:")
             end
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
@@ -797,8 +820,14 @@ class DocumentGenerator
     Omnidocx::Docx.merge_documents([output_path, output_path2], output_path, false)
 
     original_files << output_path2
-    # Obtener las fotos ordenadas por `revision_photo.code`
-    revision_photos = revision_base.revision_photos.ordered_by_code
+
+
+    general_photos = revision_base.revision_photos.ordered_by_code.select { |photo| photo.code.start_with?('GENERALCODE') }
+    non_general_photos = revision_base.revision_photos.ordered_by_code.reject { |photo| photo.code.start_with?('GENERALCODE') }
+
+    # Combina ambas colecciones, con las que empiezan por GENERALCODE primero
+    revision_photos = general_photos + non_general_photos
+
 
     unless revision_photos.empty?
 
@@ -824,9 +853,11 @@ class DocumentGenerator
       # Ciclo para procesar todas las duplas de imágenes
       revision_photos.each_slice(2) do |photos|
         latex_content += "\\begin{figure}[h!]\n"
+        puts("aaaaaaaaaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaa")
 
         # Si solo hay una imagen en el grupo, centrarla
         if photos.size == 1
+          puts("1")
           photo = photos.first
           image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
           image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
@@ -835,18 +866,28 @@ class DocumentGenerator
           latex_content += "  \\centering\n"
           latex_content += "  \\includegraphics[width=0.4\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
         else
+          puts("2")
           # Para pares de imágenes, dividirlas en columnas
           photos.each do |photo|
+            puts("3")
             image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
+            puts("4")
             image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
+            puts("4")
             FileUtils.cp(image_path, image_destination)
-
+            puts("5")
             latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
+            puts("6")
             latex_content += "    \\centering\n"
+            puts("7")
             latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
+            puts("8")
             latex_content += "  \\end{minipage}\n"
+            puts("9")
             latex_content += "  \\hfill\n" if photos.size > 1
+            puts("10")
           end
+          puts("4")
         end
 
         latex_content += "\\end{figure}\n"
@@ -932,13 +973,106 @@ class DocumentGenerator
             # Usar el texto para una sola imagen
             Omnidocx::Docx.merge_documents([output_path, texto_imagen_singular_path], output_path, false)
             doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
-            doc_code_photo.replace('{{code}}', revision_photos.last.code)
+
+
+            text_imagen_comment = nil
+            puts "Debug - Inicio: text_imagen_comment = #{text_imagen_comment}"
+
+            if !revision_photos.last.code.start_with?("GENERALCODE")
+              puts "Debug - revision_photos[(i*2)-2].code = #{revision_photos.last.code}"
+
+              temp_code, temp_point = revision_photos.last.code.split(" ", 2)
+              puts "Debug - temp_code = #{temp_code}, temp_point = #{temp_point}"
+
+              index2 = nil
+              revision.codes.each_with_index do |code, index|
+                puts "Debug - Comparando revision.codes[#{index}] = #{code} con temp_code = #{temp_code}"
+                if code == temp_code && revision.points[index] == temp_point
+                  puts "Debug - ¡Coincidencia encontrada en index #{index}!"
+                  index2 = index
+                  text_imagen_comment = revision.comment[index2]
+                  puts "Debug - text_imagen_comment = #{text_imagen_comment}"
+                  break
+                end
+              end
+            end
+
+            if text_imagen_comment
+              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}'"
+              doc_code_photo.replace('{{code}}', "#{revision_photos.last.code.sub('GENERALCODE', '')} #{text_imagen_comment}")
+            else
+              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')}'"
+              doc_code_photo.replace('{{code}}', revision_photos.last.code.sub('GENERALCODE', ''))
+            end
+
+
           else
             # Usar el texto para imagen doble
             Omnidocx::Docx.merge_documents([output_path, texto_imagen_doble_path], output_path, false)
             doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
-            doc_code_photo.replace('{{code_1}}', revision_photos[(i*2)-2].code)
-            doc_code_photo.replace('{{code_2}}', revision_photos[(i*2)-1].code)
+
+
+
+            text_imagen_comment = nil
+            puts "Debug - Inicio: text_imagen_comment = #{text_imagen_comment}"
+
+            if !revision_photos[(i*2)-2].code.start_with?("GENERALCODE")
+              puts "Debug - revision_photos[(i*2)-2].code = #{revision_photos[(i*2)-2].code}"
+
+              temp_code, temp_point = revision_photos[(i*2)-2].code.split(" ", 2)
+              puts "Debug - temp_code = #{temp_code}, temp_point = #{temp_point}"
+
+              index2 = nil
+              revision.codes.each_with_index do |code, index|
+                puts "Debug - Comparando revision.codes[#{index}] = #{code} con temp_code = #{temp_code}"
+                if code == temp_code && revision.points[index] == temp_point
+                  puts "Debug - ¡Coincidencia encontrada en index #{index}!"
+                  index2 = index
+                  text_imagen_comment = revision.comment[index2]
+                  puts "Debug - text_imagen_comment = #{text_imagen_comment}"
+                  break
+                end
+              end
+            end
+
+            if text_imagen_comment
+              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}'"
+              doc_code_photo.replace('{{code_1}}', "#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}")
+            else
+              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')}'"
+              doc_code_photo.replace('{{code_1}}', revision_photos[(i*2)-2].code.sub('GENERALCODE', ''))
+            end
+
+            text_imagen_comment = nil
+            puts "Debug - text_imagen_comment reset = #{text_imagen_comment}"
+
+            if !revision_photos[(i*2)-1].code.start_with?("GENERALCODE")
+              puts "Debug - revision_photos[(i*2)-1].code = #{revision_photos[(i*2)-1].code}"
+
+              temp_code, temp_point = revision_photos[(i*2)-1].code.split(" ", 2)
+              puts "Debug - temp_code = #{temp_code}, temp_point = #{temp_point}"
+
+              index2 = nil
+              revision.codes.each_with_index do |code, index|
+                puts "Debug - Comparando revision.codes[#{index}] = #{code} con temp_code = #{temp_code}"
+                if code == temp_code && revision.points[index] == temp_point
+                  puts "Debug - ¡Coincidencia encontrada en index #{index}!"
+                  index2 = index
+                  text_imagen_comment = revision.comment[index2]
+                  puts "Debug - text_imagen_comment = #{text_imagen_comment}"
+                  break
+                end
+              end
+            end
+
+            if text_imagen_comment
+              puts "Debug - Reemplazando '{{code_2}}' con '#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')} #{text_imagen_comment}'"
+              doc_code_photo.replace('{{code_2}}', "#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')} #{text_imagen_comment}")
+            else
+              puts "Debug - Reemplazando '{{code_2}}' con '#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')}'"
+              doc_code_photo.replace('{{code_2}}', revision_photos[(i*2)-1].code.sub('GENERALCODE', ''))
+            end
+
           end
           doc_code_photo.commit(output_path)
 
@@ -965,6 +1099,7 @@ class DocumentGenerator
     end
 
 
+
     if group.number == 1
       tabla_path = Rails.root.join('app', 'templates', 'tabla_grupo_1.docx')
     elsif group.number == 2
@@ -977,15 +1112,44 @@ class DocumentGenerator
     if revision_photos.empty?
       Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, true)
     else
-      Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, false)
+      Omnidocx::Docx.merge_documents([output_path, tabla_path], output_path, true)
     end
-
 
 
     doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
+    puts("tablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatabla")
+
+    puts(revision.comment.inspect)
+
+
 
     rules.each_with_index do |rule, index|
+
+      index2 = nil
+      revision.codes.each_with_index do |code, index|
+        if code == rule.code && revision.points[index] == rule.point
+          index2 = index
+          puts("index2: #{index2}               code: #{code}               rule.code: #{rule.code}               point: #{revision.points[index]}               rule.point: #{rule.point}")
+          break # Detenemos la búsqueda una vez que encontramos la coincidencia
+        end
+      end
+
+
+      if index2
+        if revision.comment[index2].blank?
+          doc.replace('{{tabla_comentario}}', '')
+        else
+          doc.replace('{{tabla_comentario}}', "Razón: #{revision.comment[index2]}")
+          puts("afuicbsuicbuibvsabuibuibsubuisvbiuvbiusavbuiasvbiubsavuibuiashuisvabuvasuivuiv")
+          puts("after afuicb: #{revision.comment[index2]}        code: #{rule.code}               point: #{rule.point}           index2: #{index2}")
+        end
+
+      else
+        doc.replace('{{tabla_comentario}}', '')
+      end
+
+
       apply_weird = false
 
       if rule.code.start_with?('9', '2')
@@ -1018,19 +1182,42 @@ class DocumentGenerator
       end
 
       unless apply_weird
-        if revision.codes.include?(rule.code) && revision.points.include?(rule.point)
-          index2 = revision.points.index(rule.point)
+        index2 = nil
+        revision.codes.each_with_index do |code, index|
+          if code == rule.code && revision.points[index] == rule.point
+            index2 = index
+            break # Salimos del loop al encontrar la primera coincidencia
+          end
+        end
+
+        if index2
           doc.replace('{{tabla_si}}', 'NO')
           level121 = revision.levels[index2]
+          # Supongamos que tienes acceso a last_revision con los mismos arrays que revision
           if level121 == 'L'
             doc.replace('{{tabla_l}}', 'Leve')
           else
-            doc.replace('{{tabla_l}}', 'Grave')
+            # Buscamos en last_revision si existe la misma combinación de code y point
+            found_in_last_revision = false
+            last_revision.codes.each_with_index do |last_code, index|
+              if last_code == rule.code && last_revision.points[index] == rule.point
+                found_in_last_revision = true
+                break
+              end
+            end
+
+            if found_in_last_revision
+              doc.replace('{{tabla_l}}', 'Grave (repite)')
+            else
+              doc.replace('{{tabla_l}}', 'Grave')
+            end
           end
+
         else
           doc.replace('{{tabla_si}}', 'SI')
           doc.replace('{{tabla_l}}', '')
         end
+
       end
     end
 

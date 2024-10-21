@@ -10,6 +10,8 @@ class Report < ApplicationRecord
   validates :vi_co_man_ter, date: true
   validates :urm_fecha, date: true
   validates :ending, date: true
+  validates :past_date, date: true
+  validates :past_number, non_negative: true, allow_nil: true
 
 
 

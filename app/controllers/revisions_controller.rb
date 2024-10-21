@@ -271,6 +271,8 @@ class RevisionsController < ApplicationController
     @revision_base = Revision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
     @revision_photos = @revision_base.revision_photos
+    @general_revision_photos = @revision_photos.select { |photo| photo.code.start_with?('GENERALCODE') }
+
     @group = @revision_base.item.group
     if @inspection.nil?
       flash[:alert] = "No se encontró la inspección para el activo."
@@ -534,7 +536,7 @@ class RevisionsController < ApplicationController
 
 
     @revision_nulls = @revision_base.revision_nulls
-    @revision_photos = @revision_base.revision_photos
+    @revision_photos = @revision_base.revision_photos.reject { |photo| photo.code.start_with?('GENERALCODE') }
     if params[:revision].present?
 
       @revision_nulls&.each do |null|
@@ -620,6 +622,13 @@ class RevisionsController < ApplicationController
         end
       end
     end
+
+
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+      if params[:imagen_general].present?
+        @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
+      end
 
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
@@ -719,7 +728,7 @@ class RevisionsController < ApplicationController
 
   def revision_params
     params.fetch(:revision, {}).permit(
-      :inspection_id, :group_id, :item_id, :color, :section, :id,
+      :inspection_id, :group_id, :item_id, :color, :section, :imagen_general, :imagen_general_comment, :id,
       codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: [], garbage: []
     ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end

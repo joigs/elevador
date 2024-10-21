@@ -16,22 +16,9 @@ export default class extends Controller {
             const img = new Image();
 
             img.onload = function() {
-                const MAX_WIDTH = 400;
-                const MAX_HEIGHT = 400;
-                let width = img.width;
-                let height = img.height;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
-                    }
-                }
+                // Reducing the image dimensions to half
+                let width = img.width / 2;
+                let height = img.height / 2;
 
                 canvas.width = width;
                 canvas.height = height;
