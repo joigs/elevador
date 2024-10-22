@@ -121,7 +121,7 @@ class LadderRevisionsController < ApplicationController
     @revision_base = LadderRevision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
     @revision_photos = @revision_base.revision_photos
-
+    @general_revision_photos = @revision_photos.select { |photo| photo.code.start_with?('GENERALCODE') }
     if @inspection.nil?
       flash[:alert] = "No se encontró la inspección para el activo."
       redirect_to(home_path)
@@ -378,8 +378,7 @@ class LadderRevisionsController < ApplicationController
 
 
     @revision_nulls = @revision_base.revision_nulls
-    @revision_photos = @revision_base.revision_photos
-
+    @revision_photos = @revision_base.revision_photos.reject { |photo| photo.code.start_with?('GENERALCODE') }
 
     if params[:ladder_revision].present?
 
@@ -453,7 +452,9 @@ class LadderRevisionsController < ApplicationController
       end
     end
 
-
+    if params[:imagen_general].present?
+      @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
+    end
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment, number: number, priority: priority)
       flash[:notice] = "Revisión actualizada"
@@ -474,7 +475,7 @@ class LadderRevisionsController < ApplicationController
 
   def ladder_revision_params
     params.fetch(:ladder_revision, {}).permit(
-      :inspection_id, :group_id, :item_id, :color, :section, :id,
+      :inspection_id, :group_id, :item_id, :color, :section, :id, :imagen_general, :imagen_general_comment,
       codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: [], garbage: []
     ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end

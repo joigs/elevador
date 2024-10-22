@@ -55,8 +55,36 @@
 
 
 
-  <div class="px-4 mt-4">
-    <div class="table-responsive">
+  <div class="flex justify-start my-4 ml-4 items-center" data-controller="file-upload image-resize show-comment-on-upload">
+    <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
+      <label for="imagen_general" class="flex items-center cursor-pointer">
+        <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+          <circle cx="12" cy="13" r="4" />
+        </svg>
+        Imagen general
+      </label>
+      <%= file_field_tag "imagen_general",
+                         id: "imagen_general",
+                         class: "hidden",
+                         data: {
+                           file_upload_target: "file",
+                           image_resize_target: "file",
+                           show_comment_on_upload_target: "file",
+                           action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->show-comment-on-upload#fileChanged"
+                         },
+                         accept: "image/*" %>
+    </div>
+    <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
+  </div>
+  <div id="imagen_general_comment_container" class="hidden">
+    <%= text_area_tag 'imagen_general_comment', "#{@nombres[@color.section].sub(/^\.\s*/, '')}",
+                      rows: 6,
+                      cols: 25,
+                      maxlength: 1000,
+                      placeholder: 'Ingrese un comentario' %>
+  </div>
+  <div class="px-4 mt-4">    <div class="table-responsive">
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 
 
