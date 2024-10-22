@@ -477,6 +477,10 @@ class DocumentGenerator
     ]
 
     revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
+                                 .where("point LIKE ?", "0%")
+
+    revision_nulls_total = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
+                                       .where("point NOT LIKE ?", "0%")
 
     comments_hash = {}
 
@@ -595,6 +599,39 @@ class DocumentGenerator
     else
       cumple_text.gsub!('•2.  Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).', '')
       no_cumple_text.gsub!('•2.  Espacio de máquinas y poleas (para ascensores sin cuarto de máquinas aplica cláusula 9).', '')
+    end
+
+    # Eliminar '•0. Carpeta cero.' si revision_nulls tiene 11 elementos
+    if revision_nulls.count == 11
+      cumple_text.gsub!('•0.  Carpeta cero.', '')
+      no_cumple_text.gsub!('•0.  Carpeta cero.', '')
+    end
+
+    aux[1..-1].each do |item|
+      # Obtener el número entre '•' y el primer '.'
+      match = item.match(/•(\d+)\./)
+      next unless match # Saltar si no se encuentra un número
+
+      number = match[1] # El número correspondiente
+
+      # Saltar números ya eliminados en lógica anterior (como la de sala_maquinas)
+      if detail.sala_maquinas == "Si"
+        next if number == "9"
+      else
+        next if number == "2"
+      end
+
+      # Contar rules que empiezan con ese número
+      rules_count = rules.select { |rule| rule.code.start_with?(number) }.count
+
+      # Contar revision_nulls_total que empiezan con ese número
+      revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?(number) }.count
+
+      # Si la cantidad es igual, eliminar el texto correspondiente
+      if rules_count == revision_nulls_count
+        cumple_text.gsub!(item, '')
+        no_cumple_text.gsub!(item, '')
+      end
     end
 
 
@@ -1126,28 +1163,8 @@ class DocumentGenerator
 
     rules.each_with_index do |rule, index|
 
-      index2 = nil
-      revision.codes.each_with_index do |code, index|
-        if code == rule.code && revision.points[index] == rule.point
-          index2 = index
-          puts("index2: #{index2}               code: #{code}               rule.code: #{rule.code}               point: #{revision.points[index]}               rule.point: #{rule.point}")
-          break # Detenemos la búsqueda una vez que encontramos la coincidencia
-        end
-      end
 
 
-      if index2
-        if revision.comment[index2].blank?
-          doc.replace('{{tabla_comentario}}', '')
-        else
-          doc.replace('{{tabla_comentario}}', "Razón: #{revision.comment[index2]}")
-          puts("afuicbsuicbuibvsabuibuibsubuisvbiuvbiusavbuiasvbiubsavuibuiashuisvabuvasuivuiv")
-          puts("after afuicb: #{revision.comment[index2]}        code: #{rule.code}               point: #{rule.point}           index2: #{index2}")
-        end
-
-      else
-        doc.replace('{{tabla_comentario}}', '')
-      end
 
 
       apply_weird = false
@@ -1158,24 +1175,28 @@ class DocumentGenerator
           if rule.code.start_with?('9')
             doc.replace('{{tabla_si}}', 'N/A')
             doc.replace('{{tabla_l}}', '')
+            doc.replace('{{tabla_comentario}}', '')
             apply_weird = true
           end
         when "No. Máquina en la parte superior"
           if rule.code.start_with?('2') || rule.code.start_with?('9.3') || rule.code.start_with?('9.4')
             doc.replace('{{tabla_si}}', 'N/A')
             doc.replace('{{tabla_l}}', '')
+            doc.replace('{{tabla_comentario}}', '')
             apply_weird = true
           end
         when "No. Máquina en foso"
           if rule.code.start_with?('2') || rule.code.start_with?('9.2') || rule.code.start_with?('9.4')
             doc.replace('{{tabla_si}}', 'N/A')
             doc.replace('{{tabla_l}}', '')
+            doc.replace('{{tabla_comentario}}', '')
             apply_weird = true
           end
         when "No. Maquinaria fuera de la caja de elevadores"
           if rule.code.start_with?('2') || rule.code.start_with?('9.2') || rule.code.start_with?('9.3')
             doc.replace('{{tabla_si}}', 'N/A')
             doc.replace('{{tabla_l}}', '')
+            doc.replace('{{tabla_comentario}}', '')
             apply_weird = true
           end
         end
@@ -1191,13 +1212,23 @@ class DocumentGenerator
         end
 
         if index2
+
+          if revision.comment[index2].blank?
+            doc.replace('{{tabla_comentario}}', '')
+          else
+            doc.replace('{{tabla_comentario}}', "Razón: #{revision.comment[index2]}")
+            puts("afuicbsuicbuibvsabuibuibsubuisvbiuvbiusavbuiasvbiubsavuibuiashuisvabuvasuivuiv")
+            puts("after afuicb: #{revision.comment[index2]}        code: #{rule.code}               point: #{rule.point}           index2: #{index2}")
+          end
+
+
+
+
           doc.replace('{{tabla_si}}', 'NO')
           level121 = revision.levels[index2]
-          # Supongamos que tienes acceso a last_revision con los mismos arrays que revision
           if level121 == 'L'
             doc.replace('{{tabla_l}}', 'Leve')
           else
-            # Buscamos en last_revision si existe la misma combinación de code y point
             found_in_last_revision = false
             last_revision.codes.each_with_index do |last_code, index|
               if last_code == rule.code && last_revision.points[index] == rule.point
@@ -1213,9 +1244,17 @@ class DocumentGenerator
             end
           end
 
+        elsif revision_nulls_total.any? { |null| null.point == "#{rule.code}_#{rule.point}" }
+          # Si hay una coincidencia en revision_null
+          doc.replace('{{tabla_si}}', 'N/A')
+          doc.replace('{{tabla_l}}', '')
+          doc.replace('{{tabla_comentario}}', '')
+
         else
+          # Si no se encuentra coincidencia en revision ni en revision_null
           doc.replace('{{tabla_si}}', 'SI')
           doc.replace('{{tabla_l}}', '')
+          doc.replace('{{tabla_comentario}}', '')
         end
 
       end
