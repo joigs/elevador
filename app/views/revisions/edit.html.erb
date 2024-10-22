@@ -91,9 +91,7 @@
       <table class="w-full text-sm text-left rtl:text-right text-gray-400">
         <thead class="text-xs uppercase bg-gray-700 text-gray-400">
           <tr>
-            <% if @section.to_s == '0' %>
               <th class="px-6 py-3">N/A</th>
-            <% end %>
             <% if @black_inspection %>
               <th class="px-6 py-3">falla anterior</th>
             <% end %>
@@ -116,7 +114,7 @@
           <% end %>
 
           <tr class="border-b bg-gray-800 border-gray-700" data-controller="rules-form">
-            <td <% unless @section.to_s == '0' %>style="display: none;"<% end %>>
+            <td>
               <div class="flex justify-center items-center">
 
                 <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
@@ -125,6 +123,7 @@
                 <%= label_tag "null_condition_#{index}", "" %>
               </div>
             </td>
+
 
             <% if @black_inspection %>
               <td data-controller="past-submit">

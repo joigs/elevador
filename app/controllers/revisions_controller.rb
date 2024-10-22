@@ -384,6 +384,13 @@ class RevisionsController < ApplicationController
 
       end
 
+      #seccion que no es carpeta 0
+    else
+
+      if params[:revision]&.dig(:null_condition).present?
+        real_codes_null = revision_params["null_condition"]&.map { |nc| nc.split('_').first } # Solo el código numérico
+      end
+
 
     end
 
@@ -445,28 +452,34 @@ class RevisionsController < ApplicationController
 
 
       if params[:revision][:null_condition].present?
+        puts("nuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuvuuuuuuuuuuuuuuuuuuuuuull")
         params[:revision][:null_condition].each_with_index do |null_condition, index|
           # Extraer el código numérico (antes del "_") para comparar con real_codes_null
           numeric_code = null_condition.split('_').first
 
+          puts("a")
           # Extraer el código numérico del valor en real_codes_null
           real_code_numeric = real_codes_null[index]
 
+          puts("real_code_numeric: #{real_code_numeric}")
+          puts("numeric_code: #{numeric_code}")
           if real_code_numeric == numeric_code
-
+            puts("b")
             # Obtener el comentario correspondiente (puede ser vacío)
-            comment_null = real_comment_null[index]
+            comment_null = real_comment_null&.fetch(index, "") || ""
 
             # Verificar si el point ya existe
             existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
 
             if existing_revision_null
+              puts("c")
               # Si el comentario es diferente, actualizarlo
               if existing_revision_null.comment != comment_null
                 existing_revision_null.update(comment: comment_null)
-
+                puts("D")
               end
             else
+              puts("f")
               # Si no existe, crear uno nuevo con point y comment
               @revision_base.revision_nulls.create(point: null_condition, comment: comment_null)
             end
