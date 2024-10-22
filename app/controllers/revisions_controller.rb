@@ -307,6 +307,8 @@ class RevisionsController < ApplicationController
       # hashmap para agrupar las fotos por código
       @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
         if photo.photo.attached?
+          puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+          puts(photo.inspect)
           (hash[photo.code] ||= []) << photo
         end
       end
@@ -452,19 +454,14 @@ class RevisionsController < ApplicationController
 
 
       if params[:revision][:null_condition].present?
-        puts("nuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuvuuuuuuuuuuuuuuuuuuuuuull")
         params[:revision][:null_condition].each_with_index do |null_condition, index|
           # Extraer el código numérico (antes del "_") para comparar con real_codes_null
           numeric_code = null_condition.split('_').first
 
-          puts("a")
           # Extraer el código numérico del valor en real_codes_null
           real_code_numeric = real_codes_null[index]
 
-          puts("real_code_numeric: #{real_code_numeric}")
-          puts("numeric_code: #{numeric_code}")
           if real_code_numeric == numeric_code
-            puts("b")
             # Obtener el comentario correspondiente (puede ser vacío)
             comment_null = real_comment_null&.fetch(index, "") || ""
 
@@ -472,14 +469,11 @@ class RevisionsController < ApplicationController
             existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
 
             if existing_revision_null
-              puts("c")
               # Si el comentario es diferente, actualizarlo
               if existing_revision_null.comment != comment_null
                 existing_revision_null.update(comment: comment_null)
-                puts("D")
               end
             else
-              puts("f")
               # Si no existe, crear uno nuevo con point y comment
               @revision_base.revision_nulls.create(point: null_condition, comment: comment_null)
             end
@@ -550,6 +544,8 @@ class RevisionsController < ApplicationController
 
     @revision_nulls = @revision_base.revision_nulls
     @revision_photos = @revision_base.revision_photos.reject { |photo| photo.code.start_with?('GENERALCODE') }
+    puts("revision_photos al inicio del update: #{@revision_photos.inspect}")
+
     if params[:revision].present?
 
       @revision_nulls&.each do |null|
@@ -576,20 +572,24 @@ class RevisionsController < ApplicationController
             if params[:revision][:codes].present?
               code_first_part = photo.code.split(' ').first
 
-              if params[:revision][:codes].include?(code_first_part)
-                index = params[:revision][:codes].index(code_first_part)
-                constructed_code = "#{params[:revision][:codes][index]} #{params[:revision][:points][index]}"
-              else
-                constructed_code = nil
+              matching_indices = params[:revision][:codes].each_index.select { |i| params[:revision][:codes][i] == code_first_part }
+              matched = false
+
+              matching_indices.each do |i|
+                constructed_code = "#{params[:revision][:codes][i]} #{params[:revision][:points][i]}"
+                if constructed_code == photo.code
+                  matched = true
+                  break
+                end
               end
-              if constructed_code != photo.code
-                photo.destroy
-              end
+
+              photo.destroy unless matched
             else
               photo.destroy
             end
           end
         end
+
       else
         @revision_photos&.each do |photo|
           code_start = photo.code.split('.').first.to_i
@@ -629,6 +629,7 @@ class RevisionsController < ApplicationController
     if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
       params[:revision_photos][:photo].each_with_index do |photo, index|
         if photo.present?
+          puts("photo: #{photo.inspect}")
 
           code = params[:revision_photos][:code][index]
           @revision_base.revision_photos.create(photo: photo, code: code)
@@ -637,7 +638,6 @@ class RevisionsController < ApplicationController
     end
 
 
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
       if params[:imagen_general].present?
         @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
@@ -647,23 +647,28 @@ class RevisionsController < ApplicationController
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
 
       if @revision_base.item.group.type_of == "ascensor"
-        @revision_photos&.each do |photo|
-          code_start = photo.code.split('.').first.to_i
-          if code_start == current_section_num
+        if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
+          @revision_photos&.each do |photo|
+            code_start = photo.code.split('.').first.to_i
+            if code_start == current_section_num
               code_first_part = photo.code.split(' ').first
 
-              if @revision.codes.include?(code_first_part)
-                index = @revision.codes.index(code_first_part)
-                constructed_code = "#{@revision.codes[index]} #{@revision.points[index]}"
-              else
-                constructed_code = nil
-              end
-              if constructed_code != photo.code
-                photo.destroy
+              matching_indices = @revision.codes.each_index.select { |i| @revision.codes[i] == code_first_part }
+              matched = false
+
+              matching_indices.each do |i|
+                constructed_code = "#{@revision.codes[i]} #{@revision.points[i]}"
+                if constructed_code == photo.code
+                  matched = true
+                  break
+                end
               end
 
+              photo.destroy unless matched
+            end
           end
         end
+
       else
         @revision_photos&.each do |photo|
           code_start = photo.code.split('.').first.to_i
