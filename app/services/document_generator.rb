@@ -205,9 +205,15 @@ class DocumentGenerator
     end
 
     doc.replace('{{detail_destino}}', detail.destino)
-    doc.replace('{{detail_recepcion}}', detail.recepcion)
+
+    if detail.recepcion
+      doc.replace('{{detail_recepcion}}', detail.recepcion)
+    else
+      doc.replace('{{detail_recepcion}}', "S/I")
+    end
+
     doc.replace('{{detail_empresa_instaladora}}', detail.empresa_instaladora)
-    if detail.empresa_instaladora_rut
+    if !detail.empresa_instaladora_rut.blank?
       doc.replace('{{detail_empresa_instaladora_rut}}', detail.empresa_instaladora_rut)
     else
       doc.replace('{{detail_empresa_instaladora_rut}}', "S/I")

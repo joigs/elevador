@@ -11,7 +11,6 @@ class Report < ApplicationRecord
   validates :urm_fecha, date: true
   validates :ending, date: true
   validates :past_date, date: true
-  validates :past_number, non_negative: true, allow_nil: true
 
 
 

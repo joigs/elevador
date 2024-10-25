@@ -49,64 +49,20 @@
     <datalist id="place-options" data-place-select-target="placeList"></datalist>
   </div>
 
-  <div class="mt-3 relative max-w-sm">
-    <label for="inspection_ins_date" class="block text-gray-300">Fecha de inspección</label>
-    <div class="relative">
-      <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-        <!-- SVG Icon -->
-        <svg
-          class="w-4 h-4 text-gray-500 dark:text-gray-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0
-            0-2 0v1h-3V1a1 1 0 0 0-2
-            0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0
-            0 0-2 2v2h20V4ZM0 18a2 2 0 0
-            0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1
-            1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
-            />
-        </svg>
-      </div>
-      <input
-        id="inspection_ins_date"
-        name="inspection[ins_date]"
-        datepicker
-        datepicker-autohide
-        datepicker-buttons
-        datepicker-autoselect-today
-        datepicker-format="dd-mm-yyyy"
-        datepicker-min-date="01-01-1500"
-        datepicker-max-date="31-12-3000"
-        datepicker-title="Fecha de inspección"
-        type="text"
-        class="bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm block w-full ps-10 p-2.5"
-        placeholder="Seleccione fecha"
-        value="<%= @inspection.ins_date.present? ? @inspection.ins_date.strftime('%d-%m-%Y') : '' %>"
-        />
-    </div>
-    <% if @inspection.errors[:ins_date].any? %>
-      <p class="text-red-500 text-sm mt-1">
-        <%= @inspection.errors[:ins_date].first %>
-      </p>
-    <% end %>
+  <div class="mt-3">
+    <%= form.label :ins_date, "Fecha de inspección", class: "block text-gray-300" %>
+    <%= form.date_field :ins_date, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-
-
-
   <div class="mt-3">
-    <%= form.label :validation, "Periocidad", class: "block text-gray-300" %>
+    <%= form.label :validation, "Periodicidad", class: "block text-gray-300" %>
     <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]]), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <% if Current.user.admin %>
     <div class="mt-3">
       <%= form.label :user_ids, "Inspectores asignados", class: "block text-gray-300" %>
-      <%= form.collection_select :user_ids, User.where(admin: false), :id, :real_name, {}, { multiple: true, size: 5, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim' } } %>
+      <%= form.collection_select :user_ids, User.where(admin: false), :id, :real_name, {}, { multiple: true, size: 2, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim' } } %>
     </div>
 <% end %>
   <%= form.hidden_field :manual_action_name, value: @manual_action_name %>
