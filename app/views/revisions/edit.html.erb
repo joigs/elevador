@@ -90,12 +90,14 @@
     <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
   </div>
 
-  <div id="imagen_general_comment_container" class="hidden">
+  <div id="imagen_general_comment_container" class="hidden flex justify-center">
     <%= text_area_tag 'imagen_general_comment', "#{@nombres[@color.section].sub(/^\.\s*/, '')}",
                       rows: 6,
-                      cols: 25,
+                      cols: 50,
                       maxlength: 1000,
-                      placeholder: 'Ingrese un comentario' %>
+                      placeholder: 'Ingrese un comentario',
+                      class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+    %>
   </div>
 
 
@@ -285,7 +287,7 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-between w-full mt-12"> <!-- Aumento de margen entre filas -->
+        <div class="flex items-center justify-between w-full mt-12">
 
 
           <% previous_section = current_section_number - 1 %>
