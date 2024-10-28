@@ -1,6 +1,6 @@
 <%= form_with(model: inspection, local: true, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
-  <% if inspection.errors.any? %>
-    <% error_messages = inspection.errors.full_messages.uniq.map { |msg| "<li>#{j msg}</li>" }.join %>
+  <% if @inspection.errors.any? %>
+    <% error_messages = @inspection.errors.full_messages.uniq.map { |msg| "<li>#{msg}</li>" }.join %>
     <%= javascript_tag do %>
       Swal.fire({
       icon: 'error',
@@ -10,6 +10,7 @@
       })
     <% end %>
   <% end %>
+
 
 
   <% if @manual_action_name == 'new' %>

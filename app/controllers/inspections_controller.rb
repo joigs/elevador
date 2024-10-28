@@ -103,9 +103,10 @@ class InspectionsController < ApplicationController
       end
 
 
-      inspections_abiertas = Inspection.where(item: @item, state: "abierto").exists?
-      if inspections_abiertas
-        @inspection.errors.add(:base, "Ya existe una inspección abierta para este activo.")
+      inspection_abierta = Inspection.where(item: @item, state: "abierto").order(id: :desc).first
+      if inspection_abierta
+        inspection_link = helpers.link_to("Inspección N°#{inspection_abierta.number}", inspection_path(inspection_abierta), style: "color: blue; text-decoration: underline;")
+        @inspection.errors.add(:base, "Ya existe una inspección abierta para este activo: #{inspection_link}".html_safe)
         render :new, status: :unprocessable_entity
         return
       end
