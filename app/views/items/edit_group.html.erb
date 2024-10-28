@@ -1,0 +1,31 @@
+<div class="max-w-4xl mx-auto sm:px-6 lg:px-8 py-8 bg-gray-800 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-gray-100 mb-6 text-center">Modificar Empresa</h1>
+  <%= form_with(model: @item, url: update_empresa_item_path(@item), local: true, class: "max-w-xl mx-auto p-6 bg-gray-900 rounded-lg shadow-md") do |form| %>
+    <% if @item.errors.any? %>
+      <div class="bg-red-700 text-red-200 border border-red-600 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold"><%= "Error: " %></strong>
+        <span class="block sm:inline"> No se pudo guardar el activo:</span>
+        <ul class="list-disc pl-5 mt-3">
+          <% @item.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mt-4">
+      <%= form.label :principal_id, "Empresa", class: "block font-medium text-gray-300" %>
+      <%= form.collection_select :principal_id, Principal.all, :id, :name, {prompt: 'Selecciona una empresa'}, {class: "form-select mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm"} %>
+    </div>
+
+    <div class="mt-6">
+      <%= form.submit "Guardar Empresa", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 cursor-pointer" %>
+    </div>
+  <% end %>
+  <div class="flex justify-center mt-4">
+    <%= link_to "Cancelar", @item, class: "text-md text-gray-300 hover:text-gray-400 transition duration-150 ease-in-out mr-4 px-4 py-2 border border-gray-700 rounded hover:bg-gray-700" %>
+    <%= link_to "Volver a activos", items_path, class: "text-md text-blue-400 hover:text-blue-500 transition duration-150 ease-in-out px-4 py-2 border border-blue-500 rounded hover:bg-blue-600" %>
+  </div>
+</div>
+
+

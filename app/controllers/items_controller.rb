@@ -155,6 +155,21 @@ class ItemsController < ApplicationController
   end
 
 
+  def edit_group
+    authorize! item
+  end
+
+  def update_group
+    authorize! item
+    if @item.update(item_group_params)
+      flash[:notice] = "grupo actualizado"
+      redirect_to items_path
+    else
+      render :edit_group, status: :unprocessable_entity
+    end
+  end
+
+
 
   def destroy
     authorize! item.destroy
@@ -184,5 +199,9 @@ class ItemsController < ApplicationController
 
   def item_empresa_params
     params.require(:item).permit(:principal_id)
+  end
+
+  def item_group_params
+    params.require(:item).permit(:group_id)
   end
 end

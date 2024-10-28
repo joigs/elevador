@@ -12,6 +12,8 @@ Rails.application.routes.draw do
       patch 'update_identificador'
       get 'edit_empresa'
       patch 'update_empresa'
+      get 'edit_group'
+      patch 'update_group'
     end
   end
   root 'home#index', as: 'home'
