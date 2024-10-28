@@ -102,6 +102,15 @@ class InspectionsController < ApplicationController
         return
       end
 
+
+      inspections_abiertas = Inspection.where(item: @item, state: "abierto").exists?
+      if inspections_abiertas
+        @inspection.errors.add(:base, "Ya existe una inspección abierta para este activo.")
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+
       @item.save!
       @inspection.item = @item
       @inspection.save!
