@@ -286,8 +286,18 @@
         </div>
 
         <div class="flex items-center justify-between w-full mt-12"> <!-- Aumento de margen entre filas -->
-          <% previous_section = current_section_number > 0 ? current_section_number - 1 : nil %>
-          <% next_section = current_section_number < total_sections - 1 ? current_section_number + 1 : nil %>
+
+
+          <% previous_section = current_section_number - 1 %>
+          <% while previous_section && previous_section == @nope %>
+            <% previous_section -= 1 %>
+          <% end %>
+
+          <% next_section = current_section_number + 1 %>
+          <% while next_section && next_section == @nope %>
+            <% next_section += 1 %>
+          <% end %>
+
 
           <div class="w-1/5 flex justify-start">
             <div class="mx-4">
