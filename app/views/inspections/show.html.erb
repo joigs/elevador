@@ -78,13 +78,18 @@
         <%= link_to 'Ver fallas encontradas', revision_path(inspection_id: @inspection), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" if Current.user.admin || @inspection.owner? %>
       <% end %>
 
-      <% if false %>
-        <%= button_to 'Cerrar inspección', force_close_inspection_inspection_path(@inspection),
-                      method: :patch,
-                      class: "px-4 py-2 rounded bg-cyan-600 text-gray-900 font-bold hover:bg-cyan-700 transition duration-300" if Current.user.admin && @inspection.state != "Cerrado" %>
+      <% if Current.user.admin && @inspection.state != "Cerrado" %>
+        <%= form_with url: force_close_inspection_inspection_path(@inspection), method: :patch, id: 'force-close-form', local: true do |form| %>
+        <% end %>
+        <button data-controller="force-close"
+                data-action="click->force-close#confirmClose"
+                data-force-close-has-incomplete-revision-colors-value="<%= @has_incomplete_revision_colors %>"
+                class="px-4 py-2 rounded bg-cyan-600 text-gray-900 font-bold hover:bg-cyan-700 transition duration-300">
+          Forzar cierre de inspección
+        </button>
+      <% end %>
 
-    <% end %>
-        <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin && @report.ending%>
+      <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin && @report.ending%>
       <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin || @inspection.owner? %>
       <%= link_to 'Programar nueva inspección para este activo', new_with_last_inspection_path(@inspection), class: 'px-4 py-2 rounded bg-pink-600 text-gray-900 font-bold hover:bg-pink-800 transition duration-300' if Current.user.admin && @inspection.state=="Cerrado" && @inspection==@last_inspection %>
       <%= link_to 'Descargar JSON', download_json_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 hover:bg-purple-800 text-gray-900 font-bold transition duration-300" if Current.user.admin || @inspection.owner? %>

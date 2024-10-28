@@ -15,6 +15,8 @@ class InspectionsController < ApplicationController
   end
 
   def show
+
+
     inspection
     @item = inspection.item
     @last_inspection = Inspection.where(item: @item).order(number: :desc).first
@@ -26,6 +28,9 @@ class InspectionsController < ApplicationController
       @detail = Detail.find_by(item_id: @item.id)
       @revision = Revision.find_by(inspection_id: @inspection.id)
     end
+
+    @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
+
     @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
     @report = Report.find_by(inspection: inspection)
