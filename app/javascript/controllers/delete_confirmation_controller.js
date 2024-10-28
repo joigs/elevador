@@ -18,7 +18,7 @@ export default class extends Controller {
             showCancelButton: true,
             confirmButtonColor: "#d33",  // Botón de confirmación rojo
             cancelButtonColor: "#6c757d",  // Botón de cancelar gris
-            confirmButtonText: "Eliminar",
+            confirmButtonText: "Si, Eliminar",
             cancelButtonText: "Cancelar",
             customClass: {
                 confirmButton: 'mr-10'  // Aplica margen a la derecha del botón de confirmación

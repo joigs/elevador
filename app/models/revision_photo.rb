@@ -19,6 +19,11 @@ class RevisionPhoto < ApplicationRecord
     "))
   }
 
+
+  def only_owner?
+    revision.only_owner?
+  end
+
   private
 
   # Method to set the filename of the photo to the record's ID

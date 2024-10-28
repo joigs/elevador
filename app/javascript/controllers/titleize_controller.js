@@ -8,8 +8,9 @@ export default class extends Controller {
     static targets = ["input"];
 
     titleize(text) {
-        return text.replace(/\b\w/g, char => char.toUpperCase());
+        return text.replace(/(^|\s)([^\s])/g, (match, p1, p2) => p1 + p2.toUpperCase());
     }
+
 
     updateInput(event) {
         this.inputTarget.value = this.titleize(event.target.value);

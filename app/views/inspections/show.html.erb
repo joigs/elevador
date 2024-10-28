@@ -49,7 +49,7 @@
             <%= form.label :ending, "Fecha límite hasta próxima inspección", class: "block text-sm font-medium text-white mb-1" %>
             <%= form.date_field :ending, value: @report.ending&.strftime('%Y-%m-%d'), class: "form-control block w-full px-3 py-2 rounded-md bg-gray-800 border-2 border-gray-600 focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
           </div>
-          <%= form.submit "Actualizar fecha", class: "btn btn-primary w-full py-2 mt-2 text-sm text-gray-800 font-medium bg-blue-500 hover:bg-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 cursor-pointer" %>
+          <%= form.submit "Actualizar fecha", class: "px-4 py-2 w-full rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300 cursor-pointer" %>
         <% end %>
 
         <% if Current.user.admin %>
@@ -58,7 +58,7 @@
               <%= form.label :inf_date, "Fecha de emisión del informe", class: "block text-sm font-medium text-white mb-1" %>
               <%= form.date_field :inf_date, value: @inspection.inf_date&.strftime('%Y-%m-%d'), class: "form-control block w-full px-3 py-2 rounded-md bg-gray-800 border-2 border-gray-600 focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
             </div>
-            <%= form.submit "Actualizar fecha de emisión", class: "btn btn-primary w-full py-2 mt-2 text-sm text-gray-800 font-medium bg-blue-500 hover:bg-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 cursor-pointer" %>
+            <%= form.submit "Actualizar fecha de emisión", class: "px-4 py-2 w-full rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" %>
           <% end %>
         <% end %>
       </div>

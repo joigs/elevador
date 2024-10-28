@@ -1,4 +1,16 @@
-<%= form_with(model: @revision_base, builder: CustomFormBuilder, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off" }) do |form| %>
+<%= form_with(model: @revision_base, builder: CustomFormBuilder, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off", data: { controller: "form-submit" } }) do |form| %>
+
+
+
+  <div style="position: sticky; top: 0; z-index: 10; background-color: #213e4e; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="flex justify-center">
+    <%= button_tag 'Guardar cambios',
+                   type: 'button',
+                   class: 'bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded',
+                   data: { action: 'form-submit#submitAndRedirect', url: request.fullpath } %>
+  </div>
+
+
+
   <% if @revision_base.errors.any? %>
     <% error_messages = @revision_base.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
     <%= javascript_tag do %>
@@ -12,6 +24,10 @@
   <% end %>
 
   <h1 class="text-4xl text-green-500 font-bold text-center my-4 py-4">Realizando Inspección</h1>
+
+
+
+
 
   <div data-controller="dropdown section-submit" class="px-8">
 
