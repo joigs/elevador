@@ -647,7 +647,6 @@ class RevisionsController < ApplicationController
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
 
       if @revision_base.item.group.type_of == "ascensor"
-        if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
           @revision_photos&.each do |photo|
             code_start = photo.code.split('.').first.to_i
             if code_start == current_section_num
@@ -667,7 +666,6 @@ class RevisionsController < ApplicationController
               photo.destroy unless matched
             end
           end
-        end
 
       else
         @revision_photos&.each do |photo|

@@ -403,26 +403,28 @@ class LadderRevisionsController < ApplicationController
 
       end
 
-      @revision_photos.each do |photo|
-        code_start = photo.code.split('.')[1].to_i
+      @revision_photos&.each do |photo|
+        code_start = photo.code.split('.').first.to_i
         if code_start == current_section_num
           if params[:ladder_revision][:codes].present?
             code_first_part = photo.code.split(' ').first
 
-            if params[:revision][:codes].include?(code_first_part)
-              index = params[:revision][:codes].index(code_first_part)
-              constructed_code = "#{params[:revision][:codes][index]} #{params[:revision][:points][index]}"
-            else
-              constructed_code = nil
+            matching_indices = params[:ladder_revision][:codes].each_index.select { |i| params[:ladder_revision][:codes][i] == code_first_part }
+            matched = false
+
+            matching_indices.each do |i|
+              constructed_code = "#{params[:ladder_revision][:codes][i]} #{params[:ladder_revision][:points][i]}"
+              if constructed_code == photo.code
+                matched = true
+                break
+              end
             end
-            if constructed_code != photo.code
-              photo.destroy
-            end
+
+            photo.destroy unless matched
           else
             photo.destroy
           end
         end
-
       end
 
     else
@@ -461,6 +463,31 @@ class LadderRevisionsController < ApplicationController
     end
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment, number: number, priority: priority)
+
+
+      @revision_photos&.each do |photo|
+        code_start = photo.code.split('.').first.to_i
+        if code_start == current_section_num
+          code_first_part = photo.code.split(' ').first
+
+          matching_indices = @revision.codes.each_index.select { |i| @revision.codes[i] == code_first_part }
+          matched = false
+
+          matching_indices.each do |i|
+            constructed_code = "#{@revision.codes[i]} #{@revision.points[i]}"
+            if constructed_code == photo.code
+              matched = true
+              break
+            end
+          end
+
+          photo.destroy unless matched
+        end
+      end
+
+
+
+
       flash[:notice] = "Revisión actualizada"
       redirect_to ladder_revision_path(inspection_id: @inspection.id)
     else
