@@ -159,16 +159,60 @@ class ItemsController < ApplicationController
     authorize! item
   end
 
+
   def update_group
-    authorize! item
+    authorize! @item
+
+    # Verificar que el activo sea de tipo 'ascensor'
+    unless @item.group.type_of == 'ascensor'
+      flash[:alert] = "El activo no es de tipo ascensor."
+      render :edit_group and return
+    end
+
+    # Verificar si el usuario es admin o inspector asignado a la última inspección
+    is_admin = Current.user.admin
+    last_inspection = @item.inspections.order(number: :desc).first
+    is_inspector = last_inspection&.users&.exists?(id: Current.user&.id)
+
+    unless is_admin || is_inspector
+      flash[:alert] = "No tienes permisos para cambiar el grupo de este activo."
+      render :edit_group and return
+    end
+
+    # Verificar que el activo tenga 1 o menos inspecciones con número positivo
+    positive_inspections_count = @item.inspections.where('number > 0').count
+    if positive_inspections_count > 1
+      flash[:alert] = "El activo tiene más de una inspección con número positivo."
+      render :edit_group and return
+    end
+
+    # Verificar que las revisiones normales y black estén vacías
+    revisions_empty = revisions_empty?(@item)
+    black_revisions_empty = black_revisions_empty?(@item)
+
+    unless revisions_empty && black_revisions_empty
+      @revisions_not_empty = true
+      if params[:force_delete_revisions] == '1'
+        # Eliminar todas las revisiones y sus datos asociados
+        delete_revisions(@item)
+      else
+        flash.now[:alert] = "Las revisiones no están vacías. ¿Deseas eliminarlas? Esta acción es irreversible."
+        render :edit_group and return
+      end
+    end
+
+    # Actualizar el grupo
     if @item.update(item_group_params)
-      flash[:notice] = "grupo actualizado"
+      # Forzar el cierre de la última inspección
+      if last_inspection
+        last_inspection.update(state: 'Cerrado', result: 'Creado')
+      end
+      flash[:notice] = "Grupo actualizado y la inspección ha sido cerrada."
       redirect_to items_path
     else
       render :edit_group, status: :unprocessable_entity
     end
   end
-
 
 
   def destroy
@@ -203,5 +247,37 @@ class ItemsController < ApplicationController
 
   def item_group_params
     params.require(:item).permit(:group_id)
+  end
+  def revisions_empty?(item)
+    revisions = item.revisions
+    revisions.all? do |rev|
+      rev.revision_colors.empty? && rev.revision_nulls.empty? && rev.revision_photos.empty?
+    end
+  end
+
+  def black_revisions_empty?(item)
+    black_inspections = item.inspections.where('number < 0')
+    black_revisions = Revision.where(item: item, inspection: black_inspections)
+    black_revisions.all? do |rev|
+      rev.revision_colors.empty? && rev.revision_nulls.empty? && rev.revision_photos.empty?
+    end
+  end
+
+  def delete_revisions(item)
+    item.revisions.each do |rev|
+      rev.revision_colors.destroy_all
+      rev.revision_nulls.destroy_all
+      rev.revision_photos.destroy_all
+      rev.destroy
+    end
+
+    black_inspections = item.inspections.where('number < 0')
+    black_revisions = Revision.where(item: item, inspection: black_inspections)
+    black_revisions.each do |rev|
+      rev.revision_colors.destroy_all
+      rev.revision_nulls.destroy_all
+      rev.revision_photos.destroy_all
+      rev.destroy
+    end
   end
 end

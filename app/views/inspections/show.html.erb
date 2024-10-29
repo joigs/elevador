@@ -92,8 +92,11 @@
       <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin && @report.ending%>
       <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin || @inspection.owner? %>
       <%= link_to 'Programar nueva inspección para este activo', new_with_last_inspection_path(@inspection), class: 'px-4 py-2 rounded bg-pink-600 text-gray-900 font-bold hover:bg-pink-800 transition duration-300' if Current.user.admin && @inspection.state=="Cerrado" && @inspection==@last_inspection %>
+
+      <% if false %>
       <%= link_to 'Descargar JSON', download_json_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 hover:bg-purple-800 text-gray-900 font-bold transition duration-300" if Current.user.admin || @inspection.owner? %>
-      <%= link_to 'Eliminar inspección', inspection_path(@inspection), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "inspection-delete-confirmation", action: "click->inspection-delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/inspections" } if Current.user.admin %>
+      <% end %>
+        <%= link_to 'Eliminar inspección', inspection_path(@inspection), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "inspection-delete-confirmation", action: "click->inspection-delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/inspections" } if Current.user.admin %>
       <%= link_to "Volver a inspecciones", items_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
 
     </div>
