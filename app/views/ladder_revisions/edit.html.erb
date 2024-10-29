@@ -61,7 +61,7 @@
 
 
 
-  <div class="flex justify-start my-4 ml-4 items-center" data-controller="file-upload image-resize show-comment-on-upload">
+  <div class="flex justify-center my-4 items-center" data-controller="file-upload image-resize show-comment-on-upload">
     <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
       <label for="imagen_general" class="flex items-center cursor-pointer">
         <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -92,7 +92,17 @@
                       class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
     %>
   </div>
-  <div class="px-4 mt-4">    <div class="table-responsive">
+
+
+
+  <div data-controller="na-toggle">
+    <div class="flex justify-start items-center ml-4 my-4">
+      <input type="checkbox" id="toggle-all-na" class="cursor-pointer w-6 h-6 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" data-action="change->na-toggle#confirmToggleAll">
+      <label for="toggle-all-na" class="ml-2 text-lg text-gray-700">Sección no aplica al activo</label>
+    </div>
+
+  <div class="px-4 mt-4">
+    <div class="table-responsive">
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 
 
@@ -123,7 +133,7 @@
 
                 <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
                 <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
-                                  data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" }  %>
+                                  data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox' } %>
                 <%= label_tag "null_condition_#{index}", "" %>
               </div>
             </td>
@@ -351,6 +361,7 @@
   </div>
 
 
+  </div>
 
 
 
