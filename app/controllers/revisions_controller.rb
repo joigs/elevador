@@ -390,7 +390,7 @@ class RevisionsController < ApplicationController
     else
 
       if params[:revision]&.dig(:null_condition).present?
-        real_codes_null = revision_params["null_condition"]&.map { |nc| nc.split('_').first } # Solo el código numérico
+        real_codes_null = revision_params["null_condition"]&.map { |nc| nc.split('_').first }
       end
 
 
