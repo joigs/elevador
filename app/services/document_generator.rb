@@ -896,11 +896,9 @@ class DocumentGenerator
       # Ciclo para procesar todas las duplas de imágenes
       revision_photos.each_slice(2) do |photos|
         latex_content += "\\begin{figure}[h!]\n"
-        puts("aaaaaaaaaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaa")
 
         # Si solo hay una imagen en el grupo, centrarla
         if photos.size == 1
-          puts("1")
           photo = photos.first
           image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
           image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
@@ -909,28 +907,17 @@ class DocumentGenerator
           latex_content += "  \\centering\n"
           latex_content += "  \\includegraphics[width=0.4\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
         else
-          puts("2")
           # Para pares de imágenes, dividirlas en columnas
           photos.each do |photo|
-            puts("3")
             image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
-            puts("4")
             image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
-            puts("4")
             FileUtils.cp(image_path, image_destination)
-            puts("5")
             latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
-            puts("6")
             latex_content += "    \\centering\n"
-            puts("7")
             latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-            puts("8")
             latex_content += "  \\end{minipage}\n"
-            puts("9")
             latex_content += "  \\hfill\n" if photos.size > 1
-            puts("10")
           end
-          puts("4")
         end
 
         latex_content += "\\end{figure}\n"
@@ -982,7 +969,6 @@ class DocumentGenerator
         # Comprobamos si la imagen existe
         if File.exist?(image_path)
           # Debug para mostrar la imagen que se está procesando
-          puts "Procesando imagen: #{image_path}"
 
           # Obtener las dimensiones de la imagen
           image_height = FastImage.size(image_path)[1]
@@ -1019,32 +1005,24 @@ class DocumentGenerator
 
 
             text_imagen_comment = nil
-            puts "Debug - Inicio: text_imagen_comment = #{text_imagen_comment}"
 
             if !revision_photos.last.code.start_with?("GENERALCODE")
-              puts "Debug - revision_photos[(i*2)-2].code = #{revision_photos.last.code}"
 
               temp_code, temp_point = revision_photos.last.code.split(" ", 2)
-              puts "Debug - temp_code = #{temp_code}, temp_point = #{temp_point}"
 
               index2 = nil
               revision.codes.each_with_index do |code, index|
-                puts "Debug - Comparando revision.codes[#{index}] = #{code} con temp_code = #{temp_code}"
                 if code == temp_code && revision.points[index] == temp_point
-                  puts "Debug - ¡Coincidencia encontrada en index #{index}!"
                   index2 = index
                   text_imagen_comment = revision.comment[index2]
-                  puts "Debug - text_imagen_comment = #{text_imagen_comment}"
                   break
                 end
               end
             end
 
             if text_imagen_comment
-              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}'"
               doc_code_photo.replace('{{code}}', "#{revision_photos.last.code.sub('GENERALCODE', '')} #{text_imagen_comment}")
             else
-              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')}'"
               doc_code_photo.replace('{{code}}', revision_photos.last.code.sub('GENERALCODE', ''))
             end
 
@@ -1057,62 +1035,46 @@ class DocumentGenerator
 
 
             text_imagen_comment = nil
-            puts "Debug - Inicio: text_imagen_comment = #{text_imagen_comment}"
 
             if !revision_photos[(i*2)-2].code.start_with?("GENERALCODE")
-              puts "Debug - revision_photos[(i*2)-2].code = #{revision_photos[(i*2)-2].code}"
 
               temp_code, temp_point = revision_photos[(i*2)-2].code.split(" ", 2)
-              puts "Debug - temp_code = #{temp_code}, temp_point = #{temp_point}"
 
               index2 = nil
               revision.codes.each_with_index do |code, index|
-                puts "Debug - Comparando revision.codes[#{index}] = #{code} con temp_code = #{temp_code}"
                 if code == temp_code && revision.points[index] == temp_point
-                  puts "Debug - ¡Coincidencia encontrada en index #{index}!"
                   index2 = index
                   text_imagen_comment = revision.comment[index2]
-                  puts "Debug - text_imagen_comment = #{text_imagen_comment}"
                   break
                 end
               end
             end
 
             if text_imagen_comment
-              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}'"
               doc_code_photo.replace('{{code_1}}', "#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}")
             else
-              puts "Debug - Reemplazando '{{code_1}}' con '#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')}'"
               doc_code_photo.replace('{{code_1}}', revision_photos[(i*2)-2].code.sub('GENERALCODE', ''))
             end
 
             text_imagen_comment = nil
-            puts "Debug - text_imagen_comment reset = #{text_imagen_comment}"
 
             if !revision_photos[(i*2)-1].code.start_with?("GENERALCODE")
-              puts "Debug - revision_photos[(i*2)-1].code = #{revision_photos[(i*2)-1].code}"
 
               temp_code, temp_point = revision_photos[(i*2)-1].code.split(" ", 2)
-              puts "Debug - temp_code = #{temp_code}, temp_point = #{temp_point}"
 
               index2 = nil
               revision.codes.each_with_index do |code, index|
-                puts "Debug - Comparando revision.codes[#{index}] = #{code} con temp_code = #{temp_code}"
                 if code == temp_code && revision.points[index] == temp_point
-                  puts "Debug - ¡Coincidencia encontrada en index #{index}!"
                   index2 = index
                   text_imagen_comment = revision.comment[index2]
-                  puts "Debug - text_imagen_comment = #{text_imagen_comment}"
                   break
                 end
               end
             end
 
             if text_imagen_comment
-              puts "Debug - Reemplazando '{{code_2}}' con '#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')} #{text_imagen_comment}'"
               doc_code_photo.replace('{{code_2}}', "#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')} #{text_imagen_comment}")
             else
-              puts "Debug - Reemplazando '{{code_2}}' con '#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')}'"
               doc_code_photo.replace('{{code_2}}', revision_photos[(i*2)-1].code.sub('GENERALCODE', ''))
             end
 
@@ -1161,16 +1123,12 @@ class DocumentGenerator
 
     doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
-    puts("tablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatablatabla")
 
     puts(revision.comment.inspect)
 
 
 
     rules.each_with_index do |rule, index|
-
-
-
 
 
       apply_weird = false
@@ -1223,8 +1181,6 @@ class DocumentGenerator
             doc.replace('{{tabla_comentario}}', '')
           else
             doc.replace('{{tabla_comentario}}', "Razón: #{revision.comment[index2]}")
-            puts("afuicbsuicbuibvsabuibuibsubuisvbiuvbiusavbuiasvbiubsavuibuiashuisvabuvasuivuiv")
-            puts("after afuicb: #{revision.comment[index2]}        code: #{rule.code}               point: #{rule.point}           index2: #{index2}")
           end
 
 

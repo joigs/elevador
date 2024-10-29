@@ -246,6 +246,10 @@ class DocumentGeneratorLadder
     end
 
     doc.replace('{{detail_descripcion}}', detail.descripcion)
+    revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'LadderRevision')
+                                 .where("point LIKE ?", "5.0%")
+    revision_nulls_total = RevisionNull.where(revision_id: revision_id, revision_type: 'LadderRevision')
+                                       .where("point NOT LIKE ?", "5.0%")
 
 
     last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
@@ -416,16 +420,16 @@ class DocumentGeneratorLadder
 
     aux = [
       '•0.  Carpeta cero.',
-      '•1. Requisitos generales',
-      '•2. Estructura de soporte (bastidor) y cerramiento',
-      '•3. Escalones, placa, banda',
-      '•4. Unidad de almacenamiento',
+      '•1.  Requisitos generales',
+      '•2.  Estructura de soporte (bastidor) y cerramiento',
+      '•3.  Escalones, placa, banda',
+      '•4.  Unidad de almacenamiento',
       '•5.  Balaustrada',
       '•6.  Pasamanos',
       '•7.  Rellanos',
       '•8.  Cuartos de maquinaria, estaciones de accionamiento y de retorno',
       '•9.  placeholder',
-      '•10.  placeholder',
+      '•10. placeholder',
       '•11. Instalaciones y aparatos eléctricos',
       '•12. Protección contra fallos eléctricos-maniobra',
       '•13. Interfaces con el edificio',
@@ -437,6 +441,38 @@ class DocumentGeneratorLadder
 
     cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
     no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                                          "}.join("\n")
+
+
+
+    # Eliminar '•0. Carpeta cero.' si revision_nulls tiene 11 elementos
+    if revision_nulls.count == 11
+      cumple_text.gsub!('•0.  Carpeta cero.', '')
+      no_cumple_text.gsub!('•0.  Carpeta cero.', '')
+    end
+    aux[1..-1].each do |item|
+      # Obtener el número entre '•' y el primer '.'
+      match = item.match(/•(\d+)\./)
+      next unless match # Saltar si no se encuentra un número
+      number = match[1] # El número correspondiente
+      # Saltar números ya eliminados en lógica anterior (como la de sala_maquinas)
+      if detail.sala_maquinas == "Si"
+        next if number == "9"
+      else
+        next if number == "2"
+      end
+      # Contar rules que empiezan con ese número
+      rules_count = rules.select { |rule| rule.code.start_with?(number) }.count
+      # Contar revision_nulls_total que empiezan con ese número
+      revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?(number) }.count
+      # Si la cantidad es igual, eliminar el texto correspondiente
+      if rules_count == revision_nulls_count
+        cumple_text.gsub!(item, '')
+        no_cumple_text.gsub!(item, '')
+      end
+    end
+
+
+
     if cumple.any?
       doc.replace('{{lista_comprobacion_cumple}}', cumple_text)
       doc.replace('{{texto_comprobacion_cumple}}', 'De acuerdo a esta inspección, CUMPLE, con los requisitos normativos evaluados:')
@@ -815,7 +851,6 @@ class DocumentGeneratorLadder
       '5.0.11'
     ]
 
-    revision_nulls = RevisionNull.where(revision_id: revision_id, revision_type: 'LadderRevision')
 
 
 
