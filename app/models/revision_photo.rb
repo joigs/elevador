@@ -2,7 +2,7 @@ class RevisionPhoto < ApplicationRecord
 
   validates :code , presence: true
 
-  belongs_to :revision
+  belongs_to :revision, polymorphic: true
   has_one_attached :photo
 
   before_save :sanitize_filename
