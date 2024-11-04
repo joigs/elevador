@@ -226,7 +226,9 @@ class LadderRevisionsController < ApplicationController
 
       end
     else
-
+      if params[:ladder_revision]&.dig(:null_condition).present?
+        real_codes_null = ladder_revision_params["null_condition"]&.map { |nc| nc.split('_').first } # Solo el código numérico
+      end
 
     end
 
@@ -316,7 +318,7 @@ class LadderRevisionsController < ApplicationController
               puts(real_code_numeric)
               puts(numeric_code)
               # Obtener el comentario correspondiente (puede ser vacío)
-              comment_null = real_comment_null[index]
+              comment_null = real_comment_null&.fetch(index, "") || ""
 
               # Verificar si el point ya existe
               existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
