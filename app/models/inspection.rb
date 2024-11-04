@@ -29,6 +29,7 @@ class Inspection < ApplicationRecord
   validates :number, presence: true, uniqueness: true
   validates :ins_date, date: true
   validates :inf_date, date: true
+  validates :rerun, presence: true
 
 
   has_many :inspection_users, dependent: :destroy
