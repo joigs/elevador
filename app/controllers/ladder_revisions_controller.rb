@@ -128,7 +128,6 @@ class LadderRevisionsController < ApplicationController
       return
     end
 
-
     @revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
 
     @revision_base.revision_colors.order(:section).each do |revision_color|
@@ -140,19 +139,25 @@ class LadderRevisionsController < ApplicationController
       @revision.priority.concat(revision_color.priority || [])
     end
 
+
     @revision_codes = []
 
     @revision.codes.each_with_index do |code, index|
       @revision_codes << "#{code} #{@revision.points[index]}"
     end
 
-    # hashmap para agrupar las fotos por código
+
     @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
       if photo.photo.attached?
+        puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        puts(photo.inspect)
         (hash[photo.code] ||= []) << photo
       end
     end
+
   end
+
+
 
 
 
@@ -388,7 +393,7 @@ class LadderRevisionsController < ApplicationController
 
 
     @revision_nulls = @revision_base.revision_nulls
-    @revision_photos = @revision_base.revision_photos
+    @revision_photos = @revision_base.revision_photos.reject { |photo| photo.code.start_with?('GENERALCODE') }
 
 
     if params[:ladder_revision].present?
@@ -416,19 +421,20 @@ class LadderRevisionsController < ApplicationController
           if params[:ladder_revision][:codes].present?
             code_first_part = photo.code.split(' ').first
 
-            if params[:revision][:codes].include?(code_first_part)
-              index = params[:revision][:codes].index(code_first_part)
-              constructed_code = "#{params[:revision][:codes][index]} #{params[:revision][:points][index]}"
-            else
-              constructed_code = nil
+            matching_indices = params[:ladder_revision][:codes].each_index.select { |i| params[:ladder_revision][:codes][i] == code_first_part }
+            matched = false
+            matching_indices.each do |i|
+              constructed_code = "#{params[:ladder_revision][:codes][i]} #{params[:ladder_revision][:points][i]}"
+              if constructed_code == photo.code
+                matched = true
+                break
+              end
             end
-            if constructed_code != photo.code
-              photo.destroy
-            end
+            photo.destroy unless matched
           else
             photo.destroy
           end
-        end
+          end
 
       end
 
