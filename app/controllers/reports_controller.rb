@@ -6,7 +6,8 @@ class ReportsController < ApplicationController
     @item = @report.item
     @previous_inspection = @item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
 
-
+    @black_inspection = Inspection.find_by(number: @report.inspection.number*-1, item_id: @item.id, state: 'black', result: 'black')
+    puts(@black_inspection.inspect)
     if @previous_inspection
       @show_third_radio_button = true
     else
@@ -59,6 +60,11 @@ class ReportsController < ApplicationController
     end
 
 
+    if params[:report][:inspeccion_anterior_is_rerun].present?
+      black_rerun = params[:report][:inspeccion_anterior_is_rerun] == "1"
+      params[:report].delete(:inspeccion_anterior_is_rerun)
+    end
+
 
     if @report.update(report_params)
 
@@ -76,8 +82,10 @@ class ReportsController < ApplicationController
          black_inspection = Inspection.find_by(number: black_number, item_id: @item.id, state: 'black', result: 'black')
 
 
-
+        puts("black_rerun: #{black_rerun.inspect}")
         if black_inspection
+          black_inspection.update!(rerun: black_rerun)
+
           was_created = false
         else
           was_created = true
@@ -86,7 +94,7 @@ class ReportsController < ApplicationController
 
 
         if was_created
-          black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black')
+          black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black', rerun: black_rerun)
           inspection.users.each do |user|
             black_inspection.users << user
           end
@@ -190,6 +198,6 @@ class ReportsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def report_params
-      params.require(:report).permit(:certificado_minvu, :cert_ant, :fecha, :empresa_anterior, :ea_rol, :ea_rut, :empresa_mantenedora, :em_rol, :em_rut, :vi_co_man_ini, :vi_co_man_ter, :nom_tec_man, :tm_rut, :ul_reg_man, :urm_fecha, :inspection_id, :item_id, :fecha_sistema, :empresa_anterior_sistema, :ea_rol_sistema, :ea_rut_sistema, :past_number, :past_date)
+      params.require(:report).permit(:certificado_minvu, :cert_ant, :fecha, :empresa_anterior, :ea_rol, :ea_rut, :empresa_mantenedora, :em_rol, :em_rut, :vi_co_man_ini, :vi_co_man_ter, :nom_tec_man, :tm_rut, :ul_reg_man, :urm_fecha, :inspection_id, :item_id, :fecha_sistema, :empresa_anterior_sistema, :ea_rol_sistema, :ea_rut_sistema, :past_number, :past_date, :inspeccion_anterior_is_rerun)
     end
 end
