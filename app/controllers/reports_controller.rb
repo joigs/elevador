@@ -198,6 +198,6 @@ class ReportsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def report_params
-      params.require(:report).permit(:certificado_minvu, :cert_ant, :fecha, :empresa_anterior, :ea_rol, :ea_rut, :empresa_mantenedora, :em_rol, :em_rut, :vi_co_man_ini, :vi_co_man_ter, :nom_tec_man, :tm_rut, :ul_reg_man, :urm_fecha, :inspection_id, :item_id, :fecha_sistema, :empresa_anterior_sistema, :ea_rol_sistema, :ea_rut_sistema, :past_number, :past_date, :inspeccion_anterior_is_rerun)
+      params.require(:report).permit(:certificado_minvu, :cert_ant, :fecha, :empresa_anterior, :cert_ant_real, :ea_rol, :ea_rut, :empresa_mantenedora, :em_rol, :em_rut, :vi_co_man_ini, :vi_co_man_ter, :nom_tec_man, :tm_rut, :ul_reg_man, :urm_fecha, :inspection_id, :item_id, :fecha_sistema, :empresa_anterior_sistema, :ea_rol_sistema, :ea_rut_sistema, :past_number, :past_date, :inspeccion_anterior_is_rerun)
     end
 end

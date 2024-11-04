@@ -106,7 +106,16 @@ class DocumentGenerator
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
-      doc.replace('{{cert_ant}}', 'Si')
+
+      if report.cert_ant_real == 'No'
+        doc.replace('{{cert_ant}}', 'No')
+
+      elsif report.cert_ant_real == 'Si'
+        doc.replace('{{cert_ant}}', 'Si')
+      else
+        doc.replace('{{cert_ant}}', 'S/I')
+      end
+
 
       if report.fecha
         doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
