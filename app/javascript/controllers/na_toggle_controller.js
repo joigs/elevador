@@ -16,6 +16,9 @@ export default class extends Controller {
             showCancelButton: true,
             confirmButtonText: 'Sí, continuar',
             cancelButtonText: 'Cancelar',
+            customClass: {
+                confirmButton: 'mr-10'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 this.naCheckboxTargets.forEach((checkbox) => {

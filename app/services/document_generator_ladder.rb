@@ -285,7 +285,7 @@ class DocumentGeneratorLadder
       end
 
       if last_revision&.levels.blank?
-        doc.replace('{{informe_anterior}}', "Informe anterior sin fallas registradas")
+        doc.replace('{{informe_anterior}}', "Informe anterior sin defectos registrados")
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
 
@@ -380,21 +380,21 @@ class DocumentGeneratorLadder
       if level.include?("G")
         if revision.comment[index].blank?
           errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: (No se hizo ningún comentario)"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. Razón: (No se hizo ningún comentario)"
 
         else
           errors_graves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla grave. Razón: #{revision.comment[index]}"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. Razón: #{revision.comment[index]}"
 
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
           errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: (No se hizo ningún comentario)"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. Razón: (No se hizo ningún comentario)"
 
         else
           errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} falla leve. Razón: #{revision.comment[index]}"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. Razón: #{revision.comment[index]}"
 
         end
       end

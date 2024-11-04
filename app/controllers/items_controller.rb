@@ -158,52 +158,54 @@ class ItemsController < ApplicationController
   def edit_group
     authorize! item
   end
-
-
   def update_group
+    item  # Ensures @item is set
     authorize! @item
 
-    # Verificar que el activo sea de tipo 'ascensor'
-    unless @item.group.type_of == 'ascensor'
+    # Verify that the asset is of type 'ascensor'
+    unless @item.group&.type_of == 'ascensor'
       flash[:alert] = "El activo no es de tipo ascensor."
-      render :edit_group and return
+      render :edit_group, status: :unprocessable_entity and return
     end
 
-    # Verificar si el usuario es admin o inspector asignado a la última inspección
+    # Check if the user is admin or assigned inspector
     is_admin = Current.user.admin
     last_inspection = @item.inspections.order(number: :desc).first
     is_inspector = last_inspection&.users&.exists?(id: Current.user&.id)
 
     unless is_admin || is_inspector
       flash[:alert] = "No tienes permisos para cambiar el grupo de este activo."
-      render :edit_group and return
+      render :edit_group, status: :unprocessable_entity and return
     end
 
-    # Verificar que el activo tenga 1 o menos inspecciones con número positivo
+    # Ensure the asset has only one positive inspection
     positive_inspections_count = @item.inspections.where('number > 0').count
     if positive_inspections_count > 1
       flash[:alert] = "El activo tiene más de una inspección con número positivo."
-      render :edit_group and return
+      render :edit_group, status: :unprocessable_entity and return
     end
 
-    # Verificar que las revisiones normales y black estén vacías
+    # Check if revisions are empty
     revisions_empty = revisions_empty?(@item)
     black_revisions_empty = black_revisions_empty?(@item)
 
-    unless revisions_empty && black_revisions_empty
-      @revisions_not_empty = true
-      if params[:force_delete_revisions] == '1'
-        # Eliminar todas las revisiones y sus datos asociados
-        delete_revisions(@item)
-      else
-        flash.now[:alert] = "Las revisiones no están vacías. ¿Deseas eliminarlas? Esta acción es irreversible."
-        render :edit_group and return
-      end
+    if (!revisions_empty || !black_revisions_empty) && params[:force_delete_revisions] != '1'
+      # Set the confirmation data only if the user has not confirmed
+      @alert_message = "Cambiar el grupo eliminará todos los defectos encontrados en una inspección, así como las fotografías tomadas. ¿Deseas continuar? Esta acción es irreversible."
+      @alert_type = 'warning'
+      @confirm_deletion = true
+      return  # Do not render or redirect here, just return to allow Turbo to handle the confirmation
     end
 
-    # Actualizar el grupo
+    # Proceed with deletion and recreation of revisions if confirmed or revisions are empty
+    if params[:force_delete_revisions] == '1' || (revisions_empty && black_revisions_empty)
+      delete_revisions(@item)
+      create_revisions(@item)
+    end
+
+    # Update the group
     if @item.update(item_group_params)
-      # Forzar el cierre de la última inspección
+      # Force close the last inspection
       if last_inspection
         last_inspection.update(state: 'Cerrado', result: 'Creado')
       end
@@ -213,6 +215,7 @@ class ItemsController < ApplicationController
       render :edit_group, status: :unprocessable_entity
     end
   end
+
 
 
   def destroy
@@ -248,6 +251,36 @@ class ItemsController < ApplicationController
   def item_group_params
     params.require(:item).permit(:group_id)
   end
+  def create_revisions(item)
+    # Create normal revision with the highest number inspection
+    @inspection = item.inspections.order(number: :desc).first
+    @revision = Revision.create!(inspection: @inspection, item: item, group: item.group)
+
+    # Add colors to the normal revision
+    (0..11).each do |index|
+      @revision.revision_colors.create!(section: index, color: false)
+    end
+
+    # Create black revision with the corresponding negative number inspection
+    black_inspection = item.inspections.find_by(number: -@inspection.number)
+    @black_revision = Revision.create!(inspection: black_inspection, item: item, group: item.group)
+
+    # Add colors to the black revision
+    (0..11).each do |index|
+      @black_revision.revision_colors.create!(section: index, color: false)
+    end
+  end
+
+
+  def delete_revisions(item)
+    # Delete normal revisions
+    item.revisions.destroy_all
+
+    # Delete black revisions
+    black_inspections = item.inspections.where('number < 0')
+    Revision.where(item: item, inspection: black_inspections).destroy_all
+  end
+
   def revisions_empty?(item)
     revisions = item.revisions
     revisions.all? do |rev|
@@ -263,21 +296,4 @@ class ItemsController < ApplicationController
     end
   end
 
-  def delete_revisions(item)
-    item.revisions.each do |rev|
-      rev.revision_colors.destroy_all
-      rev.revision_nulls.destroy_all
-      rev.revision_photos.destroy_all
-      rev.destroy
-    end
-
-    black_inspections = item.inspections.where('number < 0')
-    black_revisions = Revision.where(item: item, inspection: black_inspections)
-    black_revisions.each do |rev|
-      rev.revision_colors.destroy_all
-      rev.revision_nulls.destroy_all
-      rev.revision_photos.destroy_all
-      rev.destroy
-    end
-  end
 end

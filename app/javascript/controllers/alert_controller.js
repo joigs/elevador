@@ -21,10 +21,10 @@ export default class extends Controller {
 
     showConfirmation() {
         Swal.fire({
-            icon: 'warning',
+            icon: this.typeValue || 'warning',
             title: this.messageValue,
             showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar',
+            confirmButtonText: 'Sí, continuar',
             cancelButtonText: 'Cancelar',
         }).then((result) => {
             if (result.isConfirmed) {
@@ -34,26 +34,34 @@ export default class extends Controller {
     }
 
     forceDeleteRevisions() {
-        // Agregar el parámetro 'force_delete_revisions' y reenviar el formulario
-        const form = this.element.closest('form')
+        const form = this.element
         const formData = new FormData(form)
         formData.append('force_delete_revisions', '1')
 
         fetch(form.action, {
             method: form.method,
-            headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
-            body: formData
+            headers: {
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'text/vnd.turbo-stream.html, text/html, application/xhtml+xml',
+            },
+            body: formData,
+            credentials: 'same-origin',
         })
-            .then(response => response.json())
-            .then(data => {
-                Swal.fire({
-                    icon: data.type || 'success',
-                    title: data.message,
-                }).then(() => {
-                    if (data.redirect_url) {
-                        window.location.href = data.redirect_url
-                    }
-                })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url
+                } else {
+                    response.text().then((html) => {
+                        const parser = new DOMParser()
+                        const doc = parser.parseFromString(html, 'text/html')
+                        const newForm = doc.querySelector('form[data-controller="alert"]')
+                        if (newForm) {
+                            form.replaceWith(newForm)
+                        } else {
+                            window.location.reload()
+                        }
+                    })
+                }
             })
             .catch(error => {
                 Swal.fire({

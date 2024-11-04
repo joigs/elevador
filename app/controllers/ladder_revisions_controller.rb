@@ -155,6 +155,7 @@ class LadderRevisionsController < ApplicationController
   end
 
 
+
   def update
     @revision_base = LadderRevision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
@@ -183,19 +184,20 @@ class LadderRevisionsController < ApplicationController
       fails = ladder_revision_params["codes"]
       nulls = ladder_revision_params["null_condition"]&.map { |nc| nc.split('_').first } # Solo el código numérico
 
+      puts(nulls.inspect)
 
       carpetas = [
-        '0.1.1',
-        '0.1.2',
-        '0.1.3',
-        '0.1.4',
-        '0.1.5',
-        '0.1.6',
-        '0.1.7',
-        '0.1.8',
-        '0.1.9',
-        '0.1.10',
-        '0.1.11'
+        '5.0.1',
+        '5.0.2',
+        '5.0.3',
+        '5.0.4',
+        '5.0.5',
+        '5.0.6',
+        '5.0.7',
+        '5.0.8',
+        '5.0.9',
+        '5.0.10',
+        '5.0.11'
       ]
 
       #Recorrer los 'codes' e identificar los que deben mantenerse
@@ -206,27 +208,25 @@ class LadderRevisionsController < ApplicationController
 
 
           real_codes_fail << numeric_code
-          real_numbers << ladder_revision_params["number"][index]
-          real_priority << ladder_revision_params["priority"][index]
+          real_numbers << index
+          real_priority << "."
           real_comment_fail << ladder_revision_params["comment"][index]
 
 
 
         end
         if nulls&.include?(numeric_code)
-          real_codes_null << code
-          real_numbers << ladder_revision_params["number"][index]
-          real_priority << ladder_revision_params["priority"][index]
+          real_codes_null << numeric_code
           real_comment_null << ladder_revision_params["comment"][index]
+
+          puts(real_codes_null.inspect)
+          puts(real_comment_null.inspect)
 
         end
 
       end
     else
 
-      if params[:ladder_revision]&.dig(:null_condition).present?
-        real_codes_null = ladder_revision_params["null_condition"]&.map { |nc| nc.split('_').first }
-      end
 
     end
 
@@ -246,7 +246,10 @@ class LadderRevisionsController < ApplicationController
     end
     if params[:ladder_revision].present?
 
+      puts("pasa por if params[:ladder_revision].present? (246)")
+
       if params[:ladder_revision][:fail].present?
+        puts("pasa por if params[:ladder_revision][:fail].present? (250)")
         # Revisar la información de cada campo donde hubo una falla
         params[:ladder_revision][:fail].each do |fail_status|
           if fail_status == "1"  # Verefica si ocurre la falla
@@ -270,6 +273,8 @@ class LadderRevisionsController < ApplicationController
             counter = counter + 1
           end
         end
+      end
+
 
 
 
@@ -293,17 +298,25 @@ class LadderRevisionsController < ApplicationController
 
 
         if params[:ladder_revision][:null_condition].present?
+          puts("pasa por if params[:ladder_revision][:null_condition].present? (299)")
           params[:ladder_revision][:null_condition].each_with_index do |null_condition, index|
             # Extraer el código numérico (antes del "_") para comparar con real_codes_null
             numeric_code = null_condition.split('_').first
-
             # Extraer el código numérico del valor en real_codes_null
             real_code_numeric = real_codes_null[index]
 
-            if real_code_numeric == numeric_code
 
+            puts("comprobacion antes de if:")
+            puts(params[:ladder_revision][:null_condition].inspect)
+            puts(real_codes_null.inspect)
+            puts(real_code_numeric.inspect)
+            puts(numeric_code.inspect)
+            if real_code_numeric == numeric_code
+              puts("pasa por if real_code_numeric == numeric_code (307)")
+              puts(real_code_numeric)
+              puts(numeric_code)
               # Obtener el comentario correspondiente (puede ser vacío)
-              comment_null = real_comment_null&.fetch(index, "") || ""
+              comment_null = real_comment_null[index]
 
               # Verificar si el point ya existe
               existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
@@ -322,15 +335,6 @@ class LadderRevisionsController < ApplicationController
             end
           end
         end
-
-
-
-
-      end
-
-
-
-
 
 
     end
@@ -382,7 +386,8 @@ class LadderRevisionsController < ApplicationController
 
 
     @revision_nulls = @revision_base.revision_nulls
-    @revision_photos = @revision_base.revision_photos.reject { |photo| photo.code.start_with?('GENERALCODE') }
+    @revision_photos = @revision_base.revision_photos
+
 
     if params[:ladder_revision].present?
 
@@ -403,28 +408,26 @@ class LadderRevisionsController < ApplicationController
 
       end
 
-      @revision_photos&.each do |photo|
-        code_start = photo.code.split('.').first.to_i
+      @revision_photos.each do |photo|
+        code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
           if params[:ladder_revision][:codes].present?
             code_first_part = photo.code.split(' ').first
 
-            matching_indices = params[:ladder_revision][:codes].each_index.select { |i| params[:ladder_revision][:codes][i] == code_first_part }
-            matched = false
-
-            matching_indices.each do |i|
-              constructed_code = "#{params[:ladder_revision][:codes][i]} #{params[:ladder_revision][:points][i]}"
-              if constructed_code == photo.code
-                matched = true
-                break
-              end
+            if params[:revision][:codes].include?(code_first_part)
+              index = params[:revision][:codes].index(code_first_part)
+              constructed_code = "#{params[:revision][:codes][index]} #{params[:revision][:points][index]}"
+            else
+              constructed_code = nil
             end
-
-            photo.destroy unless matched
+            if constructed_code != photo.code
+              photo.destroy
+            end
           else
             photo.destroy
           end
         end
+
       end
 
     else
@@ -463,37 +466,13 @@ class LadderRevisionsController < ApplicationController
     end
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment, number: number, priority: priority)
-
-
-      @revision_photos&.each do |photo|
-        code_start = photo.code.split('.').first.to_i
-        if code_start == current_section_num
-          code_first_part = photo.code.split(' ').first
-
-          matching_indices = @revision.codes.each_index.select { |i| @revision.codes[i] == code_first_part }
-          matched = false
-
-          matching_indices.each do |i|
-            constructed_code = "#{@revision.codes[i]} #{@revision.points[i]}"
-            if constructed_code == photo.code
-              matched = true
-              break
-            end
-          end
-
-          photo.destroy unless matched
-        end
-      end
-
-
-
-
       flash[:notice] = "Revisión actualizada"
       redirect_to ladder_revision_path(inspection_id: @inspection.id)
     else
       render :edit, status: :unprocessable_entity
     end
   end
+
 
 
 

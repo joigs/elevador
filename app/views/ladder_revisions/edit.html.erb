@@ -132,11 +132,15 @@
               <div class="flex justify-center items-center">
 
                 <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-                <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                <%= check_box_tag "ladder_revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
                                   data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox' } %>
                 <%= label_tag "null_condition_#{index}", "" %>
               </div>
             </td>
+
+            <% if current_section.to_s=='0' %>
+            <%= hidden_field_tag '' %>
+            <% end %>
 
 
             <% if @black_inspection %>
@@ -162,11 +166,7 @@
 
             </td>
 
-            <td  style="display: none;">
-              <% is_checked = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-              <%= check_box_tag "ladder_revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked, id: "null_condition_#{index}", data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition" } %>
-              <%= label_tag "null_condition_#{index}", "" %>
-            </td>
+
 
 
             <td class="px-6 py-4 font-medium text-white break-words whitespace-normal max-w-[50%]">

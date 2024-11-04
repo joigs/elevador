@@ -64,7 +64,18 @@ class ReportsController < ApplicationController
 
       if @report[:cert_ant] == 'Si'
         black_number = inspection.number*-1
-         black_inspection = Inspection.find_by(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black')
+
+        puts("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+        puts(black_number)
+        puts(@item.inspect)
+        puts(@item.principal.inspect)
+        puts(inspection.place)
+        puts(inspection.ins_date)
+
+
+         black_inspection = Inspection.find_by(number: black_number, item_id: @item.id, state: 'black', result: 'black')
+
+
 
         if black_inspection
           was_created = false
