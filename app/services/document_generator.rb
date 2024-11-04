@@ -667,21 +667,21 @@ class DocumentGenerator
       if level.include?("G")
         if revision.comment[index].blank?
           errors_graves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. Razón: (No se hizo ningún comentario)"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. (No se hizo ningún comentario)"
 
         else
-          errors_graves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. Razón: #{revision.comment[index]}"
+          errors_graves << "#{revision.codes[index]} #{revision.points[index]}. (#{revision.comment[index]})"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. (#{revision.comment[index]})"
 
         end
       elsif level.include?("L")
         if revision.comment[index].blank?
           errors_leves << ("#{revision.codes[index]} #{revision.points[index]} (No se hizo ningún comentario)")
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. Razón: (No se hizo ningún comentario)"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. (No se hizo ningún comentario)"
 
         else
-          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. Razón: #{revision.comment[index]}"
-          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. Razón: #{revision.comment[index]}"
+          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. (#{revision.comment[index]})"
+          errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. (#{revision.comment[index]})"
 
         end
       end
@@ -1180,7 +1180,7 @@ class DocumentGenerator
           if revision.comment[index2].blank?
             doc.replace('{{tabla_comentario}}', '')
           else
-            doc.replace('{{tabla_comentario}}', "Razón: #{revision.comment[index2]}")
+            doc.replace('{{tabla_comentario}}', "(#{revision.comment[index2]})")
           end
 
 
