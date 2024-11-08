@@ -8,7 +8,6 @@ class RevisionColor < ApplicationRecord
   serialize :comment, type: Array, coder: JSON
   serialize :number, type: Array, coder: JSON
   serialize :priority, type: Array, coder: JSON
-  serialize :encore, type: Array, coder: JSON
 
   belongs_to :revision
 end

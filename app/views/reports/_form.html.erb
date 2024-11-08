@@ -136,14 +136,7 @@
           <%= form.date_field :past_date, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
         </div>
 
-        <div class="mt-3">
-          <%= form.label :inspeccion_anterior_is_rerun, "¿Inspección Anterior es reinspección?", class: "block text-gray-300" %>
-          <%= form.hidden_field :inspeccion_anterior_is_rerun, value: 0 %>
-          <%= form.check_box :inspeccion_anterior_is_rerun, {
-            class: "bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:border-blue-500 text-blue-600",
-            checked: @black_inspection&.rerun || false
-          } %>
-        </div>
+
 
         <%= form.label :cert_ant_real, "Certificación anterior", class: "block text-gray-300" %>
         <div class="flex flex-col items-start space-y-4">
