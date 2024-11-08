@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_04_180814) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_08_190518) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -232,7 +232,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_04_180814) do
     t.text "comment"
     t.integer "section"
     t.text "priority"
-    t.text "encore"
     t.index ["revision_type", "revision_id"], name: "index_revision_colors_on_revision"
   end
 
