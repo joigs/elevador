@@ -1,4 +1,4 @@
-// app/javascript/controllers/delete_confirmation_controller.js
+// app/javascript/controllers/logout_confirmation_controller.js
 import { Controller } from "@hotwired/stimulus"
 import Swal from 'sweetalert2';
 

@@ -106,7 +106,19 @@ class LadderRevisionsController < ApplicationController
     @numbers = [0,1,2,3,4,5,6,7,8,11, 12, 13, 14, 15]
 
 
+    if @item.inspections.size >= 3
+      sorted_inspections = @item.inspections.sort_by do |inspection|
+        [-inspection.number.abs, inspection.number < 0 ? 1 : 0]
+      end
 
+      # Selecciona la tercera inspección en el orden deseado
+      @third_inspection = sorted_inspections[2]
+
+      if @third_inspection
+        @third_revision_base = LadderRevision.find_by(inspection_id: @third_inspection.id)
+        @third_revision = @third_revision_base.revision_colors.find_by(section: @section)
+      end
+    end
 
 
 

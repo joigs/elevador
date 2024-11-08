@@ -194,7 +194,7 @@
 
             <td class="px-6 py-4 text-white justify-center items-center">
 
-              <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision%>
+              <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision && (@inspection.rerun == false || @third_revision&.points&.include?(rule.point)) %>
                 <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
                 <%= hidden_field_tag "ladder_revision[levels][]", "G", data: { rules_form_target: "level" } %>
 

@@ -185,9 +185,13 @@
             <%= hidden_field_tag "revision[points][]", rule.point, data: { rules_form_target: "point" } %>
 
             <td class="px-6 py-4 text-white justify-center items-center">
-              <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision.id %>
+              <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision.id && (@inspection.rerun == false || @third_revision&.points&.include?(rule.point)) %>
+
+
+
                 <%= label_tag "level_#{index}", "Grave (inspección anterior)"%>
                 <%= hidden_field_tag "revision[levels][]", "G", data: {rules_form_target: "level"} %>
+
               <% else %>
                 <% if rule.level.include?('G') && rule.level.include?('L') %>
                   <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
@@ -204,6 +208,7 @@
                 <% end %>
               <% end %>
             </td>
+
             <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
             <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
 

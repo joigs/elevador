@@ -213,8 +213,15 @@ class InspectionsController < ApplicationController
     authorize! inspection
     @manual_action_name = inspection_params[:manual_action_name]
 
+    black_number = inspection.number*-1
+
     # Intenta actualizar la inspección
     if @inspection.update(inspection_params.except(:manual_action_name))
+
+      @black_inspection = Inspection.find_by(number: black_number)
+      if @black_inspection
+        @black_inspection.update(number: @inspection.number*-1)
+      end
       flash[:notice] = "Inspección actualizada"
       redirect_to @inspection
     else
@@ -641,7 +648,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :name, :rerun, :group_id, :principal_id, user_ids: [])
+    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :principal_name, :name, :number, :rerun, :group_id, :principal_id, user_ids: [])
 
   end
   #indices para ordenar
