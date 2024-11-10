@@ -156,7 +156,7 @@ class RevisionsController < ApplicationController
       end
     end
 
-
+    puts("section: #{@section}")
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above

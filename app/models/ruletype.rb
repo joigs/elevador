@@ -19,6 +19,8 @@ class Ruletype < ApplicationRecord
 
 
   has_many :rules, dependent: :destroy
+  has_many :anothers, dependent: :destroy
+
 
   scope :ordered_by_gygatype_number, -> {
     select("ruletypes.*")

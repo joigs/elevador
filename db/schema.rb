@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_08_190518) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_10_024526) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_08_190518) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "anothers", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.text "point", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "ruletype_id", null: false
+    t.string "code"
+    t.string "level"
+    t.string "ins_type"
+    t.bigint "revision_id", null: false
+    t.index ["revision_id"], name: "index_anothers_on_revision_id"
+    t.index ["ruletype_id"], name: "index_anothers_on_ruletype_id"
   end
 
   create_table "details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -311,6 +324,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_08_190518) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "anothers", "revisions"
   add_foreign_key "details", "items"
   add_foreign_key "inspection_users", "inspections"
   add_foreign_key "inspection_users", "users"
