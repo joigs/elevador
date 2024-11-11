@@ -282,9 +282,19 @@
     <% end %>
 
 
+    <% if @section != '0' %>
+      <%= link_to 'Definir defecto para esta inspección',
+                  new_rule_revision_path(inspection_id: @inspection.id, section: @section),
+                  class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300",
+                  data: { controller: "submit-redirect",
+                          action: "click->submit-redirect#submitAndRedirect",
+                          submit_redirect_redirect_url: new_rule_revision_path(inspection_id: @inspection.id, section: @section) } %>
+    <% end %>
 
 
-      <div data-controller="dropdown section-submit" class="px-8 my-6">
+
+
+    <div data-controller="dropdown section-submit" class="px-8 my-6">
         <% current_section_number = @color.section %>
         <% total_sections = 12 %>
 

@@ -77,14 +77,13 @@ Rails.application.routes.draw do
     get :items, on: :member
     get :places, on: :member
   end
-  resources :revisions, path: '/revisions'
-  #do
-  #  member do
-  #    get 'edit_libre', to: 'revisions#edit_libre'
-  #    get 'new_rule', to: 'revisions#new_rule'
-  #    post 'create_rule', to: 'revisions#create_rule'
-  #  end
-  #end
+  resources :revisions, path: '/revisions' do
+    member do
+      #get 'edit_libre', to: 'revisions#edit_libre'
+      get 'new_rule', to: 'revisions#new_rule'
+      post 'create_rule', to: 'revisions#create_rule'
+    end
+  end
 
 
   resources :ladder_revisions, path: '/ladder_revisions'

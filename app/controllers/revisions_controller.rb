@@ -721,29 +721,67 @@ class RevisionsController < ApplicationController
     end
 
     authorize! @revision
+    @section = params[:section]
 
-
-    if @inspection.state == "Cerrado"
+    puts("cosa de section")
+    puts(@section)
+      if @inspection.state == "Cerrado"
       flash[:alert] = "la inspección fué cerrada."
       redirect_to(inspection_path(@inspection))
       return
     end
-    @rule = Rule.new
+    @another = Another.new
   end
 
   def create_rule
     @revision = Revision.find_by(inspection_id: params[:inspection_id])
 
     authorize! @revision
-    @rule = Rule.new(rule_params)
-    @group = @revision.item.group
-    @rule.code="100.1.1"
-    ruletype = Ruletype.find_by('LOWER(rtype) = ?', "placeholder".downcase)
-    @rule.ruletype = ruletype
-    if @rule.save
-      Ruleset.create(rule: @rule, group: @group)
+    @another = Another.new(another_params)
+    @inspection = Inspection.find(params[:inspection_id])
+
+    @section = another_params[:section]
+    puts("aaaaaaaaaawwwwwwwwwwwwwwwwwwwwwww")
+    puts(@section)
+    point = another_params[:point]
+    ins_type = another_params[:ins_type]
+    level = another_params[:level]
+    item = @inspection.item
+    detail = Detail.find_by(item_id: item.id)
+
+    if @section == '9'
+      case detail.sala_maquinas
+      when "No. Máquina en la parte superior"
+        code_prefix = "9.2"
+      when "No. Máquina en foso"
+        code_prefix = "9.3"
+      when "No. Maquinaria fuera de la caja de elevadores"
+        code_prefix = "9.4"
+      else
+        code_prefix = nil
+      end
+
+      if code_prefix
+        ruletype_candidates = Ruletype.where('gygatype_number LIKE ?', "#{code_prefix}%")
+        ruletype = ruletype_candidates.max_by do |rt|
+          rt.gygatype_number.split('.')[2].to_i
+        end
+      end
+    else
+      ruletype_candidates = Ruletype.where('gygatype_number LIKE ?', "#{@section}%")
+      ruletype = ruletype_candidates.max_by do |rt|
+        rt.gygatype_number.split('.')[1].to_i
+      end
+    end
+    code = "#{ruletype.gygatype_number}.1"
+
+
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(@section)
+
+    if Another.create(ruletype: ruletype, point: point, ins_type: ins_type, level: level, revision: @revision, code: code, section: @section)
       flash[:notice] = "Defecto definido"
-      redirect_to edit_libre_revision_path(inspection_id: @revision.inspection_id, section: 100)
+      redirect_to edit_revision_path(inspection_id: @revision.inspection_id, section: @section)
     else
       render :new_rule
     end
@@ -771,8 +809,8 @@ class RevisionsController < ApplicationController
     params.permit(past_revision: {fail: [], codes: [], points: [], levels: []})[:past_revision] || {}
   end
 
-  def rule_params
-    params.require(:rule).permit(:point, { ins_type: [] }, { level: [] })
+  def another_params
+    params.require(:another).permit(:point, :section, { ins_type: [] }, { level: [] })
   end
 
 end
