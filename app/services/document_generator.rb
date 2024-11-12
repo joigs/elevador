@@ -1306,8 +1306,6 @@ class DocumentGenerator
     ]
 
 
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-
 
     another_ruletypes.each do |ruletype|
       matching_anothers = anothers.select do |another|
@@ -1315,52 +1313,46 @@ class DocumentGenerator
       end
 
       if matching_anothers.any?
+        matching_revision_indices = []
         matching_anothers.each do |another|
-          # Buscar índices de revisiones que coincidan con el punto de este 'another'
-          matching_revision_indices = []
           revision.points.each_with_index do |point, index|
             if point == another.point
               matching_revision_indices << index unless matching_revision_indices.include?(index)
-              puts(another.inspect)
             end
-          end
-          puts("e")
-          if matching_revision_indices.any?
-            # Reemplazar valores en el documento para este 'another'
-            doc.replace('{{another_si}}', "No")
-
-            # Verificar si alguna revisión tiene nivel "G"
-            levels = matching_revision_indices.map { |i| revision.levels[i] }
-            if levels.include?("G")
-              doc.replace('{{another_l}}', "Grave")
-            else
-              doc.replace('{{another_l}}', "Leve")
-            end
-            puts("g")
-            # Construir el comentario
-            comentarios = matching_revision_indices.map do |i|
-              puts(i)
-              puts(revision.inspect)
-              comment_text = revision.comment[i].to_s.strip
-              comment = comment_text.empty? ? " (Sin comentarios). " : " (#{comment_text}). "
-              "#{revision.points[i]} #{comment}"
-            end
-            puts("h")
-            doc.replace('{{another_comentario}}', comentarios.join(" "))
-          else
-            # Si no se encontraron revisiones que coincidan para este 'another'
-            doc.replace('{{another_si}}', "Si")
-            doc.replace('{{another_l}}', "")
-            doc.replace('{{another_comentario}}', "")
           end
         end
+
+        if matching_revision_indices.any?
+          doc.replace('{{another_si}}', "No")
+
+          levels = matching_revision_indices.map { |i| revision.levels[i] }
+          if levels.include?("G")
+            doc.replace('{{another_l}}', "Grave")
+          else
+            doc.replace('{{another_l}}', "Leve")
+          end
+
+          comentarios = matching_revision_indices.map do |i|
+            comment_text = revision.comment[i].to_s.strip
+            comment = comment_text.empty? ? "(Sin comentario). " : "(#{comment_text}). "
+            "#{revision.points[i]} #{comment}                                                                           "
+          end
+
+          comentario_final = comentarios.map(&:strip).join(" ")
+
+          doc.replace('{{another_comentario}}', comentario_final)
+        else
+          doc.replace('{{another_si}}', "Si")
+          doc.replace('{{another_l}}', "")
+          doc.replace('{{another_comentario}}', "")
+        end
       else
-        # Si no se encontraron 'another' que coincidan con el 'ruletype'
         doc.replace('{{another_si}}', "Si")
         doc.replace('{{another_l}}', "")
         doc.replace('{{another_comentario}}', "")
       end
     end
+
 
 
 
