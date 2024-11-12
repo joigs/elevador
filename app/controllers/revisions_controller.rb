@@ -795,10 +795,7 @@ class RevisionsController < ApplicationController
     code = "#{ruletype.gygatype_number}.1"
 
 
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(@section)
-
-    if Another.create(ruletype: ruletype, point: point, ins_type: ins_type, level: level, revision: @revision, code: code, section: @section)
+    if Another.create(ruletype: ruletype, point: point, ins_type: ins_type, level: level, item: item, code: code, section: @section)
       flash[:notice] = "Defecto definido"
       redirect_to edit_revision_path(inspection_id: @revision.inspection_id, section: @section)
     else
