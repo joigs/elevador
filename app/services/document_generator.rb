@@ -22,7 +22,42 @@ class DocumentGenerator
     report = Report.find_by(inspection_id: inspection.id)
     admin = User.find(admin_id)
     inspectors = inspection.users
-    rules = group.rules.ordered_by_code.drop(11)
+
+    rules = group.rules.to_a
+
+
+    anothers = Another.where(item_id: item.id)
+
+    additional_rules = anothers.map do |another|
+      Rule.new(
+        point: another.point,
+        level: another.level,
+        code: another.code,
+        ins_type: another.ins_type,
+        ruletype: another.ruletype
+      )
+    end
+
+
+    rules += additional_rules
+
+
+    rules.sort_by! do |rule|
+
+      code_parts = rule.code.split('.')
+      [
+        code_parts[0].to_i,
+        code_parts[1].to_i,
+        code_parts[2].to_i,
+        code_parts[3].to_i
+      ]
+    end
+
+    rules = rules.drop(11)
+
+
+
+
 
     item_rol = item.identificador.chars.last(4).join
 
@@ -1112,7 +1147,7 @@ class DocumentGenerator
       File.delete(file_path) if File.exist?(file_path)
     end
 
-
+    rules = group.rules.ordered_by_code.drop(11)
 
     if group.number == 1
       tabla_path = Rails.root.join('app', 'templates', 'tabla_grupo_1.docx')
@@ -1133,7 +1168,6 @@ class DocumentGenerator
     doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
 
-    puts(revision.comment.inspect)
 
 
 
@@ -1254,6 +1288,79 @@ class DocumentGenerator
       doc.replace('{{tabla_aplica3}}', 'SI APLICA A ÉSTA INSPECCIÓN')
     end
 
+
+    another_ruletypes = [
+      "1.15",
+      "2.17",
+      "3.15",
+      "4.15",
+      "5.18",
+      "6.7",
+      "7.4",
+      "8.16",
+      "9.2.12",
+      "9.3.8",
+      "9.4.3",
+      "10.9",
+      "11.2",
+    ]
+
+
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+
+    another_ruletypes.each do |ruletype|
+      matching_anothers = anothers.select do |another|
+        another.code == "#{ruletype}.1"
+      end
+
+      if matching_anothers.any?
+        matching_anothers.each do |another|
+          # Buscar índices de revisiones que coincidan con el punto de este 'another'
+          matching_revision_indices = []
+          revision.points.each_with_index do |point, index|
+            if point == another.point
+              matching_revision_indices << index unless matching_revision_indices.include?(index)
+              puts(another.inspect)
+            end
+          end
+          puts("e")
+          if matching_revision_indices.any?
+            # Reemplazar valores en el documento para este 'another'
+            doc.replace('{{another_si}}', "No")
+
+            # Verificar si alguna revisión tiene nivel "G"
+            levels = matching_revision_indices.map { |i| revision.levels[i] }
+            if levels.include?("G")
+              doc.replace('{{another_l}}', "Grave")
+            else
+              doc.replace('{{another_l}}', "Leve")
+            end
+            puts("g")
+            # Construir el comentario
+            comentarios = matching_revision_indices.map do |i|
+              puts(i)
+              puts(revision.inspect)
+              comment_text = revision.comment[i].to_s.strip
+              comment = comment_text.empty? ? " (Sin comentarios). " : " (#{comment_text}). "
+              "#{revision.points[i]} #{comment}"
+            end
+            puts("h")
+            doc.replace('{{another_comentario}}', comentarios.join(" "))
+          else
+            # Si no se encontraron revisiones que coincidan para este 'another'
+            doc.replace('{{another_si}}', "Si")
+            doc.replace('{{another_l}}', "")
+            doc.replace('{{another_comentario}}', "")
+          end
+        end
+      else
+        # Si no se encontraron 'another' que coincidan con el 'ruletype'
+        doc.replace('{{another_si}}', "Si")
+        doc.replace('{{another_l}}', "")
+        doc.replace('{{another_comentario}}', "")
+      end
+    end
 
 
 

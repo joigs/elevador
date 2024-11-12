@@ -156,7 +156,23 @@ class RevisionsController < ApplicationController
       end
     end
 
-    puts("section: #{@section}")
+    @anothers = Another.where(item_id: @item.id, section: @section)
+
+    puts(@anothers.first.inspect)
+
+
+    additional_rules = @anothers.map do |another|
+      Rule.new(
+        point: another.point,
+        level: another.level,
+        code: another.code,
+        ins_type: another.ins_type,
+        ruletype: another.ruletype
+      )
+    end
+
+    # Combina las reglas existentes con las nuevas
+    @rules += additional_rules
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above
@@ -767,7 +783,8 @@ class RevisionsController < ApplicationController
     puts(@section)
     point = another_params[:point]
     ins_type = another_params[:ins_type]
-    level = another_params[:level]
+    level = Array(params[:another][:level])
+
     item = @inspection.item
     detail = Detail.find_by(item_id: item.id)
     puts("revisabbbbbbbbb")

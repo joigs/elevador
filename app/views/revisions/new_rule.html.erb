@@ -26,12 +26,13 @@
 
       <div class="mb-4">
         <%= form.label :"Nivel de importancia", class: "block text-gray-300 font-bold mb-2" %>
-        <%= form.collection_check_boxes(:level, [['L', 'L'], ['G', 'G']], :first, :last, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+        <%= form.collection_check_boxes(:level, [['L', 'L'], ['G', 'G']], :first, :last, { include_hidden: false }, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
       </div>
+
 
       <div class="mb-4">
         <%= form.label :"Tipo de defecto", class: "block text-gray-300 font-bold mb-2" %>
-        <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+        <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last, { include_hidden: false },  item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
       </div>
 
       <div class="flex items-center justify-between">
