@@ -1,4 +1,4 @@
 class LadderAnother < ApplicationRecord
-  belongs_to :ladder_revision
+  belongs_to :item
 
 end

@@ -1,5 +1,5 @@
 class Another < ApplicationRecord
   belongs_to :ruletype
-  belongs_to :revision
+  belongs_to :item
 
 end

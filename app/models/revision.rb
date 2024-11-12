@@ -11,7 +11,6 @@ class Revision < ApplicationRecord
   has_many :revision_colors, as: :revision, dependent: :destroy
   has_many :revision_photos, as: :revision, dependent: :destroy
   has_many :revision_nulls, as: :revision, dependent: :destroy
-  has_many :anothers, dependent: :destroy
 
 
   accepts_nested_attributes_for :revision_photos, allow_destroy: true

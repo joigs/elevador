@@ -759,6 +759,9 @@ class RevisionsController < ApplicationController
     @another = Another.new(another_params)
     @inspection = Inspection.find(params[:inspection_id])
 
+    puts("revisaaaaaa")
+    puts(@inspection.inspect)
+
     @section = another_params[:section]
     puts("aaaaaaaaaawwwwwwwwwwwwwwwwwwwwwww")
     puts(@section)
@@ -767,6 +770,8 @@ class RevisionsController < ApplicationController
     level = another_params[:level]
     item = @inspection.item
     detail = Detail.find_by(item_id: item.id)
+    puts("revisabbbbbbbbb")
+    puts(item.inspect)
 
     if @section == '9'
       case detail.sala_maquinas

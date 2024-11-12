@@ -292,14 +292,17 @@
     <% end %>
 
 
-    <% if @section != '0' %>
-      <%= link_to 'Definir defecto para esta inspección',
-                  new_rule_revision_path(inspection_id: @inspection.id, section: @section),
-                  class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300",
-                  data: { controller: "submit-redirect",
-                          action: "click->submit-redirect#submitAndRedirect",
-                          submit_redirect_redirect_url: new_rule_revision_path(inspection_id: @inspection.id, section: @section) } %>
-    <% end %>
+    <div class="my-4 flex justify-center">
+
+      <% if @section != '0' %>
+        <%= link_to 'Definir nuevo defecto para esta inspección',
+                    new_rule_revision_path(inspection_id: @inspection.id, section: @section),
+                    class: "px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-600 transition duration-300",
+                    data: { controller: "submit-redirect",
+                            action: "click->submit-redirect#submitAndRedirect",
+                            submit_redirect_redirect_url: new_rule_revision_path(inspection_id: @inspection.id, section: @section) } %>
+      <% end %>
+    </div>
 
 
 
