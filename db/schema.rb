@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_11_032438) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_12_044236) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -47,9 +47,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_11_032438) do
     t.string "code"
     t.string "level"
     t.string "ins_type"
-    t.bigint "revision_id", null: false
     t.string "section"
-    t.index ["revision_id"], name: "index_anothers_on_revision_id"
+    t.bigint "item_id", null: false
+    t.index ["item_id"], name: "index_anothers_on_item_id"
     t.index ["ruletype_id"], name: "index_anothers_on_ruletype_id"
   end
 
@@ -146,11 +146,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_11_032438) do
     t.datetime "updated_at", null: false
     t.string "code"
     t.string "level"
-    t.bigint "ladder_revision_id", null: false
     t.string "section"
     t.string "priority"
     t.string "number"
-    t.index ["ladder_revision_id"], name: "index_ladder_anothers_on_ladder_revision_id"
+    t.bigint "item_id", null: false
+    t.index ["item_id"], name: "index_ladder_anothers_on_item_id"
   end
 
   create_table "ladder_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -338,7 +338,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_11_032438) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "anothers", "revisions"
   add_foreign_key "details", "items"
   add_foreign_key "inspection_users", "inspections"
   add_foreign_key "inspection_users", "users"
