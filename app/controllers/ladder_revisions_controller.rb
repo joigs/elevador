@@ -295,18 +295,32 @@ class LadderRevisionsController < ApplicationController
       end
 
 
+      @item = @revision_base.item
+      if @item.inspections.size >= 3
+        sorted_inspections = @item.inspections.sort_by do |inspection|
+          [-inspection.number.abs, inspection.number < 0 ? 1 : 0]
+        end
 
+        @third_inspection = sorted_inspections[2]
+
+        if @third_inspection
+          @third_revision_base = LadderRevision.find_by(inspection_id: @third_inspection.id)
+          @third_revision = @third_revision_base.revision_colors.find_by(section: @section)
+        end
+      end
 
         if @black_inspection and black_params.present?
           codes.each_with_index do |code, index|
-            if black_params[:codes].include?(code)
-              black_index_c = black_params[:codes].index(code)
-
-              if black_params[:points].include?(points[index])
-
-                black_index_p = black_params[:points].index(points[index])
-                if black_index_c == black_index_p
-                  levels[index] = "G"
+            if @inspection.rerun == false || @third_revision&.points&.include?(points[index])
+              puts("cosa de reruuuuuuuuuuuuun")
+              puts(points[index])
+              if black_params[:codes].include?(code)
+                black_index_c = black_params[:codes].index(code)
+                if black_params[:points].include?(points[index])
+                  black_index_p = black_params[:points].index(points[index])
+                  if black_index_c == black_index_p
+                    levels[index] = "G"
+                  end
                 end
               end
             end

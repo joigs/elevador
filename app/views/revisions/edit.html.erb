@@ -210,7 +210,7 @@
 
 
                   <% else %>
-                    <%= hidden_field_tag "revision[levels][]", rule.level[0], data: { level_target: "field", rules_form_target: "level" } %>
+                    <%= hidden_field_tag "revision[levels][]", rule.level[0], data: { rules_form_target: "level" } %>
 
                  <% end %>
                 <% end %>
