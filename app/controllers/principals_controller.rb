@@ -40,9 +40,7 @@ class PrincipalsController < ApplicationController
       "07" => "Julio", "08" => "Agosto", "09" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre"
     }
     # Agrupar inspecciones por mes del año seleccionado
-    #@inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year)
-                                        .group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }
-                                        .transform_values(&:count)
+    #@inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year).group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }.transform_values(&:count)
     @inspections_by_month = @inspections
     # Agrupar inspecciones por año
     #@inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }.transform_values(&:count)
