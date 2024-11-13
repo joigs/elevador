@@ -1,8 +1,9 @@
+// app/javascript/controllers/force_close_controller.js
+
 import { Controller } from "@hotwired/stimulus"
 import Swal from 'sweetalert2'
 
-
-//controlador para forzar cierre de inspeccion como admin
+// Controlador para forzar cierre de inspección como admin
 export default class extends Controller {
     static values = {
         hasIncompleteRevisionColors: Boolean
@@ -47,6 +48,11 @@ export default class extends Controller {
     }
 
     submitForm() {
-        document.getElementById('force-close-form').submit()
+        const form = document.getElementById('force-close-form')
+        if (form) {
+            form.submit()
+        } else {
+            console.error("Formulario oculto 'force-close-form' no encontrado.")
+        }
     }
 }

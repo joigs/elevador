@@ -79,15 +79,23 @@
       <% end %>
 
       <% if Current.user.admin && @inspection.state != "Cerrado" %>
-        <%= form_with url: force_close_inspection_inspection_path(@inspection), method: :patch, id: 'force-close-form', local: true do |form| %>
-          <button data-controller="force-close"
-                  data-action="click->force-close#confirmClose"
-                  data-force-close-has-incomplete-revision-colors-value="<%= @has_incomplete_revision_colors %>"
-                  class="px-4 py-2 rounded bg-teal-600 text-gray-900 font-bold hover:bg-teal-700 transition duration-300">
-            Forzar cierre de inspección
-          </button>
-        <% end %>
+        <div class="flex justify-center w-full">
+          <%= link_to 'Forzar cierre de inspección', '#',
+                      class: "w-full px-4 py-2 rounded bg-teal-600 text-gray-900 font-bold hover:bg-teal-700 transition duration-300",
+                      data: {
+                        controller: "force-close",
+                        action: "click->force-close#confirmClose",
+                        force_close_has_incomplete_revision_colors_value: @has_incomplete_revision_colors
+                      } %>
+          <%= form_with url: force_close_inspection_inspection_path(@inspection), method: :patch, id: 'force-close-form', local: true, style: 'display: none;' do |form| %>
+          <% end %>
+        </div>
+
+
       <% end %>
+
+
+
 
       <%= link_to 'Generar informe', download_document_inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" if @inspection.state=="Cerrado" && Current.user.admin && @report.ending%>
       <%= link_to "Modificar inspección", edit_inspection_path(@inspection), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" if Current.user.admin || @inspection.owner? %>
