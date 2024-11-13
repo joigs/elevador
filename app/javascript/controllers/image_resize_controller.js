@@ -28,7 +28,7 @@ export default class extends Controller {
                     const canvas = document.createElement('canvas')
                     const ctx = canvas.getContext('2d')
 
-                    const maxDimension = 400
+                    const maxDimension = 600
                     let width = image.width
                     let height = image.height
 
