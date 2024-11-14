@@ -31,8 +31,8 @@ class PrincipalsController < ApplicationController
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
 
     # Extraer todos los años con inspecciones
-    #@available_years = @inspections.map { |inspection| inspection.ins_date.year }.uniq.sort
-    @available_years = @inspections
+    @available_years = @inspections.map { |inspection| inspection.ins_date.year }.uniq.sort
+    #@available_years = @inspections
     # Año seleccionado (por defecto el más reciente)
     @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
     month_mapping = {
@@ -40,17 +40,17 @@ class PrincipalsController < ApplicationController
       "07" => "Julio", "08" => "Agosto", "09" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre"
     }
     # Agrupar inspecciones por mes del año seleccionado
-    #@inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year).group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }.transform_values(&:count)
-    @inspections_by_month = @inspections
+    @inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year).group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }.transform_values(&:count)
+    #@inspections_by_month = @inspections
     # Agrupar inspecciones por año
-    #@inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }.transform_values(&:count)
-    @inspections_by_year = @inspections
+    @inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }.transform_values(&:count)
+    #@inspections_by_year = @inspections
     # Gráfico de resultados de inspecciones
-    #@inspection_results = @inspections.group(:result).count
-    @inspection_results = @inspections
+    @inspection_results = @inspections.group(:result).count
+    #@inspection_results = @inspections
     # Gráfico de estados de inspecciones
-    #@inspection_states = @inspections.group(:state).count
-    @inspection_states = @inspections
+    @inspection_states = @inspections.group(:state).count
+    #@inspection_states = @inspections
     @chart_type = params[:chart_type] || 'line'
     @colors = [
       '#ff6347', '#4682b4', '#32cd32', '#ffd700', '#6a5acd', '#ff69b4', '#8a2be2', '#00ced1', '#ff4500', '#2e8b57',
