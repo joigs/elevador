@@ -31,10 +31,10 @@ class PrincipalsController < ApplicationController
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
 
     # Extraer todos los años con inspecciones
-    @available_years = @inspections.select("DISTINCT YEAR(ins_date) AS year").map(&:year).sort
+    #@available_years = @inspections.select("DISTINCT YEAR(ins_date) AS year").map(&:year).sort
 
     # Año seleccionado (por defecto el más reciente)
-    #@selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
+    @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
     @available_years = @inspections
     # Mapeo de meses
     month_mapping = {
