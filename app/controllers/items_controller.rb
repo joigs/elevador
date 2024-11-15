@@ -16,9 +16,20 @@ class ItemsController < ApplicationController
 
   def show
     item
+
+    @q = item.inspections.where("number > 0").ransack(params[:q])
+    @inspections = @q.result(distinct: true).order(number: :desc)
+
+    if Current.user.tabla
+      @pagy, @inspections = pagy(@inspections, items: 10)  # Paginación tradicional para la tabla
+    else
+      @pagy, @inspections = pagy_countless(@inspections, items: 10)  # Paginación infinita para las tarjetas
+    end
+
+
+
     @inspection = Inspection.where(item: @item).order(number: :desc).first
     @condicion =  Current.user.admin || @item.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
-
   end
 
   def new
