@@ -68,7 +68,7 @@
                 <td class="px-6 py-4 whitespace-normal break-words"><%= user.email %></td>
                 <td class="px-6 py-4 whitespace-normal break-words"><%= user.profesion %></td>
                 <td class="px-6 py-4">
-                  <%= link_to 'Ver más detalles', user_path(user), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
+                  <%= link_to 'Ver usuario', user_path(user), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
                 </td>
               </tr>
             <% end %>

@@ -63,8 +63,9 @@
             <% @inspections.each do |inspection| %>
               <tr class="bg-gray-800 border-b border-gray-700">
                 <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.number %></td>
-                <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.item&.identificador %></td>
-                <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.item&.principal&.name %></td>
+                <td class="px-6 py-4 whitespace-normal break-words text-blue-500"><%= link_to "#{inspection.item&.identificador}", item_path(inspection.item),  data: { turbo_frame: "_top" } %></td>
+                <td class="px-6 py-4 whitespace-normal break-words text-blue-500"><%= link_to "#{inspection.item&.principal&.name}", principal_path(inspection.item.principal),  data: { turbo_frame: "_top" } %></td>
+
                 <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.ins_date) %></td>
                 <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.result %></td>
                 <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.report&.ending) %></td>

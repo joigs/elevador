@@ -6,13 +6,13 @@
     </p>
 
     <p class="text-gray-400">
-      <strong class="text-gray-200 text-2xl">Identificador: <%= inspection.item&.identificador %></strong>
+      <strong class="text-gray-200 text-2xl">Identificador: <%= link_to "#{inspection.item&.identificador}", item_path(inspection.item), class:"text-blue-500", data: { turbo_frame: "_top" } %></strong>
 
     </p>
 
     <p class="text-gray-400">
       <strong class="text-gray-200">Empresa:</strong>
-      <%= inspection.item&.principal&.name %>
+      <%= link_to "#{inspection.item&.principal&.name}", principal_path(inspection.item.principal), class:"text-blue-500", data: { turbo_frame: "_top" } %>
     </p>
 
     <p class="text-gray-400">

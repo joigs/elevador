@@ -79,17 +79,18 @@
               <tr class="bg-gray-800 border-b border-gray-700">
                 <td class="px-6 py-4 whitespace-normal break-words"><%= item.identificador %></td>
                 <td class="px-6 py-4 whitespace-normal break-words">Grupo N°<%= item.group.number %></td>
-                <td class="px-6 py-4 whitespace-normal break-words"><%= item.principal&.name %></td>
+                <td class="px-6 py-4 whitespace-normal break-words text-blue-500"><%= link_to "#{item.principal&.name}", principal_path(item.principal), data: { turbo_frame: "_top" } %></td>
+
                 <% inspection = last_inspection(item) %>
                 <% if inspection %>
                   <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.ins_date) %></td>
-                  <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.result %></td>
+                  <td class="px-6 py-4 whitespace-normal break-words"><%= link_to "#{inspection.result}", inspection_path(inspection), class:"text-blue-500", data: { turbo_frame: "_top" } %></td>
                 <% else %>
                   <td class="px-6 py-4 whitespace-normal break-words">Aun no hay inspecciones</td>
                   <td class="px-6 py-4 whitespace-normal break-words">N/A</td>
                 <% end %>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <%= link_to 'Ver más detalles', item_path(item), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
+                  <%= link_to 'Ver activo', item_path(item), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
                 </td>
               </tr>
             <% end %>
