@@ -27,15 +27,11 @@ class PrincipalsController < ApplicationController
       @pagy, @items = pagy_countless(@items, items: 10)  # Paginación infinita para las tarjetas
     end
 
-    # Obtener todas las inspecciones de la empresa
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
 
-    # Extraer todos los años con inspecciones
     @available_years = @inspections.map { |inspection| inspection.ins_date.year }.uniq.sort
-    # Año seleccionado (por defecto el más reciente)
     @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
 
-    # Mapeo de meses con orden
     month_order = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
     month_mapping = {
@@ -43,31 +39,23 @@ class PrincipalsController < ApplicationController
       "07" => "Julio", "08" => "Agosto", "09" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre"
     }
 
-    # Filtrar inspecciones del año seleccionado
     inspections_for_year = @inspections.select { |inspection| inspection.ins_date.year == @selected_year }
 
-    # Agrupar inspecciones por mes del año seleccionado y ordenar
     @inspections_by_month = inspections_for_year.group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }
                                                 .transform_values(&:count)
-    # Ordenar por el orden de los meses
     @inspections_by_month = @inspections_by_month.sort_by { |month, _| month_order.index(month) }.to_h
 
     # Agrupar inspecciones por año y ordenar
     @inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }
                                        .transform_values(&:count)
-    # Ordenar por año
     @inspections_by_year = @inspections_by_year.sort_by { |year, _| year }.to_h
 
-    # Orden específico para los resultados
     result_order = ["Aprobado", "Rechazado", "En revisión", "Creado"]
     @inspection_results = @inspections.group_by(&:result).transform_values(&:count)
-    # Ordenar por el orden especificado
     @inspection_results = @inspection_results.sort_by { |result, _| result_order.index(result) || result_order.size }.to_h
 
-    # Orden específico para los estados
     state_order = ["Cerrado", "Abierto"]
     @inspection_states = @inspections.group_by(&:state).transform_values(&:count)
-    # Ordenar por el orden especificado
     @inspection_states = @inspection_states.sort_by { |state, _| state_order.index(state) || state_order.size }.to_h
 
     @chart_type = params[:chart_type] || 'line'
