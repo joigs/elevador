@@ -22,7 +22,6 @@ class Item < ApplicationRecord
   has_one :ladder_detail, dependent: :destroy
   has_many :ladder_revisions, dependent: :destroy
   has_many :anothers, dependent: :destroy
-  has_many :ladder_anothers, dependent: :destroy
 
 
   def inspector?

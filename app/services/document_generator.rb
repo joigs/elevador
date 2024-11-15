@@ -370,13 +370,16 @@ class DocumentGenerator
       doc.replace('{{normas_de_referencia}}', 'NCh 440/1 :2014 y NCh 440/2 :2001 y NCh 3362.')
     end
 
+    last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
+    if last_inspection
+      last_revision_base = Revision.find_by(inspection_id: last_inspection.id)
+
+    end
 
 
-    last_revision_base = Revision.where(item_id: item.id).order(created_at: :desc).offset(1).first
-
-    last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
 
     if last_revision_base
+      last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
 
 
       last_revision_base.revision_colors.order(:section).each do |revision_color|

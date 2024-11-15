@@ -253,12 +253,16 @@ class DocumentGeneratorLadder
 
 
     last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
-    last_revision_base = LadderRevision.find_by(inspection_id: last_inspection.id)
+    if last_inspection
+      last_revision_base = LadderRevision.find_by(inspection_id: last_inspection.id)
+
+    end
 
     last_errors = []
     last_errors_lift = []
-    last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
     if last_revision_base
+      last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
+
       last_revision_base.revision_colors.order(:section).each do |revision_color|
         last_revision.codes.concat(revision_color.codes || [])
         last_revision.points.concat(revision_color.points || [])
@@ -454,16 +458,11 @@ class DocumentGeneratorLadder
       match = item.match(/•(\d+)\./)
       next unless match # Saltar si no se encuentra un número
       number = match[1] # El número correspondiente
-      # Saltar números ya eliminados en lógica anterior (como la de sala_maquinas)
-      if detail.sala_maquinas == "Si"
-        next if number == "9"
-      else
-        next if number == "2"
-      end
+
       # Contar rules que empiezan con ese número
-      rules_count = rules.select { |rule| rule.code.start_with?(number) }.count
+      rules_count = rules.select { |rule| rule.code.start_with?("5.#{number}") }.count
       # Contar revision_nulls_total que empiezan con ese número
-      revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?(number) }.count
+      revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?("5.#{number}") }.count
       # Si la cantidad es igual, eliminar el texto correspondiente
       if rules_count == revision_nulls_count
         cumple_text.gsub!(item, '')
