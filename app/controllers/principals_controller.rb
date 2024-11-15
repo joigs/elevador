@@ -58,7 +58,7 @@ class PrincipalsController < ApplicationController
     @inspection_states = @inspections.group_by(&:state).transform_values(&:count)
     @inspection_states = @inspection_states.sort_by { |state, _| state_order.index(state) || state_order.size }.to_h
 
-    @chart_type = params[:chart_type] || 'line'
+    @chart_type = params[:chart_type] || 'bar'
     @colors = [
       '#ff6347', '#4682b4', '#32cd32', '#ffd700', '#6a5acd', '#ff69b4', '#8a2be2', '#00ced1', '#ff4500', '#2e8b57',
       '#ff7f50', '#6495ed', '#9932cc', '#3cb371', '#b8860b', '#ff1493', '#1e90ff', '#daa520', '#ba55d3', '#7b68ee',

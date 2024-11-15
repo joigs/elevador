@@ -28,10 +28,8 @@
           <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
 
             <div class="mb-6 flex space-x-4 justify-center py-4">
-              <%= link_to 'Gráfico de Línea', principal_path(@principal, tab: 'statistics', chart_type: 'line'), class: "px-4 py-2 rounded #{params[:chart_type] == 'line' || params[:chart_type].nil? ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
               <%= link_to 'Gráfico de Barra', principal_path(@principal, tab: 'statistics', chart_type: 'bar'), class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
               <%= link_to 'Gráfico de Torta', principal_path(@principal, tab: 'statistics', chart_type: 'pie'), class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
-              <%= link_to 'Gráfico de Columna', principal_path(@principal, tab: 'statistics', chart_type: 'column'), class: "px-4 py-2 rounded #{params[:chart_type] == 'column' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
             </div>
 
             <%= turbo_frame_tag 'content_frame2' do %>

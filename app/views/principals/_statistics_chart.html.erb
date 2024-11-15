@@ -10,24 +10,6 @@
   </div>
 
   <% case chart_type %>
-  <% when 'line' %>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Mes (Año <%= @selected_year %>)</h2>
-      <%= line_chart @inspections_by_month, colors: @colors.cycle.take(@inspections_by_month.size), label: "Cantidad de Inspecciones" %>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Año</h2>
-      <%= line_chart @inspections_by_year, colors: @colors.cycle.take(@inspections_by_year.size), label: "Cantidad de Inspecciones" %>
-    </div>
-
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Resultados de Inspecciones</h2>
-      <%= line_chart @inspection_results, colors: @colors.cycle.take(@inspection_results.size), label: "Cantidad de Resultados" %>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Estado</h2>
-      <%= line_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size), label: "Cantidad de Estados" %>
-    </div>
   <% when 'bar' %>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Mes (Año <%= @selected_year %>)</h2>
@@ -62,22 +44,6 @@
       <h2 class="text-xl text-white mb-2">Inspecciones por Estado</h2>
       <%= pie_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size) %>
     </div>
-  <% when 'column' %>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Mes (Año <%= @selected_year %>)</h2>
-      <%= column_chart @inspections_by_month, colors: @colors.cycle.take(@inspections_by_month.size), label: "Cantidad de Inspecciones" %>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Año</h2>
-      <%= column_chart @inspections_by_year, colors: @colors.cycle.take(@inspections_by_year.size), label: "Cantidad de Inspecciones" %>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Resultados de Inspecciones</h2>
-      <%= column_chart @inspection_results, colors: @colors.cycle.take(@inspection_results.size), label: "Cantidad de Resultados" %>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Estado</h2>
-      <%= column_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size), label: "Cantidad de Estados" %>
-    </div>
+
   <% end %>
 </div>
