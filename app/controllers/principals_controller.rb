@@ -34,8 +34,8 @@ class PrincipalsController < ApplicationController
     @available_years = @inspections.select("DISTINCT YEAR(ins_date) AS year").map(&:year).sort
 
     # Año seleccionado (por defecto el más reciente)
-    @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
-
+    #@selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
+    @available_years = @inspections
     # Mapeo de meses
     month_mapping = {
       "01" => "Enero", "02" => "Febrero", "03" => "Marzo", "04" => "Abril", "05" => "Mayo", "06" => "Junio",
@@ -43,24 +43,26 @@ class PrincipalsController < ApplicationController
     }
 
     # Agrupar inspecciones por mes del año seleccionado
-    #@inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year).group("MONTH(ins_date)").order("MONTH(ins_date)").count
-    #@inspections_by_month = @inspections_by_month.transform_keys { |month| month_mapping[format('%02d', month)] }
+    @inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year)
+                                        .group("MONTH(ins_date)")
+                                        .order("MONTH(ins_date)")
+                                        .count
+    @inspections_by_month = @inspections_by_month.transform_keys { |month| month_mapping[format('%02d', month)] }
 
     # Agrupar inspecciones por año
-    #@inspections_by_year = @inspections.group("YEAR(ins_date)").order("YEAR(ins_date)").count
-
-
-    @inspections_by_month = @inspections
-    @inspections_by_year = @inspections
+    @inspections_by_year = @inspections.group("YEAR(ins_date)").order("YEAR(ins_date)").count
 
 
     # Gráfico de resultados de inspecciones
-    #@inspection_results = @principal.inspections.group(:result).count
+    @inspection_results = @principal.inspections
+                                    .group(:result)
+                                    .count
 
     # Gráfico de estados de inspecciones
-    #@inspection_states = @principal.inspections.group(:state).count
-    @inspection_results = @inspections
-    @inspections_states = @inspections
+    @inspection_states = @principal.inspections
+                                   .group(:state)
+                                   .count
+
     @chart_type = params[:chart_type] || 'line'
     @colors = [
       '#ff6347', '#4682b4', '#32cd32', '#ffd700', '#6a5acd', '#ff69b4', '#8a2be2', '#00ced1', '#ff4500', '#2e8b57',
