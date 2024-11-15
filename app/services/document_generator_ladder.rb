@@ -294,18 +294,22 @@ class DocumentGeneratorLadder
         doc.replace('{{revision_past_errors_level_lift}}', "")
 
       else
-
-
+        control9384 = false
 
         last_revision.levels.each_with_index do |level, index|
-          if revision.codes.include?(last_revision.codes[index])
-            if revision.points.include?(last_revision.points[index])
-              last_errors << last_revision.codes[index] + " " + last_revision.points[index]
+
+          if level == "L"
+            control9384 = true
+
+            if revision.codes.include?(last_revision.codes[index])
+              if revision.points.include?(last_revision.points[index])
+                last_errors << last_revision.codes[index] + " " + last_revision.points[index]
+              else
+                last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
+              end
             else
               last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
-          else
-            last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
           end
         end
 
@@ -315,7 +319,13 @@ class DocumentGeneratorLadder
         if last_errors.blank?
 
 
-          doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas, indicadas en certificación anterior.")
+          if control9384 == true
+            doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+
+          else
+            doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')} no presenta Faltas leves")
+
+          end
           doc.replace('{{revision_past_errors_level}}', "")
           doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
 
@@ -915,10 +925,19 @@ class DocumentGeneratorLadder
 
         if level121 == 'L'
           doc.replace('{{tabla_l}}', 'Leve')
-
         else
-          doc.replace('{{tabla_l}}', 'Grave')
-
+          found_in_last_revision = false
+          last_revision&.codes&.each_with_index do |last_code, index|
+            if last_code == rule.code && last_revision.points[index] == rule.point && last_revision.levels[index] == 'L'
+              found_in_last_revision = true
+              break
+            end
+          end
+          if found_in_last_revision
+            doc.replace('{{tabla_l}}', 'Grave (repite)')
+          else
+            doc.replace('{{tabla_l}}', 'Grave')
+          end
         end
         if revision.comment[index2].blank?
           doc.replace('{{tabla_comentario}}', 'No se hizo ningún comentario')

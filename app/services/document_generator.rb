@@ -420,9 +420,14 @@ class DocumentGenerator
 
       else
 
-
+        control9384 = false
 
         last_revision.levels.each_with_index do |level, index|
+
+          if level == "L"
+            control9384 = true
+
+
             if revision.codes.include?(last_revision.codes[index])
               if revision.points.include?(last_revision.points[index])
                 last_errors << last_revision.codes[index] + " " + last_revision.points[index]
@@ -432,6 +437,8 @@ class DocumentGenerator
             else
               last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
+          end
+
         end
 
         formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                                   " }.join("\n")
@@ -439,8 +446,14 @@ class DocumentGenerator
 
         if last_errors.blank?
 
+          if control9384 == true
+            doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
 
-          doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas, indicadas en certificación anterior.")
+          else
+            doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')} no presenta Faltas leves")
+
+          end
+
           doc.replace('{{revision_past_errors_level}}', "")
           doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
 
@@ -1150,6 +1163,9 @@ class DocumentGenerator
       File.delete(file_path) if File.exist?(file_path)
     end
 
+
+
+
     rules = group.rules.ordered_by_code.drop(11)
 
     if group.number == 1
@@ -1176,6 +1192,11 @@ class DocumentGenerator
 
     rules.each_with_index do |rule, index|
 
+      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+      puts("pasa por rules #{index}")
+      puts("son #{rules.size} rules")
+
+      puts(rule.inspect)
 
       apply_weird = false
 
@@ -1213,6 +1234,7 @@ class DocumentGenerator
       end
 
       unless apply_weird
+        puts("a")
         index2 = nil
         revision.codes.each_with_index do |code, index|
           if code == rule.code && revision.points[index] == rule.point
@@ -1222,10 +1244,12 @@ class DocumentGenerator
         end
 
         if index2
-
+          puts("b")
           if revision.comment[index2].blank?
+            puts("c")
             doc.replace('{{tabla_comentario}}', '')
           else
+            puts("d")
             doc.replace('{{tabla_comentario}}', "(#{revision.comment[index2]})")
           end
 
@@ -1237,19 +1261,21 @@ class DocumentGenerator
           if level121 == 'L'
             doc.replace('{{tabla_l}}', 'Leve')
           else
+            puts("e")
             found_in_last_revision = false
-            last_revision.codes.each_with_index do |last_code, index|
-              if last_code == rule.code && last_revision.points[index] == rule.point
+            last_revision&.codes&.each_with_index do |last_code, index|
+              if last_code == rule.code && last_revision.points[index] == rule.point && last_revision.levels[index] == 'L'
                 found_in_last_revision = true
                 break
               end
             end
-
+            puts("y")
             if found_in_last_revision
               doc.replace('{{tabla_l}}', 'Grave (repite)')
             else
               doc.replace('{{tabla_l}}', 'Grave')
             end
+            puts("z")
           end
 
         elsif revision_nulls_total.any? { |null| null.point == "#{rule.code}_#{rule.point}" }
