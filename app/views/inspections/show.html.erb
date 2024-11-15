@@ -2,7 +2,7 @@
   <div class="flex flex-wrap">
     <div class="text-white lg:w-2/3 pr-4 mb-2">
       <div class="flex items-center justify-between w-full">
-        <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %></p>
+        <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %>  <%= @inspection.name %></p>
 
         <div class="mt-0 mx-2" data-controller="warning"
              data-warning-ins-date="<%= @inspection.ins_date %>"
