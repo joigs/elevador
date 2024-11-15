@@ -43,10 +43,7 @@ class PrincipalsController < ApplicationController
     }
 
     # Agrupar inspecciones por mes del año seleccionado
-    #@inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year)
-                                        .group("MONTH(ins_date)")
-                                        .order("MONTH(ins_date)")
-                                        .count
+    #@inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year).group("MONTH(ins_date)").order("MONTH(ins_date)").count
     #@inspections_by_month = @inspections_by_month.transform_keys { |month| month_mapping[format('%02d', month)] }
     @inspections_by_month = @inspections
 
