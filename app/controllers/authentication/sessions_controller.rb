@@ -23,7 +23,7 @@ class Authentication::SessionsController < ApplicationController
       flash[:notice] = "Bienvenido"
       redirect_to home_path
     else
-      redirect_to new_session_path, alert: "Credenciales invalidas"
+      redirect_to new_session_path, alert: "Credenciales inválidas"
     end
 
   end

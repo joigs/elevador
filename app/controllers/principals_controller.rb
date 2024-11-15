@@ -31,26 +31,41 @@ class PrincipalsController < ApplicationController
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
 
     # Extraer todos los años con inspecciones
-    @available_years = @inspections.map { |inspection| inspection.ins_date.year }.uniq.sort
-    #@available_years = @inspections
+    @available_years = @inspections.select("DISTINCT YEAR(ins_date) AS year").map(&:year).sort
+
     # Año seleccionado (por defecto el más reciente)
     @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
+
+    # Mapeo de meses
     month_mapping = {
       "01" => "Enero", "02" => "Febrero", "03" => "Marzo", "04" => "Abril", "05" => "Mayo", "06" => "Junio",
       "07" => "Julio", "08" => "Agosto", "09" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre"
     }
+
     # Agrupar inspecciones por mes del año seleccionado
-    @inspections_by_month = @inspections.where("YEAR(ins_date) = ?", @selected_year).group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }.transform_values(&:count)
-    #@inspections_by_month = @inspections
+    @inspections_by_month = @principal.inspections
+                                      .where("YEAR(ins_date) = ?", @selected_year)
+                                      .group("MONTH(ins_date)")
+                                      .count
+                                      .transform_keys { |month| month_mapping[month.to_s.rjust(2, '0')] }
+
     # Agrupar inspecciones por año
-    @inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }.transform_values(&:count)
-    #@inspections_by_year = @inspections
+    @inspections_by_year = @principal.inspections
+                                     .select("YEAR(ins_date) AS year, COUNT(*) AS count")
+                                     .group("YEAR(ins_date)")
+                                     .map { |record| [record.year, record.count] }
+                                     .to_h
+
     # Gráfico de resultados de inspecciones
-    @inspection_results = @inspections.group(:result).count
-    #@inspection_results = @inspections
+    @inspection_results = @principal.inspections
+                                    .group(:result)
+                                    .count
+
     # Gráfico de estados de inspecciones
-    @inspection_states = @inspections.group(:state).count
-    #@inspection_states = @inspections
+    @inspection_states = @principal.inspections
+                                   .group(:state)
+                                   .count
+
     @chart_type = params[:chart_type] || 'line'
     @colors = [
       '#ff6347', '#4682b4', '#32cd32', '#ffd700', '#6a5acd', '#ff69b4', '#8a2be2', '#00ced1', '#ff4500', '#2e8b57',
@@ -58,15 +73,14 @@ class PrincipalsController < ApplicationController
       '#ff4500', '#ffa07a', '#20b2aa', '#87cefa', '#b22222', '#ffdead', '#8fbc8f', '#ff6347', '#6b8e23', '#a9a9a9',
       '#ffe4b5', '#fa8072', '#eee8aa', '#98fb98', '#afeeee', '#cd5c5c', '#ff69b4', '#2e8b57', '#8a2be2', '#20b2aa',
       '#dda0dd', '#66cdaa', '#f08080', '#e9967a', '#3cb371', '#f5deb3', '#ff6347', '#40e0d0', '#4682b4', '#db7093',
-
     ]
-
 
     respond_to do |format|
       format.html
       format.turbo_stream
     end
   end
+
 
 
   # GET /principals/new
