@@ -13,15 +13,20 @@
             <% end %>
           <% end %>
         </div>
-        <div class="flex justify-between mt-1">
-          <%= button_tag '⟲', type: 'button', data: { action: 'rotate#rotateLeft' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
-          <%= button_tag '⟳', type: 'button', data: { action: 'rotate#rotateRight' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
-        </div>
+
+        <% if Current.user.admin? || @inspection.owner? %>
+
+          <div class="flex justify-between mt-1 mb-4">
+              <%= button_tag '⟲', type: 'button', data: { action: 'rotate#rotateLeft' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+              <%= button_tag '⟳', type: 'button', data: { action: 'rotate#rotateRight' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+          </div>
+        <% end %>
+
       </div>
       <div class="p-3 bg-gray-700 rounded-lg mb-6">
-    <span class="text-gray-300">
-      <%= photo.code.sub('GENERALCODE', '') %>
-    </span>
+        <span class="text-gray-300">
+          <%= photo.code.sub('GENERALCODE', '') %>
+        </span>
       </div>
     <% end %>
 

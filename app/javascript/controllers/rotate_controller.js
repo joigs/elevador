@@ -38,6 +38,8 @@ export default class extends Controller {
                     const img = this.element.querySelector('img');
                     const timestamp = new Date().getTime();
                     img.src = img.src.split('?')[0] + '?t=' + timestamp;
+                    window.location.reload()
+
                 } else {
                     alert('Error rotando imagen');
                 }

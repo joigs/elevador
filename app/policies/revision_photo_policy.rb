@@ -1,10 +1,10 @@
 class RevisionPhotoPolicy < BasePolicy
   def method_missing(m, *args, &block)
-    record.only_owner?
+    record.only_owner? || Current.user.admin
   end
 
   def destroy?
-    record.only_owner?
+    record.only_owner? || Current.user.admin
   end
 
   def rotate

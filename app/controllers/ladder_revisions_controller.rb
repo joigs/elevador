@@ -161,7 +161,6 @@ class LadderRevisionsController < ApplicationController
 
     @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
       if photo.photo.attached?
-        puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         puts(photo.inspect)
         (hash[photo.code] ||= []) << photo
       end
