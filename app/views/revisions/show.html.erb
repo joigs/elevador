@@ -4,13 +4,19 @@
 
     <h2 class="text-2xl font-semibold mb-3">Imágenes Generales</h2>
     <% @general_revision_photos.each do |photo| %>
-      <div class="relative inline-block">
-        <%= image_tag photo.photo, width: 200, class: "w-48 rounded-lg shadow-lg m-1" %>
-        <% if Current.user.admin? || @inspection.owner? %>
-          <%= form_with url: revision_photo_path(photo), method: :delete, data: { controller: 'confirm-delete' }, class: 'absolute top-0 right-0' do |form| %>
-            <%= form.submit '✖', data: { action: 'confirm-delete#confirm' }, class: 'bg-red-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+      <div class="relative inline-block" data-controller="rotate" data-photo-id="<%= photo.id %>">
+        <div class="relative">
+          <%= image_tag photo.photo, width: 200, class: "w-48 rounded-lg shadow-lg m-1" %>
+          <% if Current.user.admin? || @inspection.owner? %>
+            <%= form_with url: revision_photo_path(photo), method: :delete, data: { controller: 'confirm-delete' }, class: 'absolute top-0 right-0' do |form| %>
+              <%= form.submit '✖', data: { action: 'confirm-delete#confirm' }, class: 'bg-red-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+            <% end %>
           <% end %>
-        <% end %>
+        </div>
+        <div class="flex justify-between mt-1">
+          <%= button_tag '⟲', type: 'button', data: { action: 'rotate#rotateLeft' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+          <%= button_tag '⟳', type: 'button', data: { action: 'rotate#rotateRight' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+        </div>
       </div>
       <div class="p-3 bg-gray-700 rounded-lg mb-6">
     <span class="text-gray-300">
@@ -18,6 +24,7 @@
     </span>
       </div>
     <% end %>
+
 
 
 
@@ -33,15 +40,22 @@
           <% constructed_code = "#{code} #{@revision.points[index]}" %>
           <% photos = @photos_by_code[constructed_code] || [] %>
           <% photos.each do |photo| %>
-            <div class="relative inline-block">
-              <%= image_tag photo.photo, width: 200, class: "w-48 rounded-lg shadow-lg m-1" %>
-              <% if Current.user.admin? || @inspection.owner? %>
-                <%= form_with url: revision_photo_path(photo), method: :delete, data: { controller: 'confirm-delete' }, class: 'absolute top-0 right-0' do |form| %>
-                  <%= form.submit '✖', data: { action: 'confirm-delete#confirm' }, class: 'bg-red-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+            <div class="relative inline-block" data-controller="rotate" data-photo-id="<%= photo.id %>">
+              <div class="relative">
+                <%= image_tag photo.photo, width: 200, class: "w-48 rounded-lg shadow-lg m-1" %>
+                <% if Current.user.admin? || @inspection.owner? %>
+                  <%= form_with url: revision_photo_path(photo), method: :delete, data: { controller: 'confirm-delete' }, class: 'absolute top-0 right-0' do |form| %>
+                    <%= form.submit '✖', data: { action: 'confirm-delete#confirm' }, class: 'bg-red-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+                  <% end %>
                 <% end %>
-              <% end %>
+              </div>
+              <div class="flex justify-between mt-1">
+                <%= button_tag '⟲', type: 'button', data: { action: 'rotate#rotateLeft' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+                <%= button_tag '⟳', type: 'button', data: { action: 'rotate#rotateRight' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+              </div>
             </div>
           <% end %>
+
 
 
         </div>

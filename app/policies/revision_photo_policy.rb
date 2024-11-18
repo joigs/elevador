@@ -6,4 +6,8 @@ class RevisionPhotoPolicy < BasePolicy
   def destroy?
     record.only_owner?
   end
+
+  def rotate
+    record.only_owner? || Current.user.admin
+  end
 end
