@@ -1239,7 +1239,7 @@ class DocumentGenerator
         revision.codes.each_with_index do |code, index|
           if code == rule.code && revision.points[index] == rule.point
             index2 = index
-            break # Salimos del loop al encontrar la primera coincidencia
+            break
           end
         end
 
@@ -1261,7 +1261,6 @@ class DocumentGenerator
           if level121 == 'L'
             doc.replace('{{tabla_l}}', 'Leve')
           else
-            puts("e")
             found_in_last_revision = false
             last_revision&.codes&.each_with_index do |last_code, index|
               if last_code == rule.code && last_revision.points[index] == rule.point && last_revision.levels[index] == 'L'
@@ -1269,7 +1268,6 @@ class DocumentGenerator
                 break
               end
             end
-            puts("y")
             if found_in_last_revision
               doc.replace('{{tabla_l}}', 'Grave (repite)')
             else
@@ -1355,11 +1353,27 @@ class DocumentGenerator
           doc.replace('{{another_si}}', "No")
 
           levels = matching_revision_indices.map { |i| revision.levels[i] }
-          if levels.include?("G")
-            doc.replace('{{another_l}}', "Grave")
-          else
-            doc.replace('{{another_l}}', "Leve")
+          points = matching_revision_indices.map { |i| revision.points[i] }
+
+          control42918421 = false
+          points.each_with_index do |point, index|
+            if last_revision&.points&.include?(point)
+              if last_revision.levels[index] == "L"
+                doc.replace('{{another_l}}', 'Grave (repite)')
+                control42918421 = true
+              end
+            end
           end
+
+          if control42918421 == false
+
+            if levels.include?("G")
+              doc.replace('{{another_l}}', "Grave")
+            else
+              doc.replace('{{another_l}}', "Leve")
+            end
+          end
+
 
           comentarios = matching_revision_indices.map do |i|
             comment_text = revision.comment[i].to_s.strip

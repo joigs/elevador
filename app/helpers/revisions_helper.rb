@@ -4,17 +4,7 @@ module RevisionsHelper
     revision ? revision.flaws : nil
   end
 
-  def revision_label_text(rule, last_revision)
-    if last_revision&.codes&.include?(rule.code)
-      if last_revision.points.include?(rule.point)
-        "#{rule.code} #{rule.point} Grave"
-      else
-        "#{rule.code} #{rule.point} "
-      end
-    else
-      "#{rule.code} #{rule.point} "
-    end
-  end
+
 
   def revision_level_or_g(rule, last_revision, revision_id)
     if last_revision&.codes&.include?(rule.code) and last_revision.id != revision_id
