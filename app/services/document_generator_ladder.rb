@@ -372,11 +372,10 @@ class DocumentGeneratorLadder
 
 
     if inspectors.second
-      condicion = admin.real_name == inspectors.first.real_name || admin.real_name == inspectors.second.real_name || admin.email == inspectors.first.email || admin.email == inspectors.second.email
+      condicion = admin.real_name == inspectors.first.real_name || admin.real_name == inspectors.second.real_name || (admin.email == inspectors.first.email && admin.email && inspectors.first.email) || (admin.email == inspectors.second.email && admin.email && inspectors.second.email)
     else
-      condicion = admin.real_name == inspectors.first.real_name || admin.email == inspectors.first.email
+      condicion = admin.real_name == inspectors.first.real_name || (admin.email == inspectors.first.email && admin.email && inspectors.first.email )
     end
-
 
     template_path = Rails.root.join('app', 'templates', 'template_1.1.docx')
 
