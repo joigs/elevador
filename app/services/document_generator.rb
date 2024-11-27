@@ -1192,11 +1192,7 @@ class DocumentGenerator
 
     rules.each_with_index do |rule, index|
 
-      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-      puts("pasa por rules #{index}")
-      puts("son #{rules.size} rules")
 
-      puts(rule.inspect)
 
       apply_weird = false
 
@@ -1234,7 +1230,6 @@ class DocumentGenerator
       end
 
       unless apply_weird
-        puts("a")
         index2 = nil
         revision.codes.each_with_index do |code, index|
           if code == rule.code && revision.points[index] == rule.point
@@ -1244,12 +1239,9 @@ class DocumentGenerator
         end
 
         if index2
-          puts("b")
           if revision.comment[index2].blank?
-            puts("c")
             doc.replace('{{tabla_comentario}}', '')
           else
-            puts("d")
             doc.replace('{{tabla_comentario}}', "(#{revision.comment[index2]})")
           end
 
@@ -1273,7 +1265,6 @@ class DocumentGenerator
             else
               doc.replace('{{tabla_l}}', 'Grave')
             end
-            puts("z")
           end
 
         elsif revision_nulls_total.any? { |null| null.point == "#{rule.code}_#{rule.point}" }
