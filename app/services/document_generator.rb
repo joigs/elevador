@@ -369,8 +369,12 @@ class DocumentGenerator
     elsif item.group.number == 3
       doc.replace('{{normas_de_referencia}}', 'NCh 440/1 :2014 y NCh 440/2 :2001 y NCh 3362.')
     end
+    sorted_inspections = item.inspections.sort_by do |inspection|
+      [-inspection.number.abs, inspection.number < 0 ? 1 : 0]
+    end
 
-    last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
+    last_inspection = sorted_inspections[1]
+
     if last_inspection
       last_revision_base = Revision.find_by(inspection_id: last_inspection.id)
 
@@ -391,7 +395,12 @@ class DocumentGenerator
     end
 
 
-
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(last_inspection.inspect)
+    puts("bbbbbbbbbbbbbbbbbbbbbbbbb")
+    puts(last_revision_base.inspect)
+    puts("cccccccccccccccccccccccccccc")
+    puts(last_revision.inspect)
 
 
     last_errors = []

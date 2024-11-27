@@ -251,8 +251,12 @@ class DocumentGeneratorLadder
     revision_nulls_total = RevisionNull.where(revision_id: revision_id, revision_type: 'LadderRevision')
                                        .where("point NOT LIKE ?", "5.0%")
 
+    sorted_inspections = item.inspections.sort_by do |inspection|
+      [-inspection.number.abs, inspection.number < 0 ? 1 : 0]
+    end
 
-    last_inspection = item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
+    last_inspection = sorted_inspections[1]
+
     if last_inspection
       last_revision_base = LadderRevision.find_by(inspection_id: last_inspection.id)
 
