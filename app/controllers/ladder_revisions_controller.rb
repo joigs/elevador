@@ -161,7 +161,6 @@ class LadderRevisionsController < ApplicationController
 
     @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
       if photo.photo.attached?
-        puts(photo.inspect)
         (hash[photo.code] ||= []) << photo
       end
     end
@@ -200,7 +199,6 @@ class LadderRevisionsController < ApplicationController
       fails = ladder_revision_params["codes"]
       nulls = ladder_revision_params["null_condition"]&.map { |nc| nc.split('_').first } # Solo el código numérico
 
-      puts(nulls.inspect)
 
       carpetas = [
         '5.0.1',
@@ -235,8 +233,6 @@ class LadderRevisionsController < ApplicationController
           real_codes_null << numeric_code
           real_comment_null << ladder_revision_params["comment"][index]
 
-          puts(real_codes_null.inspect)
-          puts(real_comment_null.inspect)
 
         end
 
@@ -264,10 +260,8 @@ class LadderRevisionsController < ApplicationController
     end
     if params[:ladder_revision].present?
 
-      puts("pasa por if params[:ladder_revision].present? (246)")
 
       if params[:ladder_revision][:fail].present?
-        puts("pasa por if params[:ladder_revision][:fail].present? (250)")
         # Revisar la información de cada campo donde hubo una falla
         params[:ladder_revision][:fail].each do |fail_status|
           if fail_status == "1"  # Verefica si ocurre la falla
@@ -311,8 +305,6 @@ class LadderRevisionsController < ApplicationController
         if @black_inspection and black_params.present?
           codes.each_with_index do |code, index|
             if @inspection.rerun == false || @third_revision&.points&.include?(points[index])
-              puts("cosa de reruuuuuuuuuuuuun")
-              puts(points[index])
               if black_params[:codes].include?(code)
                 black_index_c = black_params[:codes].index(code)
                 if black_params[:points].include?(points[index])
@@ -330,7 +322,6 @@ class LadderRevisionsController < ApplicationController
 
 
         if params[:ladder_revision][:null_condition].present?
-          puts("pasa por if params[:ladder_revision][:null_condition].present? (299)")
           params[:ladder_revision][:null_condition].each_with_index do |null_condition, index|
             # Extraer el código numérico (antes del "_") para comparar con real_codes_null
             numeric_code = null_condition.split('_').first
@@ -338,15 +329,7 @@ class LadderRevisionsController < ApplicationController
             real_code_numeric = real_codes_null[index]
 
 
-            puts("comprobacion antes de if:")
-            puts(params[:ladder_revision][:null_condition].inspect)
-            puts(real_codes_null.inspect)
-            puts(real_code_numeric.inspect)
-            puts(numeric_code.inspect)
             if real_code_numeric == numeric_code
-              puts("pasa por if real_code_numeric == numeric_code (307)")
-              puts(real_code_numeric)
-              puts(numeric_code)
               # Obtener el comentario correspondiente (puede ser vacío)
               comment_null = real_comment_null&.fetch(index, "") || ""
 

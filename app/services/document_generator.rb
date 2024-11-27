@@ -395,12 +395,6 @@ class DocumentGenerator
     end
 
 
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(last_inspection.inspect)
-    puts("bbbbbbbbbbbbbbbbbbbbbbbbb")
-    puts(last_revision_base.inspect)
-    puts("cccccccccccccccccccccccccccc")
-    puts(last_revision.inspect)
 
 
     last_errors = []

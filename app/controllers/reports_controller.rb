@@ -7,7 +7,6 @@ class ReportsController < ApplicationController
     @previous_inspection = @item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
 
     @black_inspection = Inspection.find_by(number: @report.inspection.number*-1, item_id: @item.id, state: 'black', result: 'black')
-    puts(@black_inspection.inspect)
     if @previous_inspection
       @show_third_radio_button = true
     else
@@ -68,12 +67,6 @@ class ReportsController < ApplicationController
       if @report[:cert_ant] == 'Si'
         black_number = inspection.number*-1
 
-        puts("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-        puts(black_number)
-        puts(@item.inspect)
-        puts(@item.principal.inspect)
-        puts(inspection.place)
-        puts(inspection.ins_date)
 
 
          black_inspection = Inspection.find_by(number: black_number, item_id: @item.id, state: 'black', result: 'black')

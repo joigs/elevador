@@ -158,7 +158,6 @@ class RevisionsController < ApplicationController
 
     @anothers = Another.where(item_id: @item.id, section: @section)
 
-    puts(@anothers.first.inspect)
 
 
     additional_rules = @anothers.map do |another|
@@ -337,8 +336,6 @@ class RevisionsController < ApplicationController
       # hashmap para agrupar las fotos por código
       @photos_by_code = @revision_photos.each_with_object({}) do |photo, hash|
         if photo.photo.attached?
-          puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-          puts(photo.inspect)
           (hash[photo.code] ||= []) << photo
         end
       end
@@ -483,8 +480,6 @@ class RevisionsController < ApplicationController
 
 
           if @inspection.rerun == false || @third_revision&.points&.include?(points[index])
-            puts("cosa de reruuuuuuuuuuuuun")
-            puts(points[index])
             if black_params[:codes].include?(code)
               black_index_c = black_params[:codes].index(code)
 
@@ -593,7 +588,6 @@ class RevisionsController < ApplicationController
 
     @revision_nulls = @revision_base.revision_nulls
     @revision_photos = @revision_base.revision_photos.reject { |photo| photo.code.start_with?('GENERALCODE') }
-    puts("revision_photos al inicio del update: #{@revision_photos.inspect}")
 
     if params[:revision].present?
 
@@ -678,7 +672,6 @@ class RevisionsController < ApplicationController
     if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
       params[:revision_photos][:photo].each_with_index do |photo, index|
         if photo.present?
-          puts("photo: #{photo.inspect}")
 
           code = params[:revision_photos][:code][index]
           @revision_base.revision_photos.create(photo: photo, code: code)
@@ -758,8 +751,6 @@ class RevisionsController < ApplicationController
     authorize! @revision
     @section = params[:section]
 
-    puts("cosa de section")
-    puts(@section)
       if @inspection.state == "Cerrado"
       flash[:alert] = "la inspección fué cerrada."
       redirect_to(inspection_path(@inspection))
@@ -775,20 +766,14 @@ class RevisionsController < ApplicationController
     @another = Another.new(another_params)
     @inspection = Inspection.find(params[:inspection_id])
 
-    puts("revisaaaaaa")
-    puts(@inspection.inspect)
 
     @section = another_params[:section]
-    puts("aaaaaaaaaawwwwwwwwwwwwwwwwwwwwwww")
-    puts(@section)
     point = another_params[:point]
     ins_type = another_params[:ins_type]
     level = Array(params[:another][:level])
 
     item = @inspection.item
     detail = Detail.find_by(item_id: item.id)
-    puts("revisabbbbbbbbb")
-    puts(item.inspect)
 
     if @section == '9'
       case detail.sala_maquinas
