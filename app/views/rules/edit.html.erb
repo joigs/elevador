@@ -3,11 +3,18 @@
 
   <div class="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
     <%= render 'form' %>
+
+
+
+    <div class="flex justify-center mt-4 space-x-4">
+      <%= link_to 'Cancelar', rule_path(@rule), class: "text-md text-gray-300 hover:text-gray-400 transition duration-150 ease-in-out px-4 py-2 border border-gray-700 rounded hover:bg-gray-700" %>
+      <%= link_to 'Volver a defectos', rules_path, class: "text-md text-blue-400 hover:text-blue-500 transition duration-150 ease-in-out px-4 py-2 border border-blue-500 rounded hover:bg-blue-600" %>
+
+    </div>
   </div>
 
-  <div class="text-center mt-4">
-    <%= link_to 'Volver a defectos', rules_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
-    <%= link_to 'Cancelar', rule_path(@rule), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
 
-  </div>
+
+
+
 </div>

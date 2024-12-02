@@ -1,7 +1,11 @@
 <div class="mx-auto md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New ladder</h1>
+  <h1 class="font-bold text-4xl">Nuevo defecto para escalar</h1>
+
+  <div class="text-center mt-4">
+    <%= link_to 'Volver a defectos', ladders_path, class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+
+  </div>
 
   <%= render "form", ladder: @ladder %>
 
-  <%= link_to "Back to ladders", ladders_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
 </div>
