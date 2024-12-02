@@ -113,3 +113,5 @@ gem 'fastimage'
 
 gem 'chartkick'
 gem 'groupdate'
+
+gem 'write_xlsx'

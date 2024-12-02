@@ -76,6 +76,7 @@ Rails.application.routes.draw do
   resources :principals, path: '/principals' do
     get :items, on: :member
     get :places, on: :member
+    get :no_conformidad
   end
   resources :revisions, path: '/revisions' do
     member do

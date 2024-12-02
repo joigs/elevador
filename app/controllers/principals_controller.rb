@@ -1,4 +1,5 @@
 class PrincipalsController < ApplicationController
+  require 'write_xlsx' # Asegúrate de requerir la gema al inicio de tu archivo
 
   # GET /principals or /principals.json
   def index
@@ -131,6 +132,113 @@ class PrincipalsController < ApplicationController
     places = principal.inspections.select(:place).distinct.map(&:place)
     render json: places
   end
+
+
+  def no_conformidad
+    @principal = Principal.find(params[:principal_id])
+    authorize! @principal
+    @groups = Group.all
+    @totalitems = @principal.items.select { |item| item.inspections.any? }
+    @items1, @items2, @items3, @items4 = [], [], [], []
+    @inspections, @revisions_base = [], []
+
+    @totalitems.each do |item|
+      case item.group.number
+      when 1
+        @items1 << item
+      when 2
+        @items2 << item
+      when 3
+        @items3 << item
+      when 4
+        @items4 << item
+      end
+    end
+
+    rules_per_group = {}
+    revisions_base_per_group = []
+
+    @groups.each do |group|
+      @items = instance_variable_get("@items#{group.number}")
+      @items.each do |item|
+        @inspections << item.inspections.order(number: :desc).first
+      end
+
+      @inspections.each do |inspection|
+        if group.type_of == "escala"
+          @revisions_base << LadderRevision.find_by(inspection_id: inspection.id)
+        else
+          @revisions_base << Revision.find_by(inspection_id: inspection.id)
+        end
+
+      end
+
+      @rules = group.number == 4 ? Ladder.all : group.rules
+      rules_per_group[group.number] = @rules
+      revisions_base_per_group[group.number] = @revisions_base
+
+      @inspections = []
+      @revisions_base = []
+    end
+
+    require 'write_xlsx'
+    temp_file = Tempfile.new(['rules', '.xlsx'])
+    workbook = WriteXLSX.new(temp_file.path)
+
+    rules_per_group.each do |group_number, rules|
+
+      unless revisions_base_per_group[group_number].any?
+        next
+      end
+
+      sheet_name = group_number == 4 ? 'Escala' : "Grupo #{group_number}"
+      worksheet = workbook.add_worksheet(sheet_name)
+
+      max_length = 0
+
+
+      rules.each_with_index do |rule, row|
+        counter = 0
+
+        content = "#{rule.code} - #{rule.point}"
+
+        revisions_base_per_group[group_number].each do |revision_base|
+          revision_base.revision_colors.each do |color|
+            color.codes.each_with_index do |code, index|
+              if code == rule.code && color.points[index] == rule.point
+                counter += 1
+              end
+            end
+          end
+        end
+
+        percentage = counter.to_f / revisions_base_per_group[group_number].size * 100
+        worksheet.write(row, 1, "#{percentage}%")
+
+
+        worksheet.write(row, 2, content)
+        max_length = [max_length, content.length].max
+      end
+
+      column_width = [max_length + 2, 30].min
+      worksheet.set_column(2, 2, column_width)
+    end
+
+    workbook.close
+
+    send_file temp_file.path,
+              filename: 'rules.xlsx',
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              disposition: 'attachment' and return
+
+  end
+
+
+
+
+
+
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
