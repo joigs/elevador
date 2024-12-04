@@ -364,8 +364,8 @@ class PrincipalsController < ApplicationController
       "Grupo"
     ]
 
-    (1..max_defectos).each do |i|
-      headers_defectos << "Defecto #{i}"
+    (0..max_defectos).each do |i|
+      headers_defectos << "Defecto #{i+1}"
     end
 
     encabezados_defectos_fila = 2
