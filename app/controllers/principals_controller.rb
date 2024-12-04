@@ -138,20 +138,28 @@ class PrincipalsController < ApplicationController
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
     @groups = Group.all
-    @totalitems = @principal.items.select { |item| item.inspections.any? }
+    @totalitems = @principal.items
+
+
     @items1, @items2, @items3, @items4 = [], [], [], []
 
     @totalitems.each do |item|
-      case item.group.number
-      when 1
-        @items1 << item
-      when 2
-        @items2 << item
-      when 3
-        @items3 << item
-      when 4
-        @items4 << item
+
+      if item.inspections.any?
+
+
+        case item.group.number
+        when 1
+          @items1 << item
+        when 2
+          @items2 << item
+        when 3
+          @items3 << item
+        when 4
+          @items4 << item
+        end
       end
+
     end
 
     rules_per_group = {}
