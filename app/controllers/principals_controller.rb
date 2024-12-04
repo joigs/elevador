@@ -180,7 +180,7 @@ class PrincipalsController < ApplicationController
     end
 
     require 'write_xlsx'
-    temp_file = Tempfile.new(['rules', '.xlsx'])
+    temp_file = Tempfile.new(["no_conformidad_#{@principal.name}", '.xlsx'])
     workbook = WriteXLSX.new(temp_file.path)
 
     rules_per_group.each do |group_number, rules|
@@ -224,7 +224,7 @@ class PrincipalsController < ApplicationController
     workbook.close
 
     send_file temp_file.path,
-              filename: 'rules.xlsx',
+              filename: "no_conformidad_#{@principal.name}.xlsx",
               type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
               disposition: 'attachment' and return
 
@@ -278,7 +278,6 @@ class PrincipalsController < ApplicationController
         worksheet.write(3 + index, 10, inspection.inf_date&.strftime('%d/%m/%Y'))
         worksheet.write(3 + index, 11, inspection.result)
         worksheet.write(3 + index, 12, inspection.report.ending&.strftime('%d/%m/%Y'))
-
       end
     end
 
@@ -350,7 +349,7 @@ class PrincipalsController < ApplicationController
     end
 
     require 'write_xlsx'
-    temp_file = Tempfile.new(['rules', '.xlsx'])
+    temp_file = Tempfile.new(["defectos_de_activos_#{@principal.name}", '.xlsx'])
     workbook = WriteXLSX.new(temp_file.path)
 
 
@@ -372,7 +371,6 @@ class PrincipalsController < ApplicationController
       end
 
       rules.each_with_index do |rule, row|
-        stuff = ""
         content = "#{rule.code} - #{rule.point}"
 
 
@@ -406,7 +404,7 @@ class PrincipalsController < ApplicationController
     workbook.close
 
     send_file temp_file.path,
-              filename: 'rules.xlsx',
+              filename: "defectos_de_activos_#{@principal.name}.xlsx",
               type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
               disposition: 'attachment' and return
 
