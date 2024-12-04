@@ -77,6 +77,8 @@ Rails.application.routes.draw do
     get :items, on: :member
     get :places, on: :member
     get :no_conformidad
+    get :estado_activos
+    get :defectos_activos
   end
   resources :revisions, path: '/revisions' do
     member do

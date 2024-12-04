@@ -140,7 +140,6 @@ class PrincipalsController < ApplicationController
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
     @items1, @items2, @items3, @items4 = [], [], [], []
-    @inspections, @revisions_base = [], []
 
     @totalitems.each do |item|
       case item.group.number
@@ -170,7 +169,6 @@ class PrincipalsController < ApplicationController
         else
           @revisions_base << Revision.find_by(inspection_id: inspection.id)
         end
-
       end
 
       @rules = group.number == 4 ? Ladder.all : group.rules
@@ -195,7 +193,6 @@ class PrincipalsController < ApplicationController
       worksheet = workbook.add_worksheet(sheet_name)
 
       max_length = 0
-
 
       rules.each_with_index do |rule, row|
         counter = 0
@@ -235,6 +232,185 @@ class PrincipalsController < ApplicationController
 
 
 
+
+  def estado_activos
+    @principal = Principal.find(params[:principal_id])
+    authorize! @principal
+
+    @items = @principal.items
+
+
+
+    require 'write_xlsx'
+    temp_file = Tempfile.new(["Estado_activos_#{@principal.name}", '.xlsx'])
+    workbook = WriteXLSX.new(temp_file.path)
+
+
+    worksheet = workbook.add_worksheet("Activos")
+
+    worksheet.write(2, 3, "Identificador")
+    worksheet.write(2, 4, "Grupo")
+    worksheet.write(2, 5, "Inspección más reciente")
+    worksheet.write(2, 6, "Número inspección")
+    worksheet.write(2, 7, "¿Es reinspección?")
+    worksheet.write(2, 8, "Fecha de inspección")
+    worksheet.write(2, 9, "Dirección")
+    worksheet.write(2, 10, "Fecha de informe")
+    worksheet.write(2, 11, "Resultado")
+    worksheet.write(2, 12, "Próxima inspección")
+
+
+    @items.each_with_index do |item, index|
+      inspection = item.inspections.order(number: :desc).first
+      worksheet.write(3 + index, 2, index + 1)
+      worksheet.write(3 + index, 3, item.identificador)
+      worksheet.write(3 + index, 4, item.group.name)
+      if inspection
+        worksheet.write(3 + index, 5, inspection.name)
+        worksheet.write(3 + index, 6, inspection.number)
+        if inspection.rerun == true
+          worksheet.write(3 + index, 7, "Sí")
+        else
+          worksheet.write(3 + index, 7, "No")
+        end
+        worksheet.write(3 + index, 8, inspection.ins_date&.strftime('%d/%m/%Y'))
+        worksheet.write(3 + index, 9, inspection.place)
+        worksheet.write(3 + index, 10, inspection.inf_date&.strftime('%d/%m/%Y'))
+        worksheet.write(3 + index, 11, inspection.result)
+        worksheet.write(3 + index, 12, inspection.report.ending&.strftime('%d/%m/%Y'))
+
+      end
+    end
+
+    workbook.close
+
+    send_file temp_file.path,
+              filename: "Estado_activos_#{@principal.name}.xlsx",
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              disposition: 'attachment' and return
+
+
+  end
+
+
+  def defectos_activos
+    @principal = Principal.find(params[:principal_id])
+    authorize! @principal
+    @groups = Group.all
+    @totalitems = @principal.items.select { |item| item.inspections.any? }
+    @items1, @items2, @items3, @items4 = [], [], [], []
+    @inspections, @revisions_base, @states, @identificadores = [], [], [], []
+
+    @items1, @items2, @items3, @items4 = [], [], [], []
+
+    @totalitems.each do |item|
+      case item.group.number
+      when 1
+        @items1 << item
+      when 2
+        @items2 << item
+      when 3
+        @items3 << item
+      when 4
+        @items4 << item
+      end
+    end
+
+    rules_per_group = {}
+    revisions_base_per_group = []
+    items_per_group = []
+    inspections_per_group = []
+
+    @groups.each do |group|
+      @items = instance_variable_get("@items#{group.number}")
+      @items.each do |item|
+        @inspections << item.inspections.order(number: :desc).first
+        @identificadores << item.identificador
+      end
+
+      @inspections.each do |inspection|
+        if group.type_of == "escala"
+          @revisions_base << LadderRevision.find_by(inspection_id: inspection.id)
+        else
+          @revisions_base << Revision.find_by(inspection_id: inspection.id)
+        end
+        @states << inspection.result
+      end
+
+      @rules = group.number == 4 ? Ladder.all : group.rules
+      rules_per_group[group.number] = @rules
+      revisions_base_per_group[group.number] = @revisions_base
+      items_per_group[group.number] = @identificadores
+      inspections_per_group[group.number] = @states
+
+      @inspections = []
+      @revisions_base = []
+      @states = []
+      @identificadores = []
+    end
+
+    require 'write_xlsx'
+    temp_file = Tempfile.new(['rules', '.xlsx'])
+    workbook = WriteXLSX.new(temp_file.path)
+
+
+
+    rules_per_group.each do |group_number, rules|
+
+      unless revisions_base_per_group[group_number].any?
+        next
+      end
+
+      sheet_name = group_number == 4 ? 'Escala' : "Grupo #{group_number}"
+      worksheet = workbook.add_worksheet(sheet_name)
+
+      max_length = 0
+
+      inspections_per_group[group_number].each_with_index do |inspection, index|
+        worksheet.write(1, 8 + index, items_per_group[group_number][index])
+        worksheet.write(2, 8 + index, inspection)
+      end
+
+      rules.each_with_index do |rule, row|
+        stuff = ""
+        content = "#{rule.code} - #{rule.point}"
+
+
+        revisions_base_per_group[group_number].each_with_index do |revision_base, index|
+          revision_base.revision_colors.each do |color|
+            color.codes.each_with_index do |code, index|
+              if code == rule.code && color.points[index] == rule.point
+                if color.comment[index] == ""
+                  stuff = "Sin comentarios"
+                else
+                  stuff = color.comment[index]
+                end
+                puts color.inspect
+                worksheet.write(row+3, 8 + index, stuff)
+
+              end
+            end
+          end
+        end
+
+
+        worksheet.write(row+3, 2, content)
+        worksheet.write(row+3, 7, "-")
+        max_length = [max_length, content.length].max
+      end
+
+      column_width = [max_length + 2, 30].min
+      worksheet.set_column(2, 2, column_width)
+    end
+
+    workbook.close
+
+    send_file temp_file.path,
+              filename: 'rules.xlsx',
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              disposition: 'attachment' and return
+
+  end
 
 
 

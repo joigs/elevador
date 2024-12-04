@@ -6,4 +6,12 @@ class PrincipalPolicy < BasePolicy
   def no_conformidad
     Current.user.admin
   end
+
+  def estado_activos
+    Current.user.admin
+  end
+
+  def defectos_activos
+    Current.user.admin
+  end
 end
