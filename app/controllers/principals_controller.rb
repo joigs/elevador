@@ -252,43 +252,195 @@ class PrincipalsController < ApplicationController
     workbook = WriteXLSX.new(temp_file.path)
 
 
-    worksheet = workbook.add_worksheet("Activos")
 
-    worksheet.write(2, 3, "Identificador")
-    worksheet.write(2, 4, "Grupo")
-    worksheet.write(2, 5, "Inspección más reciente")
-    worksheet.write(2, 6, "Número inspección")
-    worksheet.write(2, 7, "¿Es reinspección?")
-    worksheet.write(2, 8, "Fecha de inspección")
-    worksheet.write(2, 9, "Dirección")
-    worksheet.write(2, 10, "Fecha de informe")
-    worksheet.write(2, 11, "Resultado")
-    worksheet.write(2, 12, "Próxima inspección")
+    header_format = workbook.add_format(
+      bold: true,
+      border: 1,
+      bg_color: '#D7E4BC',
+      align: 'center',
+      valign: 'vcenter',
+      text_wrap: true
+    )
 
+    cell_format = workbook.add_format(
+      border: 1,
+      text_wrap: true,
+      align: 'left',
+      valign: 'top'
+    )
 
+    worksheet_activos = workbook.add_worksheet("Activos")
+
+    headers_activos = [
+      "Identificador",
+      "Grupo",
+      "Inspección más reciente",
+      "Número inspección",
+      "¿Es reinspección?",
+      "Fecha de inspección",
+      "Dirección",
+      "Fecha de informe",
+      "Resultado",
+      "Próxima inspección"
+    ]
+
+    encabezados_fila = 2
+    encabezados_columna = 3
+
+    headers_activos.each_with_index do |header, idx|
+      worksheet_activos.write(encabezados_fila, encabezados_columna + idx, header, header_format)
+    end
+
+    datos_fila_inicial = encabezados_fila + 1
     @items.each_with_index do |item, index|
+      row = datos_fila_inicial + index
       inspection = item.inspections.order(number: :desc).first
-      worksheet.write(3 + index, 2, index + 1)
-      worksheet.write(3 + index, 3, item.identificador)
-      worksheet.write(3 + index, 4, item.group.name)
+
+      worksheet_activos.write(row, 2, index + 1, cell_format)
+      worksheet_activos.write(row, 3, item.identificador, cell_format)
+      worksheet_activos.write(row, 4, item.group.name, cell_format)
+
       if inspection
-        worksheet.write(3 + index, 5, inspection.name)
-        worksheet.write(3 + index, 6, inspection.number)
-        if inspection.rerun == true
-          worksheet.write(3 + index, 7, "Sí")
-        else
-          worksheet.write(3 + index, 7, "No")
+
+        if inspection.name == ""
+          inspection.name = "Sin nombre"
         end
-        worksheet.write(3 + index, 8, inspection.ins_date&.strftime('%d/%m/%Y'))
-        worksheet.write(3 + index, 9, inspection.place)
-        worksheet.write(3 + index, 10, inspection.inf_date&.strftime('%d/%m/%Y'))
-        worksheet.write(3 + index, 11, inspection.result)
-        worksheet.write(3 + index, 12, inspection.report.ending&.strftime('%d/%m/%Y'))
+        worksheet_activos.write(row, 5, inspection.name, cell_format)
+        worksheet_activos.write(row, 6, inspection.number, cell_format)
+        worksheet_activos.write(row, 7, inspection.rerun ? "Sí" : "No", cell_format)
+        worksheet_activos.write(row, 8, inspection.ins_date&.strftime('%d/%m/%Y'), cell_format)
+        worksheet_activos.write(row, 9, inspection.place, cell_format)
+        worksheet_activos.write(row, 10, inspection.inf_date&.strftime('%d/%m/%Y'), cell_format)
+        worksheet_activos.write(row, 11, inspection.result, cell_format)
+        worksheet_activos.write(row, 12, inspection.report.ending&.strftime('%d/%m/%Y'), cell_format)
+      else
+        (5..12).each do |col|
+          worksheet_activos.write(row, col, '', cell_format)
+        end
       end
     end
 
-    workbook.close
+    num_rows_activos = @items.size
+    num_cols_activos = headers_activos.size
+    last_row_activos = datos_fila_inicial + num_rows_activos - 1
+    last_col_activos = encabezados_columna + num_cols_activos - 1
+    last_col_letter_activos = col_num_to_letter(last_col_activos)
+    table_range_activos = "D3:#{last_col_letter_activos}#{last_row_activos + 1}"
 
+    worksheet_activos.add_table(table_range_activos, {
+      name: 'TablaActivos',
+      columns: headers_activos.map { |h| { header: h } },
+      style: 'Table Style Medium 9',
+      autofilter: true
+    })
+
+    (3..12).each do |col|
+      worksheet_activos.set_column(col, col, 20)
+    end
+
+    worksheet_defectos = workbook.add_worksheet("Defectos")
+
+    max_defectos = @items.map do |item|
+      inspection = item.inspections.order(number: :desc).first
+      next 0 unless inspection
+
+      if item.group.type_of == "escala"
+        revision = LadderRevision.find_by(inspection_id: inspection.id)
+      else
+        revision = Revision.find_by(inspection_id: inspection.id)
+      end
+
+      next 0 unless revision
+
+      revision.revision_colors.map { |color| color.points.size }.max || 0
+    end.max
+
+    max_defectos ||= 0
+
+    max_defectos = [max_defectos, 20].min
+
+    headers_defectos = [
+      "Identificador",
+      "Grupo"
+    ]
+
+    (1..max_defectos).each do |i|
+      headers_defectos << "Defecto #{i}"
+    end
+
+    encabezados_defectos_fila = 2
+    encabezados_defectos_columna = 3
+
+    headers_defectos.each_with_index do |header, idx|
+      worksheet_defectos.write(encabezados_defectos_fila, encabezados_defectos_columna + idx, header, header_format)
+    end
+
+    datos_defectos_fila_inicial = encabezados_defectos_fila + 1
+    @items.each_with_index do |item, index|
+      row = datos_defectos_fila_inicial + index
+      inspection = item.inspections.order(number: :desc).first
+
+      worksheet_defectos.write(row, 3, item.identificador, cell_format)
+      worksheet_defectos.write(row, 4, item.group.name, cell_format)
+
+      if inspection
+        if item.group.type_of == "escala"
+          revision = LadderRevision.find_by(inspection_id: inspection.id)
+        else
+          revision = Revision.find_by(inspection_id: inspection.id)
+        end
+
+        if revision
+          points = []
+          revision.revision_colors.each do |color|
+            color.points.each_with_index do |point, idx_point|
+              comment = color.comment[idx_point].to_s.strip.empty? ? "(Sin comentarios)" : "(#{color.comment[idx_point]})"
+              points << "#{point} #{comment}"
+            end
+          end
+
+          defectos_encontrados = points.join(", ")
+          worksheet_defectos.write(row, 5, defectos_encontrados, cell_format)
+
+          points.each_with_index do |point, idx_defecto|
+            break if idx_defecto >= max_defectos
+            col = 6 + idx_defecto
+            worksheet_defectos.write(row, col, point, cell_format)
+          end
+        else
+          worksheet_defectos.write(row, 5, '', cell_format)
+          (6..(5 + max_defectos)).each do |col|
+            worksheet_defectos.write(row, col, '', cell_format)
+          end
+        end
+      else
+        worksheet_defectos.write(row, 5, '', cell_format)
+        (6..(5 + max_defectos)).each do |col|
+          worksheet_defectos.write(row, col, '', cell_format)
+        end
+      end
+    end
+
+    num_rows_defectos = @items.size
+    num_cols_defectos = headers_defectos.size
+    last_row_defectos = datos_defectos_fila_inicial + num_rows_defectos - 1
+    last_col_defectos = encabezados_defectos_columna + num_cols_defectos - 1
+    last_col_letter_defectos = col_num_to_letter(last_col_defectos)
+    table_range_defectos = "D3:#{last_col_letter_defectos}#{last_row_defectos + 1}"
+
+    worksheet_defectos.add_table(table_range_defectos, {
+      name: 'TablaDefectos',
+      columns: headers_defectos.map { |h| { header: h } },
+      style: 'Table Style Medium 9'
+    })
+
+    (3..(3 + headers_defectos.size - 1)).each do |col|
+      worksheet_defectos.set_column(col, col, 20)
+    end
+
+
+
+    workbook.close
     send_file temp_file.path,
               filename: "Estado_activos_#{@principal.name}.xlsx",
               type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -296,7 +448,14 @@ class PrincipalsController < ApplicationController
 
 
   end
-
+  def col_num_to_letter(col_num)
+    letter = ''
+    while col_num >= 0
+      letter = (65 + (col_num % 26)).chr + letter
+      col_num = (col_num / 26) - 1
+    end
+    letter
+  end
 
   def defectos_activos
     @principal = Principal.find(params[:principal_id])
