@@ -541,12 +541,12 @@ class PrincipalsController < ApplicationController
 
         revisions_base_per_group[group_number].each_with_index do |revision_base, index|
           revision_base.revision_colors.each do |color|
-            color.codes.each_with_index do |code, index|
-              if code == rule.code && color.points[index] == rule.point
-                if color.comment[index] == ""
+            color.codes.each_with_index do |code, index2|
+              if code == rule.code && color.points[index2] == rule.point
+                if color.comment[index2] == ""
                   stuff = "Sin comentarios"
                 else
-                  stuff = color.comment[index]
+                  stuff = color.comment[index2]
                 end
                 puts color.inspect
                 worksheet.write(row+3, 8 + index, stuff)
