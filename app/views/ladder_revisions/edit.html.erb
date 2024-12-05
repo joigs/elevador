@@ -1,6 +1,6 @@
 <%= form_with(model: @revision_base, builder: CustomFormBuilder, url: {action: "update", inspection_id: @inspection.id, section: params[:section]}, local: true, multipart: true, html: { autocomplete: "off", data: { controller: "form-submit" } }) do |form| %>
 
-  <div style="position: sticky; top: 0; z-index: 10; background-color: white; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="flex justify-center">
+  <div style="position: sticky; top: 0; z-index: 10; background-color: #213e4e; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="flex justify-center">
     <%= button_tag 'Guardar cambios',
                    type: 'button',
                    class: 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded',
@@ -84,7 +84,8 @@
     <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
   </div>
   <div id="imagen_general_comment_container" class="hidden flex justify-center">
-    <%= text_area_tag 'imagen_general_comment', "#{@nombres[@color.section].sub(/^\.\s*/, '')}",
+    <% current_index = @numbers.index(@color.section ) %>
+    <%= text_area_tag 'imagen_general_comment', "#{@nombres[current_index].sub(/^\.\s*/, '')}",
                       rows: 6,
                       cols: 25,
                       maxlength: 1000,
@@ -302,8 +303,9 @@
       </div>
 
       <div class="flex items-center justify-between w-full mt-12 mb-4">
-        <% previous_section = current_section_number > 0 ? @numbers[current_section_number - 1] : nil %>
-        <% next_section = current_section_number < total_sections - 1 ? @numbers[current_section_number + 1] : nil %>
+        <% current_index = @numbers.index(current_section_number) %>
+        <% previous_section = current_index && current_index > 0 ? @numbers[current_index - 1] : nil %>
+        <% next_section = current_index && current_index < @numbers.length - 1 ? @numbers[current_index + 1] : nil %>
 
         <div class="w-1/5 flex justify-start">
           <div class="mx-4">
