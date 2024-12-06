@@ -3,6 +3,9 @@
 
   <div class="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
     <%= form_with(model: @another, builder: CustomFormBuilder, local: true, url: create_rule_revision_path(@inspection.id)) do |form| %>
+
+
+
       <%= hidden_field_tag :inspection_id, @inspection.id %>
       <%= hidden_field_tag "another[section]", @section %>
 
@@ -26,13 +29,23 @@
 
       <div class="mb-4">
         <%= form.label :"Nivel de importancia", class: "block text-gray-300 font-bold mb-2" %>
-        <%= form.collection_check_boxes(:level, [['L', 'L'], ['G', 'G']], :first, :last, { include_hidden: false }, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+        <%= form.collection_check_boxes(:level, [['L', 'Leve'], ['G', 'Grave']], :first, :last, include_hidden: false) do |b| %>
+          <div class="inline-block mr-2">
+            <%= b.check_box(class: "form-checkbox text-blue-600 bg-gray-700 border-white focus:ring-2 focus:ring-blue-600") %>
+            <%= b.label(class: "ml-1 text-white") %>
+          </div>
+        <% end %>
       </div>
 
 
       <div class="mb-4">
         <%= form.label :"Tipo de defecto", class: "block text-gray-300 font-bold mb-2" %>
-        <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last, { include_hidden: false },  item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+        <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last, include_hidden: false) do |b| %>
+          <div class="inline-block mr-2">
+            <%= b.check_box(class: "form-checkbox text-blue-600 bg-gray-700 border-white focus:ring-2 focus:ring-blue-600") %>
+            <%= b.label(class: "ml-1 text-white") %>
+          </div>
+        <% end %>
       </div>
 
       <div class="flex items-center justify-between">

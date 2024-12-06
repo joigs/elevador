@@ -51,12 +51,22 @@
 
   <div class="mb-4">
     <%= form.label :"Nivel de importancia", class: "block text-gray-300 font-bold mb-2" %>
-    <%= form.collection_check_boxes(:level, [['L', 'L'], ['G', 'G']], :first, :last, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+    <%= form.collection_check_boxes(:level, [['L', 'L'], ['G', 'G']], :first, :last) do |b| %>
+      <div class="inline-block mr-2">
+        <%= b.check_box(class: "form-checkbox text-blue-600 bg-gray-700 border-white focus:ring-2 focus:ring-blue-600") %>
+        <%= b.label(class: "ml-1 text-white") %>
+      </div>
+    <% end %>
   </div>
 
   <div class="mb-4">
     <%= form.label :"Tipo de defecto", class: "block text-gray-300 font-bold mb-2" %>
-    <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last, item_wrapper_class: "inline-block mr-2", item_wrapper_tag: 'div', item_label_class: 'text-white') %>
+    <%= form.collection_check_boxes(:ins_type, [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']], :first, :last) do |b| %>
+      <div class="inline-block mr-2">
+        <%= b.check_box(class: "form-checkbox text-blue-600 bg-gray-700 border-white focus:ring-2 focus:ring-blue-600") %>
+        <%= b.label(class: "ml-1 text-white") %>
+      </div>
+    <% end %>
   </div>
 
   <div class="flex items-center justify-between">
