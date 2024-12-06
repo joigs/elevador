@@ -59,30 +59,81 @@
   <br>
   <br>
 
-
-
-  <div class="flex justify-center my-4 items-center" data-controller="file-upload image-resize show-comment-on-upload">
-    <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
-      <label for="imagen_general" class="flex items-center cursor-pointer">
-        <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
-        </svg>
-        Imagen general
-      </label>
-      <%= file_field_tag "imagen_general",
-                         id: "imagen_general",
-                         class: "hidden",
-                         data: {
-                           file_upload_target: "file",
-                           image_resize_target: "file",
-                           show_comment_on_upload_target: "file",
-                           action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->show-comment-on-upload#fileChanged"
-                         },
-                         accept: "image/*" %>
+  <div data-controller="tabs">
+    <div class="flex justify-center space-x-4 mb-4">
+      <button
+        type="button"
+        class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded mx-2"
+        data-action="click->tabs#showOriginal"
+        data-tabs-target="originalTabBtn">
+        Imagen Original
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded mx-2"
+        data-action="click->tabs#showReduced"
+        data-tabs-target="reducedTabBtn">
+        Imagen Reducida
+      </button>
     </div>
-    <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
+
+
+    <div data-tabs-target="originalSection">
+      <div class="flex justify-center my-4 items-center" data-controller="file-upload show-comment-on-upload">
+        <div class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
+          <label for="imagen_general_original" class="flex items-center cursor-pointer">
+            <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            Imagen Original
+          </label>
+          <%= file_field_tag "imagen_general",
+                             id: "imagen_general_original",
+                             class: "hidden",
+                             data: {
+                               file_upload_target: "file",
+                               show_comment_on_upload_target: "file",
+                               action: "file-upload#fileChanged change->file-upload#fileChanged change->show-comment-on-upload#fileChanged"
+                             },
+                             accept: "image/*" %>
+        </div>
+        <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
+      </div>
+    </div>
+
+    <!-- Sección de subida de imagen reducida -->
+    <div data-tabs-target="reducedSection" class="hidden">
+      <div class="flex justify-center my-4 items-center" data-controller="file-upload image-resize show-comment-on-upload">
+        <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
+          <label for="imagen_general_reducida" class="flex items-center cursor-pointer">
+            <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            Imagen Reducida
+          </label>
+          <%= file_field_tag "imagen_general",
+                             id: "imagen_general_reducida",
+                             class: "hidden",
+                             data: {
+                               file_upload_target: "file",
+                               image_resize_target: "file",
+                               show_comment_on_upload_target: "file",
+                               action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->show-comment-on-upload#fileChanged"
+                             },
+                             accept: "image/*" %>
+        </div>
+        <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
+      </div>
+    </div>
   </div>
+
+
   <div id="imagen_general_comment_container" class="hidden flex justify-center">
     <% current_index = @numbers.index(@color.section ) %>
     <%= text_area_tag 'imagen_general_comment', "#{@nombres[current_index].sub(/^\.\s*/, '')}",
