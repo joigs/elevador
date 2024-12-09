@@ -1,11 +1,14 @@
 class UsersController < ApplicationController
+
   def show
     @user = User.find_by!(username: params[:username])
 
     inspections_scope = if @user.admin
                           Inspection.where(state: "Cerrado")
-                        else
+                        elsif @user.empresa == nil
                           Inspection.joins(:users).where(users: { id: @user.id }).where("number > 0")
+                        else
+                          Inspection.where(principal_id: @user.principal_id).where("number > 0")
                         end
 
     @q = inspections_scope.ransack(params[:q])

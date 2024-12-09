@@ -8,7 +8,12 @@
 <div class="flex flex-wrap justify-start space-x-2 mt-4">
   <div class="lg:w-auto flex flex-col space-y-2">
     <% if Current.user.admin %>
-      <%= link_to "Modificar usuario", edit_user_path(@user), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+
+      <% if @user.empresa == nil %>
+        <%= link_to "Modificar usuario", edit_user_path(@user), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+      <% else%>
+        <%= link_to "Modificar usuario", edit_client_user_path(@user), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+  <% end %>
 
       <%= link_to 'Eliminar usuario', user_path(@user), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/users" } %>
 

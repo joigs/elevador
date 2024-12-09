@@ -14,11 +14,12 @@
     </div>
     <div class="text-lg font-semibold">
       <% if Current.user.admin %>
-        Certificador
+        <%= "Certificador" %>
+      <% elsif Current.user.empresa == nil %>
+        <%= "Inspector" %>
       <% else %>
-        Inspector
+        <%= Current.user.empresa %>
       <% end %>
-
     </div>
   </div>
 

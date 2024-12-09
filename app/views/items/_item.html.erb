@@ -5,7 +5,7 @@
   <h2 class="text-xl font-bold text-gray-100 mb-4 break-words"><%= item.identificador %></h2>
 
   <div class="text-gray-300 space-y-2">
-    <p>Clasificación: Grupo N°<%= item.group.number %></p>
+    <p>Clasificación: <%= item.group.name %></p>
     <p>Empresa: <%= link_to "#{item.principal&.name}", principal_path(item.principal), class:"text-blue-500", data: { turbo_frame: "_top" } %></p>
 
     <% inspection = last_inspection(item) %>

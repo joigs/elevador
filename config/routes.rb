@@ -19,7 +19,16 @@ Rails.application.routes.draw do
   root 'home#index', as: 'home'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :authentication, path: '', as: '' do
-    resources :users, path: '/users'
+    resources :users, path: '/users' do
+      collection do
+        get :new_client
+        post :create_client
+      end
+      member do
+        get :edit_client
+        patch :update_client
+      end
+    end
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }
   end
 

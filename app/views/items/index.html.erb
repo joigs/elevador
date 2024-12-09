@@ -77,7 +77,7 @@
             <% @items.each do |item| %>
               <tr class="bg-gray-800 border-b border-gray-700">
                 <td class="px-6 py-4 whitespace-normal break-words"><%= item.identificador %></td>
-                <td class="px-6 py-4 whitespace-normal break-words">Grupo N°<%= item.group.number %></td>
+                <td class="px-6 py-4 whitespace-normal break-words"><%= item.group.name %></td>
                 <td class="px-6 py-4 whitespace-normal break-words text-blue-500"><%= link_to "#{item.principal&.name}", principal_path(item.principal), data: { turbo_frame: "_top" } %></td>
 
                 <% inspection = last_inspection(item) %>

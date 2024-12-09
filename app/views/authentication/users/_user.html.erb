@@ -13,7 +13,13 @@
 
     <p class="text-gray-400 mt-2">
       <strong class="text-gray-200">Rol:</strong>
-      <%= user.admin ? 'Administrador' : 'Inspector' %>
+      <% if user.admin %>
+        <%= "Administrador" %>
+      <% elsif user.empresa == nil %>
+        <%= "Inspector" %>
+      <% else %>
+        <%= user.empresa %>
+      <% end %>
     </p>
 
     <p class="text-gray-400 mt-2">

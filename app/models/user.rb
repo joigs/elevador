@@ -35,4 +35,5 @@ class User < ApplicationRecord
   has_many :inspection_users, dependent: :destroy
   has_many :inspections, through: :inspection_users
 
+  belongs_to :principal, optional: true, touch: false
 end

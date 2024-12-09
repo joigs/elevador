@@ -19,6 +19,14 @@ class PrincipalsController < ApplicationController
   # GET /principals/1 or /principals/1.json
   def show
     principal
+
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        redirect_to principal_path(Current.user.principal_id)
+      end
+    end
+
     @q = principal.items.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
 
@@ -84,6 +92,13 @@ class PrincipalsController < ApplicationController
   # GET /principals/1/edit
   def edit
     authorize! principal
+
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        redirect_to principal_path(Current.user.principal_id)
+      end
+    end
   end
 
   # POST /principals or /principals.json
@@ -102,6 +117,14 @@ class PrincipalsController < ApplicationController
   # PATCH/PUT /principals/1 or /principals/1.json
   def update
     authorize! principal
+
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        redirect_to principal_path(Current.user.principal_id)
+      end
+    end
+
     if principal.update(principal_params)
       flash[:notice] = "Empresa modificada"
       redirect_to principals_path
@@ -137,6 +160,14 @@ class PrincipalsController < ApplicationController
   def no_conformidad
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
+
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        redirect_to principal_path(Current.user.principal_id)
+      end
+    end
+
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
 
@@ -242,7 +273,12 @@ class PrincipalsController < ApplicationController
   def estado_activos
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
-
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        redirect_to principal_path(Current.user.principal_id)
+      end
+    end
     @items = @principal.items
 
 
@@ -460,6 +496,14 @@ class PrincipalsController < ApplicationController
   def defectos_activos
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
+
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        redirect_to principal_path(Current.user.principal_id)
+      end
+    end
+
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
     @items1, @items2, @items3, @items4 = [], [], [], []

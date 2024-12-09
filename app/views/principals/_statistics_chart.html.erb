@@ -13,19 +13,41 @@
   <% when 'bar' %>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Mes (Año <%= @selected_year %>)</h2>
-      <%= bar_chart @inspections_by_month, colors: @colors.cycle.take(@inspections_by_month.size), label: "Cantidad de Inspecciones" %>
+      <%= bar_chart @inspections_by_month,
+                    colors: @colors.cycle.take(@inspections_by_month.size),
+                    label: "Cantidad de Inspecciones",
+                    library: {
+                      hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      backgroundColor: "transparent"
+                    } %>
     </div>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Año</h2>
-      <%= bar_chart @inspections_by_year, colors: @colors.cycle.take(@inspections_by_year.size), label: "Cantidad de Inspecciones" %>
+      <%= bar_chart @inspections_by_year, colors: @colors.cycle.take(@inspections_by_year.size), label: "Cantidad de Inspecciones",
+                    library: {
+                      hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      backgroundColor: "transparent"
+                    } %>
     </div>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Resultados de Inspecciones</h2>
-      <%= bar_chart @inspection_results, colors: @colors.cycle.take(@inspection_results.size), label: "Cantidad de Resultados" %>
+      <%= bar_chart @inspection_results, colors: @colors.cycle.take(@inspection_results.size), label: "Cantidad de Inspecciones",
+                    library: {
+                      hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      backgroundColor: "transparent"
+                    } %>
     </div>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Estado</h2>
-      <%= bar_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size), label: "Cantidad de Estados" %>
+      <%= bar_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size), label: "Cantidad de Inspecciones",
+                    library: {
+                      hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
+                      backgroundColor: "transparent"
+                    } %>
     </div>
   <% when 'pie' %>
     <div class="mb-8">

@@ -1,7 +1,13 @@
 class HomeController < ApplicationController
+
+
   def index
 
     @user = Current.user
+
+    if @user.empresa != nil
+      redirect_to principal_path(@user.principal)
+    end
 
     if @user.admin
       inspections_scope = Inspection.where(inf_date: nil).where(state: "cerrado")

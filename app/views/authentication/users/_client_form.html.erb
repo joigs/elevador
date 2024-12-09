@@ -1,0 +1,65 @@
+<%= form_with(
+      model: @user,
+      url: @user.persisted? ? update_client_user_path(@user) : create_client_users_path,
+      method: @user.persisted? ? :patch : :post,
+      builder: CustomFormBuilder,
+      class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md"
+    ) do |form| %>
+  <% if @user.errors.any? %>
+    <% error_messages = @user.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Error: No se pudo guardar el usuario',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
+  <% end %>
+
+  <div>
+    <%= form.label :"Nombre de usuario", class: "block text-gray-300" %>
+    <%= form.text_field :username, required: true, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :Email, class: "block text-gray-300" %>
+    <%= form.email_field :email, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :Contraseña, class: "block text-gray-300" %>
+    <%= form.password_field :password, required: !form.object.persisted?, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :Confirmar_contraseña, class: "block text-gray-300" %>
+    <%= form.password_field :password_confirmation, required: !form.object.persisted?, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :principal_id, "Empresa", class: "block text-gray-300" %>
+    <%= form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una empresa' }, { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim' }, selected: @user&.principal_id } %>
+  </div>
+
+
+  <div>
+    <%= form.label :"Nombre real", class: "block text-gray-300" %>
+    <%= form.text_field :real_name, required: true, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+
+
+
+  <div>
+    <%= form.label :"Cargo", class: "block text-gray-300" %>
+    <%= form.select :empresa, options_for_select([['Empresario', 'Empresario']], selected: @user.empresa), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+
+
+
+
+
+  <%= form.submit "Guardar usuario", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+<% end %>

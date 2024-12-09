@@ -3,32 +3,37 @@
 
   <div class="flex flex-wrap justify-start space-x-2 mt-4">
     <div class="lg:w-auto flex flex-col space-y-2">
-      <% if Current.user.admin? %>
+      <% if Current.user.admin? || Current.user.principal_id == @principal.id %>
         <%= link_to 'Modificar empresa', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% end %>
       <% if Current.user.admin? %>
         <%= link_to 'Eliminar empresa', principal_path(@principal), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/principals" } %>
       <% end %>
-      <%= link_to 'Volver a empresas', principals_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
+      <% if Current.user.empresa == nil %>
+        <%= link_to 'Volver a empresas', principals_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
+
+      <% end %>
     </div>
   </div>
 
+  <% if Current.user.admin || Current.user.principal_id == @principal.id %>
 
-  <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
-    <div class="flex justify-between space-x-4">
-      <div class="mx-4">
-        <%= link_to '% no conformidad', principal_no_conformidad_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
-      </div>
+    <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
+      <div class="flex justify-between space-x-4">
+        <div class="mx-4">
+          <%= link_to '% no conformidad', principal_no_conformidad_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+        </div>
 
-      <div class="mx-4">
-        <%= link_to 'Estado de activos', principal_estado_activos_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
-      </div>
+        <div class="mx-4">
+          <%= link_to 'Estado de activos', principal_estado_activos_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+        </div>
 
-      <div class="mx-4">
-        <%= link_to 'Defectos en activos', principal_defectos_activos_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+        <div class="mx-4">
+          <%= link_to 'Defectos en activos', principal_defectos_activos_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+        </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
 
 
@@ -48,8 +53,8 @@
           <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
 
             <div class="mb-6 flex space-x-4 justify-center py-4">
-              <%= link_to 'Gráfico de Barra', principal_path(@principal, tab: 'statistics', chart_type: 'bar'), class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
-              <%= link_to 'Gráfico de Torta', principal_path(@principal, tab: 'statistics', chart_type: 'pie'), class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+              <%= link_to 'Gráfico de Barra', principal_path(@principal, tab: 'statistics', chart_type: 'bar'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+              <%= link_to 'Gráfico de Torta', principal_path(@principal, tab: 'statistics', chart_type: 'pie'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
             </div>
 
             <%= turbo_frame_tag 'content_frame2' do %>
@@ -113,7 +118,7 @@
                 <% @items.each do |item| %>
                   <tr class="bg-gray-800 border-b border-gray-700">
                     <td class="px-6 py-4 whitespace-normal break-words"><%= link_to "#{item.identificador}", item_path(item), class:"text-blue-500", data: { turbo_frame: "_top" } %></td>
-                    <td class="px-6 py-4 whitespace-normal break-words">Grupo N°<%= item.group.number %></td>
+                    <td class="px-6 py-4 whitespace-normal break-words"> <%= item.group.name %></td>
                     <% inspection = last_inspection(item) %>
                     <% if inspection %>
                       <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.ins_date) %></td>
