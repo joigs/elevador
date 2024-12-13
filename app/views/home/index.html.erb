@@ -1,6 +1,5 @@
 
-<%= stylesheet_link_tag 'https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css', media: 'all', 'data-turbo-track': 'reload' %>
-<%= javascript_include_tag 'https://cdn.jsdelivr.net/npm/simple-datatables@latest', defer: true %>
+
 
 
 <table id="default-table">
@@ -173,17 +172,16 @@
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("turbo:load", function() {
         if (document.getElementById("default-table") && typeof simpleDatatables !== 'undefined' && simpleDatatables.DataTable) {
             const dataTable = new simpleDatatables.DataTable("#default-table", {
                 searchable: false,
                 perPageSelect: false
             });
+            tableElement.classList.remove("invisible");
         }
     });
 </script>
-
-
 
 
 
