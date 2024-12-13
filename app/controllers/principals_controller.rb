@@ -37,7 +37,16 @@ class PrincipalsController < ApplicationController
     end
 
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
+    if params[:tab] == 'inspections'
+      @q_inspections = @principal.inspections.ransack(params[:q])
+      @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).order(number: :desc)
 
+      if Current.user.tabla
+        @pagy_inspections, @inspections = pagy(@inspections, items: 10)
+      else
+        @pagy_inspections, @inspections = pagy_countless(@inspections, items: 10)
+      end
+    end
     @available_years = @inspections.map { |inspection| inspection.ins_date.year }.uniq.sort
     @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
 
@@ -127,7 +136,7 @@ class PrincipalsController < ApplicationController
 
     if principal.update(principal_params)
       flash[:notice] = "Empresa modificada"
-      redirect_to principals_path
+      redirect_to principal_path(principal)
     else
       render :edit, status: :unprocessable_entity
     end

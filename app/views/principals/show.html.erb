@@ -3,8 +3,10 @@
 
   <div class="flex flex-wrap justify-start space-x-2 mt-4">
     <div class="lg:w-auto flex flex-col space-y-2">
-      <% if Current.user.admin? || Current.user.principal_id == @principal.id %>
+      <% if Current.user.admin?%>
         <%= link_to 'Modificar empresa', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+      <% elsif Current.user.principal_id == @principal.id  %>
+        <%= link_to 'Modificar datos', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% end %>
       <% if Current.user.admin? %>
         <%= link_to 'Eliminar empresa', principal_path(@principal), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/principals" } %>
@@ -45,6 +47,8 @@
     <div class="mb-6 flex space-x-4 justify-center py-4">
       <%= link_to 'Ver Activos', principal_path(@principal), class: "px-4 py-2 rounded #{params[:tab] == 'items' || params[:tab].nil? ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
       <%= link_to 'Estadísticas', principal_path(@principal, tab: 'statistics'), class: "px-4 py-2 rounded #{params[:tab] == 'statistics' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+      <%= link_to 'Ver Inspecciones', principal_path(@principal, tab: 'inspections'), class: "px-4 py-2 rounded #{params[:tab] == 'inspections'  ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+
     </div>
 
     <%= turbo_frame_tag 'content_frame' do %>
@@ -62,7 +66,100 @@
             <% end %>
           </div>
         </div>
-      <% else %>
+      <% elsif params[:tab] == 'inspections' %>
+
+        <%= turbo_frame_tag 'inspections' do %>
+          <div class="p-6">
+            <%= render 'shared/search_form', form_url: principal_path(@principal, tab: 'inspections'), search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
+          </div>
+
+
+          <% if Current.user.tabla %>
+
+            <div class="mt-2">
+              <% if @pagy.pages > 1 %>
+                <nav class="pagy-nav flex justify-center bg-gray-900 py-4 rounded-lg">
+                  <% if @pagy.prev %>
+                    <%= link_to 'Anterior', pagy_url_for(@pagy, @pagy.prev), class: "inline-block px-4 py-2 mx-1 bg-blue-700 text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out", data: { turbo_frame: 'inspections' } %>
+                  <% else %>
+                    <span class="inline-block px-4 py-2 mx-1 bg-gray-500 text-gray-300 rounded">Anterior</span>
+                  <% end %>
+
+                  <% pagy_series(@pagy).each do |page| %>
+                    <% if page.is_a?(Integer) %>
+                      <%= link_to page, pagy_url_for(@pagy, page), class: "inline-block px-4 py-2 mx-1 #{'bg-blue-600 text-white' if page == @pagy.page} hover:bg-blue-600 text-white hover:text-white transition duration-150 ease-in-out rounded", data: { turbo_frame: 'inspections' } %>
+                    <% else %>
+                      <span class="inline-block px-4 py-2 mx-1 text-white">...</span>
+                    <% end %>
+                  <% end %>
+
+                  <% if @pagy.next %>
+                    <%= link_to 'Siguiente', pagy_url_for(@pagy, @pagy.next), class: "inline-block px-4 py-2 mx-1 bg-blue-700 text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out", data: { turbo_frame: 'inspections' } %>
+                  <% else %>
+                    <span class="inline-block px-4 py-2 mx-1 bg-gray-500 text-gray-300 rounded">Siguiente</span>
+                  <% end %>
+                </nav>
+              <% end %>
+            </div>
+
+            <div data-controller="pagination" data-pagination-url="<%= principal_path(@principal, tab: 'inspections') %>" data-pagination-max-pages="<%= @pagy.pages %>" class="mt-4 mb-4 flex justify-center bg-gray-800 py-4 rounded-lg">
+              <label for="go-to-page" class="mr-2 text-gray-200">Ir a la página:</label>
+              <input type="number" id="go-to-page" data-pagination-target="input" min="1" max="<%= @pagy.pages %>" class="border rounded px-2 py-1 text-gray-900" placeholder="Página">
+              <button data-action="click->pagination#goToPage" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Ir</button>
+            </div>
+
+            <div class="overflow-x-auto table-responsive">
+              <table id="inspections-table" class="w-full bg-gray-800 text-white">
+                <thead>
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">N° Inspección</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Identificador</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Empresa</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha Inspección</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Resultado</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha término</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
+                </tr>
+                </thead>
+                <tbody class="bg-gray-700 divide-y divide-gray-600">
+                <% @inspections.each do |inspection| %>
+                  <tr class="bg-gray-800 border-b border-gray-700">
+                    <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.number %></td>
+                    <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.item&.identificador %></td>
+                    <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.item&.principal&.name %></td>
+                    <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.ins_date) %></td>
+                    <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.result %></td>
+                    <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.report&.ending) %></td>
+                    <td class="px-6 py-4">
+                      <%= link_to 'Ver inspección', inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
+                    </td>
+                  </tr>
+                <% end %>
+                </tbody>
+              </table>
+            </div>
+
+
+          <% else %>
+
+            <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+              <ul class="divide-y divide-gray-700">
+                <% @inspections.each_with_index do |inspection, index| %>
+                  <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                    <%= render partial: 'inspections/inspection', locals: { inspection: inspection } %>
+                  </li>
+                <% end %>
+              </ul>
+              <% if @pagy.next %>
+                <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+              <% end %>
+            <% end %>
+          <% end %>
+
+
+        <% end %>
+
+  <% else %>
 
         <h1 class="text-4xl font-bold text-white mb-8 text-center py-4">Activos pertenecientes a <%= @principal.name %></h1>
         <%= turbo_frame_tag 'items' do %>

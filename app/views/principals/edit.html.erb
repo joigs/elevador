@@ -1,11 +1,20 @@
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-  <h1 class="text-3xl font-bold text-gray-800 mb-8">Modificar Empresa</h1>
 
-  <div class="mb-6 bg-gray-900 shadow overflow-hidden sm:rounded-lg pb-8">
-    <%= render "form", principal: @principal %>
+<div class="max-w-4xl mx-auto sm:px-6 lg:px-8 py-8 bg-gray-800 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-gray-100 mb-6 text-center">Modificar Empresa <%= @principal.name %></h1>
+
+  <div class="flex justify-center my-6 space-x-4">
+    <%= link_to "Volver atrás", principal_path(@principal),
+                class: "text-md text-gray-300 hover:text-gray-400 transition duration-150 ease-in-out px-4 py-2 border border-gray-700 rounded hover:bg-gray-700" %>
+    <% if Current.user.empresa == nil %>
+
+      <%= link_to "Volver a empresas", principals_path,
+                  class: "text-md text-blue-400 hover:text-blue-500 transition duration-150 ease-in-out px-4 py-2 border border-blue-500 rounded hover:bg-blue-800"%>
+    <% end %>
   </div>
 
-  <div class="text-center mt-4">
-    <%= link_to "Cancelar", principal_path(@principal), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
-  </div>
+  <%= render "form", principal: @principal %>
+
+
+
+
 </div>

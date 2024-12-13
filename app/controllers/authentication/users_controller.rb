@@ -1,5 +1,4 @@
 class Authentication::UsersController < ApplicationController
-  skip_before_action :protect_clients
 
   def new
     @user = User.new
@@ -162,8 +161,6 @@ class Authentication::UsersController < ApplicationController
     @user = User.new(user_params)
     @user.admin = false
     if @user.save
-      puts("datos de usuario:")
-      puts(@user.inspect)
       flash[:notice] = "Usuario creado exitosamente"
       redirect_to user_path(@user)
     else
