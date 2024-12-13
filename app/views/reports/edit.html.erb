@@ -1,11 +1,8 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
   <h1 class="text-3xl font-bold text-gray-800 mb-4">Información del informe</h1>
 
-  <div class="bg-gray-900 p-6 rounded-lg shadow-md">
-    <%= render "form", report: @report %>
-  </div>
 
-  <div class="mt-4">
+  <div class="mb-4">
     <% if @item.group.type_of == "escala" %>
       <%= link_to "Volver al detalle de la escalera", edit_ladder_detail_path(@detail), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out" %>
     <% else %>
@@ -13,4 +10,10 @@
 
     <% end %>
   </div>
+
+
+  <div class="bg-gray-900 p-6 rounded-lg shadow-md">
+    <%= render "form", report: @report %>
+  </div>
+
 </div>

@@ -2,12 +2,14 @@
   <h1 class="text-2xl font-bold text-gray-100 mb-6 text-center">Cambiar Grupo</h1>
   <%= form_with model: @item, url: update_group_item_path(@item), method: :patch,
                 data: {
-                  controller: 'alert',
+                  controller: 'confirm-change',
+                  action: 'submit->confirm-change#confirm',
                   'alert-message-value': @alert_message,
                   'alert-type-value': @alert_type,
                   'alert-confirm-deletion-value': @confirm_deletion
                 },
-                html: { autocomplete: "off" } do |form| %>
+                html: { autocomplete: "off", data: { confirm_change_target: "form" } } do |form| %>
+
 
     <div>
       <%= form.label :group_id, "Clasificación del ascensor", class: "block text-gray-300" %>
@@ -15,10 +17,13 @@
     </div>
 
     <div class="mt-6">
-      <%= form.submit "Cambiar Grupo", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 cursor-pointer" %>
+      <%= form.submit "Cambiar Grupo",
+                      class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 cursor-pointer",
+                      data: { action: "confirm-change#confirmChange", confirm_change_target: "form" } %>
     </div>
 
-  <% end %>
+
+<% end %>
 
 
   <div class="flex justify-center mt-4">
