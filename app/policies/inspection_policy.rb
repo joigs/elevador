@@ -51,6 +51,19 @@ class InspectionPolicy < BasePolicy
     Current.user.admin
   end
 
+  def edit_informe
+    Current.user.admin
+  end
+
+  def update_informe
+    Current.user.admin
+  end
+
+  def download_informe
+    Current.user.admin
+  end
+
+
   def method_missing(m, *args, &block)
     Current.user.admin
   end

@@ -646,6 +646,43 @@ class InspectionsController < ApplicationController
   end
 
 
+  def edit_informe
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+  end
+
+  def update_informe
+
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+
+    if params[:inspection][:informe].present?
+      @inspection.informe.purge if @inspection.informe.attached? # Reemplaza el archivo existente
+      if @inspection.update(informe: params[:inspection][:informe])
+        redirect_to @inspection, notice: "Informe actualizado exitosamente. Subido el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
+      else
+        flash.now[:alert] = "Error al subir el informe."
+        render :edit_informe
+      end
+    else
+      flash.now[:alert] = "Debes seleccionar un archivo para subir."
+      render :edit_informe
+    end
+  end
+
+  def download_informe
+
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+
+    if @inspection.informe.attached?
+      redirect_to rails_blob_path(@inspection.informe, disposition: "attachment")
+    else
+      redirect_to @inspection, alert: "No hay informe disponible para descargar."
+    end
+  end
+
+
   private
   def inspection_params
     params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :principal_name, :name, :number, :rerun, :group_id, :principal_id, user_ids: [])
@@ -658,6 +695,10 @@ class InspectionsController < ApplicationController
 
   def inspection
     @inspection = Inspection.find(params[:id])
+  end
+
+  def informe_params
+    params.require(:inspection).permit(:informe)
   end
 
 end

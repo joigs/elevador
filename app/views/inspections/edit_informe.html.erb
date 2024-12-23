@@ -1,0 +1,29 @@
+<h1 class="text-2xl font-bold text-center text-gray-200 mb-6">Editar Informe</h1>
+
+<div class="max-w-xl mx-auto my-8 px-4 py-6 bg-gray-900 rounded-lg shadow-md">
+  <p class="text-gray-300 mb-4">
+    <strong>Ultimo informe subido el:</strong>
+    <%= @inspection.informe.attached? ? @inspection.informe.created_at.strftime("%d/%m/%Y %H:%M") : "No se ha subido un informe aún." %>
+  </p>
+
+  <%= form_with(model: @inspection, url: update_informe_inspection_path(@inspection), method: :patch, multipart: true, class: "space-y-4") do |form| %>
+    <div>
+      <%= form.label :informe, "Subir nuevo informe (.docx solamente):", class: "block text-gray-300 font-bold mb-2" %>
+      <%= form.file_field :informe, accept: ".docx", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+    </div>
+
+    <div>
+      <%= form.submit "Subir", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+    </div>
+  <% end %>
+
+  <% if @inspection.informe.attached? %>
+    <div class="mt-6 text-center">
+      <%= link_to "Descargar informe actual", download_informe_inspection_path(@inspection), class: "inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="text-center mt-4">
+  <%= link_to "Volver", inspection_path(@inspection), class: "inline-block text-gray-300 hover:text-white font-bold py-2 px-4" %>
+</div>

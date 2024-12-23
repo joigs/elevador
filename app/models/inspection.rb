@@ -30,7 +30,9 @@ class Inspection < ApplicationRecord
   validates :ins_date, date: true
   validates :inf_date, date: true
   validates :rerun, inclusion: { in: [true, false] }
+  validate :informe_format
 
+  has_one_attached :informe
 
   has_many :inspection_users, dependent: :destroy
   has_many :users, through: :inspection_users
@@ -95,6 +97,14 @@ class Inspection < ApplicationRecord
 
   def set_principal_from_item
     self.principal_id = self.item.principal_id if self.item
+  end
+
+  def informe_format
+    return unless informe.attached?
+
+    if informe.blob.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      errors.add(:informe, "debe ser un archivo .docx")
+    end
   end
 
 end

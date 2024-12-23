@@ -48,11 +48,17 @@ Rails.application.routes.draw do
       patch :update_inf_date
       get :new_with_last
       patch :force_close_inspection
+      get :edit_informe
+      patch :update_informe
+      get :download_informe
+
       #get :download_images
 
     end
 
   end
+
+
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups' do
     collection do
       get 'libre', to: 'groups#libre', as: 'libre'

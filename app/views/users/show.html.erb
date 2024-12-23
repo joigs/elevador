@@ -16,20 +16,24 @@
 
       <% end %>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-        <h2 class="text-xl text-gray-300 mb-4 flex items-center space-x-4">
-          <span>Vista de tarjeta</span>
-          <label class="inline-flex items-center cursor-pointer">
-            <%= form_with url: toggle_tabla_perfil_path, method: :patch, remote: true, class: "inline-flex" do %>
-              <%= hidden_field_tag "user[tabla]", false %>
-              <input type="checkbox" name="user[tabla]" class="sr-only peer" <%= Current.user.tabla ? 'checked' : '' %> value="true" onchange="this.form.submit();">
-              <div class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-green-600"></div>
-            <% end %>
-          </label>
-          <span>Vista de tabla</span>
-        </h2>
+      <% if Current.user.empresa == nil %>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+          <h2 class="text-xl text-gray-300 mb-4 flex items-center space-x-4">
+            <span>Vista de tarjeta</span>
+            <label class="inline-flex items-center cursor-pointer">
+              <%= form_with url: toggle_tabla_perfil_path, method: :patch, remote: true, class: "inline-flex" do %>
+                <%= hidden_field_tag "user[tabla]", false %>
+                <input type="checkbox" name="user[tabla]" class="sr-only peer" <%= Current.user.tabla ? 'checked' : '' %> value="true" onchange="this.form.submit();">
+                <div class="relative w-11 h-6 rounded-full peer bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-green-600"></div>
+              <% end %>
+            </label>
+            <span>Vista de tabla</span>
+          </h2>
+        </div>
+      <% end %>
+
       </div>
-    </div>
 
     <% if Current.user.admin %>
 
