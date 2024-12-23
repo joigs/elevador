@@ -46,25 +46,28 @@
         </div>
 
         <div class="overflow-x-auto table-responsive">
-          <table id="inspections-table" class="w-full bg-gray-800 text-white">
-            <thead>
+          <table id="inspections-table" class="w-full text-white">
+            <thead class="bg-gray-800">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">N° Inspección</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Identificador</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Empresa</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha Inspección</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Resultado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha término</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">N° Inspección</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Identificador</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Empresa</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha Inspección</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Resultado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha término</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
             </tr>
             </thead>
             <tbody class="bg-gray-700 divide-y divide-gray-600">
             <% @inspections.each do |inspection| %>
               <tr class="bg-gray-800 border-b border-gray-700">
                 <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.number %></td>
-                <td class="px-6 py-4 whitespace-normal break-words text-blue-500"><%= link_to "#{inspection.item&.identificador}", item_path(inspection.item),  data: { turbo_frame: "_top" } %></td>
-                <td class="px-6 py-4 whitespace-normal break-words text-blue-500"><%= link_to "#{inspection.item&.principal&.name}", principal_path(inspection.item.principal),  data: { turbo_frame: "_top" } %></td>
-
+                <td class="px-6 py-4 whitespace-normal break-words text-blue-500">
+                  <%= link_to inspection.item&.identificador, item_path(inspection.item), data: { turbo_frame: "_top" } %>
+                </td>
+                <td class="px-6 py-4 whitespace-normal break-words text-blue-500">
+                  <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), data: { turbo_frame: "_top" } %>
+                </td>
                 <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.ins_date) %></td>
                 <td class="px-6 py-4 whitespace-normal break-words"><%= inspection.result %></td>
                 <td class="px-6 py-4 whitespace-normal break-words"><%= format_date(inspection.report&.ending) %></td>
@@ -75,6 +78,69 @@
             <% end %>
             </tbody>
           </table>
+
+          <script>
+              document.addEventListener("turbo:load", function() {
+                  if (
+                    document.getElementById("inspections-table") &&
+                    typeof simpleDatatables !== "undefined" &&
+                    simpleDatatables.DataTable
+                  ) {
+                      const dataTable = new simpleDatatables.DataTable("#inspections-table", {
+                          labels: {
+                              placeholder: "Buscar...",              // placeholder del search
+                              perPage: "registros por pág.",// label del selector de registros
+                              noRows: "No hay datos para mostrar",    // cuando no hay filas
+                              info: "Mostrando {start} a {end} de {rows} entradas" // info al pie
+                          },
+                          tableRender: (_data, table, type) => {
+                              // Evitamos cambios en modo "print"
+                              if (type === "print") {
+                                  return table;
+                              }
+
+                              // Forzar color en el thead
+                              table.childNodes[0].childNodes.forEach((row) => {
+                                  if (!row.attributes) row.attributes = {};
+                                  row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                                  row.childNodes.forEach((th) => {
+                                      if (!th.attributes) th.attributes = {};
+                                      th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                                  });
+                              });
+
+                              // Agregar la fila de filtros
+                              const tHead = table.childNodes[0];
+                              const firstRow = tHead.childNodes[0];
+                              const filterHeaders = {
+                                  nodeName: "TR",
+                                  attributes: {
+                                      class: "search-filtering-row bg-gray-800 text-white"
+                                  },
+                                  childNodes: firstRow.childNodes.map((_th, index) => ({
+                                      nodeName: "TH",
+                                      childNodes: [
+                                          {
+                                              nodeName: "INPUT",
+                                              attributes: {
+                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600",
+                                                  type: "search",
+                                                  "data-columns": "[" + index + "]"
+                                              }
+                                          }
+                                      ]
+                                  }))
+                              };
+                              tHead.childNodes.push(filterHeaders);
+
+                              return table;
+                          }
+                      });
+                  }
+              });
+          </script>
+
+
         </div>
 
 

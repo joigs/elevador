@@ -701,4 +701,17 @@ class InspectionsController < ApplicationController
     params.require(:inspection).permit(:informe)
   end
 
+
+
+  def convert_docx_to_pdf(file_path)
+
+    pdf_output = Tempfile.new(["informe", ".pdf"])
+    system("pandoc", file_path, "-o", pdf_output.path)
+    pdf_content = File.read(pdf_output.path)
+    pdf_output.close
+    pdf_output.unlink
+    pdf_content
+  end
+
+
 end

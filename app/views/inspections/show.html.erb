@@ -1,23 +1,23 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
   <div class="flex flex-wrap">
-    <div class="text-white lg:w-2/3 pr-4 mb-2">
+    <div class="text-white pr-4 mb-2">
       <div class="flex items-center justify-between w-full">
         <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %>  <%= @inspection.name %></p>
 
-        <div class="mt-0 mx-2" data-controller="warning"
+        <div class="mt-0 mx-2 mr-20" data-controller="warning"
              data-warning-ins-date="<%= @inspection.ins_date %>"
              data-warning-is-owner="<%= @inspection.owner? %>"
              data-warning-control="<%= @control %>"
              data-warning-last-inspection-url="<%= inspection_path(@last_inspection) %>">
           <% if Current.user.admin %>
 
-            <div class="flex justify-center w-full">
+            <div class="flex justify-center w-full mx-2">
               <% if @inspection.informe.attached? %>
-                <p><strong>Informe:</strong>
-                  <%= link_to "Descargar informe", download_informe_inspection_path(@inspection), class: "button" %>
+                <p class="flex justify-center w-full"><strong class="mr-2">Informe:</strong>
+                  <%= link_to "Descargar informe", download_informe_inspection_path(@inspection), class: "px-2 py-4 mx-4 rounded bg-orange-500 text-gray-900 font-bold hover:bg-orange-600 transition duration-300" %>
                 </p>
               <% else %>
-                <p>No hay informe disponible.</p>
+                <p class="mr-4">No hay informe disponible.</p>
               <% end %>
 
               <%= link_to "Subir Informe", edit_informe_inspection_path(@inspection), class: "px-6 py-4 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" %>
