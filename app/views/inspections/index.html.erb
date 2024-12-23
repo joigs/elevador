@@ -105,7 +105,6 @@
                                 });
                             });
 
-                            // Crear la fila de filtros
                             const tHead = table.childNodes[0];
                             const firstRow = tHead.childNodes[0];
                             const filterHeaders = {
@@ -173,7 +172,9 @@
 
   <% else %>
 
-
+        <div class="p-6">
+          <%= render 'shared/search_form', form_url: inspections_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
+        </div>
         <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
           <ul class="divide-y divide-gray-700">
             <% @inspections.each_with_index do |inspection, index| %>
@@ -194,4 +195,3 @@
     <% end %>
 
   </div>
-</div>
