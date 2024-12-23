@@ -8,27 +8,28 @@
   <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
 
     <%= turbo_frame_tag 'inspections' do %>
-
       <% if Current.user.tabla %>
 
+        <div id="tableLoadingOverlay"
+             class="flex items-center justify-center bg-gray-800"
+             style="min-height: 200px;">
+          <p class="text-white animate-pulse">Cargando...</p>
 
+        </div>
 
-        <div class="overflow-x-auto table-responsive mt-6">
-          <!-- Tabla con layout fijo y ancho 100%, 7 columnas de ~14.2857% -->
-          <!-- Envolvemos la tabla con un div que tenga overflow-x-auto para scroll sólo si es necesario -->
+        <div id="tableContainer" class="hidden mt-6">
           <div class="overflow-x-auto">
             <table id="inspections-table"
                    class="table-auto w-full text-white">
               <thead class="bg-gray-800">
               <tr>
-                <!-- Quitamos estilos fijos de ancho en los <th> para que fluyan -->
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">N° Inspección</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Identificador</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Empresa</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha Inspección</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Resultado</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha término</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Inspección</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Identificador</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Empresa</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha término</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Acciones</p> </th>
               </tr>
               </thead>
               <tbody class="bg-gray-700 divide-y divide-gray-600">
@@ -52,25 +53,13 @@
                                 class: "text-blue-400 hover:text-blue-600" %>
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
-                    <p class="text-white">
-
-                    <%= format_date(inspection.ins_date) %>
-                    </p>
-
+                    <p class="text-white"><%= format_date(inspection.ins_date) %></p>
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
-                    <p class="text-white">
-
-                    <%= inspection.result %>
-                    </p>
-
+                    <p class="text-white"><%= inspection.result %></p>
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
-                    <p class="text-white">
-
-                    <%= format_date(inspection.report&.ending) %>
-                    </p>
-
+                    <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
                   </td>
                   <td class="px-6 py-4">
                     <%= link_to "Ver inspección",
@@ -83,91 +72,102 @@
               </tbody>
             </table>
           </div>
-
-          <script>
-              document.addEventListener("turbo:load", function() {
-                  if (
-                      document.getElementById("inspections-table") &&
-                      typeof simpleDatatables !== "undefined" &&
-                      simpleDatatables.DataTable
-                  ) {
-                      const dataTable = new simpleDatatables.DataTable("#inspections-table", {
-                          labels: {
-                              placeholder: "Buscar...",
-                              perPage: "registros por pág.",
-                              noRows: "No hay datos para mostrar",
-                              noResults: "No hay resultados que coincidan con tu búsqueda",
-                              info: "Mostrando {start} a {end} de {rows} entradas"
-                          },
-                          tableRender: (_data, table, type) => {
-                              // Evitamos cambios en modo print
-                              if (type === "print") {
-                                  return table;
-                              }
-
-                              // Forzar thead con bg oscuro y texto blanco
-                              table.childNodes[0].childNodes.forEach((row) => {
-                                  if (!row.attributes) row.attributes = {};
-                                  row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                                  row.childNodes.forEach((th) => {
-                                      if (!th.attributes) th.attributes = {};
-                                      th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                                  });
-                              });
-
-                              // Crear la fila de filtros con un poco de "espacio arriba"
-                              const tHead = table.childNodes[0];
-                              const firstRow = tHead.childNodes[0];
-                              const filterHeaders = {
-                                  nodeName: "TR",
-                                  attributes: {
-                                      class: "search-filtering-row bg-gray-800 text-white"
-                                  },
-                                  childNodes: firstRow.childNodes.map((_th, index) => ({
-                                      nodeName: "TH",
-                                      // Añadimos padding-top para simular un mt-4
-                                      attributes: {
-                                          style: "padding-top: 1rem;"
-                                      },
-                                      childNodes: [
-                                          {
-                                              nodeName: "INPUT",
-                                              attributes: {
-                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                                  type: "search",
-                                                  "data-columns": "[" + index + "]"
-                                              }
-                                          }
-                                      ]
-                                  }))
-                              };
-                              tHead.childNodes.push(filterHeaders);
-
-                              return table;
-                          }
-                      });
-                  }
-              });
-          </script>
-
-          <style>
-              /* Forzamos texto blanco en todas las celdas (por si algo lo sobreescribe) */
-              .dataTable-table tbody td {
-                  color: #fff !important;
-              }
-
-              /* Color celeste al ordenar */
-              .datatable-ascending,
-              .datatable-descending {
-                  background-color: #2563eb !important;
-                  color: #fff !important;
-              }
-          </style>
-
-
-
-
         </div>
+
+
+        <script>
+            document.addEventListener("turbo:load", function() {
+                const tableEl = document.getElementById("inspections-table");
+                if (
+                  tableEl &&
+                  typeof simpleDatatables !== "undefined" &&
+                  simpleDatatables.DataTable
+                ) {
+                    const dataTable = new simpleDatatables.DataTable("#inspections-table", {
+                        labels: {
+                            placeholder: "Buscar...",
+                            perPage: "registros por pág.",
+                            noRows: "No hay datos para mostrar",
+                            noResults: "No hay resultados que coincidan con tu búsqueda",
+                            info: "Mostrando {start} a {end} de {rows} entradas"
+                        },
+                        tableRender: (_data, table, type) => {
+                            if (type === "print") {
+                                return table;
+                            }
+
+                            table.childNodes[0].childNodes.forEach((row) => {
+                                if (!row.attributes) row.attributes = {};
+                                row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                                row.childNodes.forEach((th) => {
+                                    if (!th.attributes) th.attributes = {};
+                                    th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                                });
+                            });
+
+                            // Crear la fila de filtros
+                            const tHead = table.childNodes[0];
+                            const firstRow = tHead.childNodes[0];
+                            const filterHeaders = {
+                                nodeName: "TR",
+                                attributes: {
+                                    class: "search-filtering-row bg-gray-800 text-white"
+                                },
+                                childNodes: firstRow.childNodes.map((_th, index) => ({
+                                    nodeName: "TH",
+                                    attributes: {
+                                        style: "padding-top: 1rem;" // simular un mt-4
+                                    },
+                                    childNodes: [
+                                        {
+                                            nodeName: "INPUT",
+                                            attributes: {
+                                                class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                                type: "search",
+                                                "data-columns": "[" + index + "]"
+                                            }
+                                        }
+                                    ]
+                                }))
+                            };
+                            tHead.childNodes.push(filterHeaders);
+
+                            return table;
+                        }
+                    });
+
+                    dataTable.on("datatable.init", function() {
+                        const overlay = document.getElementById("tableLoadingOverlay");
+                        const container = document.getElementById("tableContainer");
+                        if (overlay) {
+                            overlay.remove();
+                        }
+                        if (container) {
+                            container.classList.remove("hidden");
+                        }
+                    });
+                }
+            });
+        </script>
+
+
+        <style>
+            .dataTable-table tbody td {
+                color: #fff !important;
+            }
+
+            .datatable-ascending,
+            .datatable-descending {
+                background-color: #539DED !important;
+                color: #fff !important;
+            }
+
+
+
+        </style>
+
+
+  </div>
 
 
 
