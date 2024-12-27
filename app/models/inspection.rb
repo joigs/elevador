@@ -64,7 +64,7 @@ class Inspection < ApplicationRecord
 
     return unless report
 
-    if Date.today >= report.ending
+    if Date.today > report.ending&
       self.result = 'Vencido'
     end
   end
