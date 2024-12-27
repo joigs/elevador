@@ -1,7 +1,12 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  point: MyString
-
-two:
-  point: MyString
+asc:
+  point: "Verificar algo de ascensor"
+  code: "ASC-1"
+  # Si level es un array serializado, a veces se representa en YAML así:
+  # level: "---\n- L\n- G\n"
+  # O si te basta con una string:
+  level:  "---\n- L\n- G\n"
+  # Si ins_type es también un array, igual que arriba (usa la notación YAML o un string)
+  ins_type:  "---\n- VI\n- DI\n"
+  ruletype: one
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>

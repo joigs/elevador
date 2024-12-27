@@ -1,9 +1,5 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  group: one
-  rule: one
-
-two:
-  group: two
-  rule: two
+  group: asc
+  rule: asc
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>

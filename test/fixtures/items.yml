@@ -1,7 +1,6 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  identificador: MyString
-
-two:
-  identificador: MyString
+abc:
+  identificador: "ITEM-XYZ"
+  group: asc       # referencia al fixture groups.yml (clave `asc`)
+  principal: one   # referencia a principals.yml (clave `one`)
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>

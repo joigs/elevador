@@ -10,22 +10,15 @@
     <%= turbo_frame_tag 'inspections' do %>
       <% if Current.user.tabla %>
 
-        <div id="tableLoadingOverlay"
-             class="flex items-center justify-center bg-gray-800"
-             style="min-height: 200px;">
-          <p class="text-white animate-pulse">Cargando...</p>
 
-        </div>
+        <div class="overflow-x-auto table-responsive mt-6">
 
-        <div id="tableContainer" class="hidden mt-6">
-          <div class="overflow-x-auto">
             <table id="inspections-table"
                    class="table-auto w-full text-white">
               <thead class="bg-gray-800">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Inspección</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Identificador</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Empresa</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Activo</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha término</p> </th>
@@ -46,12 +39,7 @@
                                 data: { turbo_frame: "_top" },
                                 class: "text-blue-400 hover:text-blue-600" %>
                   </td>
-                  <td class="px-6 py-4 whitespace-normal break-words">
-                    <%= link_to inspection.item&.principal&.name,
-                                principal_path(inspection.item.principal),
-                                data: { turbo_frame: "_top" },
-                                class: "text-blue-400 hover:text-blue-600" %>
-                  </td>
+
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <p class="text-white"><%= format_date(inspection.ins_date) %></p>
                   </td>
@@ -79,9 +67,9 @@
             document.addEventListener("turbo:load", function() {
                 const tableEl = document.getElementById("inspections-table");
                 if (
-                  tableEl &&
-                  typeof simpleDatatables !== "undefined" &&
-                  simpleDatatables.DataTable
+                    tableEl &&
+                    typeof simpleDatatables !== "undefined" &&
+                    simpleDatatables.DataTable
                 ) {
                     const dataTable = new simpleDatatables.DataTable("#inspections-table", {
                         labels: {
@@ -162,11 +150,51 @@
             }
 
 
+            #inspections-table thead th button.datatable-sorter {
+                background: transparent !important;
+                border: none !important;
+                color: #fff !important;
+            }
+
+            #inspections-table thead th button.datatable-sorter:hover {
+                background: transparent !important;
+                color: #1d4ed8 !important;
+            }
+
+            #inspections-table thead th button.datatable-sorter:hover::before,
+            #inspections-table thead th button.datatable-sorter:hover::after {
+                background-color: transparent !important;
+                color: #1d4ed8 !important;
+            }
+
+            #inspections-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
+                color: #1d4ed8 !important;
+            }
+
+
+            #inspections-table .datatable-selector {
+                background-color: #f2f2f2 !important;
+                color: #000 !important;
+                border: 1px solid #ccc !important;
+                border-radius: 4px;
+                padding: 0.25rem 0.5rem;
+            }
+
+            #inspections-table .datatable-input {
+                background-color: #f2f2f2 !important;
+                color: #000 !important;
+                border: 1px solid #ccc !important;
+                border-radius: 4px;
+                padding: 0.25rem 0.5rem;
+            }
+
+            #inspections-table .datatable-input::placeholder {
+                color: #888;
+            }
 
         </style>
 
-
-  </div>
+        </div>
 
 
 

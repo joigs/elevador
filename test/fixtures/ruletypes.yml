@@ -1,7 +1,6 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  rtype: MyString
-
-two:
-  rtype: MyString
+  rtype: "Tipo de regla genérica"
+  gygatype: "1. CAJA DE ELEVADORES."
+  gygatype_number: "001"
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>

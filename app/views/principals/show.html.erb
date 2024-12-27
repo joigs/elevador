@@ -21,21 +21,34 @@
   <% if Current.user.admin || Current.user.principal_id == @principal.id %>
 
     <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
-      <div class="flex justify-between space-x-4">
-        <div class="mx-4">
-          <%= link_to '% no conformidad', principal_no_conformidad_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+      <div class="tracking-wide text-2xl font-bold text-gray-300 mb-4">Descarga de reportes</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="relative group">
+          <%= link_to '% no conformidad', principal_no_conformidad_path(@principal), class: "block px-4 py-2 bg-blue-600 text-white text-center rounded hover:bg-blue-700 transition duration-300" %>
+          <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+        Porcentaje de ocurrencia de no conformidades dentro de cada grupo
+      </span>
         </div>
 
-        <div class="mx-4">
-          <%= link_to 'Estado de activos', principal_estado_activos_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+        <div class="relative group">
+          <%= link_to 'Estado de activos', principal_estado_activos_path(@principal), class: "block px-4 py-2 bg-blue-600 text-white text-center rounded hover:bg-blue-700 transition duration-300" %>
+          <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+        Estado de activos y sus no conformidades
+      </span>
         </div>
 
-        <div class="mx-4">
-          <%= link_to 'Defectos en activos', principal_defectos_activos_path(@principal), class: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300" %>
+        <div class="relative group">
+          <%= link_to 'Defectos en activos', principal_defectos_activos_path(@principal), class: "block px-4 py-2 bg-blue-600 text-white text-center rounded hover:bg-blue-700 transition duration-300" %>
+          <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+        Que activos presentan cada no conformidad
+      </span>
         </div>
       </div>
     </div>
-  <% end %>
+
+
+
+<% end %>
 
 
 
@@ -81,7 +94,7 @@
                 <thead class="bg-gray-800">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Inspección</p> </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Identificador</p> </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Activo</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha término</p> </th>
@@ -234,6 +247,26 @@
                     color: #1d4ed8 !important;
                 }
 
+
+                #inspections-table .datatable-selector {
+                    background-color: #f2f2f2 !important;
+                    color: #000 !important;
+                    border: 1px solid #ccc !important;
+                    border-radius: 4px;
+                    padding: 0.25rem 0.5rem;
+                }
+
+                #inspections-table .datatable-input {
+                    background-color: #f2f2f2 !important;
+                    color: #000 !important;
+                    border: 1px solid #ccc !important;
+                    border-radius: 4px;
+                    padding: 0.25rem 0.5rem;
+                }
+
+                #inspections-table .datatable-input::placeholder {
+                    color: #888;
+                }
 
             </style>
             </div>
@@ -418,6 +451,28 @@
                   #items-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
                       color: #1d4ed8 !important;
                   }
+
+
+                  #items-table .datatable-selector {
+                      background-color: #f2f2f2 !important;
+                      color: #000 !important;
+                      border: 1px solid #ccc !important;
+                      border-radius: 4px;
+                      padding: 0.25rem 0.5rem;
+                  }
+
+                  #items-table .datatable-input {
+                      background-color: #f2f2f2 !important;
+                      color: #000 !important;
+                      border: 1px solid #ccc !important;
+                      border-radius: 4px;
+                      padding: 0.25rem 0.5rem;
+                  }
+
+                  #items-table .datatable-input::placeholder {
+                      color: #888;
+                  }
+
               </style>
 
             </div>

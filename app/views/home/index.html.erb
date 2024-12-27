@@ -82,7 +82,7 @@
           <% if Current.user.tabla %>
 
 
-            <div class="overflow-x-auto mt-6">
+            <div class="overflow-x-auto table-responsive mt-6">
               <table id="inspections-table" class="table-auto w-full text-white">
                 <thead class="bg-gray-800">
                 <tr>
@@ -90,7 +90,7 @@
                     <p class="hover:text-blue-700">N° Inspección</p>
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Identificador</p>
+                    <p class="hover:text-blue-700">Activo</p>
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                     <p class="hover:text-blue-700">Empresa</p>
@@ -222,6 +222,26 @@
                 #inspections-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
                     color: #1d4ed8 !important;
                 }
+                #inspections-table .datatable-selector {
+                    background-color: #f2f2f2 !important;
+                    color: #000 !important;
+                    border: 1px solid #ccc !important;
+                    border-radius: 4px;
+                    padding: 0.25rem 0.5rem;
+                }
+
+                #inspections-table .datatable-input {
+                    background-color: #f2f2f2 !important;
+                    color: #000 !important;
+                    border: 1px solid #ccc !important;
+                    border-radius: 4px;
+                    padding: 0.25rem 0.5rem;
+                }
+
+                #inspections-table .datatable-input::placeholder {
+                    color: #888;
+                }
+
 
             </style>
           <% else %>
