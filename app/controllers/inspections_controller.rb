@@ -657,7 +657,7 @@ class InspectionsController < ApplicationController
     authorize! @inspection
 
     if params[:inspection][:informe].present?
-      @inspection.informe.purge if @inspection.informe.attached? # Reemplaza el archivo existente
+      @inspection.informe.purge if @inspection.informe.attached?
       if @inspection.update(informe: params[:inspection][:informe])
         redirect_to @inspection, notice: "Informe actualizado exitosamente. Subido el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
       else

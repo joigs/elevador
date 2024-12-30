@@ -66,20 +66,31 @@
 
     <%= turbo_frame_tag 'content_frame' do %>
       <% if params[:tab] == 'statistics' %>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-          <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
 
-            <div class="mb-6 flex space-x-4 justify-center py-4">
-              <%= link_to 'Gráfico de Barra', principal_path(@principal, tab: 'statistics', chart_type: 'bar'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
-              <%= link_to 'Gráfico de Torta', principal_path(@principal, tab: 'statistics', chart_type: 'pie'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+        <% if @inspections.any? %>
+
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+              <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+
+                <div class="mb-6 flex space-x-4 justify-center py-4">
+                  <%= link_to 'Gráfico de Barra', principal_path(@principal, tab: 'statistics', chart_type: 'bar'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+                  <%= link_to 'Gráfico de Torta', principal_path(@principal, tab: 'statistics', chart_type: 'pie'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+                </div>
+
+                <%= turbo_frame_tag 'content_frame2' do %>
+
+                  <%= render 'statistics_chart', chart_type: @chart_type %>
+                <% end %>
+              </div>
             </div>
+        <% else %>
 
-            <%= turbo_frame_tag 'content_frame2' do %>
-              <%= render 'statistics_chart', chart_type: @chart_type %>
-            <% end %>
+          <div class="p-6 flex justify-center">
+            <p class="text-gray-300">No existen inspecciones registradas para esta empresa.</p>
           </div>
-        </div>
-      <% elsif params[:tab] == 'inspections' %>
+        <% end %>
+          <% elsif params[:tab] == 'inspections' %>
 
         <%= turbo_frame_tag 'inspections' do %>
 

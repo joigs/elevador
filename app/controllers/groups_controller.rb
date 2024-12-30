@@ -32,7 +32,7 @@ class GroupsController < ApplicationController
     @group = Group.new(group_params)
 
     if @group.type_of == 'escala' && Group.exists?(type_of: 'escala')
-      flash[:alert] = "Ya existe un grupo con el tipo 'escala'."
+      flash[:alert] = "Ya existe un grupo con el tipo escala."
       redirect_to new_group_url
     else
         if @group.save

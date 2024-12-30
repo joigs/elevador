@@ -63,7 +63,6 @@ class PrincipalsController < ApplicationController
                                                 .transform_values(&:count)
     @inspections_by_month = @inspections_by_month.sort_by { |month, _| month_order.index(month) }.to_h
 
-    # Agrupar inspecciones por año y ordenar
     @inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }
                                        .transform_values(&:count)
     @inspections_by_year = @inspections_by_year.sort_by { |year, _| year }.to_h
