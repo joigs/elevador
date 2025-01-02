@@ -6,7 +6,10 @@
   </div>
 
   <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
-
+    <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+      <h1 class="text-2xl font-bold text-white">Inspecciones</h1>
+      <p class="text-gray-400">Consulta todas las inspecciones</p>
+    </div>
     <%= turbo_frame_tag 'inspections' do %>
       <% if Current.user.tabla %>
 
@@ -20,10 +23,14 @@
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Inspección</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Nombre</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Activo</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Empresa</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en estado actual</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha término</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                  <p class="hover:text-blue-700">Inspector asignado</p>
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Acciones</p> </th>
               </tr>
               </thead>
@@ -50,6 +57,12 @@
                   </td>
 
                   <td class="px-6 py-4 whitespace-normal break-words">
+                    <%= link_to inspection.item&.principal.name,
+                                principal_path(inspection.item.principal),
+                                data: { turbo_frame: "_top" },
+                                class: "text-blue-400 hover:text-blue-600" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-normal break-words">
                     <p class="text-white"><%= format_date(inspection.ins_date) %></p>
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
@@ -62,6 +75,17 @@
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
+                  </td>
+                  <td class="px-6 py-4 whitespace-normal break-words">
+                    <% if inspection.users.any? %>
+                      <ul>
+                        <% inspection.users.each do |user| %>
+                          <li class="text-white"><%= user.real_name %></li>
+                        <% end %>
+                      </ul>
+                    <% else %>
+                      <p class="text-gray-400">No asignado</p>
+                    <% end %>
                   </td>
                   <td class="px-6 py-4">
                     <%= link_to "Ver inspección",
@@ -125,7 +149,8 @@
                                             attributes: {
                                                 class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
                                                 type: "search",
-                                                "data-columns": "[" + index + "]"
+                                                "data-columns": "[" + index + "]",
+                                                placeholder: "Filtrar"
                                             }
                                         }
                                     ]

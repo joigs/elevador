@@ -10,7 +10,7 @@ class HomeController < ApplicationController
     end
 
     if @user.admin
-      inspections_scope = Inspection.where(inf_date: nil).where(state: "cerrado")
+      inspections_scope = Inspection.where("number > 0").where(state: "abierto")
     else
 
       inspections_scope = Inspection.joins(:users).where(users: { id: @user.id }).where("number > 0").where(state: "abierto")

@@ -50,6 +50,25 @@
 
 
   <div class="mt-6 bg-gray-800 shadow overflow-hidden sm:rounded-md">
+
+    <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+
+
+
+      <% if @user.admin %>
+        <h1 class="text-2xl font-bold text-white">Inspecciones Cerradas</h1>
+        <p class="text-gray-400">Consulta las inspecciones cerradas. Disponibles para generar informes.</p>
+      <% elsif @user.empresa == nil %>
+        <h1 class="text-2xl font-bold text-white">Mis inspecciones</h1>
+        <p class="text-gray-400">Consulta las inspecciones que te fueron asignadas.</p>
+
+      <% else %>
+        <h1 class="text-2xl font-bold text-white">Inspecciones de <%= @user.principal.name %></h1>
+        <p class="text-gray-400">Consulta las inspecciones de tu empresa.</p>
+      <% end %>
+
+    </div>
+
     <%= turbo_frame_tag 'inspections' do %>
 
 
@@ -68,7 +87,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Empresa</p> </th>
               <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
               <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en estado actual</p> </th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p> </th>
               <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha término</p> </th>
               <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Acciones</p> </th>
             </tr>
@@ -167,7 +186,7 @@
                                 childNodes: firstRow.childNodes.map((_th, index) => ({
                                     nodeName: "TH",
                                     attributes: {
-                                        style: "padding-top: 1rem;" // simular un mt-4
+                                        style: "padding-top: 1rem;"
                                     },
                                     childNodes: [
                                         {
@@ -175,7 +194,8 @@
                                             attributes: {
                                                 class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
                                                 type: "search",
-                                                "data-columns": "[" + index + "]"
+                                                "data-columns": "[" + index + "]",
+                                                placeholder: "Filtrar"
                                             }
                                         }
                                     ]

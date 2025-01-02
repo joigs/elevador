@@ -1,10 +1,20 @@
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
-  <div class="flex flex-wrap">
-    <div class="text-white pr-4 mb-2">
-      <div class="flex items-center justify-between w-full">
-        <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %>  <%= @inspection.name %></p>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
 
-        <div class="mt-0 mx-2 mr-20 " data-controller="warning"
+  <div class="flex items-center justify-start mb-6">
+    <%= link_to "Volver a inspecciones",
+                inspections_path,
+                class: "inline-flex items-center px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-blue-600 bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out"
+    %>
+  </div>
+
+  <div class="bg-gray-900 p-6 rounded-lg shadow-md">
+    <div class="flex flex-wrap">
+      <div class="text-white pr-4 mb-2">
+        <div class="flex items-center justify-between w-full">
+          <p class="text-4xl font-bold">Inspección N°<%= @inspection.number %>  <%= @inspection.name %></p>
+
+
+          <div class="mt-0 mx-2 mr-20 " data-controller="warning"
              data-warning-ins-date="<%= @inspection.ins_date %>"
              data-warning-is-owner="<%= @inspection.owner? %>"
              data-warning-control="<%= @control %>"
@@ -125,7 +135,6 @@
       <%= link_to 'Descargar JSON', download_json_inspection_path(@inspection), class: "px-4 py-2 rounded bg-purple-700 hover:bg-purple-800 text-gray-900 font-bold transition duration-300" if Current.user.admin || @inspection.owner? %>
       <% end %>
         <%= link_to 'Eliminar inspección', inspection_path(@inspection), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "inspection-delete-confirmation", action: "click->inspection-delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/inspections" } if Current.user.admin %>
-      <%= link_to "Volver a inspecciones", inspections_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
 
     </div>
   </div>
@@ -133,4 +142,5 @@
 
 
 
+  </div>
 </div>
