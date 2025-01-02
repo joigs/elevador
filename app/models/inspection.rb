@@ -14,6 +14,8 @@ class Inspection < ApplicationRecord
     newest: "created_at DESC",
   }
 
+  before_save :update_cambio_if_result_changed
+
 
 
   validates :ins_date, presence: { message: "Debes ingresar una fecha" }
@@ -104,6 +106,12 @@ class Inspection < ApplicationRecord
 
     if informe.blob.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       errors.add(:informe, "debe ser un archivo .docx")
+    end
+  end
+
+  def update_cambio_if_result_changed
+    if result_changed?
+      self.cambio = Date.today
     end
   end
 

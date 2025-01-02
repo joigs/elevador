@@ -75,7 +75,7 @@
 </section>
 
 <% if @inspections.count > 0 %>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
     <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
       <%= turbo_frame_tag 'inspections' do %>
         <div class="p-6">
@@ -88,6 +88,10 @@
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                     <p class="hover:text-blue-700">N° Inspección</p>
+                  </th>
+
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                    <p class="hover:text-blue-700">Nombre</p>
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                     <p class="hover:text-blue-700">Activo</p>
@@ -102,6 +106,9 @@
                     <p class="hover:text-blue-700">Resultado</p>
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                    <p class="hover:text-blue-700">Tiempo en estado actual</p>
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                     <p class="hover:text-blue-700">Acciones</p>
                   </th>
                 </tr>
@@ -112,6 +119,11 @@
                     <td class="px-6 py-4 whitespace-normal break-words">
                       <strong class="text-white"><%= inspection.number %></strong>
                     </td>
+
+                    <td class="px-6 py-4 whitespace-normal break-words">
+                      <strong class="text-white"><%= inspection.name %></strong>
+                    </td>
+
                     <td class="px-6 py-4 whitespace-normal break-words">
                       <%= link_to inspection.item&.identificador, item_path(inspection.item), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                     </td>
@@ -123,6 +135,9 @@
                     </td>
                     <td class="px-6 py-4 whitespace-normal break-words">
                       <p class="text-white"><%= inspection.result %></p>
+                    </td>
+                    <td class="px-6 py-4 whitespace-normal break-words">
+                      <p class="text-white"><%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %></p>
                     </td>
                     <td class="px-6 py-4">
                       <%= link_to "Ver inspección", inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>

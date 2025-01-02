@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_09_140429) do
+ActiveRecord::Schema[7.1].define(version: 2025_01_01_211547) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -124,6 +124,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_09_140429) do
     t.bigint "principal_id", null: false
     t.boolean "rerun", default: false, null: false
     t.string "name"
+    t.date "cambio", default: -> { "curdate()" }, null: false
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
     t.index ["principal_id"], name: "index_inspections_on_principal_id"
