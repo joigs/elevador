@@ -31,57 +31,65 @@ class PrincipalsController < ApplicationController
     @items = @q.result(distinct: true).order(created_at: :desc)
 
     if Current.user.tabla
-      @pagy, @items = pagy(@items, items: 10)  # Paginación tradicional para la tabla
+      @pagy, @items = pagy(@items, items: 10)
     else
-      @pagy, @items = pagy_countless(@items, items: 10)  # Paginación infinita para las tarjetas
+      @pagy, @items = pagy_countless(@items, items: 10)
     end
 
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
     if params[:tab] == 'inspections'
       @q_inspections = @principal.inspections.ransack(params[:q])
       @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).order(number: :desc)
-
       if Current.user.tabla
         @pagy_inspections, @inspections = pagy(@inspections, items: 10)
       else
         @pagy_inspections, @inspections = pagy_countless(@inspections, items: 10)
       end
     end
-    @available_years = @inspections.map { |inspection| inspection.ins_date.year }.uniq.sort
-    @selected_year = params[:year].present? ? params[:year].to_i : @available_years.last
 
-    month_order = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    @available_years = @inspections.map { |i| i.ins_date.year }.uniq.sort
+    @selected_year = if params[:year] == 'all'
+                       'all'
+                     elsif params[:year].present?
+                       params[:year].to_i
+                     else
+                       'all'
+                     end
+
+    filtered_inspections = if @selected_year == 'all'
+                             @inspections
+                           else
+                             @inspections.select { |i| i.ins_date.year == @selected_year }
+                           end
+
+    month_order = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
     month_mapping = {
-      "01" => "Enero", "02" => "Febrero", "03" => "Marzo", "04" => "Abril", "05" => "Mayo", "06" => "Junio",
-      "07" => "Julio", "08" => "Agosto", "09" => "Septiembre", "10" => "Octubre", "11" => "Noviembre", "12" => "Diciembre"
+      "01"=>"Enero","02"=>"Febrero","03"=>"Marzo","04"=>"Abril","05"=>"Mayo","06"=>"Junio",
+      "07"=>"Julio","08"=>"Agosto","09"=>"Septiembre","10"=>"Octubre","11"=>"Noviembre","12"=>"Diciembre"
     }
 
-    inspections_for_year = @inspections.select { |inspection| inspection.ins_date.year == @selected_year }
+    @inspections_by_month = filtered_inspections.group_by { |i| month_mapping[i.ins_date.strftime("%m")] }.transform_values(&:count)
+    @inspections_by_month = @inspections_by_month.sort_by { |m, _| month_order.index(m) }.to_h
 
-    @inspections_by_month = inspections_for_year.group_by { |inspection| month_mapping[inspection.ins_date.strftime("%m")] }
-                                                .transform_values(&:count)
-    @inspections_by_month = @inspections_by_month.sort_by { |month, _| month_order.index(month) }.to_h
+    @inspections_by_year = @inspections.group_by { |i| i.ins_date.year }.transform_values(&:count)
+    @inspections_by_year = @inspections_by_year.sort_by { |y, _| y }.to_h
 
-    @inspections_by_year = @inspections.group_by { |inspection| inspection.ins_date.year }
-                                       .transform_values(&:count)
-    @inspections_by_year = @inspections_by_year.sort_by { |year, _| year }.to_h
+    result_order = ["Aprobado","Rechazado","En revisión","Creado"]
+    @inspection_results = filtered_inspections.group_by(&:result).transform_values(&:count)
+    @inspection_results = @inspection_results.sort_by { |r, _| result_order.index(r) || result_order.size }.to_h
 
-    result_order = ["Aprobado", "Rechazado", "En revisión", "Creado"]
-    @inspection_results = @inspections.group_by(&:result).transform_values(&:count)
-    @inspection_results = @inspection_results.sort_by { |result, _| result_order.index(result) || result_order.size }.to_h
-
-    state_order = ["Cerrado", "Abierto"]
-    @inspection_states = @inspections.group_by(&:state).transform_values(&:count)
-    @inspection_states = @inspection_states.sort_by { |state, _| state_order.index(state) || state_order.size }.to_h
+    state_order = ["Cerrado","Abierto"]
+    @inspection_states = filtered_inspections.group_by(&:state).transform_values(&:count)
+    @inspection_states = @inspection_states.sort_by { |s, _| state_order.index(s) || state_order.size }.to_h
 
     @chart_type = params[:chart_type] || 'bar'
+
     @colors = [
-      '#ff6347', '#4682b4', '#32cd32', '#ffd700', '#6a5acd', '#ff69b4', '#8a2be2', '#00ced1', '#ff4500', '#2e8b57',
-      '#ff7f50', '#6495ed', '#9932cc', '#3cb371', '#b8860b', '#ff1493', '#1e90ff', '#daa520', '#ba55d3', '#7b68ee',
-      '#ff4500', '#ffa07a', '#20b2aa', '#87cefa', '#b22222', '#ffdead', '#8fbc8f', '#ff6347', '#6b8e23', '#a9a9a9',
-      '#ffe4b5', '#fa8072', '#eee8aa', '#98fb98', '#afeeee', '#cd5c5c', '#ff69b4', '#2e8b57', '#8a2be2', '#20b2aa',
-      '#dda0dd', '#66cdaa', '#f08080', '#e9967a', '#3cb371', '#f5deb3', '#ff6347', '#40e0d0', '#4682b4', '#db7093',
+      '#ff6347','#4682b4','#32cd32','#ffd700','#6a5acd','#ff69b4','#8a2be2','#00ced1','#ff4500','#2e8b57',
+      '#ff7f50','#6495ed','#9932cc','#3cb371','#b8860b','#ff1493','#1e90ff','#daa520','#ba55d3','#7b68ee',
+      '#ff4500','#ffa07a','#20b2aa','#87cefa','#b22222','#ffdead','#8fbc8f','#ff6347','#6b8e23','#a9a9a9',
+      '#ffe4b5','#fa8072','#eee8aa','#98fb98','#afeeee','#cd5c5c','#ff69b4','#2e8b57','#8a2be2','#20b2aa',
+      '#dda0dd','#66cdaa','#f08080','#e9967a','#3cb371','#f5deb3','#ff6347','#40e0d0','#4682b4','#db7093'
     ]
 
     respond_to do |format|
@@ -89,6 +97,8 @@ class PrincipalsController < ApplicationController
       format.turbo_stream
     end
   end
+
+
 
 
 

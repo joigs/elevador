@@ -1,18 +1,26 @@
 <div class="p-6">
-
   <div class="mb-6">
     <label for="year-select" class="text-white">Selecciona un año:</label>
     <%= form_with url: principal_path(@principal), method: :get, local: true do |form| %>
-      <%= form.select :year, options_for_select(@available_years, @selected_year), { include_blank: false }, class: "form-select bg-gray-700 text-white" %>
+      <%= form.select :year,
+                      options_for_select([["Mostrar todas","all"]] + @available_years, @selected_year),
+                      { include_blank: false },
+                      class: "form-select bg-gray-700 text-white" %>
       <%= form.hidden_field :tab, value: 'statistics' %>
+      <%= form.hidden_field :chart_type, value: @chart_type %>
       <%= form.submit 'Seleccionar', class: "ml-4 px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
     <% end %>
   </div>
-
   <% case chart_type %>
   <% when 'bar' %>
     <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Mes (Año <%= @selected_year %>)</h2>
+      <h2 class="text-xl text-white mb-2">Inspecciones por Mes
+        <% if @selected_year == 'all' %>
+          (Todos los años)
+        <% else %>
+          (Año <%= @selected_year %>)
+        <% end %>
+      </h2>
       <%= bar_chart @inspections_by_month,
                     colors: @colors.cycle.take(@inspections_by_month.size),
                     label: "Cantidad de Inspecciones",
@@ -24,7 +32,9 @@
     </div>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Año</h2>
-      <%= bar_chart @inspections_by_year, colors: @colors.cycle.take(@inspections_by_year.size), label: "Cantidad de Inspecciones",
+      <%= bar_chart @inspections_by_year,
+                    colors: @colors.cycle.take(@inspections_by_year.size),
+                    label: "Cantidad de Inspecciones",
                     library: {
                       hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
                       vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
@@ -32,8 +42,16 @@
                     } %>
     </div>
     <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Resultados de Inspecciones</h2>
-      <%= bar_chart @inspection_results, colors: @colors.cycle.take(@inspection_results.size), label: "Cantidad de Inspecciones",
+      <h2 class="text-xl text-white mb-2">Resultados de Inspecciones
+        <% if @selected_year == 'all' %>
+          (Todos los años)
+        <% else %>
+          (Año <%= @selected_year %>)
+        <% end %>
+      </h2>
+      <%= bar_chart @inspection_results,
+                    colors: @colors.cycle.take(@inspection_results.size),
+                    label: "Cantidad de Inspecciones",
                     library: {
                       hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
                       vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
@@ -41,8 +59,16 @@
                     } %>
     </div>
     <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Estado</h2>
-      <%= bar_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size), label: "Cantidad de Inspecciones",
+      <h2 class="text-xl text-white mb-2">Inspecciones por Estado
+        <% if @selected_year == 'all' %>
+          (Todos los años)
+        <% else %>
+          (Año <%= @selected_year %>)
+        <% end %>
+      </h2>
+      <%= bar_chart @inspection_states,
+                    colors: @colors.cycle.take(@inspection_states.size),
+                    label: "Cantidad de Inspecciones",
                     library: {
                       hAxis: { textStyle: { color: "#fff", fontSize: 12 } },
                       vAxis: { textStyle: { color: "#fff", fontSize: 12 } },
@@ -51,21 +77,42 @@
     </div>
   <% when 'pie' %>
     <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Mes (Año <%= @selected_year %>)</h2>
-      <%= pie_chart @inspections_by_month, colors: @colors.cycle.take(@inspections_by_month.size) %>
+      <h2 class="text-xl text-white mb-2">Inspecciones por Mes
+        <% if @selected_year == 'all' %>
+          (Todos los años)
+        <% else %>
+          (Año <%= @selected_year %>)
+        <% end %>
+      </h2>
+      <%= pie_chart @inspections_by_month,
+                    colors: @colors.cycle.take(@inspections_by_month.size) %>
     </div>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Año</h2>
-      <%= pie_chart @inspections_by_year, colors: @colors.cycle.take(@inspections_by_year.size) %>
+      <%= pie_chart @inspections_by_year,
+                    colors: @colors.cycle.take(@inspections_by_year.size) %>
     </div>
     <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Resultados de Inspecciones</h2>
-      <%= pie_chart @inspection_results, colors: @colors.cycle.take(@inspection_results.size) %>
+      <h2 class="text-xl text-white mb-2">Resultados de Inspecciones
+        <% if @selected_year == 'all' %>
+          (Todos los años)
+        <% else %>
+          (Año <%= @selected_year %>)
+        <% end %>
+      </h2>
+      <%= pie_chart @inspection_results,
+                    colors: @colors.cycle.take(@inspection_results.size) %>
     </div>
     <div class="mb-8">
-      <h2 class="text-xl text-white mb-2">Inspecciones por Estado</h2>
-      <%= pie_chart @inspection_states, colors: @colors.cycle.take(@inspection_states.size) %>
+      <h2 class="text-xl text-white mb-2">Inspecciones por Estado
+        <% if @selected_year == 'all' %>
+          (Todos los años)
+        <% else %>
+          (Año <%= @selected_year %>)
+        <% end %>
+      </h2>
+      <%= pie_chart @inspection_states,
+                    colors: @colors.cycle.take(@inspection_states.size) %>
     </div>
-
   <% end %>
 </div>

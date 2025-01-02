@@ -95,24 +95,24 @@
 
     <%= turbo_frame_tag 'content_frame' do %>
       <% if params[:tab] == 'statistics' %>
-
         <% if @inspections.any? %>
-
-
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-              <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
-
-                <div class="mb-6 flex space-x-4 justify-center py-4">
-                  <%= link_to 'Gráfico de Barra', principal_path(@principal, tab: 'statistics', chart_type: 'bar'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
-                  <%= link_to 'Gráfico de Torta', principal_path(@principal, tab: 'statistics', chart_type: 'pie'), data: { turbo_frame: 'chart_frame' }, class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
-                </div>
-
-                <%= turbo_frame_tag 'content_frame2' do %>
-
-                  <%= render 'statistics_chart', chart_type: @chart_type %>
-                <% end %>
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+            <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+              <div class="mb-6 flex space-x-4 justify-center py-4">
+                <%= link_to 'Gráfico de Barra',
+                            principal_path(@principal, tab: 'statistics', chart_type: 'bar', year: @selected_year),
+                            data: { turbo_frame: 'chart_frame' },
+                            class: "px-4 py-2 rounded #{params[:chart_type] == 'bar' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
+                <%= link_to 'Gráfico de Torta',
+                            principal_path(@principal, tab: 'statistics', chart_type: 'pie', year: @selected_year),
+                            data: { turbo_frame: 'chart_frame' },
+                            class: "px-4 py-2 rounded #{params[:chart_type] == 'pie' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-gray-200'} hover:bg-blue-600 transition duration-300" %>
               </div>
+              <%= turbo_frame_tag 'content_frame2' do %>
+                <%= render 'statistics_chart', chart_type: @chart_type %>
+              <% end %>
             </div>
+          </div>
         <% else %>
 
           <div class="p-6 flex justify-center">
