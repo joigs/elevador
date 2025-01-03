@@ -51,9 +51,12 @@ Rails.application.routes.draw do
       get :edit_informe
       patch :update_informe
       get :download_informe
+    end
 
-      #get :download_images
-
+    #get :download_images
+    collection do
+      get :edit_massive_load
+      patch :update_massive_load
     end
 
   end

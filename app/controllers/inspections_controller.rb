@@ -159,7 +159,7 @@ class InspectionsController < ApplicationController
     @inspection = Inspection.new(
       place: last_inspection.place,
       validation: last_inspection.validation,
-      ins_date: Date.today # Establecer la fecha de inspección como la fecha actual o la que desees
+      ins_date: Date.today
     )
 
     @item = last_inspection.item
@@ -681,6 +681,39 @@ class InspectionsController < ApplicationController
       redirect_to @inspection, alert: "No hay informe disponible para descargar."
     end
   end
+
+
+
+
+
+  def edit_massive_load
+    # Esta acción renderiza la vista para la carga masiva
+  end
+
+  def update_massive_load
+    if params[:file].nil?
+      flash[:alert] = "No se seleccionó ningún archivo. Por favor, selecciona un archivo para cargar."
+      redirect_to edit_massive_load_inspection_path
+      return
+    end
+
+    begin
+      # Llamada al servicio para procesar el archivo
+      result = MassiveLoadService.process(params[:file].path)
+
+      if result[:success]
+        flash[:notice] = "Carga masiva completada con éxito: #{result[:message]}"
+      else
+        flash[:alert] = "Error en la carga masiva: #{result[:message]}"
+      end
+    rescue StandardError => e
+      flash[:alert] = "Ocurrió un error inesperado: #{e.message}"
+    end
+
+    redirect_to inspections_path
+  end
+
+
 
 
   private
