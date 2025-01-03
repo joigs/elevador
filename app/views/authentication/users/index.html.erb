@@ -53,8 +53,11 @@
               <tbody class="bg-gray-700 divide-y divide-gray-600">
               <% @users.each do |user| %>
                 <tr class="bg-gray-800 border-b border-gray-700">
-                  <td class="px-6 py-4 whitespace-normal break-words">
-                    <strong class="text-white"><%= user.username %></strong>
+                  <td class="px-6 py-4">
+                    <%= link_to user.username,
+                                user_path(user),
+                                class: "text-blue-400 hover:text-blue-600",
+                                data: { turbo_frame: "_top" } %>
                   </td>
 
                   <td class="px-6 py-4 whitespace-normal break-words">

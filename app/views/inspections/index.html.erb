@@ -39,13 +39,19 @@
                 <tr class="bg-gray-800 border-b border-gray-700">
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <strong class="text-white">
-                      <%= inspection.number %>
+                      <%= link_to inspection.number,
+                                  inspection_path(inspection),
+                                  data: { turbo_frame: "_top" },
+                                  class: "text-blue-400 hover:text-blue-600" %>
                     </strong>
                   </td>
 
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <strong class="text-white">
-                      <%= inspection.name %>
+                      <%= link_to inspection.name,
+                                  inspection_path(inspection),
+                                  data: { turbo_frame: "_top" },
+                                  class: "text-blue-400 hover:text-blue-600" %>
                     </strong>
                   </td>
 
