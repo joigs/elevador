@@ -13,9 +13,8 @@ class UsersController < ApplicationController
 
     @q = inspections_scope.ransack(params[:q])
     @inspections = @q.result(distinct: true).order(number: :desc)
-    if Current.user.tabla
-      @pagy, @inspections = pagy(@inspections, items: 10) # Paginación tradicional para la tabla
-    else
+    unless Current.user.tabla
+
       @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
     end
 

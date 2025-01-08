@@ -6,9 +6,8 @@ class PrincipalsController < ApplicationController
     @q = Principal.ransack(params[:q])
     @principals = @q.result(distinct: true).order(created_at: :desc)
 
-    if Current.user.tabla
-      @pagy, @principals = pagy(@principals, items: 10) # Paginación tradicional para la tabla
-    else
+    unless Current.user.tabla
+
       @pagy, @principals = pagy_countless(@principals, items: 10)
     end
 
@@ -30,9 +29,7 @@ class PrincipalsController < ApplicationController
     @q = principal.items.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
 
-    if Current.user.tabla
-      @pagy, @items = pagy(@items, items: 10)
-    else
+    unless Current.user.tabla
       @pagy, @items = pagy_countless(@items, items: 10)
     end
 
@@ -40,9 +37,7 @@ class PrincipalsController < ApplicationController
     if params[:tab] == 'inspections'
       @q_inspections = @principal.inspections.ransack(params[:q])
       @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).order(number: :desc)
-      if Current.user.tabla
-        @pagy_inspections, @inspections = pagy(@inspections, items: 10)
-      else
+      unless Current.user.table
         @pagy_inspections, @inspections = pagy_countless(@inspections, items: 10)
       end
     end

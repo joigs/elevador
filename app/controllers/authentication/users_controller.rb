@@ -39,10 +39,8 @@ class Authentication::UsersController < ApplicationController
     if Current.user&.admin
       @q = User.ransack(params[:q])
       @users = @q.result(distinct: true)
-      if Current.user.tabla
-        @pagy, @users = pagy(@users, items: 10)  # Paginación tradicional para la tabla
-      else
-        @pagy, @users = pagy_countless(@users, items: 10)
+      unless Current.user.tabla
+        @pagy, @users = pagy_countless(@users, items: 10)  # Paginación infinita para las tarjetas
       end
     else
       flash[:alert] = "No tienes permiso"

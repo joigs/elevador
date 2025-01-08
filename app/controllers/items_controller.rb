@@ -3,9 +3,7 @@ class ItemsController < ApplicationController
     @q = Item.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
 
-    if Current.user.tabla
-      @pagy, @items = pagy(@items, items: 10)  # Paginación tradicional para la tabla
-    else
+    unless Current.user.tabla
       @pagy, @items = pagy_countless(@items, items: 10)  # Paginación infinita para las tarjetas
     end
 
@@ -20,9 +18,8 @@ class ItemsController < ApplicationController
     @q = item.inspections.where("number > 0").ransack(params[:q])
     @inspections = @q.result(distinct: true).order(number: :desc)
 
-    if Current.user.tabla
-      @pagy, @inspections = pagy(@inspections, items: 10)  # Paginación tradicional para la tabla
-    else
+    unless Current.user.tabla
+
       @pagy, @inspections = pagy_countless(@inspections, items: 10)  # Paginación infinita para las tarjetas
     end
 
