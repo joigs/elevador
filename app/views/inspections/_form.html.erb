@@ -24,7 +24,7 @@
 
     <div data-controller="principal-select">
       <div>
-        <%= form.label :principal_id, "Empresa", class: "block text-gray-300" %>
+        <%= form.label :principal_id, "Empresa cliente", class: "block text-gray-300" %>
         <%= form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una empresa' }, { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim', principal_select_target: "principal", action: "change->principal-select#updateItems" }, selected: @item&.principal_id } %>
       </div>
 

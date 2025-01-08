@@ -69,7 +69,7 @@
 
       <div class="mt-6">
         <p class="mb-0">
-          <strong>Empresa:</strong>
+          <strong>Empresa cliente:</strong>
           <%= link_to @inspection.item&.principal&.name,
                       @inspection.item.principal,
                       class: "text-blue-400" %>
@@ -79,7 +79,7 @@
         <p class="mb-0"><strong>Clasificación:</strong> <%= @inspection.item&.group&.name %></p>
         <p class="mb-0"><strong>¿Es reinspección?</strong> <%= @inspection.rerun ? "Sí" : "No" %></p>
         <p class="mb-0"><strong>Resultado:</strong> <%= @inspection.result %></p>
-        <p class="mb-0"><strong>Lugar:</strong> <%= @inspection.place %></p>
+        <p class="mb-0"><strong>Dirección:</strong> <%= @inspection.place %></p>
         <p class="mb-0"><strong>Fecha emisión del informe:</strong> <%= format_date(@inspection.inf_date) %></p>
         <p class="mb-0"><strong>Fecha Límite próxima inspección:</strong> <%= format_date(@report.ending) %></p>
         <p><strong>Inspectores:</strong></p>

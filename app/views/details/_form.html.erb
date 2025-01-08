@@ -18,17 +18,17 @@
 
     <div class="form-group">
       <%= form.label :rol_n, "Rol N°", class: "block text-gray-300" %>
-      <%= form.text_field :rol_n, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.rol_n.presence || @item_identificador %>
+      <%= form.text_field :rol_n, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md"%>
     </div>
 
 
     <div class="form-group">
-      <%= form.label :numero_permiso, "N° de permiso", class: "block text-gray-300" %>
+      <%= form.label :numero_permiso, "N° de permiso de edificación", class: "block text-gray-300" %>
       <%= form.number_field :numero_permiso, max: 1000000000, min:0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <div class="form-group">
-      <%= form.label :fecha_permiso, "Fecha de permiso", class: "block text-gray-300" %>
+      <%= form.label :fecha_permiso, "Fecha de permiso de edificación", class: "block text-gray-300" %>
       <%= form.date_field :fecha_permiso, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
@@ -141,7 +141,7 @@
     </div>
 
     <div class="form-group">
-      <%= form.label :ct_diametro, "Diámetro", class: "block text-gray-300" %>
+      <%= form.label :ct_diametro, "Diámetro mm", class: "block text-gray-300" %>
       <%= form.number_field :ct_diametro, max: 1000000, min: 0, step: 0.00001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
