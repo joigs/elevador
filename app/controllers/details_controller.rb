@@ -6,7 +6,7 @@ class DetailsController < ApplicationController
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
     @item_identificador = Item.find(detail.item_id).identificador.split('-').first
-    if @inspection.ins_date <= Date.today
+    if @inspection.ins_date <= Date.today && !params[:closed]
       @inspection.update(state: 'Abierto', result: 'En revisión')
     end
     @group = Group.find(Item.find(detail.item_id).group_id)
@@ -55,7 +55,13 @@ class DetailsController < ApplicationController
       end
 
       flash[:notice] = "Detalle modificado exitosamente"
-      redirect_to edit_report_path(@report)
+
+      if @inspection.state == 'Abierto'
+        redirect_to edit_report_path(@report)
+      else
+        redirect_to inspection_path(params[:inspection_origin])
+      end
+
     else
       render :edit, status: :unprocessable_entity
     end

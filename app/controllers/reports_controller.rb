@@ -156,13 +156,19 @@ class ReportsController < ApplicationController
 
         flash[:notice] = "Información modificada exitosamente"
         if @item.group.type_of == "escala"
-          redirect_to edit_ladder_revision_path(inspection_id: inspection.id)
-
+          if inspection.state == 'Abierto'
+            redirect_to edit_ladder_revision_path(inspection_id: inspection.id)
+          else
+            redirect_to inspection_path(inspection)
+          end
         elsif @item.group.type_of == "libre"
           redirect_to edit_libre_revision_path(inspection_id: inspection.id)
         elsif @item.group.type_of == "ascensor"
-          redirect_to edit_revision_path(inspection_id: inspection.id)
-        end
+          if inspection.state == 'Abierto'
+            redirect_to edit_revision_path(inspection_id: inspection.id)
+          else
+            redirect_to inspection_path(inspection)
+          end        end
       else
         flash[:notice] = "Información modificada exitosamente. Vuelva el día de la inspección"
         redirect_to inspection_path(inspection)

@@ -21,7 +21,7 @@ export default class extends Controller {
             confirmButtonText: "Si, Eliminar",
             cancelButtonText: "Cancelar",
             customClass: {
-                confirmButton: 'mr-10'  // Aplica margen a la derecha del botón de confirmación
+                confirmButton: 'mr-10'
             }
         }).then((result) => {
             if (result.isConfirmed) {

@@ -17,6 +17,16 @@ class InspectionsController < ApplicationController
 
     inspection
     @item = inspection.item
+    @report = Report.find_by(inspection_id: @inspection.id)
+
+    @previous_inspection = @item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
+
+    if @previous_inspection
+      @show_third_radio_button = true
+    else
+      @show_third_radio_button = false
+    end
+
     @last_inspection = Inspection.where(item: @item).order(number: :desc).first
     @control2 = @item.group.type_of == "escala"
     if @control2

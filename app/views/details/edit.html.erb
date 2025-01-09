@@ -2,11 +2,20 @@
   <h1 class="text-3xl font-bold text-gray-800 mb-4">Información adicional del activo</h1>
 
   <div class="mb-4">
-    <%= link_to "Volver atrás", inspection_path(@inspection), class: "inline-flex items-center px-4 py-2 border border-transparent \
+    <% if params[:closed] %>
+      <%= link_to "Volver atrás", inspection_path(params[:inspection_origin]), class: "inline-flex items-center px-4 py-2 border border-transparent \
                         text-base leading-6 font-medium rounded-md text-blue-400 \
                         bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none \
                         focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" %>
-  </div>
+      </div>
+    <% else %>
+      <%= link_to "Volver atrás", inspection_path(@inspection), class: "inline-flex items-center px-4 py-2 border border-transparent \
+                        text-base leading-6 font-medium rounded-md text-blue-400 \
+                        bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none \
+                        focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" %>
+      </div>
+    <% end %>
+
 
   <div class="bg-gray-900 p-6 rounded-lg shadow-md">
     <%= render "form", detail: @detail %>

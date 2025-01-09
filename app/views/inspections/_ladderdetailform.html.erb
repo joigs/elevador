@@ -1,0 +1,164 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-lg">
+  <h1 class="text-3xl font-bold text-white text-center mb-6">Detalle del activo</h1>
+  <% if Current.user.admin %>
+    <% if inspection.state == "Abierto" %>
+
+
+      <%= link_to 'Modificar datos',
+                    '#',
+                    data: {
+                      controller: "form-completion-alert",
+                      action: "click->form-completion-alert#handleClick",
+                      form_completion_alert_destination_url_value: edit_ladder_detail_path(detail, closed: true, inspection_origin: inspection),
+                      form_completion_alert_is_inspection_open_value: (inspection.state == 'Abierto').to_s
+                    },
+                    class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" %>
+
+    <% else %>
+      <%= link_to 'Modificar datos',
+                  edit_ladder_detail_path(detail, closed: true, inspection_origin: inspection),
+                  class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" %>
+    <% end %>
+  <% end %>
+
+  <div class="space-y-6 mt-6">
+    <%# Detalle del activo %>
+    <div>
+      <label class="block text-gray-300">Detalle</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.detalle %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Descripción</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.descripcion %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Rol N°</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.rol_n %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">N° Permiso de edificación</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.numero_permiso %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Fecha Permiso de edificación</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.fecha_permiso %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Destino</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.destino %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Recepción</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.recepcion %></div>
+    </div>
+
+    <hr class="my-4 border-gray-500">
+
+    <%# Empresa Instaladora %>
+    <div>
+      <label class="block text-gray-300">Empresa Instaladora</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.empresa_instaladora %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">RUT Empresa Instaladora</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.empresa_instaladora_rut %></div>
+    </div>
+
+    <hr class="my-4 border-gray-500">
+
+    <%# Características principales %>
+    <div>
+      <label class="block text-gray-300">Porcentaje de Ocupación</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.porcentaje %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Marca</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.marca %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Modelo</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.modelo %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">N° Serie</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.nserie %></div>
+    </div>
+
+    <hr class="my-4 border-gray-500">
+
+    <%# Motor Motriz %>
+    <div class="text-white text-lg font-semibold mt-6 mb-2">Motor Motriz</div>
+    <div>
+      <label class="block text-gray-300">Marca</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.mm_marca %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">N° Serie</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.mm_nserie %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Potencia</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.potencia %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Capacidad</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.capacidad %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Personas</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.personas %></div>
+    </div>
+
+    <hr class="my-4 border-gray-500">
+
+    <%# Características específicas %>
+    <div>
+      <label class="block text-gray-300">Peldaños</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.peldaños %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Longitud</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.longitud %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Inclinación</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.inclinacion %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Ancho</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.ancho %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Velocidad</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.velocidad %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Fabricación</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.fabricacion %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Procedencia</label>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.procedencia %></div>
+    </div>
+  </div>
+</div>

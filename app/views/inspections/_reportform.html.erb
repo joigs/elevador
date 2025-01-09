@@ -1,0 +1,119 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
+  <h1 class="text-3xl font-bold text-white text-center mb-6">Detalle de la Inspección</h1>
+
+  <% if Current.user.admin %>
+    <% if inspection.state == "Abierto" %>
+      <%= link_to 'Modificar datos',
+                  '#',
+                  data: {
+                    controller: "form-completion-alert",
+                    action: "click->form-completion-alert#handleClick",
+                    form_completion_alert_destination_url_value: edit_report_path(report, closed: true, inspection_origin: inspection),
+                    form_completion_alert_is_inspection_open_value: (inspection.state == 'Abierto').to_s
+                  },
+                  class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" %>
+    <% else %>
+      <%= link_to 'Modificar datos',
+                  edit_report_path(report, closed:true, inspection_origin: inspection),
+                  class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" %>
+    <% end %>
+  <% end %>
+
+
+  <div class="space-y-4 mt-6">
+    <%# Certificado MINVU %>
+    <div>
+      <label class="block text-gray-300">Certificado MINVU</label>
+      <div class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.certificado_minvu %></div>
+    </div>
+
+    <%# Inspección anterior (Radio buttons) %>
+    <div>
+      <label class="block text-gray-300">Inspección anterior</label>
+      <div class="flex flex-col items-start space-y-4">
+        <div class="flex items-center ps-4 border rounded border-gray-700 space-x-2 w-full">
+          <%= radio_button_tag 'report[cert_ant]', 'Si', report.cert_ant == 'Si', disabled: true, class: "w-4 h-4 text-blue-600 focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+          <label class="w-full py-4 ms-2 text-sm font-medium text-gray-300">Si</label>
+        </div>
+        <div class="flex items-center ps-4 border rounded border-gray-700 space-x-2 w-full">
+          <%= radio_button_tag 'report[cert_ant]', 'No', report.cert_ant == 'No', disabled: true, class: "w-4 h-4 text-blue-600 focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+          <label class="w-full py-4 ms-2 text-sm font-medium text-gray-300">No</label>
+        </div>
+        <% if @show_third_radio_button %>
+          <div class="flex items-center ps-4 border rounded border-gray-700 space-x-2 w-full">
+            <%= radio_button_tag 'report[cert_ant]', 'sistema', report.cert_ant == 'sistema', disabled: true, class: "w-4 h-4 text-blue-600 focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+            <label class="w-full py-4 ms-2 text-sm font-medium text-gray-300">Última certificación en sistema</label>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Certificación anterior (Radio buttons) %>
+    <div>
+      <label class="block text-gray-300">Certificación anterior</label>
+      <div class="flex flex-col items-start space-y-4">
+        <div class="flex items-center ps-4 border rounded border-gray-700 space-x-2 w-full">
+          <%= radio_button_tag 'report[cert_ant_real]', 'Si', report.cert_ant_real == 'Si', disabled: true, class: "w-4 h-4 text-blue-600 focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+          <label class="w-full py-4 ms-2 text-sm font-medium text-gray-300">Si</label>
+        </div>
+        <div class="flex items-center ps-4 border rounded border-gray-700 space-x-2 w-full">
+          <%= radio_button_tag 'report[cert_ant_real]', 'No', report.cert_ant_real == 'No', disabled: true, class: "w-4 h-4 text-blue-600 focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+          <label class="w-full py-4 ms-2 text-sm font-medium text-gray-300">No</label>
+        </div>
+      </div>
+    </div>
+
+    <%# Empresa mantenedora %>
+    <hr class="my-4 border-gray-500">
+    <p class="text-gray-300 font-bold">Empresa Mantenedora</p>
+    <div>
+      <label class="block text-gray-300">Empresa mantenedora</label>
+      <div class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.empresa_mantenedora %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Rol</label>
+      <div class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.em_rol %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Rut</label>
+      <div class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.em_rut %></div>
+    </div>
+
+    <%# Vigencia contrato de mantención %>
+    <hr class="my-4 border-gray-500">
+    <p class="text-gray-300 font-bold">Vigencia contrato de mantención</p>
+    <div>
+      <label class="block text-gray-300">Fecha inicio</label>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.vi_co_man_ini %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Fecha término</label>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.vi_co_man_ter %></div>
+    </div>
+
+
+
+    <div>
+      <label class="block text-gray-300">Nombre técnico mantenedor</label>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.nom_tec_man %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Rut técnico mantenedor</label>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.tm_rut %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Último registro de mantención N°</label>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.ul_reg_man %></div>
+    </div>
+
+    <div>
+      <label class="block text-gray-300">Fecha Último registro de mantención</label>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.urm_fecha %></div>
+    </div>
+  </div>
+</div>

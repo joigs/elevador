@@ -185,5 +185,44 @@
 
     </div>
   </div>
+  <div data-controller="inspection-tabs">
+    <!-- Botones para cambiar de pestaña -->
+    <div class="grid grid-cols-2 gap-x-16 mb-4 justify-center items-center max-w-md mx-auto mt-8">
+      <button
+        type="button"
+        class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        data-action="click->inspection-tabs#showDetail"
+        data-inspection-tabs-target="buttonDetail"
+      >
+        Detalle del activo
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        data-action="click->inspection-tabs#showReport"
+        data-inspection-tabs-target="buttonReport"
+      >
+        Detalle de la inspección
+      </button>
+    </div>
+
+    <!-- Contenedor de la pestaña DETAIL -->
+    <div data-inspection-tabs-target="detail" class="tabs-content hidden">
+      <% if @item.group.type_of == "ascensor" %>
+        <%= render 'detailform', detail: @detail, inspection: @inspection %>
+      <% else %>
+        <%= render 'ladderdetailform', ladder_detail: @detail, inspection: @inspection %>
+      <% end %>
+    </div>
+
+    <!-- Contenedor de la pestaña REPORT -->
+    <div data-inspection-tabs-target="report" class="tabs-content hidden">
+      <%= render 'reportform', report: @report, inspection: @inspection %>
+    </div>
+  </div>
+
+
 
 </div>
+
+
