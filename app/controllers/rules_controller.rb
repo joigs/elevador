@@ -172,19 +172,13 @@ class RulesController < ApplicationController
       @rule.code = "100.1.1"
 
     end
-    old_point = @rule.point # guardamos el point antes de update
+    old_point = @rule.point
     if rule.update(rule_params)
-      # --- 2) Si el point cambió, avanzamos con la lógica ---
       if old_point != rule.point
-        # Parte anterior al primer punto del rule.code, para “filtro rápido”
         rule_code_first_segment = rule.code.to_s.split(".").first
 
-        # Obtenemos los grupos asociados a la regla
         rule_group_ids = rule.groups.pluck(:id)
-        # (si la regla se acaba de actualizar con nuevos group_ids, podría ser
-        #  `rule.reload.groups.pluck(:id)` para asegurar que estén sincronizados)
 
-        # --- 3) Actualizar RevisionColor ---
         revision_colors = RevisionColor
                             .joins(revision: { item: :group })
                             .where(revision_type: "Revision")
@@ -193,7 +187,6 @@ class RulesController < ApplicationController
         revision_colors.find_each do |rev_color|
           next if rev_color.codes.blank?
 
-          # Filtro rápido con el primer code
           first_code = rev_color.codes.first
           next if first_code.blank?
 
@@ -204,9 +197,7 @@ class RulesController < ApplicationController
           rev_color.codes.each_with_index do |rev_code, idx|
             next if rev_code.blank?
 
-            # Si coincide el code completo
             if rev_code == rule.code
-              # Verificamos si points[idx] es igual al old_point
               if rev_color.points[idx] == old_point
                 rev_color.points[idx] = rule.point
                 updated = true
@@ -217,8 +208,6 @@ class RulesController < ApplicationController
           rev_color.save if updated
         end
 
-        # --- 4) Actualizar RevisionNull ---
-        #     Mismo filtro por grupo => joins(revision: { item: :group })
         revision_nulls = RevisionNull
                            .joins(revision: { item: :group })
                            .where(revision_type: "Revision")
@@ -227,22 +216,15 @@ class RulesController < ApplicationController
         revision_nulls.find_each do |rev_null|
           next if rev_null.point.blank?
 
-          # Separar en 2 partes usando '_'
-          # ejemplo: "0.1.4_Declaración jurada..."
-          # => rev_null_code = "0.1.4"
-          #    rev_null_point = "Declaración jurada..."
+
           rev_null_code, rev_null_point = rev_null.point.split("_", 2)
           next if rev_null_code.blank? || rev_null_point.blank?
 
-          # Filtro rápido: parte antes del primer punto
           rev_null_code_first_segment = rev_null_code.split(".").first
           next unless rev_null_code_first_segment == rule_code_first_segment
 
-          # Comparamos el code completo con rule.code
           if rev_null_code == rule.code
-            # Verificamos si coincide la parte "después del _" con el old_point
             if rev_null_point == old_point
-              # Actualizamos la string combinando el nuevo rule.code + nuevo rule.point
               rev_null.point = "#{rule.code}_#{rule.point}"
               rev_null.save
             end
