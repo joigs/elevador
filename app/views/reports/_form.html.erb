@@ -215,6 +215,10 @@
       <%= form.date_field :urm_fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
+    <%= hidden_field_tag :closed, params[:closed] %>
+    <%= hidden_field_tag :inspection_origin, params[:inspection_origin] %>
+
+
     <div>
       <%= form.submit "Guardar información", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
     </div>

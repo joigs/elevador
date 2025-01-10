@@ -26,7 +26,7 @@ class LadderDetailsController < ApplicationController
     if detail.update(ladder_detail_params)
 
       flash[:notice] = "Información modificada exitosamente"
-      if @inspection.state == 'Abierto' && !params[:closed]
+      if !params[:closed]
         redirect_to edit_report_path(@report)
       else
         redirect_to inspection_path(params[:inspection_origin])

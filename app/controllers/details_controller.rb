@@ -26,7 +26,8 @@ class DetailsController < ApplicationController
     @revision = @inspection.revision
     revision_2 = @revision.revision_colors.find_by(section: 2)
     revision_9 = @revision.revision_colors.find_by(section: 9)
-
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(params.inspect)
     if detail.update(detail_params)
 
 
@@ -56,7 +57,7 @@ class DetailsController < ApplicationController
 
       flash[:notice] = "Detalle modificado exitosamente"
 
-      if @inspection.state == 'Abierto'
+      if !params[:closed]
         redirect_to edit_report_path(@report)
       else
         redirect_to inspection_path(params[:inspection_origin])
