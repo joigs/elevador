@@ -95,11 +95,30 @@ class LadderRevisionsController < ApplicationController
       @revision_map[code] ||= {}
       @revision_map[code][point] = index
     end
+
+
+    @emergent_text = []
+
+
     if @black_revision_base
       @black_revision = @black_revision_base.revision_colors.find_by(section: @section)
+
+      @black_revision_base.revision_colors.each do |revision_color|
+        revision_color.codes.each_with_index do |code, index|
+          @emergent_text << "#{code} #{revision_color.points[index]}"
+        end
+      end
+
     end
     if @last_revision_base
       @last_revision = @last_revision_base&.revision_colors&.find_by(section: @section)
+
+      @last_revision_base&.revision_colors&.each do |revision_color|
+        revision_color.codes.each_with_index do |code, index|
+          @emergent_text << "#{code} #{revision_color.points[index]}"
+        end
+      end
+
     end
 
 

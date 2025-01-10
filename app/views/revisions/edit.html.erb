@@ -2,12 +2,57 @@
 
 
 
-  <div style="position: sticky; top: 0; z-index: 10; background-color: #213e4e; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="flex justify-center">
+  <div style="position: sticky; top: 0; z-index: 10; background-color: #213e4e; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"
+       class="relative flex items-center justify-center"
+       data-controller="info-icon emergent-list"
+       data-info-icon-info-value="<%= ['Si encuentras un defecto, marca la casilla no cumple del defecto.',
+                                       'Para subir un comentario o una imagen con respecto a un defecto, debes marcar antes la casilla "No cumple".',
+                                       'Si quieres subir una imagen que no esta asociada a un defecto, presiona el botón con la cámara al inicio de la página.',
+                                       'Puedes elegir entre subir una imagen normal y una imagen que se reduzca su tamaño, usa la segunda cuando haya problemas de internet.',
+                                       'Para que los cambios sean guardados, debes presionar el botón Guardar Cambios, Ver fallas registradas, o moverte a otra sección',
+                                       'Cada campo de imagen solo soporta una imagen a la vez, subir otra imagen en el mismo campo sobreescribirá la imagen anterior, para subir múltiples imagenés debes presionar el botón Guardar cambios para que la primera imagen sea subida',
+                                       'Si es que el defecto no aplica, marca la casilla N/A del defecto.',
+                                       'Si es que la ispección anterior no esta en sistema, en los defectos de la inspección anterior marca la casilla defecto anterior',
+                                       'Despues de revisar cada sección, marca la "casilla Marcar como revisado" al fondo de la página, sino no podrás cerrar la inspección.',
+                                       'Hay defectos que en el nivel tienen un botón verde, presionalo para cambiar el nivel, el nivel definido será el que se muestra en el botón.',
+                                       'Puedes definir un defecto nuevo, presionando el botón "Definir nuevo defecto para esta inspección" abajo de la última tabla, ese nuevo defecto no se marcará automaticamente, por lo que deberás ir al fondo y marcar la casilla "No cumple".',
+                                       'Para cerrar la inspección, debes presionar el botón "Ver fallas registradas" y desde ahí terminarla.'].to_json %>"
+       data-emergent-list-emergent-value="<%= @emergent_text.to_json %>">
+
+
+    <div
+      class="absolute left-4 cursor-pointer"
+      data-action="click->info-icon#openInfo">
+      <svg class="h-8 w-8 text-red-500"
+           width="24"
+           height="24"
+           viewBox="0 0 24 24"
+           stroke-width="2"
+           stroke="currentColor"
+           fill="none"
+           stroke-linecap="round"
+           stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z"/>
+        <circle cx="12" cy="12" r="9" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+        <polyline points="11 12 12 12 12 16 13 16" />
+      </svg>
+    </div>
+
+
     <%= button_tag 'Guardar cambios',
                    type: 'button',
                    class: 'bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded',
                    data: { action: 'form-submit#submitAndRedirect', url: request.fullpath } %>
+
+    <button
+      type="button"
+      class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1 px-2 rounded absolute right-4 mr-2"
+      data-action="click->emergent-list#openPopup">
+      Ver defectos anteriores
+    </button>
   </div>
+
 
 
 
@@ -175,7 +220,7 @@
           <tr>
             <th class="px-6 py-3">N/A</th>
             <% if @black_inspection %>
-              <th class="px-6 py-3">falla anterior</th>
+              <th class="px-6 py-3">Defecto anterior</th>
             <% end %>
             <th class="px-6 py-3">Descripción</th>
             <th class="px-2 py-3 flex-shrink-1 min-w-[10px]">Tipo insp</th>
