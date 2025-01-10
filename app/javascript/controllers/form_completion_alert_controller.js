@@ -20,7 +20,7 @@ export default class extends Controller {
         event.preventDefault()
 
         Swal.fire({
-            title: 'Inspección en estado Abierto',
+            title: 'Inspección en proceso',
             text: 'Puede que el inspector aún esté ingresando información. ¿Desea continuar de todas formas?',
             icon: 'warning',
             showCancelButton: true,
