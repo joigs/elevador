@@ -106,8 +106,9 @@
     <%= form.text_field :procedencia, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
 
-    <%= hidden_field_tag :closed, params[:closed] %>
-    <%= hidden_field_tag :inspection_origin, params[:inspection_origin] %>
+    <%= hidden_field_tag :closed, params[:closed] || false %>
+    <%= hidden_field_tag :inspection_origin, params[:inspection_origin] || @inspection %>
+
 
     <%= form.submit "Actualizar información del activo", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   <% end %>

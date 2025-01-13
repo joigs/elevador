@@ -57,9 +57,16 @@ class DetailsController < ApplicationController
 
       flash[:notice] = "Detalle modificado exitosamente"
 
-      if !params[:closed]
+      if params[:closed].nil? || params[:closed] == "false"
+
+        puts("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+        puts("1")
         redirect_to edit_report_path(@report)
+
+
       else
+        puts("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+        puts("2")
         redirect_to inspection_path(params[:inspection_origin])
       end
 
