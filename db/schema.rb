@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_01_14_163134) do
+ActiveRecord::Schema[7.1].define(version: 2025_01_14_182218) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -86,6 +86,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_163134) do
     t.string "empresa_instaladora_rut"
     t.integer "porcentaje"
     t.index ["item_id"], name: "index_details_on_item_id"
+  end
+
+  create_table "facturacions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.integer "number"
+    t.string "name"
+    t.date "solicitud"
+    t.date "emicion"
+    t.date "entregado"
+    t.integer "resultado"
+    t.date "oc"
+    t.date "factura"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "groups", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -188,6 +201,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_163134) do
     t.string "code"
     t.string "priority"
     t.string "level"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "observacions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.text "texto"
+    t.bigint "facturacion_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facturacion_id"], name: "index_observacions_on_facturacion_id"
+  end
+
+  create_table "permisos", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "nombre"
+    t.text "descripcion"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -309,6 +337,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_163134) do
     t.string "gygatype_number"
   end
 
+  create_table "user_permisos", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "permiso_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["permiso_id"], name: "index_user_permisos_on_permiso_id"
+    t.index ["user_id"], name: "index_user_permisos_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "username", null: false
     t.string "password_digest", null: false
@@ -340,6 +377,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_163134) do
   add_foreign_key "ladder_details", "items"
   add_foreign_key "ladder_revisions", "inspections"
   add_foreign_key "ladder_revisions", "items"
+  add_foreign_key "observacions", "facturacions"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
   add_foreign_key "revisions", "groups"
@@ -348,5 +386,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_163134) do
   add_foreign_key "rules", "ruletypes"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"
+  add_foreign_key "user_permisos", "permisos"
+  add_foreign_key "user_permisos", "users"
   add_foreign_key "users", "principals"
 end

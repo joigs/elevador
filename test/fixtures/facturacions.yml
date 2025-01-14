@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  number: 1
+  name: MyString
+  solicitud: 2025-01-14
+  emicion: 2025-01-14
+  entregado: 2025-01-14
+  resultado: 1
+  oc: 2025-01-14
+  factura: 2025-01-14
+
+two:
+  number: 1
+  name: MyString
+  solicitud: 2025-01-14
+  emicion: 2025-01-14
+  entregado: 2025-01-14
+  resultado: 1
+  oc: 2025-01-14
+  factura: 2025-01-14
