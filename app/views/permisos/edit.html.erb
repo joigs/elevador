@@ -1,4 +1,9 @@
-<div>
-  <h1 class="font-bold text-4xl">Permisos#edit</h1>
-  <p>Find me in app/views/permisos/edit.html.erb</p>
+<h1 class="text-2xl font-bold mb-4">Editar Permiso</h1>
+
+<%= render 'form', permiso: @permiso, manual_action_name: 'edit' %>
+
+<div class="mt-4">
+  <%= link_to 'Regresar',
+              permisos_path,
+              class: "bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded" %>
 </div>

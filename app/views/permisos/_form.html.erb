@@ -1,0 +1,40 @@
+<%= form_with(model: permiso,
+              local: true,
+              class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
+
+  <% if permiso.errors.any? %>
+    <% error_messages = permiso.errors.full_messages.uniq.map { |msg| "<li>#{msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Errores encontrados',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
+  <% end %>
+
+  <!-- EJEMPLO DE CAMPO: nombre -->
+  <div>
+    <%= form.label :nombre, class: "block text-gray-300" %>
+    <%= form.text_field :nombre,
+                        class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border
+                    border-gray-600 rounded-md shadow-sm focus:outline-none
+                    focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <!-- EJEMPLO DE CAMPO: descripcion -->
+  <div>
+    <%= form.label :descripcion, class: "block text-gray-300" %>
+    <%= form.text_field :descripcion,
+                        class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border
+                    border-gray-600 rounded-md shadow-sm focus:outline-none
+                    focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <!-- BOTÓN DE SUBMIT -->
+  <div class="actions">
+    <%= form.submit (permiso.new_record? ? 'Crear Permiso' : 'Actualizar Permiso'),
+                    class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" %>
+  </div>
+<% end %>

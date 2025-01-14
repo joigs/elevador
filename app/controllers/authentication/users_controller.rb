@@ -37,7 +37,9 @@ class Authentication::UsersController < ApplicationController
 
   def index
     if Current.user&.admin
-      @q = User.ransack(params[:q])
+      users_scope = User.where(super: false)
+
+      @q = users_scope.ransack(params[:q])
       @users = @q.result(distinct: true)
       unless Current.user.tabla
         @pagy, @users = pagy_countless(@users, items: 10)  # Paginación infinita para las tarjetas

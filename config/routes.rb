@@ -127,7 +127,7 @@ Rails.application.routes.draw do
     resources :observacions
   end
 
-
+  resources :permisos
 
 
   get 'warnings', to: 'static_pages#warnings'
