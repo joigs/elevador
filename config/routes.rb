@@ -1,11 +1,5 @@
 Rails.application.routes.draw do
-  get 'permisos/index'
-  get 'permisos/show'
-  get 'permisos/new'
-  get 'permisos/create'
-  get 'permisos/edit'
-  get 'permisos/update'
-  get 'permisos/destroy'
+
 
 
   get "/service-worker.js" => "service_worker#service_worker"
@@ -35,6 +29,8 @@ Rails.application.routes.draw do
       member do
         get :edit_client
         patch :update_client
+        get :manage_permisos
+        patch :update_permisos
       end
     end
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }

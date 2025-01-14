@@ -15,6 +15,14 @@
 
 <div class="flex flex-wrap justify-start space-x-2 mt-4">
   <div class="lg:w-auto flex flex-col space-y-2">
+
+    <% if Current.user.super %>
+      <%= link_to 'Administrar Permisos',
+                  manage_permisos_user_path(@user),
+                  class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" %>
+
+  <% end %>
+
     <% if Current.user.admin %>
 
       <% if @user.empresa == nil %>

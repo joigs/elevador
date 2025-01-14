@@ -226,11 +226,36 @@ class Authentication::UsersController < ApplicationController
     end
   end
 
+  def manage_permisos
+    if Current.user.super
+      @permisos = Permiso.all
+      @user = User.find(params[:id])
+    end
+  end
+
+  # PATCH /users/:id/update_permisos
+  def update_permisos
+    if Current.user.super
+      @user = User.find(params[:id])
+      @user.permiso_ids = params[:permiso_ids] || []
+
+      if @user.save
+        redirect_to @user, notice: 'Permisos actualizados correctamente.'
+      else
+        # En caso de error, volver a la vista de gestión
+        @permisos = Permiso.all
+        render :manage_permisos
+      end
+    end
+
+  end
+
+
 
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion, :empresa, :principal_id)
+    params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion, :empresa, :gestion, :principal_id)
   end
 
 end

@@ -46,10 +46,18 @@
 
       <div>
         <%= form.label :"Rol", class: "block text-gray-300" %>
-        <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true]], selected: @user.admin), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+        <%= form.select :admin, options_for_select([['Inspector', false], ['Administrador', true], ['Solo Facturación', nil]], selected: @user.admin), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
       </div>
 
     <% end %>
+
+
+    <div class="flex items-center">
+      <%= form.check_box :gestion, id: "gestion-checkbox", class: "h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 checked:bg-blue-600 checked:border-blue-600" %>
+      <%= form.label :gestion, "Facturación", for: "gestion-checkbox", class: "ml-2 block text-gray-300" %>
+    </div>
+
+
     <div>
       <%= form.label :"Profesión", class: "block text-gray-300" %>
       <%= form.text_field :profesion, required: true, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>

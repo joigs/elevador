@@ -1,0 +1,32 @@
+<h2 class="text-2xl font-bold mb-4">Gestionar Permisos para <%= @user.username %></h2>
+
+<%= form_with url: update_permisos_user_path(@user), method: :patch, local: true do |form| %>
+  <table class="min-w-full bg-white rounded-lg shadow">
+    <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2 border-b">Seleccionar</th>
+      <th class="px-4 py-2 border-b">Nombre</th>
+      <th class="px-4 py-2 border-b">Descripción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @permisos.each do |permiso| %>
+      <tr class="border-b hover:bg-gray-50">
+        <td class="px-4 py-2">
+          <%= check_box_tag 'permiso_ids[]',
+                            permiso.id,
+                            @user.permiso_ids.include?(permiso.id),
+                            class: "h-4 w-4 text-blue-600 focus:ring-blue-500" %>
+        </td>
+        <td class="px-4 py-2"><%= permiso.nombre %></td>
+        <td class="px-4 py-2"><%= permiso.descripcion %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <div class="mt-4">
+    <%= form.submit "Guardar Permisos", class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" %>
+    <%= link_to "Cancelar", user_path(@user), class: "bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded ml-2" %>
+  </div>
+<% end %>

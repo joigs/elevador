@@ -15,12 +15,25 @@
       <strong class="text-gray-200">Rol:</strong>
       <% if user.admin %>
         <%= "Administrador" %>
-      <% elsif user.empresa == nil %>
+      <% elsif user.admin == nil %>
+        <%= "Facturación" %>
+
+    <% elsif user.empresa == nil %>
         <%= "Inspector" %>
       <% else %>
         <%= user.empresa %>
       <% end %>
     </p>
+
+
+  <p class="text-gray-400 mt-2">
+    <strong class="text-gray-200">¿Hace facturación?</strong>
+    <% if user.gestion %>
+    <%= "Sí" %>
+      <% else %>
+    <%= "No" %>
+    <% end %>
+  </p>
 
     <p class="text-gray-400 mt-2">
       <strong class="text-gray-200">Correo electrónico:</strong>
