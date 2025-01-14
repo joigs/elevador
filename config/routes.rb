@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  get 'permisos/index'
+  get 'permisos/show'
+  get 'permisos/new'
+  get 'permisos/create'
+  get 'permisos/edit'
+  get 'permisos/update'
+  get 'permisos/destroy'
 
 
   get "/service-worker.js" => "service_worker#service_worker"
