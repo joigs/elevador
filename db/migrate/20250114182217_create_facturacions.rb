@@ -4,12 +4,11 @@ class CreateFacturacions < ActiveRecord::Migration[7.1]
       t.integer :number
       t.string :name
       t.date :solicitud, default: -> { 'CURRENT_DATE' }
-      t.date :emicion, default: -> { 'CURRENT_DATE' }
-      t.date :entregado, default: -> { 'CURRENT_DATE' }
-      t.integer :resultado, default: 1
-      t.date :oc, default: -> { 'CURRENT_DATE' }
-      t.date :factura, default: -> { 'CURRENT_DATE' }
-
+      t.date :emicion
+      t.date :entregado
+      t.integer :resultado, default: 0
+      t.date :oc
+      t.date :factura
       t.timestamps
     end
   end

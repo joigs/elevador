@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+
   get "/service-worker.js" => "service_worker#service_worker"
   get "/manifest.json" => "service_worker#manifest"
 
@@ -114,6 +115,13 @@ Rails.application.routes.draw do
       patch :rotate
     end
   end
+
+  resources :facturacions do
+    resources :observacions
+  end
+
+
+
 
   get 'warnings', to: 'static_pages#warnings'
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

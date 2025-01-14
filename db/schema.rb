@@ -92,11 +92,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_182218) do
     t.integer "number"
     t.string "name"
     t.date "solicitud", default: -> { "curdate()" }
-    t.date "emicion", default: -> { "curdate()" }
-    t.date "entregado", default: -> { "curdate()" }
-    t.integer "resultado", default: 1
-    t.date "oc", default: -> { "curdate()" }
-    t.date "factura", default: -> { "curdate()" }
+    t.date "emicion"
+    t.date "entregado"
+    t.integer "resultado", default: 0
+    t.date "oc"
+    t.date "factura"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
