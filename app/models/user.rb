@@ -40,4 +40,14 @@ class User < ApplicationRecord
 
 
   belongs_to :principal, optional: true, touch: false
+
+
+  def solicitar
+    permisos.exists?(nombre: 'solicitar')
+  end
+
+  def cotizar
+    permisos.exists?(nombre: 'cotizar')
+  end
+
 end

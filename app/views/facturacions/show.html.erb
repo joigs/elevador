@@ -1,15 +1,146 @@
-<div class="mx-auto md:w-2/3 w-full flex">
-  <div class="mx-auto">
-    <% if notice.present? %>
-      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-    <% end %>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
 
-    <%= render @facturacion %>
+  <div class="flex items-center justify-start mb-6">
+    <%= link_to "Volver a facturaciones",
+                facturacions_path,
+                class: "inline-flex items-center px-4 py-2 border border-transparent \
+                        text-base leading-6 font-medium rounded-md text-blue-400 \
+                        bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none \
+                        focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out"
+    %>
+  </div>
 
-    <%= link_to "Edit this facturacion", edit_facturacion_path(@facturacion), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <%= link_to "Back to facturacions", facturacions_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <div class="inline-block ml-2">
-      <%= button_to "Destroy this facturacion", @facturacion, method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md">
+    <div class="grid grid-cols-2 gap-2 text-white">
+
+      <div>
+        <h2 class="text-2xl font-bold mb-1">
+          Facturación N° <%= @facturacion.number %> <%= @facturacion.name %>
+        </h2>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <%= link_to "Editar Facturación",
+                    edit_facturacion_path(@facturacion),
+                    class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
+                            hover:bg-green-600 transition duration-200" %>
+
+        <%= link_to "Eliminar facturación", facturacion_path(@facturacion), class: "px-3 py-2 rounded bg-red-600 text-gray-900 font-bold \
+                            hover:bg-red-700 transition duration-200", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/" } %>
+
+      </div>
+
+      <div class="mt-6">
+        <p class="mb-0"><strong>Solicitud:</strong> <%= format_date(@facturacion.solicitud) %></p>
+        <p class="mb-0"><strong>Emición:</strong> <%= format_date(@facturacion.emicion) %></p>
+        <p class="mb-0"><strong>Entregado:</strong> <%= format_date(@facturacion.entregado) %></p>
+        <p class="mb-0"><strong>Resultado:</strong> <%= @facturacion.resultado %></p>
+        <p class="mb-0"><strong>Orden de compra (OC):</strong> <%= format_date(@facturacion.oc) %></p>
+        <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
+      </div>
+
+      <div class="mt-6">
+      </div>
     </div>
+
+    <hr class="my-4 border-gray-700" />
+
+    <h3 class="text-xl font-semibold mb-2">Archivos disponibles</h3>
+
+    <div class="space-y-2">
+      <!-- 1) Solicitud_file -->
+      <% if @facturacion.solicitud_file.attached? %>
+        <%= link_to "Descargar archivo de solicitud",
+                    download_solicitud_file_facturacion_path(@facturacion),
+                    class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
+      <% else %>
+        <p>No hay archivo de solicitud.</p>
+      <% end %>
+
+      <!-- 2) Cotizacion_doc_file -->
+      <% if @facturacion.cotizacion_doc_file.attached? %>
+        <%= link_to "Descargar cotización .doc",
+                    download_cotizacion_doc_file_facturacion_path(@facturacion),
+                    class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
+      <% end %>
+
+      <!-- 3) Cotizacion_pdf_file -->
+      <% if @facturacion.cotizacion_pdf_file.attached? %>
+        <%= link_to "Descargar cotización .pdf",
+                    download_cotizacion_pdf_file_facturacion_path(@facturacion),
+                    class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
+      <% end %>
+
+      <!-- 4) Orden_compra_file -->
+      <% if @facturacion.orden_compra_file.attached? %>
+        <%= link_to "Descargar orden de compra",
+                    download_orden_compra_file_facturacion_path(@facturacion),
+                    class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
+      <% end %>
+
+      <!-- 5) Facturacion_file -->
+      <% if @facturacion.facturacion_file.attached? %>
+        <%= link_to "Descargar archivo de facturación",
+                    download_facturacion_file_facturacion_path(@facturacion),
+                    class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
+      <% end %>
+    </div>
+
+    <!-- Botón para descargar todos en ZIP (ruta a definir en tu controlador/rutas) -->
+    <div class="mt-4">
+      <%= link_to "Descargar todos los archivos (.zip)",
+                  download_all_files_facturacion_path(@facturacion),
+                  class: "inline-block px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition" %>
+    </div>
+
+
+  </div>
+</div>
+
+
+<div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8 text-white">
+  <h3 class="text-xl font-semibold mb-4">Progreso de la Facturación</h3>
+
+  <!-- Contenedor de la línea de tiempo -->
+  <div class="relative flex items-center justify-between w-full h-24 bg-gray-800 rounded-lg px-4 py-6">
+    <% steps = [
+      { name: "Solicitud", date: @facturacion.solicitud },
+      { name: "Emisión de Cotización", date: @facturacion.emicion },
+      { name: "Entrega a Cliente", date: @facturacion.entregado },
+      { name: "Orden de Compra", date: @facturacion.oc },
+      { name: "Factura", date: @facturacion.factura }
+    ] %>
+
+    <!-- Línea de progreso -->
+    <div class="absolute top-1/2 left-0 h-1 w-full bg-gray-600 rounded z-0">
+      <% progress = steps.index { |step| step[:date].nil? } || steps.size %>
+      <div class="bg-blue-500 h-1 rounded" style="width: calc(100% / <%= steps.size %> * <%= progress %>)"></div>
+    </div>
+
+    <% steps.each_with_index do |step, index| %>
+      <% completed = step[:date].present? %>
+      <% current = step[:date].nil? && steps[index - 1]&.dig(:date).present? %>
+
+      <!-- Punto del paso -->
+      <div class="relative z-10 flex flex-col items-center w-1/5">
+        <!-- Círculo -->
+        <div class="flex items-center justify-center w-8 h-8 rounded-full border-2 <%= completed ? 'border-blue-500 bg-blue-500' : (current ? 'border-green-500 bg-green-500' : 'border-gray-500 bg-gray-600') %>">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-white">
+            <% if completed %>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            <% else %>
+              <circle cx="12" cy="12" r="10" />
+            <% end %>
+          </svg>
+        </div>
+        <!-- Texto debajo del círculo -->
+        <p class="mt-2 text-sm <%= completed || current ? 'text-white' : 'text-gray-400' %>">
+          <%= step[:name] %>
+        </p>
+        <p class="text-xs <%= completed ? 'text-white' : 'text-gray-500' %>">
+          <%= format_date(step[:date]) || 'Pendiente' %>
+        </p>
+      </div>
+    <% end %>
   </div>
 </div>

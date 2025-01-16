@@ -37,7 +37,13 @@ class Authentication::UsersController < ApplicationController
 
   def index
     if Current.user&.admin
-      users_scope = User.where(super: false)
+
+      if Current.user.super
+        users_scope = User.all
+      else
+        users_scope = User.where(super: false)
+
+      end
 
       @q = users_scope.ransack(params[:q])
       @users = @q.result(distinct: true)
@@ -128,7 +134,8 @@ class Authentication::UsersController < ApplicationController
       respond_to do |format|
         format.html { redirect_to users_path }
         format.turbo_stream { head :no_content }
-      end    else
+      end
+    else
       flash[:alert] = "no tienes permiso"
       redirect_to home_path
     end

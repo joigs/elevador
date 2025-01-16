@@ -120,6 +120,16 @@ Rails.application.routes.draw do
   end
 
   resources :facturacions do
+
+    member do
+      get :download_solicitud_file
+      get :download_cotizacion_doc_file
+      get :download_cotizacion_pdf_file
+      get :download_orden_compra_file
+      get :download_facturacion_file
+      get :download_all_files
+    end
+
     resources :observacions
   end
 
