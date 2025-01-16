@@ -1,419 +1,887 @@
-<section>
-  <div class="py-16 bg-gray-800">
-    <div class="mx-auto px-6 max-w-6xl text-gray-200">
-      <div class="text-center">
-        <h1 class="text-4xl text-white font-bold mb-8">Inicio</h1>
-      </div>
-      <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% if Current.user %>
-          <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-            <div class="text-center">
-              <h3 class="text-lg font-semibold text-white">Inspecciones</h3>
-              <p class="text-sm text-gray-300 mt-2">Accede a las inspecciones disponibles.</p>
-              <div class="mt-4">
-                <%= link_to 'Inspecciones', inspections_path, class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-        <% if Current.user.admin %>
-          <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-            <div class="text-center">
-              <h3 class="text-lg font-semibold text-white">Programar Nueva Inspección</h3>
-              <p class="text-sm text-gray-300 mt-2">Crea una nueva inspección.</p>
-              <div class="mt-4">
-                <%= link_to 'Programar nueva inspección', new_inspection_path, class: "inline-block px-6 py-2 border border-green-500 text-green-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-        <% if Current.user.admin %>
-          <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-            <div class="text-center">
-              <h3 class="text-lg font-semibold text-white">Certificaciones Vencidas y por Vencer</h3>
-              <p class="text-sm text-gray-300 mt-2">Revisa los activos que necesitan renovar su certificación.</p>
-              <div class="mt-4">
-                <%= link_to 'Certificaciones por vencer', warnings_path, class: "inline-block px-6 py-2 border border-red-500 text-red-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-        <% if Current.user.admin %>
-          <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-            <div class="text-center">
-              <h3 class="text-lg font-semibold text-white">Clasificaciones</h3>
-              <p class="text-sm text-gray-300 mt-2">Administra los diferentes tipos de activos.</p>
-              <div class="mt-4">
-                <%= link_to "Clasificaciones", groups_path, class: "inline-block px-6 py-2 border border-purple-500 text-purple-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-        <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-          <div class="text-center">
-            <h3 class="text-lg font-semibold text-white">Empresas</h3>
-            <p class="text-sm text-gray-300 mt-2">Consulta las empresas registradas como clientes.</p>
-            <div class="mt-4">
-              <%= link_to "Empresas", principals_path, class: "inline-block px-6 py-2 border border-yellow-500 text-yellow-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
-            </div>
-          </div>
+<% ######################################################################### %>
+<% # LÓGICA DE TABS SEGÚN TUS CONDICIONES                                   %>
+<% ######################################################################### %>
+
+<% if Current.user.admin.nil? %>
+  <!--
+    1) Si Current.user.admin == nil
+    Se muestra SOLO la vista de Cotizaciones (placeholder), sin tabs.
+  -->
+  <section>
+    <div class="py-16 bg-gray-800">
+      <div class="mx-auto px-6 max-w-6xl text-gray-200">
+        <div class="text-center">
+          <h1 class="text-4xl text-white font-bold mb-8">Cotizaciones</h1>
+          <p class="text-gray-300 mt-4">
+            Aquí va el placeholder de Cotizaciones.
+          </p>
         </div>
-        <% if Current.user %>
-          <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
-            <div class="text-center">
-              <h3 class="text-lg font-semibold text-white">Activos</h3>
-              <p class="text-sm text-gray-300 mt-2">Gestiona los activos disponibles.</p>
-              <div class="mt-4">
-                <%= link_to "Activos", items_path, class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
-              </div>
-            </div>
-          </div>
-        <% end %>
       </div>
     </div>
-  </div>
-</section>
 
-<% if @inspections.count > 0 %>
-  <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-    <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
-      <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
-        <h1 class="text-2xl font-bold text-white">Inspecciones Abiertas</h1>
-        <p class="text-gray-400">Consulta las inspecciones en curso.</p>
+    <div class="py-4"></div>
+
+    <%= render template: "facturacions/index" %>
+
+  </section>
+
+<% elsif !Current.user.admin.nil? && Current.user.gestion == true %>
+  <!--
+    2) Si Current.user.admin tiene valor (true o false) Y Current.user.gestion == true
+    Se muestran AMBAS vistas, intercambiables con el tab.
+  -->
+
+  <!-- NAV de tabs -->
+  <nav class="bg-gray-800 p-4 text-white mb-6">
+    <ul class="flex space-x-4">
+      <li class="<%= params[:tab] == 'cotizaciones' ? '' : 'border-b-2 border-blue-500' %>">
+        <%= link_to "Inspecciones", home_path(tab: 'inspecciones'), class: "hover:underline" %>
+      </li>
+      <li class="<%= params[:tab] == 'cotizaciones' ? 'border-b-2 border-blue-500' : '' %>">
+        <%= link_to "Cotizaciones", home_path(tab: 'cotizaciones'), class: "hover:underline" %>
+      </li>
+    </ul>
+  </nav>
+
+  <% if params[:tab] == 'cotizaciones' %>
+    <!-- CONTENIDO DEL TAB 'COTIZACIONES' -->
+    <section>
+      <div class="py-16 bg-gray-800">
+        <div class="mx-auto px-6 max-w-6xl text-gray-200">
+          <div class="text-center">
+            <h1 class="text-4xl text-white font-bold mb-8">Cotizaciones</h1>
+            <p class="text-gray-300 mt-4">
+              Aquí va el placeholder de Cotizaciones.a
+            </p>
+          </div>
+        </div>
       </div>
-      <%= turbo_frame_tag 'inspections' do %>
-        <div class="p-6">
-          <% if Current.user.tabla %>
-
-
-            <div class="overflow-x-auto table-responsive mt-6">
-              <table id="inspections-table" class="table-auto w-full text-white">
-                <thead class="bg-gray-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">N° Inspección</p>
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Nombre</p>
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Activo</p>
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Empresa</p>
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Fecha Inspección</p>
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Resultado</p>
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p>
-                  </th>
-
-
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Inspector asignado</p>
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700 relative group">
-                    <p class="hover:text-blue-700">Estado</p>
-                    <span class="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md z-10">
-    Opciones: Atrasada, Hoy, Próxima
-  </span>
-                  </th>
-
-
-
-                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                    <p class="hover:text-blue-700">Acciones</p>
-                  </th>
-
-
-                </tr>
-                </thead>
-                <tbody class="bg-gray-700 divide-y divide-gray-600">
-                <% @inspections.each do |inspection| %>
-                  <tr class="bg-gray-800 border-b border-gray-700">
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <strong class="text-white">
-                        <%= link_to inspection.number,
-                                    inspection_path(inspection),
-                                    data: { turbo_frame: "_top" },
-                                    class: "text-blue-400 hover:text-blue-600" %>
-                      </strong>
-                    </td>
-
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <strong class="text-white">
-                        <%= link_to inspection.name,
-                                    inspection_path(inspection),
-                                    data: { turbo_frame: "_top" },
-                                    class: "text-blue-400 hover:text-blue-600" %>
-                      </strong>
-                    </td>
-
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <%= link_to inspection.item&.identificador, item_path(inspection.item), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
-                    </td>
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
-                    </td>
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <p class="text-white"><%= format_date(inspection.ins_date) %></p>
-                    </td>
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <p class="text-white"><%= inspection.result %></p>
-                    </td>
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <p class="text-white"><%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %></p>
-                    </td>
-
-                    <td class="px-6 py-4 whitespace-normal break-words">
-                      <% if inspection.users.any? %>
-                        <ul>
-                          <% inspection.users.each do |user| %>
-                            <li class="text-white"><%= user.real_name %></li>
-                          <% end %>
-                        </ul>
-                      <% else %>
-                        <p class="text-gray-400">No asignado</p>
-                      <% end %>
-                    </td>
-                    <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date < Date.today ? 'Atrasada' : (inspection.ins_date == Date.today ? 'Hoy' : 'Próxima') %>">
-  <span class="sr-only">
-    <% if inspection.ins_date < Date.today %>
-      Atrasada
-    <% elsif inspection.ins_date == Date.today %>
-      Hoy
-    <% else %>
-      Próxima
-    <% end %>
-  </span>
-                      <div class="relative group">
-                        <% if inspection.ins_date < Date.today %>
-                          <!-- Rojo -->
-                          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
-                            <circle cx="12" cy="12" r="5" fill="red" />
-                          </svg>
-                          <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
-        Inspección Atrasada
-      </span>
-                        <% elsif inspection.ins_date == Date.today %>
-                          <!-- Verde -->
-                          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
-                            <circle cx="12" cy="12" r="5" fill="green" />
-                          </svg>
-                          <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
-        Agendada para hoy
-      </span>
-                        <% else %>
-                          <!-- Amarillo -->
-                          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
-                            <circle cx="12" cy="12" r="5" fill="yellow" />
-                          </svg>
-                          <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
-        Agendada para <%= format_date(inspection.ins_date) %>
-      </span>
-                        <% end %>
-                      </div>
-                    </td>
-
-
-
-                    <td class="px-6 py-4">
-                      <%= link_to "Ver inspección", inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
-                    </td>
-                  </tr>
-                <% end %>
-                </tbody>
-              </table>
+    </section>
+  <% else %>
+    <!-- CONTENIDO DEL TAB 'INSPECCIONES' (TODA TU VISTA ORIGINAL) -->
+    <section>
+      <div class="py-16 bg-gray-800">
+        <div class="mx-auto px-6 max-w-6xl text-gray-200">
+          <div class="text-center">
+            <h1 class="text-4xl text-white font-bold mb-8">Inicio</h1>
+          </div>
+          <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% if Current.user %>
+              <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+                <div class="text-center">
+                  <h3 class="text-lg font-semibold text-white">Inspecciones</h3>
+                  <p class="text-sm text-gray-300 mt-2">Accede a las inspecciones disponibles.</p>
+                  <div class="mt-4">
+                    <%= link_to 'Inspecciones', inspections_path, class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if Current.user.admin %>
+              <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+                <div class="text-center">
+                  <h3 class="text-lg font-semibold text-white">Programar Nueva Inspección</h3>
+                  <p class="text-sm text-gray-300 mt-2">Crea una nueva inspección.</p>
+                  <div class="mt-4">
+                    <%= link_to 'Programar nueva inspección', new_inspection_path, class: "inline-block px-6 py-2 border border-green-500 text-green-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if Current.user.admin %>
+              <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+                <div class="text-center">
+                  <h3 class="text-lg font-semibold text-white">Certificaciones Vencidas y por Vencer</h3>
+                  <p class="text-sm text-gray-300 mt-2">Revisa los activos que necesitan renovar su certificación.</p>
+                  <div class="mt-4">
+                    <%= link_to 'Certificaciones por vencer', warnings_path, class: "inline-block px-6 py-2 border border-red-500 text-red-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if Current.user.admin %>
+              <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+                <div class="text-center">
+                  <h3 class="text-lg font-semibold text-white">Clasificaciones</h3>
+                  <p class="text-sm text-gray-300 mt-2">Administra los diferentes tipos de activos.</p>
+                  <div class="mt-4">
+                    <%= link_to "Clasificaciones", groups_path, class: "inline-block px-6 py-2 border border-purple-500 text-purple-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <div class="text-center">
+                <h3 class="text-lg font-semibold text-white">Empresas</h3>
+                <p class="text-sm text-gray-300 mt-2">Consulta las empresas registradas como clientes.</p>
+                <div class="mt-4">
+                  <%= link_to "Empresas", principals_path, class: "inline-block px-6 py-2 border border-yellow-500 text-yellow-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                </div>
+              </div>
             </div>
-            <script>
-                document.addEventListener("turbo:load", function() {
-                    const tableEl = document.getElementById("inspections-table");
-                    if (
-                        tableEl &&
-                        typeof simpleDatatables !== "undefined" &&
-                        simpleDatatables.DataTable
-                    ) {
-                        const dataTable = new simpleDatatables.DataTable("#inspections-table", {
-                            labels: {
-                                placeholder: "Buscar...",
-                                perPage: "registros por pág.",
-                                noRows: "No hay datos para mostrar",
-                                noResults: "No hay resultados que coincidan con tu búsqueda",
-                                info: "Mostrando {start} a {end} de {rows} entradas"
-                            },
-                            tableRender: (_data, table, type) => {
-                                if (type === "print") {
+            <% if Current.user %>
+              <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+                <div class="text-center">
+                  <h3 class="text-lg font-semibold text-white">Activos</h3>
+                  <p class="text-sm text-gray-300 mt-2">Gestiona los activos disponibles.</p>
+                  <div class="mt-4">
+                    <%= link_to "Activos", items_path, class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <% if @inspections.count > 0 %>
+      <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+        <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+          <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+            <h1 class="text-2xl font-bold text-white">Inspecciones Abiertas</h1>
+            <p class="text-gray-400">Consulta las inspecciones en curso.</p>
+          </div>
+          <%= turbo_frame_tag 'inspections' do %>
+            <div class="p-6">
+              <% if Current.user.tabla %>
+                <div class="overflow-x-auto table-responsive mt-6">
+                  <table id="inspections-table" class="table-auto w-full text-white">
+                    <thead class="bg-gray-800">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">N° Inspección</p>
+                      </th>
+
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Nombre</p>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Activo</p>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Empresa</p>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Fecha Inspección</p>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Resultado</p>
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p>
+                      </th>
+
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Inspector asignado</p>
+                      </th>
+
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700 relative group">
+                        <p class="hover:text-blue-700">Estado</p>
+                        <span class="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md z-10">
+                          Opciones: Atrasada, Hoy, Próxima
+                        </span>
+                      </th>
+
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                        <p class="hover:text-blue-700">Acciones</p>
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-gray-700 divide-y divide-gray-600">
+                    <% @inspections.each do |inspection| %>
+                      <tr class="bg-gray-800 border-b border-gray-700">
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <strong class="text-white">
+                            <%= link_to inspection.number,
+                                        inspection_path(inspection),
+                                        data: { turbo_frame: "_top" },
+                                        class: "text-blue-400 hover:text-blue-600" %>
+                          </strong>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <strong class="text-white">
+                            <%= link_to inspection.name,
+                                        inspection_path(inspection),
+                                        data: { turbo_frame: "_top" },
+                                        class: "text-blue-400 hover:text-blue-600" %>
+                          </strong>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <%= link_to inspection.item&.identificador, item_path(inspection.item), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <p class="text-white"><%= format_date(inspection.ins_date) %></p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <p class="text-white"><%= inspection.result %></p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <p class="text-white">
+                            <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
+                          </p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-normal break-words">
+                          <% if inspection.users.any? %>
+                            <ul>
+                              <% inspection.users.each do |user| %>
+                                <li class="text-white"><%= user.real_name %></li>
+                              <% end %>
+                            </ul>
+                          <% else %>
+                            <p class="text-gray-400">No asignado</p>
+                          <% end %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date < Date.today ? 'Atrasada' : (inspection.ins_date == Date.today ? 'Hoy' : 'Próxima') %>">
+                          <span class="sr-only">
+                            <% if inspection.ins_date < Date.today %>
+                              Atrasada
+                            <% elsif inspection.ins_date == Date.today %>
+                              Hoy
+                            <% else %>
+                              Próxima
+                            <% end %>
+                          </span>
+                          <div class="relative group">
+                            <% if inspection.ins_date < Date.today %>
+                              <!-- Rojo -->
+                              <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
+                                <circle cx="12" cy="12" r="5" fill="red" />
+                              </svg>
+                              <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+                                Inspección Atrasada
+                              </span>
+                            <% elsif inspection.ins_date == Date.today %>
+                              <!-- Verde -->
+                              <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
+                                <circle cx="12" cy="12" r="5" fill="green" />
+                              </svg>
+                              <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+                                Agendada para hoy
+                              </span>
+                            <% else %>
+                              <!-- Amarillo -->
+                              <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
+                                <circle cx="12" cy="12" r="5" fill="yellow" />
+                              </svg>
+                              <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+                                Agendada para <%= format_date(inspection.ins_date) %>
+                              </span>
+                            <% end %>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4">
+                          <%= link_to "Ver inspección", inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
+                        </td>
+                      </tr>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+                <script>
+                    document.addEventListener("turbo:load", function() {
+                        const tableEl = document.getElementById("inspections-table");
+                        if (
+                            tableEl &&
+                            typeof simpleDatatables !== "undefined" &&
+                            simpleDatatables.DataTable
+                        ) {
+                            const dataTable = new simpleDatatables.DataTable("#inspections-table", {
+                                labels: {
+                                    placeholder: "Buscar...",
+                                    perPage: "registros por pág.",
+                                    noRows: "No hay datos para mostrar",
+                                    noResults: "No hay resultados que coincidan con tu búsqueda",
+                                    info: "Mostrando {start} a {end} de {rows} entradas"
+                                },
+                                tableRender: (_data, table, type) => {
+                                    if (type === "print") {
+                                        return table;
+                                    }
+                                    table.childNodes[0].childNodes.forEach((row) => {
+                                        if (!row.attributes) row.attributes = {};
+                                        row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                                        row.childNodes.forEach((th) => {
+                                            if (!th.attributes) th.attributes = {};
+                                            th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                                        });
+                                    });
+                                    const tHead = table.childNodes[0];
+                                    const firstRow = tHead.childNodes[0];
+                                    const filterHeaders = {
+                                        nodeName: "TR",
+                                        attributes: {
+                                            class: "search-filtering-row bg-gray-800 text-white",
+                                        },
+                                        childNodes: firstRow.childNodes.map((_th, index) => ({
+                                            nodeName: "TH",
+                                            attributes: {
+                                                style: "padding-top: 1rem;"
+                                            },
+                                            childNodes: [
+                                                {
+                                                    nodeName: "INPUT",
+                                                    attributes: {
+                                                        class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                                        type: "search",
+                                                        "data-columns": "[" + index + "]",
+                                                        placeholder: "Filtrar"
+                                                    }
+                                                }
+                                            ]
+                                        }))
+                                    };
+                                    tHead.childNodes.push(filterHeaders);
                                     return table;
                                 }
-                                table.childNodes[0].childNodes.forEach((row) => {
-                                    if (!row.attributes) row.attributes = {};
-                                    row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                                    row.childNodes.forEach((th) => {
-                                        if (!th.attributes) th.attributes = {};
-                                        th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                                    });
-                                });
-                                const tHead = table.childNodes[0];
-                                const firstRow = tHead.childNodes[0];
-                                const filterHeaders = {
-                                    nodeName: "TR",
-                                    attributes: {
-                                        class: "search-filtering-row bg-gray-800 text-white",
-                                    },
-                                    childNodes: firstRow.childNodes.map((_th, index) => ({
-                                        nodeName: "TH",
-                                        attributes: {
-                                            style: "padding-top: 1rem;"
-                                        },
-                                        childNodes: [
-                                            {
-                                                nodeName: "INPUT",
-                                                attributes: {
-                                                    class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                                    type: "search",
-                                                    "data-columns": "[" + index + "]",
-                                                    placeholder: "Filtrar"
-                                                }
-                                            }
-                                        ]
-                                    }))
-                                };
-                                tHead.childNodes.push(filterHeaders);
-                                return table;
-                            }
-                        });
+                            });
+                        }
+                    });
+                </script>
+                <style>
+                    .dataTable-table tbody td {
+                        color: #fff !important;
                     }
-                });
-            </script>
-            <style>
-                .dataTable-table tbody td {
-                    color: #fff !important;
-                }
-                .datatable-ascending,
-                .datatable-descending {
-                    background-color: #539DED !important;
-                    color: #fff !important;
-                }
+                    .datatable-ascending,
+                    .datatable-descending {
+                        background-color: #539DED !important;
+                        color: #fff !important;
+                    }
 
+                    #inspections-table thead th button.datatable-sorter {
+                        background: transparent !important;
+                        border: none !important;
+                        color: #fff !important;
+                    }
 
-                #inspections-table thead th button.datatable-sorter {
-                    background: transparent !important;
-                    border: none !important;
-                    color: #fff !important;
-                }
+                    #inspections-table thead th button.datatable-sorter:hover {
+                        background: transparent !important;
+                        color: #1d4ed8 !important;
+                    }
 
-                #inspections-table thead th button.datatable-sorter:hover {
-                    background: transparent !important;
-                    color: #1d4ed8 !important;
-                }
+                    #inspections-table thead th button.datatable-sorter:hover::before,
+                    #inspections-table thead th button.datatable-sorter:hover::after {
+                        background-color: transparent !important;
+                        color: #1d4ed8 !important;
+                    }
 
-                #inspections-table thead th button.datatable-sorter:hover::before,
-                #inspections-table thead th button.datatable-sorter:hover::after {
-                    background-color: transparent !important;
-                    color: #1d4ed8 !important;
-                }
+                    #inspections-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
+                        color: #1d4ed8 !important;
+                    }
+                    #inspections-table .datatable-selector {
+                        background-color: #f2f2f2 !important;
+                        color: #000 !important;
+                        border: 1px solid #ccc !important;
+                        border-radius: 4px;
+                        padding: 0.25rem 0.5rem;
+                    }
+                    #inspections-table .datatable-input {
+                        background-color: #f2f2f2 !important;
+                        color: #000 !important;
+                        border: 1px solid #ccc !important;
+                        border-radius: 4px;
+                        padding: 0.25rem 0.5rem;
+                    }
+                    #inspections-table .datatable-input::placeholder {
+                        color: #888;
+                    }
+                </style>
+              <% else %>
+                <%= render 'shared/search_form', form_url: home_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
 
-                #inspections-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
-                    color: #1d4ed8 !important;
-                }
-                #inspections-table .datatable-selector {
-                    background-color: #f2f2f2 !important;
-                    color: #000 !important;
-                    border: 1px solid #ccc !important;
-                    border-radius: 4px;
-                    padding: 0.25rem 0.5rem;
-                }
-
-                #inspections-table .datatable-input {
-                    background-color: #f2f2f2 !important;
-                    color: #000 !important;
-                    border: 1px solid #ccc !important;
-                    border-radius: 4px;
-                    padding: 0.25rem 0.5rem;
-                }
-
-                #inspections-table .datatable-input::placeholder {
-                    color: #888;
-                }
-
-
-            </style>
-          <% else %>
-
-            <%= render 'shared/search_form', form_url: home_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
-
-
-            <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
-              <ul class="divide-y divide-gray-700">
-                <% @inspections.each_with_index do |inspection, index| %>
-                  <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
-                    <% border_class =
-                                        if inspection.ins_date < Date.today
-                                          "border border-red-600"
-                                        elsif inspection.ins_date == Date.today
-                                          "border border-green-500"
-                                        else
-                                          "border border-yellow-500"
-                                        end
-                                      %>
-                    <div id="<%= dom_id inspection %>" class="max-w-md mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden md:max-w-2xl <%= border_class %>">
-                      <div class="p-8">
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200 text-4xl">Inspección N°: <%= inspection.number %></strong>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200 text-2xl">Activo: <%= link_to inspection.item&.identificador, item_path(inspection.item), class:"text-blue-500", data: { turbo_frame: "_top" } %></strong>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200">Empresa:</strong>
-                          <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), class:"text-blue-500", data: { turbo_frame: "_top" } %>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200">Fecha de la inspección:</strong>
-                          <%= format_date(inspection.ins_date) %>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200">Periodicidad:</strong>
-                          <%= display_periodicity(inspection.validation) %>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200">Clasificación:</strong>
-                          <%= inspection.item&.group&.name %>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200">Resultado de la inspección:</strong>
-                          <%= inspection.result %>
-                        </p>
-                        <p class="text-gray-400">
-                          <strong class="text-gray-200">Fecha de término certificación:</strong>
-                          <%= format_date(inspection.report&.ending) %>
-                        </p>
-                        <div class="mt-4">
-                          <% if (controller_name == 'inspections' && action_name == 'index') || (controller_name == 'users' && action_name == 'show') || (controller_name == 'static_pages') || (controller_name == "home") %>
-                            <%= link_to 'Ver inspección', inspection_path(inspection), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
-                          <% end %>
+                <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+                  <ul class="divide-y divide-gray-700">
+                    <% @inspections.each_with_index do |inspection, index| %>
+                      <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                        <% border_class =
+                             if inspection.ins_date < Date.today
+                               "border border-red-600"
+                             elsif inspection.ins_date == Date.today
+                               "border border-green-500"
+                             else
+                               "border border-yellow-500"
+                             end
+                        %>
+                        <div id="<%= dom_id inspection %>" class="max-w-md mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden md:max-w-2xl <%= border_class %>">
+                          <div class="p-8">
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200 text-4xl">Inspección N°: <%= inspection.number %></strong>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200 text-2xl">
+                                Activo:
+                                <%= link_to inspection.item&.identificador, item_path(inspection.item), class:"text-blue-500", data: { turbo_frame: "_top" } %>
+                              </strong>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200">Empresa:</strong>
+                              <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), class:"text-blue-500", data: { turbo_frame: "_top" } %>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200">Fecha de la inspección:</strong>
+                              <%= format_date(inspection.ins_date) %>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200">Periodicidad:</strong>
+                              <%= display_periodicity(inspection.validation) %>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200">Clasificación:</strong>
+                              <%= inspection.item&.group&.name %>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200">Resultado de la inspección:</strong>
+                              <%= inspection.result %>
+                            </p>
+                            <p class="text-gray-400">
+                              <strong class="text-gray-200">Fecha de término certificación:</strong>
+                              <%= format_date(inspection.report&.ending) %>
+                            </p>
+                            <div class="mt-4">
+                              <% if (controller_name == 'inspections' && action_name == 'index') ||
+                                (controller_name == 'users' && action_name == 'show') ||
+                                (controller_name == 'static_pages') ||
+                                (controller_name == "home") %>
+                                <%= link_to 'Ver inspección', inspection_path(inspection), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
+                              <% end %>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </li>
+                      </li>
+                    <% end %>
+                  </ul>
+                  <% if @pagy.next %>
+                    <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+                  <% end %>
                 <% end %>
-              </ul>
-              <% if @pagy.next %>
-                <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
               <% end %>
-            <% end %>
+            </div>
           <% end %>
         </div>
-      <% end %>
+      </div>
+    <% end %>
+  <% end %> <!-- Fin else de params[:tab] == 'cotizaciones' -->
+
+<% else %>
+  <!--
+    3) Si Current.user.admin tiene valor (true o false) Y Current.user.gestion == false
+    Se muestra SOLO la vista de Inspecciones (toda tu vista original), sin tab.
+  -->
+  <section>
+    <div class="py-16 bg-gray-800">
+      <div class="mx-auto px-6 max-w-6xl text-gray-200">
+        <div class="text-center">
+          <h1 class="text-4xl text-white font-bold mb-8">Inicio</h1>
+        </div>
+        <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% if Current.user %>
+            <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <div class="text-center">
+                <h3 class="text-lg font-semibold text-white">Inspecciones</h3>
+                <p class="text-sm text-gray-300 mt-2">Accede a las inspecciones disponibles.</p>
+                <div class="mt-4">
+                  <%= link_to 'Inspecciones', inspections_path, class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <% if Current.user.admin %>
+            <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <div class="text-center">
+                <h3 class="text-lg font-semibold text-white">Programar Nueva Inspección</h3>
+                <p class="text-sm text-gray-300 mt-2">Crea una nueva inspección.</p>
+                <div class="mt-4">
+                  <%= link_to 'Programar nueva inspección', new_inspection_path, class: "inline-block px-6 py-2 border border-green-500 text-green-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <% if Current.user.admin %>
+            <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <div class="text-center">
+                <h3 class="text-lg font-semibold text-white">Certificaciones Vencidas y por Vencer</h3>
+                <p class="text-sm text-gray-300 mt-2">Revisa los activos que necesitan renovar su certificación.</p>
+                <div class="mt-4">
+                  <%= link_to 'Certificaciones por vencer', warnings_path, class: "inline-block px-6 py-2 border border-red-500 text-red-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <% if Current.user.admin %>
+            <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <div class="text-center">
+                <h3 class="text-lg font-semibold text-white">Clasificaciones</h3>
+                <p class="text-sm text-gray-300 mt-2">Administra los diferentes tipos de activos.</p>
+                <div class="mt-4">
+                  <%= link_to "Clasificaciones", groups_path, class: "inline-block px-6 py-2 border border-purple-500 text-purple-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+            <div class="text-center">
+              <h3 class="text-lg font-semibold text-white">Empresas</h3>
+              <p class="text-sm text-gray-300 mt-2">Consulta las empresas registradas como clientes.</p>
+              <div class="mt-4">
+                <%= link_to "Empresas", principals_path, class: "inline-block px-6 py-2 border border-yellow-500 text-yellow-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+              </div>
+            </div>
+          </div>
+          <% if Current.user %>
+            <div class="group overflow-hidden p-8 rounded-xl bg-gray-900 shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-300 ease-in-out">
+              <div class="text-center">
+                <h3 class="text-lg font-semibold text-white">Activos</h3>
+                <p class="text-sm text-gray-300 mt-2">Gestiona los activos disponibles.</p>
+                <div class="mt-4">
+                  <%= link_to "Activos", items_path, class: "inline-block px-6 py-2 border border-blue-500 text-blue-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-3 focus:outline-none focus:ring-0 transition duration-150 ease-in-out" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <% if @inspections.count > 0 %>
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+      <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+        <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+          <h1 class="text-2xl font-bold text-white">Inspecciones Abiertas</h1>
+          <p class="text-gray-400">Consulta las inspecciones en curso.</p>
+        </div>
+        <%= turbo_frame_tag 'inspections' do %>
+          <div class="p-6">
+            <% if Current.user.tabla %>
+              <div class="overflow-x-auto table-responsive mt-6">
+                <table id="inspections-table" class="table-auto w-full text-white">
+                  <thead class="bg-gray-800">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">N° Inspección</p>
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Nombre</p>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Activo</p>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Empresa</p>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Fecha Inspección</p>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Resultado</p>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p>
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Inspector asignado</p>
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700 relative group">
+                      <p class="hover:text-blue-700">Estado</p>
+                      <span class="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md z-10">
+                        Opciones: Atrasada, Hoy, Próxima
+                      </span>
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Acciones</p>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody class="bg-gray-700 divide-y divide-gray-600">
+                  <% @inspections.each do |inspection| %>
+                    <tr class="bg-gray-800 border-b border-gray-700">
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <strong class="text-white">
+                          <%= link_to inspection.number,
+                                      inspection_path(inspection),
+                                      data: { turbo_frame: "_top" },
+                                      class: "text-blue-400 hover:text-blue-600" %>
+                        </strong>
+                      </td>
+
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <strong class="text-white">
+                          <%= link_to inspection.name,
+                                      inspection_path(inspection),
+                                      data: { turbo_frame: "_top" },
+                                      class: "text-blue-400 hover:text-blue-600" %>
+                        </strong>
+                      </td>
+
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <%= link_to inspection.item&.identificador, item_path(inspection.item), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <p class="text-white"><%= format_date(inspection.ins_date) %></p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <p class="text-white"><%= inspection.result %></p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <p class="text-white">
+                          <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
+                        </p>
+                      </td>
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <% if inspection.users.any? %>
+                          <ul>
+                            <% inspection.users.each do |user| %>
+                              <li class="text-white"><%= user.real_name %></li>
+                            <% end %>
+                          </ul>
+                        <% else %>
+                          <p class="text-gray-400">No asignado</p>
+                        <% end %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date < Date.today ? 'Atrasada' : (inspection.ins_date == Date.today ? 'Hoy' : 'Próxima') %>">
+                        <span class="sr-only">
+                          <% if inspection.ins_date < Date.today %>
+                            Atrasada
+                          <% elsif inspection.ins_date == Date.today %>
+                            Hoy
+                          <% else %>
+                            Próxima
+                          <% end %>
+                        </span>
+                        <div class="relative group">
+                          <% if inspection.ins_date < Date.today %>
+                            <!-- Rojo -->
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
+                              <circle cx="12" cy="12" r="5" fill="red" />
+                            </svg>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+                              Inspección Atrasada
+                            </span>
+                          <% elsif inspection.ins_date == Date.today %>
+                            <!-- Verde -->
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
+                              <circle cx="12" cy="12" r="5" fill="green" />
+                            </svg>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+                              Agendada para hoy
+                            </span>
+                          <% else %>
+                            <!-- Amarillo -->
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
+                              <circle cx="12" cy="12" r="5" fill="yellow" />
+                            </svg>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
+                              Agendada para <%= format_date(inspection.ins_date) %>
+                            </span>
+                          <% end %>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <%= link_to "Ver inspección", inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  </tbody>
+                </table>
+              </div>
+              <script>
+                  document.addEventListener("turbo:load", function() {
+                      const tableEl = document.getElementById("inspections-table");
+                      if (
+                          tableEl &&
+                          typeof simpleDatatables !== "undefined" &&
+                          simpleDatatables.DataTable
+                      ) {
+                          const dataTable = new simpleDatatables.DataTable("#inspections-table", {
+                              labels: {
+                                  placeholder: "Buscar...",
+                                  perPage: "registros por pág.",
+                                  noRows: "No hay datos para mostrar",
+                                  noResults: "No hay resultados que coincidan con tu búsqueda",
+                                  info: "Mostrando {start} a {end} de {rows} entradas"
+                              },
+                              tableRender: (_data, table, type) => {
+                                  if (type === "print") {
+                                      return table;
+                                  }
+                                  table.childNodes[0].childNodes.forEach((row) => {
+                                      if (!row.attributes) row.attributes = {};
+                                      row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                                      row.childNodes.forEach((th) => {
+                                          if (!th.attributes) th.attributes = {};
+                                          th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                                      });
+                                  });
+                                  const tHead = table.childNodes[0];
+                                  const firstRow = tHead.childNodes[0];
+                                  const filterHeaders = {
+                                      nodeName: "TR",
+                                      attributes: {
+                                          class: "search-filtering-row bg-gray-800 text-white",
+                                      },
+                                      childNodes: firstRow.childNodes.map((_th, index) => ({
+                                          nodeName: "TH",
+                                          attributes: {
+                                              style: "padding-top: 1rem;"
+                                          },
+                                          childNodes: [
+                                              {
+                                                  nodeName: "INPUT",
+                                                  attributes: {
+                                                      class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                                      type: "search",
+                                                      "data-columns": "[" + index + "]",
+                                                      placeholder: "Filtrar"
+                                                  }
+                                              }
+                                          ]
+                                      }))
+                                  };
+                                  tHead.childNodes.push(filterHeaders);
+                                  return table;
+                              }
+                          });
+                      }
+                  });
+              </script>
+              <style>
+                  .dataTable-table tbody td {
+                      color: #fff !important;
+                  }
+                  .datatable-ascending,
+                  .datatable-descending {
+                      background-color: #539DED !important;
+                      color: #fff !important;
+                  }
+
+                  #inspections-table thead th button.datatable-sorter {
+                      background: transparent !important;
+                      border: none !important;
+                      color: #fff !important;
+                  }
+
+                  #inspections-table thead th button.datatable-sorter:hover {
+                      background: transparent !important;
+                      color: #1d4ed8 !important;
+                  }
+
+                  #inspections-table thead th button.datatable-sorter:hover::before,
+                  #inspections-table thead th button.datatable-sorter:hover::after {
+                      background-color: transparent !important;
+                      color: #1d4ed8 !important;
+                  }
+
+                  #inspections-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
+                      color: #1d4ed8 !important;
+                  }
+                  #inspections-table .datatable-selector {
+                      background-color: #f2f2f2 !important;
+                      color: #000 !important;
+                      border: 1px solid #ccc !important;
+                      border-radius: 4px;
+                      padding: 0.25rem 0.5rem;
+                  }
+                  #inspections-table .datatable-input {
+                      background-color: #f2f2f2 !important;
+                      color: #000 !important;
+                      border: 1px solid #ccc !important;
+                      border-radius: 4px;
+                      padding: 0.25rem 0.5rem;
+                  }
+                  #inspections-table .datatable-input::placeholder {
+                      color: #888;
+                  }
+              </style>
+            <% else %>
+              <%= render 'shared/search_form', form_url: home_path, search_keys: 'number_eq', frame_id: 'inspections', placeholder_text: 'número de inspección' %>
+
+              <%= turbo_frame_tag "inspections-#{@pagy.page}", class: 'inspections' do %>
+                <ul class="divide-y divide-gray-700">
+                  <% @inspections.each_with_index do |inspection, index| %>
+                    <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
+                      <% border_class =
+                           if inspection.ins_date < Date.today
+                             "border border-red-600"
+                           elsif inspection.ins_date == Date.today
+                             "border border-green-500"
+                           else
+                             "border border-yellow-500"
+                           end
+                      %>
+                      <div id="<%= dom_id inspection %>" class="max-w-md mx-auto bg-gray-900 rounded-xl shadow-lg overflow-hidden md:max-w-2xl <%= border_class %>">
+                        <div class="p-8">
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200 text-4xl">Inspección N°: <%= inspection.number %></strong>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200 text-2xl">
+                              Activo:
+                              <%= link_to inspection.item&.identificador, item_path(inspection.item), class:"text-blue-500", data: { turbo_frame: "_top" } %>
+                            </strong>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200">Empresa:</strong>
+                            <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), class:"text-blue-500", data: { turbo_frame: "_top" } %>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200">Fecha de la inspección:</strong>
+                            <%= format_date(inspection.ins_date) %>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200">Periodicidad:</strong>
+                            <%= display_periodicity(inspection.validation) %>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200">Clasificación:</strong>
+                            <%= inspection.item&.group&.name %>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200">Resultado de la inspección:</strong>
+                            <%= inspection.result %>
+                          </p>
+                          <p class="text-gray-400">
+                            <strong class="text-gray-200">Fecha de término certificación:</strong>
+                            <%= format_date(inspection.report&.ending) %>
+                          </p>
+                          <div class="mt-4">
+                            <% if (controller_name == 'inspections' && action_name == 'index') ||
+                              (controller_name == 'users' && action_name == 'show') ||
+                              (controller_name == 'static_pages') ||
+                              (controller_name == "home") %>
+                              <%= link_to 'Ver inspección', inspection_path(inspection), class: "inline-block px-6 py-2 border border-blue-800 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-0 transition duration-150 ease-in-out", 'data-turbo-frame': "_top" %>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  <% end %>
+                </ul>
+                <% if @pagy.next %>
+                  <%= turbo_frame_tag "inspections-#{@pagy.next}", class: 'inspections', src: pagy_url_for(@pagy, @pagy.next), loading: :lazy %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 <% end %>
