@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_01_14_185400) do
+ActiveRecord::Schema[7.1].define(version: 2025_01_17_141452) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -210,7 +210,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_185400) do
     t.bigint "facturacion_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.integer "momento"
     t.index ["facturacion_id"], name: "index_observacions_on_facturacion_id"
+    t.index ["user_id"], name: "index_observacions_on_user_id"
   end
 
   create_table "permisos", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -379,6 +382,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_14_185400) do
   add_foreign_key "ladder_revisions", "inspections"
   add_foreign_key "ladder_revisions", "items"
   add_foreign_key "observacions", "facturacions"
+  add_foreign_key "observacions", "users"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
   add_foreign_key "revisions", "groups"

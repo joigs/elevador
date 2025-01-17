@@ -37,6 +37,7 @@ class User < ApplicationRecord
 
   has_many :user_permisos, dependent: :destroy
   has_many :permisos, through: :user_permisos
+  has_many :observacions, dependent: :nullify
 
 
   belongs_to :principal, optional: true, touch: false

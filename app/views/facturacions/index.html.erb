@@ -1,14 +1,14 @@
 <div class="py-8 bg-gray-800">
   <div class="mx-auto px-6 max-w-6xl text-gray-200">
     <div class="text-center mb-4">
-      <h1 class="text-3xl font-bold text-white">Cotizaciones / Facturaciones</h1>
+      <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
       <% if notice.present? %>
         <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
           <%= notice %>
         </p>
       <% end %>
       <div class="mt-4">
-        <%= link_to "Nueva Facturación", new_facturacion_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
+        <%= link_to "Nueva Cotización", new_facturacion_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
       </div>
     </div>
 

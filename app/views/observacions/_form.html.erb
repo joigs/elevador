@@ -1,17 +1,10 @@
-<%= form_with(model: observacion, class: "contents") do |form| %>
-  <% if observacion.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2><%= pluralize(observacion.errors.count, "error") %> prohibited this observacion from being saved:</h2>
+<%= form_with(model: [@facturacion, @observacion], local: true, class: "space-y-4") do |form| %>
+  <div>
+    <%= form.label :texto, "Texto de la Observación", class: "block text-gray-300 font-bold mb-2" %>
+    <%= form.text_area :texto, rows: 4, class: "block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500" %>
+  </div>
 
-      <ul>
-        <% observacion.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="inline">
-    <%= form.submit class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+  <div class="mt-4">
+    <%= form.submit "Guardar Observación", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   </div>
 <% end %>

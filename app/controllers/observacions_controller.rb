@@ -1,12 +1,9 @@
 class ObservacionsController < ApplicationController
   before_action :set_facturacion
+  before_action :set_observacion, only: %i[edit update destroy]
 
   def index
-    @observacions = @facturacion.observacions
-  end
-
-  def show
-    @observacion = @facturacion.observacions.find(params[:id])
+    @observacions = @facturacion.observacions.includes(:user).order(created_at: :desc)
   end
 
   def new
@@ -15,30 +12,29 @@ class ObservacionsController < ApplicationController
 
   def create
     @observacion = @facturacion.observacions.build(observacion_params)
+    @observacion.user = Current.user if Current.user
+    @observacion.momento = calcular_momento(@facturacion)
+
     if @observacion.save
-      redirect_to facturacion_observacions_path(@facturacion), notice: "Observación creada correctamente."
+      redirect_to facturacion_path(@facturacion), notice: "Observación creada correctamente."
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 
-  def edit
-    @observacion = @facturacion.observacions.find(params[:id])
-  end
+  def edit; end
 
   def update
-    @observacion = @facturacion.observacions.find(params[:id])
     if @observacion.update(observacion_params)
-      redirect_to facturacion_observacions_path(@facturacion), notice: "Observación actualizada correctamente."
+      redirect_to facturacion_path(@facturacion), notice: "Observación actualizada correctamente."
     else
-      render :edit
+      render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @observacion = @facturacion.observacions.find(params[:id])
     @observacion.destroy
-    redirect_to facturacion_observacions_path(@facturacion), notice: "Observación eliminada correctamente."
+    redirect_to facturacion_path(@facturacion), notice: "Observación eliminada correctamente."
   end
 
   private
@@ -47,7 +43,25 @@ class ObservacionsController < ApplicationController
     @facturacion = Facturacion.find(params[:facturacion_id])
   end
 
+  def set_observacion
+    @observacion = @facturacion.observacions.find(params[:id])
+  end
+
   def observacion_params
     params.require(:observacion).permit(:texto)
+  end
+
+  def calcular_momento(facturacion)
+    if facturacion.factura.present?
+      "Emisión de factura"
+    elsif facturacion.oc.present?
+      "Orden de compra"
+    elsif facturacion.entregado.present?
+      "Entregado a cliente"
+    elsif facturacion.emicion.present?
+      "Emisión de cotización"
+    else
+      "Solicitud de cotización"
+    end
   end
 end

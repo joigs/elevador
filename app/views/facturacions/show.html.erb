@@ -1,8 +1,8 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
 
   <div class="flex items-center justify-start mb-6">
-    <%= link_to "Volver a facturaciones",
-                facturacions_path,
+    <%= link_to "Volver a cotizaciones",
+                home_path(tab: "cotizaciones"),
                 class: "inline-flex items-center px-4 py-2 border border-transparent \
                         text-base leading-6 font-medium rounded-md text-blue-400 \
                         bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none \
@@ -15,24 +15,26 @@
 
       <div>
         <h2 class="text-2xl font-bold mb-1">
-          Facturación N° <%= @facturacion.number %> <%= @facturacion.name %>
+          Cotización N° <%= @facturacion.number %> <%= @facturacion.name %>
         </h2>
       </div>
 
-      <div class="flex items-center space-x-2">
-        <%= link_to "Editar Facturación",
-                    edit_facturacion_path(@facturacion),
-                    class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
-                            hover:bg-green-600 transition duration-200" %>
+      <% if Current.user.solicitar %>
 
-        <%= link_to "Eliminar facturación", facturacion_path(@facturacion), class: "px-3 py-2 rounded bg-red-600 text-gray-900 font-bold \
-                            hover:bg-red-700 transition duration-200", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/" } %>
+        <div class="flex items-center space-x-2">
+          <%= link_to "Editar Cotización",
+                      edit_facturacion_path(@facturacion),
+                      class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
+                              hover:bg-green-600 transition duration-200" %>
 
-      </div>
+          <%= link_to "Eliminar Cotización", facturacion_path(@facturacion), class: "px-3 py-2 rounded bg-red-600 text-gray-900 font-bold \
+                              hover:bg-red-700 transition duration-200", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/" } %>
 
+        </div>
+      <% end %>
       <div class="mt-6">
         <p class="mb-0"><strong>Solicitud:</strong> <%= format_date(@facturacion.solicitud) %></p>
-        <p class="mb-0"><strong>Emición:</strong> <%= format_date(@facturacion.emicion) %></p>
+        <p class="mb-0"><strong>Emisión:</strong> <%= format_date(@facturacion.emicion) %></p>
         <p class="mb-0"><strong>Entregado:</strong> <%= format_date(@facturacion.entregado) %></p>
         <p class="mb-0"><strong>Resultado:</strong> <%= @facturacion.resultado %></p>
         <p class="mb-0"><strong>Orden de compra (OC):</strong> <%= format_date(@facturacion.oc) %></p>
@@ -45,7 +47,7 @@
 
     <hr class="my-4 border-gray-700" />
 
-    <h3 class="text-xl font-semibold mb-2">Archivos disponibles</h3>
+    <h3 class="text-xl font-semibold mb-2 text-white">Archivos disponibles</h3>
 
     <div class="space-y-2">
       <!-- 1) Solicitud_file -->
@@ -99,7 +101,7 @@
 
 
 <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8 text-white">
-  <h3 class="text-xl font-semibold mb-4">Progreso de la Facturación</h3>
+  <h3 class="text-xl font-semibold mb-4">Progreso de la Cotización</h3>
 
   <!-- Contenedor de la línea de tiempo -->
   <div class="relative flex items-center justify-between w-full h-24 bg-gray-800 rounded-lg px-4 py-6">
@@ -134,7 +136,7 @@
           </svg>
         </div>
         <!-- Texto debajo del círculo -->
-        <p class="mt-2 text-sm <%= completed || current ? 'text-white' : 'text-gray-400' %>">
+        <p class="mt-4 text-m <%= completed || current ? 'text-white' : 'text-gray-400' %>">
           <%= step[:name] %>
         </p>
         <p class="text-xs <%= completed ? 'text-white' : 'text-gray-500' %>">
@@ -144,3 +146,96 @@
     <% end %>
   </div>
 </div>
+
+<% if Current.user.cotizar && @facturacion.solicitud.present? && @facturacion.emicion.nil? %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Subir documentos de cotización</h3>
+
+    <%= form_with(model: @facturacion, url: upload_cotizacion_facturacion_path(@facturacion), local: true, class: "space-y-4") do |form| %>
+      <div>
+        <%= form.label :cotizacion_doc_file, "Archivo de Cotización (DOCX)", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.file_field :cotizacion_doc_file, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      </div>
+
+      <div>
+        <%= form.label :cotizacion_pdf_file, "Archivo de Cotización (PDF)", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.file_field :cotizacion_pdf_file, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      </div>
+
+      <div class="mt-4">
+        <%= form.submit "Subir Documentos", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
+<% if Current.user.solicitar && @facturacion.emicion.present? && @facturacion.entregado.nil? %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Acciones de Entrega</h3>
+    <button
+      data-controller="confirm-entrega"
+      data-action="click->confirm-entrega#confirmEntrega"
+      data-confirm-entrega-url-value="<%= marcar_entregado_facturacion_path(@facturacion) %>"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer">
+      Marcar como entregado
+    </button>
+  </div>
+<% end %>
+
+<% if Current.user.solicitar && @facturacion.entregado.present? && @facturacion.oc.nil? %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Subir Orden de Compra</h3>
+
+    <%= form_with(model: @facturacion, url: upload_orden_compra_facturacion_path(@facturacion), local: true, class: "space-y-4") do |form| %>
+      <!-- Campo para subir PDF -->
+      <div>
+        <%= form.label :orden_compra_file, "Archivo de Orden de Compra (PDF)", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.file_field :orden_compra_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      </div>
+
+      <!-- Radio buttons para resultado -->
+      <div>
+        <%= form.label :resultado, "Resultado", class: "block text-gray-300 font-bold mb-2" %>
+        <div class="flex space-x-4">
+          <label class="flex items-center space-x-2 text-gray-300">
+            <%= form.radio_button :resultado, 2, class: "form-radio text-green-500" %>
+            <span>Aceptado</span>
+          </label>
+          <label class="flex items-center space-x-2 text-gray-300">
+            <%= form.radio_button :resultado, 3, class: "form-radio text-red-500" %>
+            <span>Rechazado</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Botón para enviar -->
+      <div class="mt-4">
+        <%= form.submit "Subir Orden de Compra", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
+<% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.factura.nil? %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Subir Factura</h3>
+
+    <%= form_with(model: @facturacion, url: upload_factura_facturacion_path(@facturacion), local: true, class: "space-y-4") do |form| %>
+      <!-- Campo para subir PDF -->
+      <div>
+        <%= form.label :facturacion_file, "Archivo de Factura (PDF)", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.file_field :facturacion_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      </div>
+
+      <!-- Botón para enviar -->
+      <div class="mt-4">
+        <%= form.submit "Subir Factura", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
+

@@ -2,7 +2,7 @@
 
 
   <div class="<%= 'border border-red-500 rounded-md' if facturacion.errors[:number].any? %>">
-    <%= form.label :number, "Número de facturación", class: "block text-gray-300" %>
+    <%= form.label :number, "Número correlativo de cotización", class: "block text-gray-300" %>
     <%= form.number_field :number, min: 1,
                           class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border \
                                   border-gray-600 rounded-md shadow-sm focus:outline-none \
@@ -37,7 +37,7 @@
   </div>
 
   <div class="mt-6 py-5">
-    <%= form.submit (facturacion.new_record? ? 'Crear Facturación' : 'Actualizar Facturación'),
+    <%= form.submit (facturacion.new_record? ? 'Crear Cotización' : 'Actualizar Cotización'),
                     class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold \
                             py-2 px-4 rounded focus:outline-none focus:shadow-outline \
                             cursor-pointer" %>
