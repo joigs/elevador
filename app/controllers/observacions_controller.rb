@@ -16,22 +16,24 @@ class ObservacionsController < ApplicationController
     @observacion.momento = calcular_momento(@facturacion)
 
     if @observacion.save
-      redirect_to facturacion_path(@facturacion), notice: "Observación creada correctamente."
+      render partial: "observacions/observacion", locals: { observacion: @observacion }
     else
-      render :new, status: :unprocessable_entity
+      render json: { error: @observacion.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
+
+
 
   def edit; end
 
   def update
     if @observacion.update(observacion_params)
-      redirect_to facturacion_path(@facturacion), notice: "Observación actualizada correctamente."
+      render partial: "observacions/observacion", locals: { observacion: @observacion }
     else
-      render :edit, status: :unprocessable_entity
+      render json: { error: @observacion.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
   def destroy
     @observacion.destroy
     redirect_to facturacion_path(@facturacion), notice: "Observación eliminada correctamente."

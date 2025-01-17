@@ -238,4 +238,69 @@
 <% end %>
 
 
+<div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8" data-controller="observaciones" data-facturacion-id="<%= @facturacion.id %>" data-observaciones-url-value="<%= facturacion_observacions_path(@facturacion) %>">
+  <h3 class="text-xl font-semibold text-white mb-4">Observaciones</h3>
+
+  <!-- Campo para crear una nueva observación -->
+  <div class="mb-6">
+    <textarea
+      data-observaciones-target="newObservacion"
+      class="w-full px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+      placeholder="Escribe una nueva observación..."></textarea>
+    <button
+      data-action="click->observaciones#createObservacion"
+      class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+      Añadir Observación
+    </button>
+  </div>
+
+  <!-- Lista de observaciones -->
+  <div data-observaciones-target="observacionesList">
+    <% @facturacion.observacions.order(created_at: :desc).each do |observacion| %>
+      <div
+        id="observacion-<%= observacion.id %>"
+        class="bg-gray-800 p-4 rounded-lg mb-4 shadow"
+        data-observaciones-target="observacion"
+        data-id="<%= observacion.id %>">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-gray-400">
+            <strong><%= observacion.user&.real_name || "Anónimo" %></strong> -
+            <span><%= Observacion.momentos.key(observacion.momento) %></span>
+          </p>
+          <% if observacion.user == Current.user %>
+            <div class="flex space-x-2">
+              <button
+                data-action="click->observaciones#editObservacion"
+                class="text-blue-400 hover:underline">
+                Editar
+              </button>
+              <button
+                data-action="click->observaciones#deleteObservacion"
+                class="text-red-400 hover:underline">
+                Eliminar
+              </button>
+            </div>
+          <% end %>
+        </div>
+        <p
+          class="mt-2 text-white"
+          data-observaciones-target="observacionTexto">
+          <%= observacion.texto %>
+        </p>
+        <!-- Campo para edición (oculto por defecto) -->
+        <textarea
+          data-observaciones-target="observacionEdit"
+          class="w-full px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 hidden">
+          <%= observacion.texto %>
+        </textarea>
+        <button
+          data-action="click->observaciones#updateObservacion"
+          class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hidden"
+          data-observaciones-target="observacionUpdateButton">
+          Guardar Cambios
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
 

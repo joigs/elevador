@@ -134,7 +134,7 @@ Rails.application.routes.draw do
       patch :upload_factura
     end
 
-    resources :observacions
+    resources :observacions, only: %i[index create update destroy]
   end
 
   resources :permisos

@@ -1,2 +1,42 @@
-<div id="<%= dom_id observacion %>">
+<div
+  id="observacion-<%= observacion.id %>"
+  class="bg-gray-800 p-4 rounded-lg mb-4 shadow"
+  data-observaciones-target="observacion"
+  data-id="<%= observacion.id %>">
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-gray-400">
+      <strong><%= observacion.user&.real_name || "Anónimo" %></strong> -
+      <span><%= Observacion.momentos.key(observacion.momento) %></span>
+    </p>
+    <% if observacion.user == Current.user %>
+      <div class="flex space-x-2">
+        <button
+          data-action="click->observaciones#editObservacion"
+          class="text-blue-400 hover:underline">
+          Editar
+        </button>
+        <button
+          data-action="click->observaciones#deleteObservacion"
+          class="text-red-400 hover:underline">
+          Eliminar
+        </button>
+      </div>
+    <% end %>
+  </div>
+  <p
+    class="mt-2 text-white"
+    data-observaciones-target="observacionTexto">
+    <%= observacion.texto %>
+  </p>
+  <textarea
+    data-observaciones-target="observacionEdit"
+    class="w-full px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 hidden">
+    <%= observacion.texto %>
+  </textarea>
+  <button
+    data-action="click->observaciones#updateObservacion"
+    class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hidden"
+    data-observaciones-target="observacionUpdateButton">
+    Guardar Cambios
+  </button>
 </div>
