@@ -25,6 +25,7 @@ export default class extends Controller {
             alert("No se pudo crear la observación.");
         }
     }
+
     editObservacion(event) {
         const observacionElement = event.target.closest("[data-observaciones-target='observacion']");
         const textoElement = observacionElement.querySelector("[data-observaciones-target='observacionTexto']");
@@ -41,19 +42,20 @@ export default class extends Controller {
         const editElement = observacionElement.querySelector("[data-observaciones-target='observacionEdit']");
         const textoElement = observacionElement.querySelector("[data-observaciones-target='observacionTexto']");
         const updateButton = observacionElement.querySelector("[data-observaciones-target='observacionUpdateButton']");
-
-        const texto = editElement.value.trim();
         const id = observacionElement.dataset.id;
 
+        const texto = editElement.value.trim();
         if (!texto) return alert("La observación no puede estar vacía.");
 
-        const response = await fetch(`/facturacions/${this.data.get("facturacionId")}/observacions/${id}`, {
+        const url = `${this.urlValue}/${id}`;
+
+        const response = await fetch(url, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-Token": document.querySelector("[name='csrf-token']").content,
             },
-            body: JSON.stringify({ texto }),
+            body: JSON.stringify({ observacion: { texto } }),
         });
 
         if (response.ok) {
