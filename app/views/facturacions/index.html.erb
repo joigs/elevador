@@ -33,27 +33,26 @@
               <strong class="text-white"><%= facturacion.number %></strong>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
-              <%= link_to "#{facturacion.name}", facturacion_path(facturacion) %>
+              <%= link_to facturacion.name, facturacion_path(facturacion) %>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
-              <%= facturacion.solicitud %>
+              <%= format_date(facturacion.solicitud) %>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
-              <%= facturacion.emicion %>
+              <%= format_date(facturacion.emicion) %>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
-              <%= facturacion.entregado %>
+              <%= format_date(facturacion.entregado) %>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
               <%= facturacion.resultado %>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
-              <%= facturacion.oc %>
+              <%= format_date(facturacion.oc) %>
             </td>
             <td class="px-6 py-4 whitespace-normal break-words">
-              <%= facturacion.factura %>
+              <%= format_date(facturacion.factura) %>
             </td>
-
           </tr>
         <% end %>
         </tbody>
