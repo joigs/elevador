@@ -66,11 +66,21 @@
     document.addEventListener("turbo:load", function() {
         const tableEl = document.getElementById("facturacions-table");
         if (
-            tableEl &&
-            typeof simpleDatatables !== "undefined" &&
-            simpleDatatables.DataTable
+          tableEl &&
+          typeof simpleDatatables !== "undefined" &&
+          simpleDatatables.DataTable
         ) {
+            const columnsWithoutFilter = [2, 3, 4, 6, 7]; // índices de columnas SIN búsqueda
+
             const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
+                columns: [
+                    // Indica en qué columnas desactivar la búsqueda
+                    { select: 2, searchable: false },
+                    { select: 3, searchable: false },
+                    { select: 4, searchable: false },
+                    { select: 6, searchable: false },
+                    { select: 7, searchable: false },
+                ],
                 labels: {
                     placeholder: "Buscar...",
                     perPage: "Registros por pág.",
@@ -90,31 +100,56 @@
                             th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
                         });
                     });
+
                     const tHead = table.childNodes[0];
                     const firstRow = tHead.childNodes[0];
+
+                    // Generar fila de filtros
                     const filterHeaders = {
                         nodeName: "TR",
                         attributes: {
                             class: "search-filtering-row bg-gray-800 text-white",
                         },
-                        childNodes: firstRow.childNodes.map((_th, index) => ({
-                            nodeName: "TH",
-                            attributes: {
-                                style: "padding-top: 1rem;"
-                            },
-                            childNodes: [
-                                {
-                                    nodeName: "INPUT",
-                                    attributes: {
-                                        class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                        type: "search",
-                                        "data-columns": "[" + index + "]",
-                                        placeholder: "Filtrar"
+                        childNodes: firstRow.childNodes.map((_th, index) => {
+                            // Si la columna está en columnsWithoutFilter, generamos un input deshabilitado
+                            if (columnsWithoutFilter.includes(index)) {
+                                return {
+                                    nodeName: "TH",
+                                    attributes: { style: "padding-top: 1rem;" },
+                                    childNodes: [
+                                        {
+                                            nodeName: "INPUT",
+                                            attributes: {
+                                                type: "search",
+                                                disabled: "disabled",
+                                                placeholder: "Sin filtro",
+                                                class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                                style: "cursor: not-allowed;",
+                                            }
+                                        }
+                                    ]
+                                };
+                            }
+
+                            // Para las demás columnas, input normal
+                            return {
+                                nodeName: "TH",
+                                attributes: { style: "padding-top: 1rem;" },
+                                childNodes: [
+                                    {
+                                        nodeName: "INPUT",
+                                        attributes: {
+                                            class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                            type: "search",
+                                            "data-columns": "[" + index + "]",
+                                            placeholder: "Filtrar"
+                                        }
                                     }
-                                }
-                            ]
-                        }))
+                                ]
+                            };
+                        })
                     };
+
                     tHead.childNodes.push(filterHeaders);
                     return table;
                 }
@@ -122,6 +157,7 @@
         }
     });
 </script>
+
 
 <style>
     .dataTable-table tbody td {
@@ -168,5 +204,11 @@
 
     #facturacions-table .datatable-input::placeholder {
         color: #888;
+    }
+
+    .datatable-input:disabled {
+        background-color: #3a3a3a !important;
+        color: #aaa !important;
+        cursor: not-allowed !important;
     }
 </style>
