@@ -96,7 +96,6 @@
           ) {
               const columnsWithoutFilter = [2, 3, 4, 6, 7];
 
-              // Inicializamos el plugin
               const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
                   columns: [
                       { select: 2, searchable: false },
@@ -116,7 +115,6 @@
                       if (type === "print") {
                           return table;
                       }
-                      // Le ponemos estilos
                       table.childNodes[0].childNodes.forEach((row) => {
                           if (!row.attributes) row.attributes = {};
                           row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
@@ -176,7 +174,6 @@
                   },
               });
 
-              // Cada vez que el DataTable cambie página, busque o ordene, ajustamos las fechas
               dataTable.on("datatable.page", filtrarPorFechas);
               dataTable.on("datatable.sort", filtrarPorFechas);
               dataTable.on("datatable.search", filtrarPorFechas);
@@ -185,7 +182,6 @@
               fechaInicioInput.addEventListener("change", filtrarPorFechas);
               fechaFinInput.addEventListener("change", filtrarPorFechas);
 
-              // Función para filtrar las filas visibles según las fechas
               function filtrarPorFechas() {
                   const fechaInicioValue = fechaInicioInput.value;
                   const fechaFinValue = fechaFinInput.value;
@@ -193,7 +189,6 @@
                   const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
                   const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
 
-                  // Validación de rango de fechas
                   if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
                       alert(
                         "Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final."
@@ -201,24 +196,19 @@
                       return;
                   }
 
-                  // Obtener todas las filas del tbody (incluidas las que el plugin oculta)
                   const allRows = tableEl.querySelectorAll("tbody tr");
 
-                  // Iterar sobre las filas y mostrar u ocultar según el rango de fechas
                   allRows.forEach((row) => {
-                      const solicitudCell = row.querySelectorAll("td")[2]; // Columna "Solicitud"
+                      const solicitudCell = row.querySelectorAll("td")[2];
                       const solicitudTexto = (solicitudCell?.textContent || "").trim();
 
-                      // Si no hay texto en la celda, ocultamos solo si hay límites de fecha
                       if (!solicitudTexto) {
                           row.style.display = fechaInicio || fechaFin ? "none" : "";
                           return;
                       }
 
-                      // Partir la fecha dd/mm/aaaa
                       const partes = solicitudTexto.split("/");
                       if (partes.length !== 3) {
-                          // Si el formato está roto, mostrar la fila
                           row.style.display = "";
                           return;
                       }
@@ -228,7 +218,6 @@
                       const anio = parseInt(partes[2], 10);
                       const fechaSolicitud = new Date(anio, mes, dia);
 
-                      // Ocultar la fila si está fuera del rango de fechas
                       if (
                         (fechaInicio && fechaSolicitud < fechaInicio) ||
                         (fechaFin && fechaSolicitud > fechaFin)
@@ -240,7 +229,6 @@
                   });
               }
 
-              // Aplicamos el filtro inicial al cargar la página
               filtrarPorFechas();
           }
       });
