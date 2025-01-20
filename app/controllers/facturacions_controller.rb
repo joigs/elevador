@@ -139,35 +139,38 @@ class FacturacionsController < ApplicationController
   def upload_orden_compra
     @facturacion = Facturacion.find(params[:id])
 
-    unless params[:facturacion]
-      flash.now[:alert] = "El archivo PDF y el resultado son obligatorios."
+    # Extraer parámetros relevantes
+    resultado = params[:facturacion][:resultado]&.to_i
+    orden_compra_file = params[:facturacion][:orden_compra_file]
+
+    # Validar resultado
+    if resultado.nil? || ![2, 3].include?(resultado)
+      flash.now[:alert] = "El resultado seleccionado no es válido."
       render :show, status: :unprocessable_entity
       return
     end
 
-    if params[:facturacion][:orden_compra_file].present? && params[:facturacion][:resultado].present?
-      @facturacion.orden_compra_file.attach(params[:facturacion][:orden_compra_file])
+    # Caso 1: Rechazado (resultado == 3)
+    if resultado == 3
+      @facturacion.update(oc: Date.current, resultado: 3)
+      redirect_to @facturacion, notice: "Estado actualizado a 'Rechazado'."
+      return
+    end
 
-      if valid_file_type?(@facturacion.orden_compra_file, %w[application/pdf])
-        @facturacion.oc = Date.current
-        @facturacion.resultado = params[:facturacion][:resultado].to_i
-
-        if @facturacion.save
-          redirect_to @facturacion, notice: "Orden de Compra subida correctamente y estado actualizado."
-        else
-          flash.now[:alert] = "No se pudo procesar la solicitud."
-          render :show, status: :unprocessable_entity
-        end
+    # Caso 2: Aceptado (resultado == 2)
+    if resultado == 2
+      if orden_compra_file.present? && valid_file_type?(orden_compra_file, %w[application/pdf])
+        @facturacion.orden_compra_file.attach(orden_compra_file)
+        @facturacion.update(oc: Date.current, resultado: 2)
+        redirect_to @facturacion, notice: "Orden de Compra subida correctamente y resultado actualizado a 'Aceptado'."
       else
-        flash.now[:alert] = "El archivo debe ser un PDF."
-        @facturacion.orden_compra_file.purge
+        flash.now[:alert] = "El archivo de Orden de Compra (PDF) es obligatorio cuando la cotización fue aceptada."
         render :show, status: :unprocessable_entity
       end
-    else
-      flash.now[:alert] = "El archivo PDF y el resultado son obligatorios."
-      render :show, status: :unprocessable_entity
+      return
     end
   end
+
 
 
   def upload_factura
