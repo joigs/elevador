@@ -14,7 +14,6 @@ class FacturacionsController < ApplicationController
   end
 
   def show
-    # @facturacion ya está definido en set_facturacion
   end
 
   def new
@@ -35,7 +34,6 @@ class FacturacionsController < ApplicationController
 
 
   def edit
-    # @facturacion ya está definido en set_facturacion
   end
 
   def update
@@ -59,7 +57,6 @@ class FacturacionsController < ApplicationController
 
 
 
-  # Archivos individuales
   def download_solicitud_file
     download_file(@facturacion.solicitud_file)
   end
@@ -79,7 +76,6 @@ class FacturacionsController < ApplicationController
   def download_facturacion_file
     download_file(@facturacion.facturacion_file)
   end
-  # Etc. Mismo patrón para los otros 3
 
   def download_all_files
     files = [
@@ -88,7 +84,7 @@ class FacturacionsController < ApplicationController
       @facturacion.cotizacion_pdf_file,
       @facturacion.orden_compra_file,
       @facturacion.facturacion_file
-    ].compact # Elimina los que no están adjuntos
+    ].compact
 
     if files.empty?
       redirect_to @facturacion, alert: "No hay archivos disponibles para descargar."
@@ -96,7 +92,7 @@ class FacturacionsController < ApplicationController
     end
 
     zip_data = create_zip(files)
-    send_data zip_data, filename: "facturacion_#{@facturacion.id}_archivos.zip"
+    send_data zip_data, filename: "facturacion_#{@facturacion.number}_archivos.zip"
   end
 
 
@@ -113,7 +109,6 @@ class FacturacionsController < ApplicationController
   def upload_cotizacion
     @facturacion = Facturacion.find(params[:id])
 
-    # Verificar que params[:facturacion] esté presente
     unless params[:facturacion]
       flash.now[:alert] = "Ambos archivos (DOCX y PDF) son obligatorios."
       render :show, status: :unprocessable_entity
@@ -124,7 +119,6 @@ class FacturacionsController < ApplicationController
       @facturacion.cotizacion_doc_file.attach(params[:facturacion][:cotizacion_doc_file])
       @facturacion.cotizacion_pdf_file.attach(params[:facturacion][:cotizacion_pdf_file])
 
-      # Validar tipos de archivo
       if valid_file_type?(@facturacion.cotizacion_doc_file, %w[application/msword application/vnd.openxmlformats-officedocument.wordprocessingml.document]) &&
         valid_file_type?(@facturacion.cotizacion_pdf_file, %w[application/pdf])
         @facturacion.update(emicion: Date.current)
@@ -213,12 +207,10 @@ class FacturacionsController < ApplicationController
 
   private
 
-  # Encuentra la facturación según el :id
   def set_facturacion
     @facturacion = Facturacion.find(params[:id])
   end
 
-  # Filtros fuertes (Strong Parameters)
   def facturacion_params
     params.require(:facturacion).permit(
       :number,
