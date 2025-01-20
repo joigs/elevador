@@ -9,7 +9,8 @@ class FacturacionsController < ApplicationController
   before_action :authorize_user
 
   def index
-    @facturacions = Facturacion.all
+    @facturacions_origin = Facturacion.all
+    @facturacions = @facturacions_origin
   end
 
   def show

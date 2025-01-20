@@ -1,213 +1,298 @@
-<div class="py-8 bg-gray-800">
-  <div class="mx-auto px-6 max-w-6xl text-gray-200">
-    <div class="text-center mb-4">
-      <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
-      <% if notice.present? %>
-        <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
-          <%= notice %>
-        </p>
-      <% end %>
-      <div class="mt-4">
-        <%= link_to "Nueva Cotización", new_facturacion_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
+<%# app/views/facturacions/index.html.erb %>
+<turbo-frame id="facturacions_frame">
+  <!-- Definimos la variable auxiliar y la variable principal,
+       para que siempre podamos tener acceso a la data completa en @facturacions_origin. -->
+  <% @facturacions_origin = Facturacion.all %>
+  <% @facturacions = @facturacions_origin %>
+
+  <div class="py-8 bg-gray-800">
+    <div class="mx-auto px-6 max-w-6xl text-gray-200">
+      <div class="text-center mb-4">
+        <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
+        <% if notice.present? %>
+          <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
+            <%= notice %>
+          </p>
+        <% end %>
+        <div class="mt-4">
+          <%= link_to "Nueva Cotización", new_facturacion_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
+        </div>
+      </div>
+
+      <!-- Filtros para la columna "Solicitud" (rango de fechas, inclusivo) -->
+      <div class="mt-6 flex flex-wrap items-end gap-4">
+        <div>
+          <label for="fechaInicio" class="block mb-1">Desde:</label>
+          <input type="date" id="fechaInicio" class="text-black rounded p-1" />
+        </div>
+        <div>
+          <label for="fechaFin" class="block mb-1">Hasta:</label>
+          <input type="date" id="fechaFin" class="text-black rounded p-1" />
+        </div>
+      </div>
+
+      <div class="overflow-x-auto table-responsive mt-6">
+        <table id="facturacions-table" class="table-auto w-full text-white">
+          <thead class="bg-gray-800">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">N° Corr</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Solicitud</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Emisión</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Entregado</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Resultado</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">OC</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Factura</th>
+          </tr>
+          </thead>
+          <tbody class="bg-gray-700 divide-y divide-gray-600">
+          <% @facturacions.each do |facturacion| %>
+            <tr class="bg-gray-800 border-b border-gray-700">
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <strong class="text-white"><%= facturacion.number %></strong>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= link_to facturacion.name, facturacion_path(facturacion) %>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= format_date(facturacion.solicitud) %>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= format_date(facturacion.emicion) %>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= format_date(facturacion.entregado) %>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= facturacion.resultado %>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= format_date(facturacion.oc) %>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <%= format_date(facturacion.factura) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="overflow-x-auto table-responsive mt-6">
-      <table id="facturacions-table" class="table-auto w-full text-white">
-        <thead class="bg-gray-800">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">N° Corr</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Solicitud</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Emisión</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Entregado</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Resultado</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">OC</th>
-          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Factura</th>
-        </tr>
-        </thead>
-        <tbody class="bg-gray-700 divide-y divide-gray-600">
-        <% @facturacions.each do |facturacion| %>
-          <tr class="bg-gray-800 border-b border-gray-700">
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <strong class="text-white"><%= facturacion.number %></strong>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= link_to facturacion.name, facturacion_path(facturacion) %>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= format_date(facturacion.solicitud) %>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= format_date(facturacion.emicion) %>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= format_date(facturacion.entregado) %>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= facturacion.resultado %>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= format_date(facturacion.oc) %>
-            </td>
-            <td class="px-6 py-4 whitespace-normal break-words">
-              <%= format_date(facturacion.factura) %>
-            </td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
   </div>
-</div>
 
-<script>
-    document.addEventListener("turbo:load", function() {
-        const tableEl = document.getElementById("facturacions-table");
-        if (
-          tableEl &&
-          typeof simpleDatatables !== "undefined" &&
-          simpleDatatables.DataTable
-        ) {
-            const columnsWithoutFilter = [2, 3, 4, 6, 7]; // índices de columnas SIN búsqueda
+  <script>
+      document.addEventListener("turbo:load", function() {
+          const tableEl = document.getElementById("facturacions-table");
+          const fechaInicioInput = document.getElementById("fechaInicio");
+          const fechaFinInput = document.getElementById("fechaFin");
 
-            const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
-                columns: [
-                    // Indica en qué columnas desactivar la búsqueda
-                    { select: 2, searchable: false },
-                    { select: 3, searchable: false },
-                    { select: 4, searchable: false },
-                    { select: 6, searchable: false },
-                    { select: 7, searchable: false },
-                ],
-                labels: {
-                    placeholder: "Buscar...",
-                    perPage: "Registros por pág.",
-                    noRows: "No hay datos para mostrar",
-                    noResults: "No hay resultados que coincidan con tu búsqueda",
-                    info: "Mostrando {start} a {end} de {rows} entradas"
-                },
-                tableRender: (_data, table, type) => {
-                    if (type === "print") {
-                        return table;
-                    }
-                    table.childNodes[0].childNodes.forEach((row) => {
-                        if (!row.attributes) row.attributes = {};
-                        row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                        row.childNodes.forEach((th) => {
-                            if (!th.attributes) th.attributes = {};
-                            th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                        });
-                    });
+          // Inicializar plugin simple-datatables
+          if (
+            tableEl &&
+            typeof simpleDatatables !== "undefined" &&
+            simpleDatatables.DataTable
+          ) {
+              const columnsWithoutFilter = [2, 3, 4, 6, 7]; // Columnas donde "searchable" estará desactivado
 
-                    const tHead = table.childNodes[0];
-                    const firstRow = tHead.childNodes[0];
+              const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
+                  columns: [
+                      { select: 2, searchable: false },
+                      { select: 3, searchable: false },
+                      { select: 4, searchable: false },
+                      { select: 6, searchable: false },
+                      { select: 7, searchable: false },
+                  ],
+                  labels: {
+                      placeholder: "Buscar...",
+                      perPage: "Registros por pág.",
+                      noRows: "No hay datos para mostrar",
+                      noResults: "No hay resultados que coincidan con tu búsqueda",
+                      info: "Mostrando {start} a {end} de {rows} entradas"
+                  },
+                  tableRender: (_data, table, type) => {
+                      // Mantener estilos en sort/print
+                      if (type === "print") {
+                          return table;
+                      }
+                      table.childNodes[0].childNodes.forEach((row) => {
+                          if (!row.attributes) row.attributes = {};
+                          row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                          row.childNodes.forEach((th) => {
+                              if (!th.attributes) th.attributes = {};
+                              th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                          });
+                      });
 
-                    // Generar fila de filtros
-                    const filterHeaders = {
-                        nodeName: "TR",
-                        attributes: {
-                            class: "search-filtering-row bg-gray-800 text-white",
-                        },
-                        childNodes: firstRow.childNodes.map((_th, index) => {
-                            // Si la columna está en columnsWithoutFilter, generamos un input deshabilitado
-                            if (columnsWithoutFilter.includes(index)) {
-                                return {
-                                    nodeName: "TH",
-                                    attributes: { style: "padding-top: 1rem;" },
-                                    childNodes: [
-                                        {
-                                            nodeName: "INPUT",
-                                            attributes: {
-                                                type: "search",
-                                                disabled: "disabled",
-                                                placeholder: "Sin filtro",
-                                                class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
-                                                style: "cursor: not-allowed;",
-                                            }
-                                        }
-                                    ]
-                                };
-                            }
+                      const tHead = table.childNodes[0];
+                      const firstRow = tHead.childNodes[0];
 
-                            // Para las demás columnas, input normal
-                            return {
-                                nodeName: "TH",
-                                attributes: { style: "padding-top: 1rem;" },
-                                childNodes: [
-                                    {
-                                        nodeName: "INPUT",
-                                        attributes: {
-                                            class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                            type: "search",
-                                            "data-columns": "[" + index + "]",
-                                            placeholder: "Filtrar"
-                                        }
-                                    }
-                                ]
-                            };
-                        })
-                    };
+                      // Generar fila de filtros (inputs) para columnas que sí son filtrables por texto
+                      const filterHeaders = {
+                          nodeName: "TR",
+                          attributes: {
+                              class: "search-filtering-row bg-gray-800 text-white",
+                          },
+                          childNodes: firstRow.childNodes.map((_th, index) => {
+                              // Si la columna está en columnsWithoutFilter => input deshabilitado
+                              if (columnsWithoutFilter.includes(index)) {
+                                  return {
+                                      nodeName: "TH",
+                                      attributes: { style: "padding-top: 1rem;" },
+                                      childNodes: [
+                                          {
+                                              nodeName: "INPUT",
+                                              attributes: {
+                                                  type: "search",
+                                                  disabled: "disabled",
+                                                  placeholder: "Sin filtro",
+                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                                  style: "cursor: not-allowed;",
+                                              }
+                                          }
+                                      ]
+                                  };
+                              }
 
-                    tHead.childNodes.push(filterHeaders);
-                    return table;
-                }
-            });
-        }
-    });
-</script>
+                              // Para el resto de columnas, input normal
+                              return {
+                                  nodeName: "TH",
+                                  attributes: { style: "padding-top: 1rem;" },
+                                  childNodes: [
+                                      {
+                                          nodeName: "INPUT",
+                                          attributes: {
+                                              class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                              type: "search",
+                                              "data-columns": "[" + index + "]",
+                                              placeholder: "Filtrar"
+                                          }
+                                      }
+                                  ]
+                              };
+                          })
+                      };
+                      tHead.childNodes.push(filterHeaders);
 
+                      return table;
+                  },
+              });
 
-<style>
-    .dataTable-table tbody td {
-        color: #fff !important;
-    }
-    .datatable-ascending,
-    .datatable-descending {
-        background-color: #539DED !important;
-        color: #fff !important;
-    }
+              // Cuando el plugin cambie de página, ordene o busque, re-aplicamos el filtro de fechas
+              dataTable.on("datatable.page", filtrarPorFechas);
+              dataTable.on("datatable.sort", filtrarPorFechas);
+              dataTable.on("datatable.search", filtrarPorFechas);
+              dataTable.on("datatable.perpage", filtrarPorFechas);
 
-    #facturacions-table thead th button.datatable-sorter {
-        background: transparent !important;
-        border: none !important;
-        color: #fff !important;
-    }
+              // Función para filtrar filas según las fechas escogidas (INCLUSIVO)
+              function filtrarPorFechas() {
+                  const fechaInicioValue = fechaInicioInput.value;
+                  const fechaFinValue = fechaFinInput.value;
 
-    #facturacions-table thead th button.datatable-sorter:hover {
-        background: transparent !important;
-        color: #1d4ed8 !important;
-    }
+                  const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
+                  const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
 
-    #facturacions-table thead th button.datatable-sorter:hover::before,
-    #facturacions-table thead th button.datatable-sorter:hover::after {
-        background-color: transparent !important;
-        color: #1d4ed8 !important;
-    }
+                  // Recorremos las filas del tbody
+                  const rows = tableEl.querySelectorAll("tbody tr");
 
-    #facturacions-table .datatable-selector {
-        background-color: #f2f2f2 !important;
-        color: #000 !important;
-        border: 1px solid #ccc !important;
-        border-radius: 4px;
-        padding: 0.25rem 0.5rem;
-    }
+                  rows.forEach((row) => {
+                      // Si el plugin ya ocultó la fila por otra búsqueda, no la forzamos a mostrar
+                      if (window.getComputedStyle(row).display === "none") {
+                          return;
+                      }
 
-    #facturacions-table .datatable-input {
-        background-color: #f2f2f2 !important;
-        color: #000 !important;
-        border: 1px solid #ccc !important;
-        border-radius: 4px;
-        padding: 0.25rem 0.5rem;
-    }
+                      const solicitudCell = row.querySelectorAll("td")[2]; // Columna "Solicitud" = índice 2
+                      const solicitudTexto = (solicitudCell.textContent || "").trim();
 
-    #facturacions-table .datatable-input::placeholder {
-        color: #888;
-    }
+                      // Si no hay fecha en la celda, la mostramos solo si el usuario no definió rango
+                      if (!solicitudTexto) {
+                          if (fechaInicio || fechaFin) {
+                              row.style.display = "none";
+                          } else {
+                              row.style.display = "";
+                          }
+                          return;
+                      }
 
-    .datatable-input:disabled {
-        background-color: #3a3a3a !important;
-        color: #aaa !important;
-        cursor: not-allowed !important;
-    }
-</style>
+                      // Se asume que format_date muestra dd/mm/yyyy
+                      const partes = solicitudTexto.split("/");
+                      if (partes.length !== 3) {
+                          // Si no cumple formato, no lo forzamos a ocultar.
+                          row.style.display = "";
+                          return;
+                      }
+
+                      const dia = parseInt(partes[0], 10);
+                      const mes = parseInt(partes[1], 10) - 1;
+                      const anio = parseInt(partes[2], 10);
+                      const fechaSolicitud = new Date(anio, mes, dia);
+
+                      // Rango inclusivo: fechaInicio <= fechaSolicitud <= fechaFin
+                      if ((fechaInicio && fechaSolicitud < fechaInicio) ||
+                        (fechaFin && fechaSolicitud > fechaFin)) {
+                          row.style.display = "none";
+                      } else {
+                          row.style.display = "";
+                      }
+                  });
+              }
+
+              // Filtrar automáticamente cada vez que cambien los inputs de fecha
+              fechaInicioInput.addEventListener("change", filtrarPorFechas);
+              fechaFinInput.addEventListener("change", filtrarPorFechas);
+
+              // Aplicamos el filtro inicial por si hay valores pre-cargados
+              filtrarPorFechas();
+          }
+      });
+  </script>
+
+  <!-- Estilos conservados -->
+  <style>
+      .dataTable-table tbody td {
+          color: #fff !important;
+      }
+      .datatable-ascending,
+      .datatable-descending {
+          background-color: #539DED !important;
+          color: #fff !important;
+      }
+
+      #facturacions-table thead th button.datatable-sorter {
+          background: transparent !important;
+          border: none !important;
+          color: #fff !important;
+      }
+      #facturacions-table thead th button.datatable-sorter:hover {
+          background: transparent !important;
+          color: #1d4ed8 !important;
+      }
+      #facturacions-table thead th button.datatable-sorter:hover::before,
+      #facturacions-table thead th button.datatable-sorter:hover::after {
+          background-color: transparent !important;
+          color: #1d4ed8 !important;
+      }
+
+      #facturacions-table .datatable-selector {
+          background-color: #f2f2f2 !important;
+          color: #000 !important;
+          border: 1px solid #ccc !important;
+          border-radius: 4px;
+          padding: 0.25rem 0.5rem;
+      }
+      #facturacions-table .datatable-input {
+          background-color: #f2f2f2 !important;
+          color: #000 !important;
+          border: 1px solid #ccc !important;
+          border-radius: 4px;
+          padding: 0.25rem 0.5rem;
+      }
+      #facturacions-table .datatable-input::placeholder {
+          color: #888;
+      }
+      .datatable-input:disabled {
+          background-color: #3a3a3a !important;
+          color: #aaa !important;
+          cursor: not-allowed !important;
+      }
+  </style>
+</turbo-frame>

@@ -18,8 +18,8 @@ class HomeController < ApplicationController
     unless Current.user.tabla
       @pagy, @inspections = pagy_countless(@inspections, items: 10)
     end
-    @facturacions = Facturacion.all
-
+    @facturacions_origin = Facturacion.all
+    @facturacions = @facturacions_origin
   end
 
 end
