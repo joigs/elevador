@@ -15,8 +15,8 @@
             <%= link_to "Nueva Cotización", new_facturacion_path, data: { turbo_frame: "_top" }, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
           </div>
         <% end %>
-
       </div>
+
       <label class="text-lg font-semibold mt-6">Fecha de solicitud:</label>
 
       <div class="mt-2 flex flex-wrap items-end gap-4">
@@ -28,7 +28,6 @@
           <label for="fechaFin" class="block mb-1">Hasta:</label>
           <input type="date" id="fechaFin" class="text-black rounded p-1" />
         </div>
-
       </div>
 
       <div class="overflow-x-auto table-responsive mt-6">
@@ -51,16 +50,12 @@
               <td class="px-6 py-4 whitespace-normal break-words">
                 <strong>
                   <%= link_to facturacion.number, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
-
                 </strong>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
                 <strong>
-                    <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
-
+                  <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                 </strong>
-
-
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
                 <p class="text-white"><%= format_date(facturacion.solicitud) %></p>
@@ -88,163 +83,180 @@
     </div>
   </div>
 
-      <script>
-          document.addEventListener("turbo:load", function() {
-              const tableEl = document.getElementById("facturacions-table");
-              const fechaInicioInput = document.getElementById("fechaInicio");
-              const fechaFinInput = document.getElementById("fechaFin");
-              const rowsOriginal = Array.from(tableEl.querySelectorAll("tbody tr")); // Copia original de las filas
+  <script>
+      document.addEventListener("turbo:load", function() {
+          const tableEl = document.getElementById("facturacions-table");
+          const fechaInicioInput = document.getElementById("fechaInicio");
+          const fechaFinInput = document.getElementById("fechaFin");
 
+          if (
+            tableEl &&
+            typeof simpleDatatables !== "undefined" &&
+            simpleDatatables.DataTable
+          ) {
+              const columnsWithoutFilter = [2, 3, 4, 6, 7];
 
-              if (
-                tableEl &&
-                typeof simpleDatatables !== "undefined" &&
-                simpleDatatables.DataTable
-              ) {
-                  const columnsWithoutFilter = [2, 3, 4, 6, 7];
-
-                  const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
-                      columns: [
-                          {select: 2, searchable: false},
-                          {select: 3, searchable: false},
-                          {select: 4, searchable: false},
-                          {select: 6, searchable: false},
-                          {select: 7, searchable: false},
-                      ],
-                      labels: {
-                          placeholder: "Buscar...",
-                          perPage: "Registros por pág.",
-                          noRows: "No hay datos para mostrar",
-                          noResults: "No hay resultados que coincidan con tu búsqueda",
-                          info: "Mostrando {start} a {end} de {rows} entradas"
-                      },
-                      tableRender: (_data, table, type) => {
-                          if (type === "print") {
-                              return table;
-                          }
-                          table.childNodes[0].childNodes.forEach((row) => {
-                              if (!row.attributes) row.attributes = {};
-                              row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                              row.childNodes.forEach((th) => {
-                                  if (!th.attributes) th.attributes = {};
-                                  th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                              });
+              // Inicializamos el plugin
+              const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
+                  columns: [
+                      { select: 2, searchable: false },
+                      { select: 3, searchable: false },
+                      { select: 4, searchable: false },
+                      { select: 6, searchable: false },
+                      { select: 7, searchable: false },
+                  ],
+                  labels: {
+                      placeholder: "Buscar...",
+                      perPage: "Registros por pág.",
+                      noRows: "No hay datos para mostrar",
+                      noResults: "No hay resultados que coincidan con tu búsqueda",
+                      info: "Mostrando {start} a {end} de {rows} entradas"
+                  },
+                  tableRender: (_data, table, type) => {
+                      if (type === "print") {
+                          return table;
+                      }
+                      // Le ponemos estilos
+                      table.childNodes[0].childNodes.forEach((row) => {
+                          if (!row.attributes) row.attributes = {};
+                          row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                          row.childNodes.forEach((th) => {
+                              if (!th.attributes) th.attributes = {};
+                              th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
                           });
+                      });
 
-                          const tHead = table.childNodes[0];
-                          const firstRow = tHead.childNodes[0];
+                      const tHead = table.childNodes[0];
+                      const firstRow = tHead.childNodes[0];
 
-                          const filterHeaders = {
-                              nodeName: "TR",
-                              attributes: {
-                                  class: "search-filtering-row bg-gray-800 text-white",
-                              },
-                              childNodes: firstRow.childNodes.map((_th, index) => {
-                                  if (columnsWithoutFilter.includes(index)) {
-                                      return {
-                                          nodeName: "TH",
-                                          attributes: {style: "padding-top: 1rem;"},
-                                          childNodes: [
-                                              {
-                                                  nodeName: "INPUT",
-                                                  attributes: {
-                                                      type: "search",
-                                                      disabled: "disabled",
-                                                      placeholder: "Sin filtro",
-                                                      class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
-                                                      style: "cursor: not-allowed;",
-                                                  }
-                                              }
-                                          ]
-                                      };
-                                  }
-
+                      const filterHeaders = {
+                          nodeName: "TR",
+                          attributes: {
+                              class: "search-filtering-row bg-gray-800 text-white",
+                          },
+                          childNodes: firstRow.childNodes.map((_th, index) => {
+                              if (columnsWithoutFilter.includes(index)) {
                                   return {
                                       nodeName: "TH",
-                                      attributes: {style: "padding-top: 1rem;"},
+                                      attributes: { style: "padding-top: 1rem;" },
                                       childNodes: [
                                           {
                                               nodeName: "INPUT",
                                               attributes: {
-                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
                                                   type: "search",
-                                                  "data-columns": "[" + index + "]",
-                                                  placeholder: "Filtrar"
+                                                  disabled: "disabled",
+                                                  placeholder: "Sin filtro",
+                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                                  style: "cursor: not-allowed;",
                                               }
                                           }
                                       ]
                                   };
-                              })
-                          };
+                              }
+                              return {
+                                  nodeName: "TH",
+                                  attributes: { style: "padding-top: 1rem;" },
+                                  childNodes: [
+                                      {
+                                          nodeName: "INPUT",
+                                          attributes: {
+                                              class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                              type: "search",
+                                              "data-columns": "[" + index + "]",
+                                              placeholder: "Filtrar"
+                                          }
+                                      }
+                                  ]
+                              };
+                          })
+                      };
 
-                          tHead.childNodes.push(filterHeaders);
-                          return table;
-                      },
+                      tHead.childNodes.push(filterHeaders);
+                      return table;
+                  },
+              });
+
+              // Cada vez que el DataTable cambie página, busque o ordene, ajustamos las fechas
+              dataTable.on("datatable.page", filtrarPorFechas);
+              dataTable.on("datatable.sort", filtrarPorFechas);
+              dataTable.on("datatable.search", filtrarPorFechas);
+              dataTable.on("datatable.perpage", filtrarPorFechas);
+
+              // --- Función para filtrar por fechas: simplemente oculta o muestra filas
+              function filtrarPorFechas() {
+                  const fechaInicioValue = fechaInicioInput.value;
+                  const fechaFinValue = fechaFinInput.value;
+
+                  const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
+                  const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
+
+                  // Validación de rango
+                  if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
+                      alert("Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final.");
+                      return;
+                  }
+
+                  // Tomamos las filas directamente del plugin (así no pierde sus referencias)
+                  // dataTable.rows().nodes() devuelve una lista con los <tr> que controla DataTables
+                  const allRows = dataTable.rows().nodes();
+
+                  // Primero mostramos todo (por si estaba oculto de un filtro anterior)
+                  allRows.forEach((row) => {
+                      row.style.display = "";
                   });
 
-                  dataTable.on("datatable.page", filtrarPorFechas);
-                  dataTable.on("datatable.sort", filtrarPorFechas);
-                  dataTable.on("datatable.search", filtrarPorFechas);
-                  dataTable.on("datatable.perpage", filtrarPorFechas);
-
-                  function filtrarPorFechas() {
-                      const fechaInicioValue = fechaInicioInput.value;
-                      const fechaFinValue = fechaFinInput.value;
-
-                      // Validación de fechas
-                      const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
-                      const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
-
-                      if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-                          alert("Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final.");
+                  // Ahora sí, aplicamos la lógica de “ocultar si no está dentro de rango”
+                  allRows.forEach((row) => {
+                      // Si la fila ya está oculta por el plugin (p. ej. búsqueda por texto),
+                      // la dejamos en paz. (Si prefieres forzar a que el dateFilter esté por encima
+                      // de la búsqueda por texto, quita esta condición).
+                      if (window.getComputedStyle(row).display === "none") {
                           return;
                       }
 
-                      // Restaurar todas las filas antes de aplicar los filtros
-                      const tbody = tableEl.querySelector("tbody");
-                      tbody.innerHTML = ""; // Limpia la tabla
-                      rowsOriginal.forEach((row) => tbody.appendChild(row)); // Restaura las filas originales
+                      // Celda de solicitud (índice 2)
+                      const solicitudCell = row.querySelectorAll("td")[2];
+                      const solicitudTexto = (solicitudCell?.textContent || "").trim();
 
-                      // Aplicar filtro
-                      rowsOriginal.forEach((row) => {
-                          const solicitudCell = row.querySelectorAll("td")[2]; // Columna "Solicitud"
-                          const solicitudTexto = (solicitudCell.textContent || "").trim();
-
-                          if (!solicitudTexto) {
-                              row.style.display = fechaInicio || fechaFin ? "none" : "";
-                              return;
-                          }
-
-                          const partes = solicitudTexto.split("/");
-                          if (partes.length !== 3) {
-                              row.style.display = "";
-                              return;
-                          }
-
-                          const dia = parseInt(partes[0], 10);
-                          const mes = parseInt(partes[1], 10) - 1;
-                          const anio = parseInt(partes[2], 10);
-                          const fechaSolicitud = new Date(anio, mes, dia);
-
-                          if (
-                            (fechaInicio && fechaSolicitud < fechaInicio) ||
-                            (fechaFin && fechaSolicitud > fechaFin)
-                          ) {
+                      // Si no hay texto en Solicitud y tenemos algún límite de fecha, se oculta
+                      if (!solicitudTexto) {
+                          if (fechaInicio || fechaFin) {
                               row.style.display = "none";
-                          } else {
-                              row.style.display = "";
                           }
-                      });
-                  }
+                          return;
+                      }
 
-                  fechaInicioInput.addEventListener("change", filtrarPorFechas);
-                  fechaFinInput.addEventListener("change", filtrarPorFechas);
+                      // Partimos la fecha dd/mm/aaaa
+                      const partes = solicitudTexto.split("/");
+                      if (partes.length !== 3) {
+                          // Si el formato está roto, no la filtramos
+                          return;
+                      }
 
-                  // Asegúrate de que las filas se restauren al cargar la página
-                  filtrarPorFechas();
+                      const dia = parseInt(partes[0], 10);
+                      const mes = parseInt(partes[1], 10) - 1;
+                      const anio = parseInt(partes[2], 10);
+                      const fechaSolicitud = new Date(anio, mes, dia);
+
+                      // Checamos si está fuera de rango
+                      if (
+                        (fechaInicio && fechaSolicitud < fechaInicio) ||
+                        (fechaFin && fechaSolicitud > fechaFin)
+                      ) {
+                          row.style.display = "none";
+                      }
+                  });
               }
-              });
-      </script>
+
+              // Eventos para filtrar al cambiar las fechas
+              fechaInicioInput.addEventListener("change", filtrarPorFechas);
+              fechaFinInput.addEventListener("change", filtrarPorFechas);
+
+              // Filtrado inicial
+              filtrarPorFechas();
+          }
+      });
+  </script>
 
   <style>
       .dataTable-table tbody td {
@@ -255,24 +267,20 @@
           background-color: #539DED !important;
           color: #fff !important;
       }
-
       #facturacions-table thead th button.datatable-sorter {
           background: transparent !important;
           border: none !important;
           color: #fff !important;
       }
-
       #facturacions-table thead th button.datatable-sorter:hover {
           background: transparent !important;
           color: #1d4ed8 !important;
       }
-
       #facturacions-table thead th button.datatable-sorter:hover::before,
       #facturacions-table thead th button.datatable-sorter:hover::after {
           background-color: transparent !important;
           color: #1d4ed8 !important;
       }
-
       #facturacions-table .datatable-selector {
           background-color: #f2f2f2 !important;
           color: #000 !important;
@@ -280,7 +288,6 @@
           border-radius: 4px;
           padding: 0.25rem 0.5rem;
       }
-
       #facturacions-table .datatable-input {
           background-color: #f2f2f2 !important;
           color: #000 !important;
@@ -288,11 +295,9 @@
           border-radius: 4px;
           padding: 0.25rem 0.5rem;
       }
-
       #facturacions-table .datatable-input::placeholder {
           color: #888;
       }
-
       .datatable-input:disabled {
           background-color: #3a3a3a !important;
           color: #aaa !important;
