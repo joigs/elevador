@@ -139,37 +139,45 @@ class FacturacionsController < ApplicationController
   def upload_orden_compra
     @facturacion = Facturacion.find(params[:id])
 
+    # Asegurar que params[:facturacion] existe
+    unless params[:facturacion].present?
+      flash.now[:alert] = "No se proporcionaron datos para procesar la Orden de Compra."
+      render :show, status: :unprocessable_entity
+      return
+    end
+
     # Extraer parámetros relevantes
     resultado = params[:facturacion][:resultado]&.to_i
     orden_compra_file = params[:facturacion][:orden_compra_file]
 
     # Validar resultado
-    if resultado.nil? || ![2, 3].include?(resultado)
-      flash.now[:alert] = "El resultado seleccionado no es válido."
+    unless resultado.present? && Facturacion.resultados.values.include?(resultado)
+      flash.now[:alert] = "Debes seleccionar un resultado válido (Aceptado o Rechazado)."
       render :show, status: :unprocessable_entity
       return
     end
 
-    # Caso 1: Rechazado (resultado == 3)
-    if resultado == 3
-      @facturacion.update(oc: Date.current, resultado: 3)
-      redirect_to @facturacion, notice: "Estado actualizado a 'Rechazado'."
+    # Validar archivo si el resultado es aceptado
+    if resultado == 2 && (!orden_compra_file || !valid_uploaded_file?(orden_compra_file, ["application/pdf"]))
+      flash.now[:alert] = "Debes subir un archivo PDF válido para la orden de compra cuando el resultado es Aceptado."
+      render :show, status: :unprocessable_entity
       return
     end
 
-    # Caso 2: Aceptado (resultado == 2)
-    if resultado == 2
-      if orden_compra_file.present? && valid_file_type?(orden_compra_file, %w[application/pdf])
-        @facturacion.orden_compra_file.attach(orden_compra_file)
-        @facturacion.update(oc: Date.current, resultado: 2)
-        redirect_to @facturacion, notice: "Orden de Compra subida correctamente y resultado actualizado a 'Aceptado'."
-      else
-        flash.now[:alert] = "El archivo de Orden de Compra (PDF) es obligatorio cuando la cotización fue aceptada."
-        render :show, status: :unprocessable_entity
-      end
-      return
+    # Actualizar la facturación
+    @facturacion.resultado = resultado
+    @facturacion.oc = Date.current if resultado == 2 || (resultado == 3 && orden_compra_file.present?)
+    @facturacion.orden_compra_file.attach(orden_compra_file) if orden_compra_file.present?
+
+    if @facturacion.save
+      redirect_to @facturacion, notice: "Orden de Compra procesada correctamente."
+    else
+      flash.now[:alert] = "No se pudo procesar la Orden de Compra."
+      render :show, status: :unprocessable_entity
     end
   end
+
+
 
 
 
@@ -258,6 +266,9 @@ class FacturacionsController < ApplicationController
 
   def valid_file_type?(file, allowed_types)
     file.attached? && file.content_type.in?(allowed_types)
+  end
+  def valid_uploaded_file?(file, allowed_types)
+    file.is_a?(ActionDispatch::Http::UploadedFile) && file.content_type.in?(allowed_types)
   end
 
 end
