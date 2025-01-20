@@ -1,12 +1,6 @@
-<% ######################################################################### %>
-<% # LÓGICA DE TABS SEGÚN TUS CONDICIONES                                   %>
-<% ######################################################################### %>
 
 <% if Current.user.admin.nil? %>
-  <!--
-    1) Si Current.user.admin == nil
-    Se muestra SOLO la vista de Cotizaciones (placeholder), sin tabs.
-  -->
+
   <section>
 
 
@@ -17,14 +11,9 @@
   </section>
 
 <% elsif !Current.user.admin.nil? && Current.user.gestion == true %>
-  <!--
-    2) Si Current.user.admin tiene valor (true o false) Y Current.user.gestion == true
-    Se muestran AMBAS vistas, intercambiables con el tab.
-  -->
 
-  <!-- NAV de tabs -->
   <nav class="bg-gray-800 p-4 text-white mb-6">
-    <ul class="flex space-x-4">
+    <ul class="flex space-x-4 justify-center">
       <li class="<%= params[:tab] == 'cotizaciones' ? '' : 'border-b-2 border-blue-500' %>">
         <%= link_to "Inspecciones", home_path(tab: 'inspecciones'), class: "hover:underline" %>
       </li>
@@ -35,17 +24,14 @@
   </nav>
 
   <% if params[:tab] == 'cotizaciones' %>
-    <!-- CONTENIDO DEL TAB 'COTIZACIONES' -->
     <section>
 
 
-      <div class="py-4"></div>
 
       <%= render template: "facturacions/index" %>
 
     </section>
   <% else %>
-    <!-- CONTENIDO DEL TAB 'INSPECCIONES' (TODA TU VISTA ORIGINAL) -->
     <section>
       <div class="py-16 bg-gray-800">
         <div class="mx-auto px-6 max-w-6xl text-gray-200">
@@ -236,7 +222,6 @@
                           </span>
                           <div class="relative group">
                             <% if inspection.ins_date < Date.today %>
-                              <!-- Rojo -->
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="red" />
@@ -245,7 +230,6 @@
                                 Inspección Atrasada
                               </span>
                             <% elsif inspection.ins_date == Date.today %>
-                              <!-- Verde -->
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="green" />
@@ -254,7 +238,6 @@
                                 Agendada para hoy
                               </span>
                             <% else %>
-                              <!-- Amarillo -->
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="yellow" />
@@ -455,13 +438,10 @@
         </div>
       </div>
     <% end %>
-  <% end %> <!-- Fin else de params[:tab] == 'cotizaciones' -->
+  <% end %>
 
 <% else %>
-  <!--
-    3) Si Current.user.admin tiene valor (true o false) Y Current.user.gestion == false
-    Se muestra SOLO la vista de Inspecciones (toda tu vista original), sin tab.
-  -->
+
   <section>
     <div class="py-16 bg-gray-800">
       <div class="mx-auto px-6 max-w-6xl text-gray-200">
@@ -652,7 +632,6 @@
                         </span>
                         <div class="relative group">
                           <% if inspection.ins_date < Date.today %>
-                            <!-- Rojo -->
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                               <circle cx="12" cy="12" r="5" fill="red" />
@@ -661,7 +640,6 @@
                               Inspección Atrasada
                             </span>
                           <% elsif inspection.ins_date == Date.today %>
-                            <!-- Verde -->
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                               <circle cx="12" cy="12" r="5" fill="green" />
@@ -670,7 +648,6 @@
                               Agendada para hoy
                             </span>
                           <% else %>
-                            <!-- Amarillo -->
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                               <circle cx="12" cy="12" r="5" fill="yellow" />

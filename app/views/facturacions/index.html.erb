@@ -3,7 +3,7 @@
     <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
       <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
     </div>
-    <div class="mx-auto px-6 max-w-6xl text-gray-200 mt-6">
+    <div class="mx-auto px-6 mx-auto text-gray-200 mt-6">
       <div class="text-center mb-4">
         <% if notice.present? %>
           <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
@@ -109,7 +109,6 @@
 
               const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
                   columns: [
-                      // columnas sin búsqueda
                       { select: 2, searchable: false },
                       { select: 3, searchable: false },
                       { select: 4, searchable: false },
@@ -198,7 +197,6 @@
                   const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
                   const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
 
-                  // Recorremos las filas que estén actualmente en el DOM
                   const rows = tableEl.querySelectorAll("tbody tr");
 
                   rows.forEach((row) => {
@@ -208,7 +206,7 @@
                           return;
                       }
 
-                      const solicitudCell = row.querySelectorAll("td")[2]; // columna "Solicitud"
+                      const solicitudCell = row.querySelectorAll("td")[2];
                       const solicitudTexto = (solicitudCell.textContent || "").trim();
 
                       if (!solicitudTexto) {

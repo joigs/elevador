@@ -10,7 +10,6 @@
     %>
   </div>
 
-  <!-- Tarjeta oscura -->
   <div class="bg-gray-900 p-4 rounded-lg shadow-md">
     <div class="grid grid-cols-2 gap-2 text-white">
 
@@ -186,7 +185,6 @@
     </div>
   </div>
   <div data-controller="inspection-tabs">
-    <!-- Botones para cambiar de pestaña -->
     <div class="grid grid-cols-2 gap-x-16 mb-4 justify-center items-center max-w-md mx-auto mt-8">
       <button
         type="button"
@@ -206,7 +204,6 @@
       </button>
     </div>
 
-    <!-- Contenedor de la pestaña DETAIL -->
     <div data-inspection-tabs-target="detail" class="tabs-content hidden">
       <% if @item.group.type_of == "ascensor" %>
         <%= render 'detailform', detail: @detail, inspection: @inspection %>
@@ -215,7 +212,6 @@
       <% end %>
     </div>
 
-    <!-- Contenedor de la pestaña REPORT -->
     <div data-inspection-tabs-target="report" class="tabs-content hidden">
       <%= render 'reportform', report: @report, inspection: @inspection %>
     </div>

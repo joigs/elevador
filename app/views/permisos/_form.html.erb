@@ -14,7 +14,6 @@
     <% end %>
   <% end %>
 
-  <!-- EJEMPLO DE CAMPO: nombre -->
   <div>
     <%= form.label :nombre, class: "block text-gray-300" %>
     <%= form.text_field :nombre,
@@ -23,7 +22,6 @@
                     focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <!-- EJEMPLO DE CAMPO: descripcion -->
   <div>
     <%= form.label :descripcion, class: "block text-gray-300" %>
     <%= form.text_field :descripcion,
@@ -32,7 +30,6 @@
                     focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <!-- BOTÓN DE SUBMIT -->
   <div class="actions">
     <%= form.submit (permiso.new_record? ? 'Crear Permiso' : 'Actualizar Permiso'),
                     class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" %>
