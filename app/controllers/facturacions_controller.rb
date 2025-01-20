@@ -19,6 +19,8 @@ class FacturacionsController < ApplicationController
 
   def new
     @facturacion = Facturacion.new
+    @facturacion.number = (Facturacion.maximum(:number) || 0) + 1
+
   end
 
   def create
@@ -97,20 +99,6 @@ class FacturacionsController < ApplicationController
     send_data zip_data, filename: "facturacion_#{@facturacion.id}_archivos.zip"
   end
 
-  def upload_cotizacion
-    @facturacion = Facturacion.find(params[:id])
-
-    if params[:facturacion][:cotizacion_doc_file].present? && params[:facturacion][:cotizacion_pdf_file].present?
-      @facturacion.cotizacion_doc_file.attach(params[:facturacion][:cotizacion_doc_file])
-      @facturacion.cotizacion_pdf_file.attach(params[:facturacion][:cotizacion_pdf_file])
-      @facturacion.update(emicion: Date.current)
-
-      redirect_to @facturacion, notice: "Documentos subidos correctamente y fecha de emisión actualizada."
-    else
-      flash.now[:alert] = "Ambos archivos (DOCX y PDF) son obligatorios."
-      render :show, status: :unprocessable_entity
-    end
-  end
 
   def marcar_entregado
     @facturacion = Facturacion.find(params[:id])
@@ -122,19 +110,63 @@ class FacturacionsController < ApplicationController
     end
   end
 
+  def upload_cotizacion
+    @facturacion = Facturacion.find(params[:id])
+
+    # Verificar que params[:facturacion] esté presente
+    unless params[:facturacion]
+      flash.now[:alert] = "Ambos archivos (DOCX y PDF) son obligatorios."
+      render :show, status: :unprocessable_entity
+      return
+    end
+
+    if params[:facturacion][:cotizacion_doc_file].present? && params[:facturacion][:cotizacion_pdf_file].present?
+      @facturacion.cotizacion_doc_file.attach(params[:facturacion][:cotizacion_doc_file])
+      @facturacion.cotizacion_pdf_file.attach(params[:facturacion][:cotizacion_pdf_file])
+
+      # Validar tipos de archivo
+      if valid_file_type?(@facturacion.cotizacion_doc_file, %w[application/msword application/vnd.openxmlformats-officedocument.wordprocessingml.document]) &&
+        valid_file_type?(@facturacion.cotizacion_pdf_file, %w[application/pdf])
+        @facturacion.update(emicion: Date.current)
+        redirect_to @facturacion, notice: "Documentos subidos correctamente y fecha de emisión actualizada."
+      else
+        flash.now[:alert] = "Ambos archivos deben ser del tipo correcto (DOCX y PDF)."
+        @facturacion.cotizacion_doc_file.purge
+        @facturacion.cotizacion_pdf_file.purge
+        render :show, status: :unprocessable_entity
+      end
+    else
+      flash.now[:alert] = "Ambos archivos (DOCX y PDF) son obligatorios."
+      render :show, status: :unprocessable_entity
+    end
+  end
+
+
   def upload_orden_compra
     @facturacion = Facturacion.find(params[:id])
 
-    # Verifica si el archivo fue subido
+    unless params[:facturacion]
+      flash.now[:alert] = "El archivo PDF y el resultado son obligatorios."
+      render :show, status: :unprocessable_entity
+      return
+    end
+
     if params[:facturacion][:orden_compra_file].present? && params[:facturacion][:resultado].present?
       @facturacion.orden_compra_file.attach(params[:facturacion][:orden_compra_file])
-      @facturacion.oc = Date.current
-      @facturacion.resultado = params[:facturacion][:resultado].to_i # Conversión explícita a entero
 
-      if @facturacion.save
-        redirect_to @facturacion, notice: "Orden de Compra subida correctamente y estado actualizado."
+      if valid_file_type?(@facturacion.orden_compra_file, %w[application/pdf])
+        @facturacion.oc = Date.current
+        @facturacion.resultado = params[:facturacion][:resultado].to_i
+
+        if @facturacion.save
+          redirect_to @facturacion, notice: "Orden de Compra subida correctamente y estado actualizado."
+        else
+          flash.now[:alert] = "No se pudo procesar la solicitud."
+          render :show, status: :unprocessable_entity
+        end
       else
-        flash.now[:alert] = "No se pudo procesar la solicitud."
+        flash.now[:alert] = "El archivo debe ser un PDF."
+        @facturacion.orden_compra_file.purge
         render :show, status: :unprocessable_entity
       end
     else
@@ -143,18 +175,31 @@ class FacturacionsController < ApplicationController
     end
   end
 
+
   def upload_factura
     @facturacion = Facturacion.find(params[:id])
 
-    # Verifica si el archivo fue subido
+    unless params[:facturacion]
+      flash.now[:alert] = "El archivo PDF es obligatorio."
+      render :show, status: :unprocessable_entity
+      return
+    end
+
     if params[:facturacion][:facturacion_file].present?
       @facturacion.facturacion_file.attach(params[:facturacion][:facturacion_file])
-      @facturacion.factura = Date.current
 
-      if @facturacion.save
-        redirect_to @facturacion, notice: "Factura subida correctamente y fecha de factura actualizada."
+      if valid_file_type?(@facturacion.facturacion_file, %w[application/pdf])
+        @facturacion.factura = Date.current
+
+        if @facturacion.save
+          redirect_to @facturacion, notice: "Factura subida correctamente y fecha de factura actualizada."
+        else
+          flash.now[:alert] = "No se pudo procesar la solicitud."
+          render :show, status: :unprocessable_entity
+        end
       else
-        flash.now[:alert] = "No se pudo procesar la solicitud."
+        flash.now[:alert] = "El archivo debe ser un PDF."
+        @facturacion.facturacion_file.purge
         render :show, status: :unprocessable_entity
       end
     else
@@ -162,6 +207,7 @@ class FacturacionsController < ApplicationController
       render :show, status: :unprocessable_entity
     end
   end
+
 
 
 
@@ -213,4 +259,10 @@ class FacturacionsController < ApplicationController
   def authorize_user
     authorize!
   end
+
+
+  def valid_file_type?(file, allowed_types)
+    file.attached? && file.content_type.in?(allowed_types)
+  end
+
 end

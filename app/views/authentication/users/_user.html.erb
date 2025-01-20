@@ -13,13 +13,12 @@
 
     <p class="text-gray-400 mt-2">
       <strong class="text-gray-200">Rol:</strong>
-      <% if user.admin %>
-        <%= "Administrador" %>
-      <% elsif user.admin == nil %>
-        <%= "Facturación" %>
-
-    <% elsif user.empresa == nil %>
-        <%= "Inspector" %>
+      <% if user.admin.nil? %>
+        Gestión
+      <% elsif user.admin %>
+        Administrador
+      <% elsif user.empresa.nil? %>
+        Inspector
       <% else %>
         <%= user.empresa %>
       <% end %>

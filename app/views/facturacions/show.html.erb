@@ -50,37 +50,32 @@
     <h3 class="text-xl font-semibold mb-2 text-white">Archivos disponibles</h3>
 
     <div class="space-y-2">
-      <!-- 1) Solicitud_file -->
       <% if @facturacion.solicitud_file.attached? %>
-        <%= link_to "Descargar archivo de solicitud",
+        <%= link_to "Descargar solicitud .xlsx",
                     download_solicitud_file_facturacion_path(@facturacion),
                     class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
       <% else %>
         <p>No hay archivo de solicitud.</p>
       <% end %>
 
-      <!-- 2) Cotizacion_doc_file -->
       <% if @facturacion.cotizacion_doc_file.attached? %>
         <%= link_to "Descargar cotización .doc",
                     download_cotizacion_doc_file_facturacion_path(@facturacion),
                     class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
       <% end %>
 
-      <!-- 3) Cotizacion_pdf_file -->
       <% if @facturacion.cotizacion_pdf_file.attached? %>
         <%= link_to "Descargar cotización .pdf",
                     download_cotizacion_pdf_file_facturacion_path(@facturacion),
                     class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
       <% end %>
 
-      <!-- 4) Orden_compra_file -->
       <% if @facturacion.orden_compra_file.attached? %>
         <%= link_to "Descargar orden de compra",
                     download_orden_compra_file_facturacion_path(@facturacion),
                     class: "inline-block px-3 py-2 rounded bg-indigo-500 text-gray-900 font-bold hover:bg-indigo-600 transition" %>
       <% end %>
 
-      <!-- 5) Facturacion_file -->
       <% if @facturacion.facturacion_file.attached? %>
         <%= link_to "Descargar archivo de facturación",
                     download_facturacion_file_facturacion_path(@facturacion),
@@ -88,7 +83,6 @@
       <% end %>
     </div>
 
-    <!-- Botón para descargar todos en ZIP (ruta a definir en tu controlador/rutas) -->
     <div class="mt-4">
       <%= link_to "Descargar todos los archivos (.zip)",
                   download_all_files_facturacion_path(@facturacion),
@@ -103,7 +97,6 @@
 <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8 text-white">
   <h3 class="text-xl font-semibold mb-4">Progreso de la Cotización</h3>
 
-  <!-- Contenedor de la línea de tiempo -->
   <div class="relative flex items-center justify-between w-full h-24 bg-gray-800 rounded-lg px-4 py-6">
     <% steps = [
       { name: "Solicitud", date: @facturacion.solicitud },
@@ -113,7 +106,6 @@
       { name: "Factura", date: @facturacion.factura }
     ] %>
 
-    <!-- Línea de progreso -->
     <div class="absolute top-1/2 left-0 h-1 w-full bg-gray-600 rounded z-0">
       <% progress = steps.index { |step| step[:date].nil? } || steps.size %>
       <div class="bg-blue-500 h-1 rounded" style="width: calc(100% / <%= steps.size %> * <%= progress %>)"></div>
@@ -123,9 +115,7 @@
       <% completed = step[:date].present? %>
       <% current = step[:date].nil? && steps[index - 1]&.dig(:date).present? %>
 
-      <!-- Punto del paso -->
       <div class="relative z-10 flex flex-col items-center w-1/5">
-        <!-- Círculo -->
         <div class="flex items-center justify-center w-8 h-8 rounded-full border-2 <%= completed ? 'border-blue-500 bg-blue-500' : (current ? 'border-green-500 bg-green-500' : 'border-gray-500 bg-gray-600') %>">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-white">
             <% if completed %>
@@ -135,7 +125,6 @@
             <% end %>
           </svg>
         </div>
-        <!-- Texto debajo del círculo -->
         <p class="mt-4 text-m <%= completed || current ? 'text-white' : 'text-gray-400' %>">
           <%= step[:name] %>
         </p>
@@ -154,14 +143,13 @@
     <%= form_with(model: @facturacion, url: upload_cotizacion_facturacion_path(@facturacion), local: true, class: "space-y-4") do |form| %>
       <div>
         <%= form.label :cotizacion_doc_file, "Archivo de Cotización (DOCX)", class: "block text-gray-300 font-bold mb-2" %>
-        <%= form.file_field :cotizacion_doc_file, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+        <%= form.file_field :cotizacion_doc_file, accept: ".doc,.docx", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
       </div>
 
       <div>
         <%= form.label :cotizacion_pdf_file, "Archivo de Cotización (PDF)", class: "block text-gray-300 font-bold mb-2" %>
-        <%= form.file_field :cotizacion_pdf_file, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+        <%= form.file_field :cotizacion_pdf_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
       </div>
-
       <div class="mt-4">
         <%= form.submit "Subir Documentos", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
       </div>
@@ -188,13 +176,11 @@
     <h3 class="text-xl font-semibold text-white mb-4">Subir Orden de Compra</h3>
 
     <%= form_with(model: @facturacion, url: upload_orden_compra_facturacion_path(@facturacion), local: true, class: "space-y-4") do |form| %>
-      <!-- Campo para subir PDF -->
       <div>
         <%= form.label :orden_compra_file, "Archivo de Orden de Compra (PDF)", class: "block text-gray-300 font-bold mb-2" %>
         <%= form.file_field :orden_compra_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
       </div>
 
-      <!-- Radio buttons para resultado -->
       <div>
         <%= form.label :resultado, "Resultado", class: "block text-gray-300 font-bold mb-2" %>
         <div class="flex space-x-4">
@@ -209,7 +195,6 @@
         </div>
       </div>
 
-      <!-- Botón para enviar -->
       <div class="mt-4">
         <%= form.submit "Subir Orden de Compra", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
       </div>
@@ -223,13 +208,11 @@
     <h3 class="text-xl font-semibold text-white mb-4">Subir Factura</h3>
 
     <%= form_with(model: @facturacion, url: upload_factura_facturacion_path(@facturacion), local: true, class: "space-y-4") do |form| %>
-      <!-- Campo para subir PDF -->
       <div>
         <%= form.label :facturacion_file, "Archivo de Factura (PDF)", class: "block text-gray-300 font-bold mb-2" %>
         <%= form.file_field :facturacion_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
       </div>
 
-      <!-- Botón para enviar -->
       <div class="mt-4">
         <%= form.submit "Subir Factura", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
       </div>
@@ -241,7 +224,6 @@
 <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
   <h3 class="text-xl font-semibold text-white mb-4">Observaciones</h3>
 
-  <!-- Campo de texto para crear nueva observación -->
   <div class="bg-gray-800 p-4 rounded-lg mb-4 shadow">
     <form id="new-observacion-form" action="<%= facturacion_observacions_path(@facturacion) %>" method="post">
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
@@ -259,20 +241,20 @@
     </form>
   </div>
 
-  <!-- Lista de observaciones -->
   <div id="observaciones-list">
     <% @facturacion.observacions.order(created_at: :desc).each do |observacion| %>
       <div id="observacion-<%= observacion.id %>" class="bg-gray-800 p-4 rounded-lg mb-4 shadow">
         <div class="flex items-center justify-between">
-          <p class="text-sm text-gray-400">
-            <strong><%= observacion.user&.real_name || "Anónimo" %></strong>
-            - <span><%= Observacion.momentos.key(observacion.momento) %></span>
-          </p>
-
+          <div>
+            <p class="text-sm text-gray-400">
+              <strong><%= observacion.user&.real_name || "Anónimo" %></strong>
+              - <span class="italic text-gray-300">Se hizo en: <%= observacion.momento %></span>
+            </p>
+          </div>
           <% if observacion.user == Current.user %>
             <div class="flex space-x-2">
               <button
-                class="text-blue-400 hover:underline"
+                class="text-blue-400 hover:underline mr-4"
                 onclick="editObservacion(<%= observacion.id %>, '<%= j observacion.texto %>')">
                 Editar
               </button>
@@ -284,16 +266,14 @@
             </div>
           <% end %>
         </div>
-
-        <!-- Texto de la observación -->
         <p id="observacion-text-<%= observacion.id %>" class="mt-2 text-white"><%= observacion.texto %></p>
       </div>
     <% end %>
   </div>
+
 </div>
 
 <script>
-    // Crear observación sin recargar la página
     document.getElementById("new-observacion-form").addEventListener("submit", function (event) {
         event.preventDefault();
         const form = event.target;
@@ -312,18 +292,19 @@
                 <p class="text-sm text-gray-400">
                   <strong>${data.user_name}</strong> - <span>${data.momento}</span>
                 </p>
-                <div class="flex space-x-2">
-                  <button
-                    class="text-blue-400 hover:underline"
-                    onclick="editObservacion(${data.observacion.id}, '${data.observacion.texto}')">
-                    Editar
-                  </button>
-                  <button
-                    class="text-red-400 hover:underline"
-                    onclick="deleteObservacion(${data.observacion.id})">
-                    Eliminar
-                  </button>
-                </div>
+              <div class="flex space-x-4">
+                <button
+                  class="text-blue-400 hover:underline"
+                  onclick="editObservacion(${data.observacion.id}, '${data.observacion.texto}')">
+                  Editar
+                </button>
+                <button
+                  class="text-red-400 hover:underline"
+                  onclick="deleteObservacion(${data.observacion.id})">
+                  Eliminar
+                </button>
+              </div>
+
               </div>
               <p id="observacion-text-${data.observacion.id}" class="mt-2 text-white">${data.observacion.texto}</p>
             </div>
@@ -336,7 +317,6 @@
             });
     });
 
-    // Editar observación en línea
     function editObservacion(id, texto) {
         const observacionTextEl = document.getElementById(`observacion-text-${id}`);
         observacionTextEl.outerHTML = `
@@ -367,7 +347,6 @@
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.success) {
-                        // Reemplazar el formulario con el texto actualizado
                         const updatedText = `
             <p id="observacion-text-${id}" class="mt-2 text-white">${data.observacion.texto}</p>
           `;
@@ -380,7 +359,6 @@
     }
 
 
-    // Eliminar observación
     function deleteObservacion(id) {
         Swal.fire({
             title: "¿Estás seguro?",
@@ -391,6 +369,9 @@
             cancelButtonColor: "#3085d6",
             confirmButtonText: "Sí, eliminar",
             cancelButtonText: "Cancelar",
+            customClass: {
+                confirmButton: 'mr-10'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch(`/cotizaciones/<%= @facturacion.id %>/observacions/${id}`, {

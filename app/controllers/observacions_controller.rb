@@ -12,7 +12,7 @@ class ObservacionsController < ApplicationController
         success: true,
         observacion: @observacion,
         user_name: @observacion.user&.real_name || "Anónimo",
-        momento: Observacion.momentos.key(@observacion.momento),
+        momento: @observacion.momento,
         facturacion_id: @facturacion.id
       }
     else

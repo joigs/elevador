@@ -8,7 +8,7 @@ class Facturacion < ApplicationRecord
   has_one_attached :orden_compra_file
   has_one_attached :facturacion_file
 
-  enum resultado: { no: 0, "En espera": 1, "Aceptado": 2, "Rechazado": 3 }
+  enum resultado: { "N/A": 0, "En espera": 1, "Aceptado": 2, "Rechazado": 3 }
 
   # Validaciones obligatorias
   validates :number, presence: true
@@ -20,4 +20,24 @@ class Facturacion < ApplicationRecord
   after_initialize do
     self.solicitud ||= Date.today
   end
+
+
+  validate :valid_file_types
+
+  private
+
+  def valid_file_types
+    validate_file_type(solicitud_file, %w[application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet], "Excel")
+    validate_file_type(cotizacion_doc_file, %w[application/msword application/vnd.openxmlformats-officedocument.wordprocessingml.document], "Word")
+    validate_file_type(cotizacion_pdf_file, %w[application/pdf], "PDF")
+    validate_file_type(orden_compra_file, %w[application/pdf], "PDF")
+    validate_file_type(facturacion_file, %w[application/pdf], "PDF")
+  end
+
+  def validate_file_type(file, allowed_types, type_name)
+    if file.attached? && !file.content_type.in?(allowed_types)
+      errors.add(file.name.to_sym, "debe ser un archivo #{type_name}")
+    end
+  end
+
 end

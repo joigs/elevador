@@ -1,19 +1,23 @@
 <turbo-frame id="facturacions_frame">
-  <div class="py-8 bg-gray-800">
-    <div class="mx-auto px-6 max-w-6xl text-gray-200">
+  <div class="bg-gray-800">
+    <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+      <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
+    </div>
+    <div class="mx-auto px-6 max-w-6xl text-gray-200 mt-6">
       <div class="text-center mb-4">
-        <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
         <% if notice.present? %>
           <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
             <%= notice %>
           </p>
         <% end %>
-        <div class="mt-4">
-          <%= link_to "Nueva Cotización", new_facturacion_path, data: { turbo_frame: "_top" }, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
-        </div>
+        <% if Current.user.solicitar %>
+          <div class="mt-4">
+            <%= link_to "Nueva Cotización", new_facturacion_path, data: { turbo_frame: "_top" }, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
+          </div>
+        <% end %>
+
       </div>
 
-      <!-- Filtros para la columna "Solicitud" (filtro de rango de fechas) -->
       <div class="mt-6 flex flex-wrap items-end gap-4">
         <div>
           <label for="fechaInicio" class="block mb-1">Desde:</label>
@@ -22,6 +26,14 @@
         <div>
           <label for="fechaFin" class="block mb-1">Hasta:</label>
           <input type="date" id="fechaFin" class="text-black rounded p-1" />
+        </div>
+        <div>
+          <button
+              class="bg-red-500 text-white rounded px-4 py-2 hover:bg-red-600"
+              onclick="location.reload()"
+          >
+            Quitar filtros
+          </button>
         </div>
       </div>
 
@@ -43,29 +55,36 @@
           <% @facturacions.each do |facturacion| %>
             <tr class="bg-gray-800 border-b border-gray-700">
               <td class="px-6 py-4 whitespace-normal break-words">
-                <strong class="text-white"><%= facturacion.number %></strong>
+                <strong>
+                  <%= link_to facturacion.number, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+
+                </strong>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <!-- Agrega data: { turbo_frame: '_top' } para que se cargue fuera del turbo frame -->
-                <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" } %>
+                <strong>
+                    <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+
+                </strong>
+
+
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= format_date(facturacion.solicitud) %>
+                <p class="text-white"><%= format_date(facturacion.solicitud) %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= format_date(facturacion.emicion) %>
+                <p class="text-white"><%= format_date(facturacion.emicion) %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= format_date(facturacion.entregado) %>
+                <p class="text-white"><%= format_date(facturacion.entregado) %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= facturacion.resultado %>
+                <p class="text-white"><%= facturacion.resultado %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= format_date(facturacion.oc) %>
+                <p class="text-white"><%= format_date(facturacion.oc) %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= format_date(facturacion.factura) %>
+                <p class="text-white"><%= format_date(facturacion.factura) %></p>
               </td>
             </tr>
           <% end %>
@@ -81,7 +100,6 @@
           const fechaInicioInput = document.getElementById("fechaInicio");
           const fechaFinInput = document.getElementById("fechaFin");
 
-          // Verifica si el plugin simple-datatables está disponible
           if (
             tableEl &&
             typeof simpleDatatables !== "undefined" &&
@@ -118,7 +136,6 @@
                           });
                       });
 
-                      // Agrega una fila de filtros en la cabecera para las columnas que sí admiten búsqueda
                       const tHead = table.childNodes[0];
                       const firstRow = tHead.childNodes[0];
 
@@ -170,7 +187,6 @@
                   },
               });
 
-              // Filtrado por rango de fechas en la columna "Solicitud" (índice 2)
               dataTable.on("datatable.page", filtrarPorFechas);
               dataTable.on("datatable.sort", filtrarPorFechas);
               dataTable.on("datatable.search", filtrarPorFechas);
@@ -188,7 +204,6 @@
                   rows.forEach((row) => {
                       const pluginDisplay = window.getComputedStyle(row).display;
 
-                      // Si la fila ya está oculta por la búsqueda textual, no la forzamos a mostrar
                       if (pluginDisplay === "none") {
                           return;
                       }
@@ -197,7 +212,6 @@
                       const solicitudTexto = (solicitudCell.textContent || "").trim();
 
                       if (!solicitudTexto) {
-                          // Si el usuario tiene un rango definido y la celda no tiene fecha, ocultar
                           if (fechaInicio || fechaFin) {
                               row.style.display = "none";
                           } else {
@@ -208,7 +222,6 @@
 
                       const partes = solicitudTexto.split("/");
                       if (partes.length !== 3) {
-                          // Formato inesperado => lo mostramos
                           row.style.display = "";
                           return;
                       }
@@ -217,7 +230,6 @@
                       const anio = parseInt(partes[2], 10);
                       const fechaSolicitud = new Date(anio, mes, dia);
 
-                      // Validación inclusiva: fechaInicio <= fechaSolicitud <= fechaFin
                       if ((fechaInicio && fechaSolicitud < fechaInicio) ||
                         (fechaFin && fechaSolicitud > fechaFin)) {
                           row.style.display = "none";
@@ -227,17 +239,14 @@
                   });
               }
 
-              // Re-aplicar filtrado cada vez que cambien los inputs de fecha
               fechaInicioInput.addEventListener("change", filtrarPorFechas);
               fechaFinInput.addEventListener("change", filtrarPorFechas);
 
-              // Por si vienen con valor inicial
               filtrarPorFechas();
           }
       });
   </script>
 
-  <!-- Estilos conservados -->
   <style>
       .dataTable-table tbody td {
           color: #fff !important;
