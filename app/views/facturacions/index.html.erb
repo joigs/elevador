@@ -182,7 +182,10 @@
               dataTable.on("datatable.search", filtrarPorFechas);
               dataTable.on("datatable.perpage", filtrarPorFechas);
 
-              // --- Función para filtrar por fechas: simplemente oculta o muestra filas
+              fechaInicioInput.addEventListener("change", filtrarPorFechas);
+              fechaFinInput.addEventListener("change", filtrarPorFechas);
+
+              // Función para filtrar las filas visibles según las fechas
               function filtrarPorFechas() {
                   const fechaInicioValue = fechaInicioInput.value;
                   const fechaFinValue = fechaFinInput.value;
@@ -190,46 +193,33 @@
                   const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
                   const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
 
-                  // Validación de rango
+                  // Validación de rango de fechas
                   if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-                      alert("Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final.");
+                      alert(
+                        "Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final."
+                      );
                       return;
                   }
 
-                  // Tomamos las filas directamente del plugin (así no pierde sus referencias)
-                  // dataTable.rows().nodes() devuelve una lista con los <tr> que controla DataTables
-                  const allRows = dataTable.rows().nodes();
+                  // Obtener todas las filas del tbody (incluidas las que el plugin oculta)
+                  const allRows = tableEl.querySelectorAll("tbody tr");
 
-                  // Primero mostramos todo (por si estaba oculto de un filtro anterior)
+                  // Iterar sobre las filas y mostrar u ocultar según el rango de fechas
                   allRows.forEach((row) => {
-                      row.style.display = "";
-                  });
-
-                  // Ahora sí, aplicamos la lógica de “ocultar si no está dentro de rango”
-                  allRows.forEach((row) => {
-                      // Si la fila ya está oculta por el plugin (p. ej. búsqueda por texto),
-                      // la dejamos en paz. (Si prefieres forzar a que el dateFilter esté por encima
-                      // de la búsqueda por texto, quita esta condición).
-                      if (window.getComputedStyle(row).display === "none") {
-                          return;
-                      }
-
-                      // Celda de solicitud (índice 2)
-                      const solicitudCell = row.querySelectorAll("td")[2];
+                      const solicitudCell = row.querySelectorAll("td")[2]; // Columna "Solicitud"
                       const solicitudTexto = (solicitudCell?.textContent || "").trim();
 
-                      // Si no hay texto en Solicitud y tenemos algún límite de fecha, se oculta
+                      // Si no hay texto en la celda, ocultamos solo si hay límites de fecha
                       if (!solicitudTexto) {
-                          if (fechaInicio || fechaFin) {
-                              row.style.display = "none";
-                          }
+                          row.style.display = fechaInicio || fechaFin ? "none" : "";
                           return;
                       }
 
-                      // Partimos la fecha dd/mm/aaaa
+                      // Partir la fecha dd/mm/aaaa
                       const partes = solicitudTexto.split("/");
                       if (partes.length !== 3) {
-                          // Si el formato está roto, no la filtramos
+                          // Si el formato está roto, mostrar la fila
+                          row.style.display = "";
                           return;
                       }
 
@@ -238,21 +228,19 @@
                       const anio = parseInt(partes[2], 10);
                       const fechaSolicitud = new Date(anio, mes, dia);
 
-                      // Checamos si está fuera de rango
+                      // Ocultar la fila si está fuera del rango de fechas
                       if (
                         (fechaInicio && fechaSolicitud < fechaInicio) ||
                         (fechaFin && fechaSolicitud > fechaFin)
                       ) {
                           row.style.display = "none";
+                      } else {
+                          row.style.display = "";
                       }
                   });
               }
 
-              // Eventos para filtrar al cambiar las fechas
-              fechaInicioInput.addEventListener("change", filtrarPorFechas);
-              fechaFinInput.addEventListener("change", filtrarPorFechas);
-
-              // Filtrado inicial
+              // Aplicamos el filtro inicial al cargar la página
               filtrarPorFechas();
           }
       });
