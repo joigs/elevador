@@ -17,8 +17,9 @@
         <% end %>
 
       </div>
+      <label class="text-lg font-semibold mt-6">Fecha de solicitud:</label>
 
-      <div class="mt-6 flex flex-wrap items-end gap-4">
+      <div class="mt-2 flex flex-wrap items-end gap-4">
         <div>
           <label for="fechaInicio" class="block mb-1">Desde:</label>
           <input type="date" id="fechaInicio" class="text-black rounded p-1" />
@@ -27,14 +28,7 @@
           <label for="fechaFin" class="block mb-1">Hasta:</label>
           <input type="date" id="fechaFin" class="text-black rounded p-1" />
         </div>
-        <div>
-          <button
-              class="bg-red-500 text-white rounded px-4 py-2 hover:bg-red-600"
-              onclick="location.reload()"
-          >
-            Quitar filtros
-          </button>
-        </div>
+
       </div>
 
       <div class="overflow-x-auto table-responsive mt-6">
@@ -94,156 +88,163 @@
     </div>
   </div>
 
-  <script>
-      document.addEventListener("turbo:load", function() {
-          const tableEl = document.getElementById("facturacions-table");
-          const fechaInicioInput = document.getElementById("fechaInicio");
-          const fechaFinInput = document.getElementById("fechaFin");
+      <script>
+          document.addEventListener("turbo:load", function() {
+              const tableEl = document.getElementById("facturacions-table");
+              const fechaInicioInput = document.getElementById("fechaInicio");
+              const fechaFinInput = document.getElementById("fechaFin");
+              const rowsOriginal = Array.from(tableEl.querySelectorAll("tbody tr")); // Copia original de las filas
 
-          if (
-            tableEl &&
-            typeof simpleDatatables !== "undefined" &&
-            simpleDatatables.DataTable
-          ) {
-              const columnsWithoutFilter = [2, 3, 4, 6, 7];
 
-              const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
-                  columns: [
-                      { select: 2, searchable: false },
-                      { select: 3, searchable: false },
-                      { select: 4, searchable: false },
-                      { select: 6, searchable: false },
-                      { select: 7, searchable: false },
-                  ],
-                  labels: {
-                      placeholder: "Buscar...",
-                      perPage: "Registros por pág.",
-                      noRows: "No hay datos para mostrar",
-                      noResults: "No hay resultados que coincidan con tu búsqueda",
-                      info: "Mostrando {start} a {end} de {rows} entradas"
-                  },
-                  tableRender: (_data, table, type) => {
-                      if (type === "print") {
-                          return table;
-                      }
-                      table.childNodes[0].childNodes.forEach((row) => {
-                          if (!row.attributes) row.attributes = {};
-                          row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                          row.childNodes.forEach((th) => {
-                              if (!th.attributes) th.attributes = {};
-                              th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+              if (
+                tableEl &&
+                typeof simpleDatatables !== "undefined" &&
+                simpleDatatables.DataTable
+              ) {
+                  const columnsWithoutFilter = [2, 3, 4, 6, 7];
+
+                  const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
+                      columns: [
+                          {select: 2, searchable: false},
+                          {select: 3, searchable: false},
+                          {select: 4, searchable: false},
+                          {select: 6, searchable: false},
+                          {select: 7, searchable: false},
+                      ],
+                      labels: {
+                          placeholder: "Buscar...",
+                          perPage: "Registros por pág.",
+                          noRows: "No hay datos para mostrar",
+                          noResults: "No hay resultados que coincidan con tu búsqueda",
+                          info: "Mostrando {start} a {end} de {rows} entradas"
+                      },
+                      tableRender: (_data, table, type) => {
+                          if (type === "print") {
+                              return table;
+                          }
+                          table.childNodes[0].childNodes.forEach((row) => {
+                              if (!row.attributes) row.attributes = {};
+                              row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                              row.childNodes.forEach((th) => {
+                                  if (!th.attributes) th.attributes = {};
+                                  th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                              });
                           });
-                      });
 
-                      const tHead = table.childNodes[0];
-                      const firstRow = tHead.childNodes[0];
+                          const tHead = table.childNodes[0];
+                          const firstRow = tHead.childNodes[0];
 
-                      const filterHeaders = {
-                          nodeName: "TR",
-                          attributes: {
-                              class: "search-filtering-row bg-gray-800 text-white",
-                          },
-                          childNodes: firstRow.childNodes.map((_th, index) => {
-                              if (columnsWithoutFilter.includes(index)) {
+                          const filterHeaders = {
+                              nodeName: "TR",
+                              attributes: {
+                                  class: "search-filtering-row bg-gray-800 text-white",
+                              },
+                              childNodes: firstRow.childNodes.map((_th, index) => {
+                                  if (columnsWithoutFilter.includes(index)) {
+                                      return {
+                                          nodeName: "TH",
+                                          attributes: {style: "padding-top: 1rem;"},
+                                          childNodes: [
+                                              {
+                                                  nodeName: "INPUT",
+                                                  attributes: {
+                                                      type: "search",
+                                                      disabled: "disabled",
+                                                      placeholder: "Sin filtro",
+                                                      class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                                      style: "cursor: not-allowed;",
+                                                  }
+                                              }
+                                          ]
+                                      };
+                                  }
+
                                   return {
                                       nodeName: "TH",
-                                      attributes: { style: "padding-top: 1rem;" },
+                                      attributes: {style: "padding-top: 1rem;"},
                                       childNodes: [
                                           {
                                               nodeName: "INPUT",
                                               attributes: {
+                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
                                                   type: "search",
-                                                  disabled: "disabled",
-                                                  placeholder: "Sin filtro",
-                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
-                                                  style: "cursor: not-allowed;",
+                                                  "data-columns": "[" + index + "]",
+                                                  placeholder: "Filtrar"
                                               }
                                           }
                                       ]
                                   };
-                              }
+                              })
+                          };
 
-                              return {
-                                  nodeName: "TH",
-                                  attributes: { style: "padding-top: 1rem;" },
-                                  childNodes: [
-                                      {
-                                          nodeName: "INPUT",
-                                          attributes: {
-                                              class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                              type: "search",
-                                              "data-columns": "[" + index + "]",
-                                              placeholder: "Filtrar"
-                                          }
-                                      }
-                                  ]
-                              };
-                          })
-                      };
+                          tHead.childNodes.push(filterHeaders);
+                          return table;
+                      },
+                  });
 
-                      tHead.childNodes.push(filterHeaders);
-                      return table;
-                  },
-              });
+                  dataTable.on("datatable.page", filtrarPorFechas);
+                  dataTable.on("datatable.sort", filtrarPorFechas);
+                  dataTable.on("datatable.search", filtrarPorFechas);
+                  dataTable.on("datatable.perpage", filtrarPorFechas);
 
-              dataTable.on("datatable.page", filtrarPorFechas);
-              dataTable.on("datatable.sort", filtrarPorFechas);
-              dataTable.on("datatable.search", filtrarPorFechas);
-              dataTable.on("datatable.perpage", filtrarPorFechas);
+                  function filtrarPorFechas() {
+                      const fechaInicioValue = fechaInicioInput.value;
+                      const fechaFinValue = fechaFinInput.value;
 
-              function filtrarPorFechas() {
-                  const fechaInicioValue = fechaInicioInput.value;
-                  const fechaFinValue = fechaFinInput.value;
-                  const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
-                  const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
+                      // Validación de fechas
+                      const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
+                      const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
 
-                  const rows = tableEl.querySelectorAll("tbody tr");
-
-                  rows.forEach((row) => {
-                      const pluginDisplay = window.getComputedStyle(row).display;
-
-                      if (pluginDisplay === "none") {
+                      if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
+                          alert("Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final.");
                           return;
                       }
 
-                      const solicitudCell = row.querySelectorAll("td")[2];
-                      const solicitudTexto = (solicitudCell.textContent || "").trim();
+                      // Restaurar todas las filas antes de aplicar los filtros
+                      const tbody = tableEl.querySelector("tbody");
+                      tbody.innerHTML = ""; // Limpia la tabla
+                      rowsOriginal.forEach((row) => tbody.appendChild(row)); // Restaura las filas originales
 
-                      if (!solicitudTexto) {
-                          if (fechaInicio || fechaFin) {
+                      // Aplicar filtro
+                      rowsOriginal.forEach((row) => {
+                          const solicitudCell = row.querySelectorAll("td")[2]; // Columna "Solicitud"
+                          const solicitudTexto = (solicitudCell.textContent || "").trim();
+
+                          if (!solicitudTexto) {
+                              row.style.display = fechaInicio || fechaFin ? "none" : "";
+                              return;
+                          }
+
+                          const partes = solicitudTexto.split("/");
+                          if (partes.length !== 3) {
+                              row.style.display = "";
+                              return;
+                          }
+
+                          const dia = parseInt(partes[0], 10);
+                          const mes = parseInt(partes[1], 10) - 1;
+                          const anio = parseInt(partes[2], 10);
+                          const fechaSolicitud = new Date(anio, mes, dia);
+
+                          if (
+                            (fechaInicio && fechaSolicitud < fechaInicio) ||
+                            (fechaFin && fechaSolicitud > fechaFin)
+                          ) {
                               row.style.display = "none";
                           } else {
                               row.style.display = "";
                           }
-                          return;
-                      }
+                      });
+                  }
 
-                      const partes = solicitudTexto.split("/");
-                      if (partes.length !== 3) {
-                          row.style.display = "";
-                          return;
-                      }
-                      const dia = parseInt(partes[0], 10);
-                      const mes = parseInt(partes[1], 10) - 1;
-                      const anio = parseInt(partes[2], 10);
-                      const fechaSolicitud = new Date(anio, mes, dia);
+                  fechaInicioInput.addEventListener("change", filtrarPorFechas);
+                  fechaFinInput.addEventListener("change", filtrarPorFechas);
 
-                      if ((fechaInicio && fechaSolicitud < fechaInicio) ||
-                        (fechaFin && fechaSolicitud > fechaFin)) {
-                          row.style.display = "none";
-                      } else {
-                          row.style.display = "";
-                      }
-                  });
+                  // Asegúrate de que las filas se restauren al cargar la página
+                  filtrarPorFechas();
               }
-
-              fechaInicioInput.addEventListener("change", filtrarPorFechas);
-              fechaFinInput.addEventListener("change", filtrarPorFechas);
-
-              filtrarPorFechas();
-          }
-      });
-  </script>
+              });
+      </script>
 
   <style>
       .dataTable-table tbody td {
