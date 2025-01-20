@@ -1,10 +1,4 @@
-<%# app/views/facturacions/index.html.erb %>
 <turbo-frame id="facturacions_frame">
-  <!-- Definimos la variable auxiliar y la variable principal,
-       para que siempre podamos tener acceso a la data completa en @facturacions_origin. -->
-  <% @facturacions_origin = Facturacion.all %>
-  <% @facturacions = @facturacions_origin %>
-
   <div class="py-8 bg-gray-800">
     <div class="mx-auto px-6 max-w-6xl text-gray-200">
       <div class="text-center mb-4">
@@ -15,11 +9,11 @@
           </p>
         <% end %>
         <div class="mt-4">
-          <%= link_to "Nueva Cotización", new_facturacion_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
+          <%= link_to "Nueva Cotización", new_facturacion_path, data: { turbo_frame: "_top" }, class: "rounded-lg py-3 px-5 bg-blue-600 text-white font-medium" %>
         </div>
       </div>
 
-      <!-- Filtros para la columna "Solicitud" (rango de fechas, inclusivo) -->
+      <!-- Filtros para la columna "Solicitud" (filtro de rango de fechas) -->
       <div class="mt-6 flex flex-wrap items-end gap-4">
         <div>
           <label for="fechaInicio" class="block mb-1">Desde:</label>
@@ -52,7 +46,8 @@
                 <strong class="text-white"><%= facturacion.number %></strong>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
-                <%= link_to facturacion.name, facturacion_path(facturacion) %>
+                <!-- Agrega data: { turbo_frame: '_top' } para que se cargue fuera del turbo frame -->
+                <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" } %>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
                 <%= format_date(facturacion.solicitud) %>
@@ -86,16 +81,17 @@
           const fechaInicioInput = document.getElementById("fechaInicio");
           const fechaFinInput = document.getElementById("fechaFin");
 
-          // Inicializar plugin simple-datatables
+          // Verifica si el plugin simple-datatables está disponible
           if (
             tableEl &&
             typeof simpleDatatables !== "undefined" &&
             simpleDatatables.DataTable
           ) {
-              const columnsWithoutFilter = [2, 3, 4, 6, 7]; // Columnas donde "searchable" estará desactivado
+              const columnsWithoutFilter = [2, 3, 4, 6, 7];
 
               const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
                   columns: [
+                      // columnas sin búsqueda
                       { select: 2, searchable: false },
                       { select: 3, searchable: false },
                       { select: 4, searchable: false },
@@ -110,7 +106,6 @@
                       info: "Mostrando {start} a {end} de {rows} entradas"
                   },
                   tableRender: (_data, table, type) => {
-                      // Mantener estilos en sort/print
                       if (type === "print") {
                           return table;
                       }
@@ -123,17 +118,16 @@
                           });
                       });
 
+                      // Agrega una fila de filtros en la cabecera para las columnas que sí admiten búsqueda
                       const tHead = table.childNodes[0];
                       const firstRow = tHead.childNodes[0];
 
-                      // Generar fila de filtros (inputs) para columnas que sí son filtrables por texto
                       const filterHeaders = {
                           nodeName: "TR",
                           attributes: {
                               class: "search-filtering-row bg-gray-800 text-white",
                           },
                           childNodes: firstRow.childNodes.map((_th, index) => {
-                              // Si la columna está en columnsWithoutFilter => input deshabilitado
                               if (columnsWithoutFilter.includes(index)) {
                                   return {
                                       nodeName: "TH",
@@ -153,7 +147,6 @@
                                   };
                               }
 
-                              // Para el resto de columnas, input normal
                               return {
                                   nodeName: "TH",
                                   attributes: { style: "padding-top: 1rem;" },
@@ -171,40 +164,40 @@
                               };
                           })
                       };
-                      tHead.childNodes.push(filterHeaders);
 
+                      tHead.childNodes.push(filterHeaders);
                       return table;
                   },
               });
 
-              // Cuando el plugin cambie de página, ordene o busque, re-aplicamos el filtro de fechas
+              // Filtrado por rango de fechas en la columna "Solicitud" (índice 2)
               dataTable.on("datatable.page", filtrarPorFechas);
               dataTable.on("datatable.sort", filtrarPorFechas);
               dataTable.on("datatable.search", filtrarPorFechas);
               dataTable.on("datatable.perpage", filtrarPorFechas);
 
-              // Función para filtrar filas según las fechas escogidas (INCLUSIVO)
               function filtrarPorFechas() {
                   const fechaInicioValue = fechaInicioInput.value;
                   const fechaFinValue = fechaFinInput.value;
-
                   const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
                   const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
 
-                  // Recorremos las filas del tbody
+                  // Recorremos las filas que estén actualmente en el DOM
                   const rows = tableEl.querySelectorAll("tbody tr");
 
                   rows.forEach((row) => {
-                      // Si el plugin ya ocultó la fila por otra búsqueda, no la forzamos a mostrar
-                      if (window.getComputedStyle(row).display === "none") {
+                      const pluginDisplay = window.getComputedStyle(row).display;
+
+                      // Si la fila ya está oculta por la búsqueda textual, no la forzamos a mostrar
+                      if (pluginDisplay === "none") {
                           return;
                       }
 
-                      const solicitudCell = row.querySelectorAll("td")[2]; // Columna "Solicitud" = índice 2
+                      const solicitudCell = row.querySelectorAll("td")[2]; // columna "Solicitud"
                       const solicitudTexto = (solicitudCell.textContent || "").trim();
 
-                      // Si no hay fecha en la celda, la mostramos solo si el usuario no definió rango
                       if (!solicitudTexto) {
+                          // Si el usuario tiene un rango definido y la celda no tiene fecha, ocultar
                           if (fechaInicio || fechaFin) {
                               row.style.display = "none";
                           } else {
@@ -213,20 +206,18 @@
                           return;
                       }
 
-                      // Se asume que format_date muestra dd/mm/yyyy
                       const partes = solicitudTexto.split("/");
                       if (partes.length !== 3) {
-                          // Si no cumple formato, no lo forzamos a ocultar.
+                          // Formato inesperado => lo mostramos
                           row.style.display = "";
                           return;
                       }
-
                       const dia = parseInt(partes[0], 10);
                       const mes = parseInt(partes[1], 10) - 1;
                       const anio = parseInt(partes[2], 10);
                       const fechaSolicitud = new Date(anio, mes, dia);
 
-                      // Rango inclusivo: fechaInicio <= fechaSolicitud <= fechaFin
+                      // Validación inclusiva: fechaInicio <= fechaSolicitud <= fechaFin
                       if ((fechaInicio && fechaSolicitud < fechaInicio) ||
                         (fechaFin && fechaSolicitud > fechaFin)) {
                           row.style.display = "none";
@@ -236,11 +227,11 @@
                   });
               }
 
-              // Filtrar automáticamente cada vez que cambien los inputs de fecha
+              // Re-aplicar filtrado cada vez que cambien los inputs de fecha
               fechaInicioInput.addEventListener("change", filtrarPorFechas);
               fechaFinInput.addEventListener("change", filtrarPorFechas);
 
-              // Aplicamos el filtro inicial por si hay valores pre-cargados
+              // Por si vienen con valor inicial
               filtrarPorFechas();
           }
       });
@@ -262,10 +253,12 @@
           border: none !important;
           color: #fff !important;
       }
+
       #facturacions-table thead th button.datatable-sorter:hover {
           background: transparent !important;
           color: #1d4ed8 !important;
       }
+
       #facturacions-table thead th button.datatable-sorter:hover::before,
       #facturacions-table thead th button.datatable-sorter:hover::after {
           background-color: transparent !important;
@@ -279,6 +272,7 @@
           border-radius: 4px;
           padding: 0.25rem 0.5rem;
       }
+
       #facturacions-table .datatable-input {
           background-color: #f2f2f2 !important;
           color: #000 !important;
@@ -286,9 +280,11 @@
           border-radius: 4px;
           padding: 0.25rem 0.5rem;
       }
+
       #facturacions-table .datatable-input::placeholder {
           color: #888;
       }
+
       .datatable-input:disabled {
           background-color: #3a3a3a !important;
           color: #aaa !important;

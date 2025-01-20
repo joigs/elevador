@@ -67,24 +67,31 @@ export default class extends Controller {
             alert("No se pudo actualizar la observación.");
         }
     }
-
-    async deleteObservacion(event) {
+    deleteObservacion(event) {
         const observacionElement = event.target.closest("[data-observaciones-target='observacion']");
         const id = observacionElement.dataset.id;
 
-        if (confirm("¿Estás seguro de que quieres eliminar esta observación?")) {
-            const response = await fetch(`/facturacions/${this.data.get("facturacionId")}/observacions/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRF-Token": document.querySelector("[name='csrf-token']").content,
-                },
-            });
+        // Confirmación opcional
+        if (!confirm("¿Seguro que deseas eliminar esta observación?")) return;
 
-            if (response.ok) {
-                observacionElement.remove();
-            } else {
-                alert("No se pudo eliminar la observación.");
+        const url = `${this.urlValue}/${id}`;
+
+        fetch(url, {
+            method: "DELETE",
+            headers: {
+                "X-CSRF-Token": document.querySelector("[name='csrf-token']").content
             }
-        }
+        })
+            .then(response => {
+                if (response.ok) {
+                    observacionElement.remove();
+                } else {
+                    alert("No se pudo eliminar la observación.");
+                }
+            })
+            .catch(() => alert("Error al intentar eliminar la observación."));
     }
+
+
+
 }

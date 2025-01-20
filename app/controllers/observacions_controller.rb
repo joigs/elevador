@@ -1,14 +1,6 @@
 class ObservacionsController < ApplicationController
   before_action :set_facturacion
-  before_action :set_observacion, only: %i[edit update destroy]
-
-  def index
-    @observacions = @facturacion.observacions.includes(:user).order(created_at: :desc)
-  end
-
-  def new
-    @observacion = @facturacion.observacions.build
-  end
+  before_action :set_observacion, only: %i[update destroy]
 
   def create
     @observacion = @facturacion.observacions.build(observacion_params)
@@ -16,27 +8,29 @@ class ObservacionsController < ApplicationController
     @observacion.momento = calcular_momento(@facturacion)
 
     if @observacion.save
-      render partial: "observacions/observacion", locals: { observacion: @observacion }
+      render json: {
+        success: true,
+        observacion: @observacion,
+        user_name: @observacion.user&.real_name || "Anónimo",
+        momento: Observacion.momentos.key(@observacion.momento),
+        facturacion_id: @facturacion.id
+      }
     else
-      render json: { error: @observacion.errors.full_messages }, status: :unprocessable_entity
+      render json: { success: false, errors: @observacion.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
-
-
-
-  def edit; end
 
   def update
     if @observacion.update(observacion_params)
-      render partial: "observacions/observacion", locals: { observacion: @observacion }
+      render json: { success: true, observacion: @observacion }
     else
-      render json: { error: @observacion.errors.full_messages }, status: :unprocessable_entity
+      render json: { success: false, errors: @observacion.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
   def destroy
     @observacion.destroy
-    redirect_to facturacion_path(@facturacion), notice: "Observación eliminada correctamente."
+    render json: { success: true }
   end
 
   private
