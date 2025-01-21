@@ -149,12 +149,12 @@
 
     <div class="form-group">
       <%= form.label :medidas_cintas, "Ancho Medidas de cintas mm", class: "block text-gray-300" %>
-      <%= form.number_field :medidas_cintas, max: 1000000, min: 0, step: 1, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.number_field :medidas_cintas, max: 1000000, min: 0, step: 0.0001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
     <div class="form-group">
       <%= form.label :medidas_cintas_espesor, "Espesor Medidas de cintas mm", class: "block text-gray-300" %>
-      <%= form.number_field :medidas_cintas_espesor, max: 1000000, min: 0, step: 1, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      <%= form.number_field :medidas_cintas_espesor, max: 1000000, min: 0, step: 0.0001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
 

@@ -3,9 +3,7 @@ class FacturacionsController < ApplicationController
     :show, :edit, :update,
     :download_solicitud_file, :download_cotizacion_doc_file,
     :download_cotizacion_pdf_file, :download_orden_compra_file,
-    :download_facturacion_file, :download_all_files,
-    :new_bulk_upload, :bulk_upload,
-    :new_bulk_upload_pdf, :bulk_upload_pdf
+    :download_facturacion_file, :download_all_files
   ]
 
   before_action :authorize_user
@@ -306,39 +304,40 @@ class FacturacionsController < ApplicationController
   def new_bulk_upload_pdf
     # Solo muestra el formulario
   end
-
   def bulk_upload_pdf
-    archivos = params[:archivos]
+    archivos = params[:archivos] || [] # Asegurarse de que archivos es un array válido
     errores = []
     procesados = 0
 
     archivos.each do |file|
       begin
-        # Extraer el número del archivo
-        base_name = File.basename(file.original_filename, File.extname(file.original_filename))
-        number = base_name.split(' ', 2).first.to_i
+        # Verificar que el archivo sea del tipo esperado
+        if file.is_a?(ActionDispatch::Http::UploadedFile)
+          # Extraer el nombre base del archivo
+          base_name = File.basename(file.original_filename, File.extname(file.original_filename))
+          number = base_name.split(' ', 2).first.to_i
 
-        # Buscar la facturación correspondiente
-        facturacion = Facturacion.find_by(number: number)
+          # Buscar la facturación correspondiente
+          facturacion = Facturacion.find_by(number: number)
 
-        if facturacion
-          # Adjuntar el archivo al campo `cotizacion_pdf_file`
-          facturacion.cotizacion_pdf_file.attach(file)
+          if facturacion
+            # Adjuntar el archivo y actualizar la fecha de emisión
+            facturacion.cotizacion_pdf_file.attach(file)
+            facturacion.update!(emicion: Date.current)
 
-          # Actualizar la fecha de emisión
-          facturacion.update!(emicion: Date.current)
-
-          procesados += 1
+            procesados += 1
+          else
+            errores << "#{file.original_filename}: No se encontró una facturación con el número #{number}."
+          end
         else
-          # No encontró facturación con el número
-          errores << "#{file.original_filename}: No se encontró una facturación con el número #{number}."
+          errores << "Uno de los elementos subidos no es un archivo válido."
         end
       rescue StandardError => e
         errores << "#{file.original_filename}: Error procesando el archivo - #{e.message}"
       end
     end
 
-    # Mensajes de resultado
+    # Generar mensajes de resultado
     if errores.any?
       flash[:alert] = "Se procesaron #{procesados} archivos, pero hubo errores: #{errores.join(', ')}"
     else

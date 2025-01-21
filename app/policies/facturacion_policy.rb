@@ -37,19 +37,19 @@ class FacturacionPolicy < BasePolicy
   end
 
   def new_bulk_upload
-    true
+    Current.user.super
   end
 
   def bulk_upload
-    Current.user.super?
+    Current.user.super
   end
 
   def new_bulk_upload_pdf
-    Current.user.super?
+    Current.user.super
   end
 
   def bulk_upload_pdf
-    Current.user.super?
+    Current.user.super
   end
 
   def method_missing(m, *args, &block)
