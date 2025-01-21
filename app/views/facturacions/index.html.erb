@@ -1,8 +1,14 @@
 
-<% if false %>
+<% if Current.user.super %>
 <div class="flex justify-end mb-4">
   <%= link_to "Carga Masiva de Excel", new_bulk_upload_facturacions_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
 </div>
+
+  <div class="flex justify-end mb-4">
+    <%= link_to "Carga Masiva de pdf", new_bulk_upload_pdf_facturacions_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+  </div>
+
+
 <% end %>
 
 <turbo-frame id="facturacions_frame">

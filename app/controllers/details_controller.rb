@@ -86,7 +86,7 @@ class DetailsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def detail_params
-      params.require(:detail).permit(:descripcion, :detalle, :marca, :modelo, :n_serie, :mm_marca, :mm_n_serie, :porcentaje, :potencia, :capacidad, :personas, :ct_marca, :ct_cantidad, :ct_diametro, :medidas_cintas, :rol_n, :numero_permiso, :fecha_permiso, :destino, :recepcion, :empresa_instaladora, :empresa_instaladora_rut, :rv_marca, :rv_n_serie, :paradas, :embarques, :sala_maquinas, :velocidad, :item_id)
+      params.require(:detail).permit(:descripcion, :detalle, :marca, :modelo, :n_serie, :mm_marca, :mm_n_serie, :porcentaje, :potencia, :capacidad, :personas, :ct_marca, :ct_cantidad, :ct_diametro, :medidas_cintas, :medidas_cintas_espesor, :rol_n, :numero_permiso, :fecha_permiso, :destino, :recepcion, :empresa_instaladora, :empresa_instaladora_rut, :rv_marca, :rv_n_serie, :paradas, :embarques, :sala_maquinas, :velocidad, :item_id)
     end
 
   def remove_unwanted_rules(revision_colors, eliminados)

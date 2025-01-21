@@ -36,6 +36,22 @@ class FacturacionPolicy < BasePolicy
     Current.user.cotizar
   end
 
+  def new_bulk_upload
+    true
+  end
+
+  def bulk_upload
+    Current.user.super?
+  end
+
+  def new_bulk_upload_pdf
+    Current.user.super?
+  end
+
+  def bulk_upload_pdf
+    Current.user.super?
+  end
+
   def method_missing(m, *args, &block)
     Current.user.gestion
   end

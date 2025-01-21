@@ -328,6 +328,13 @@ class DocumentGenerator
 
     end
 
+    if detail.medidas_cintas_espesor
+      doc.replace('{{detail_medidas_cintas_espesor}}', "#{detail.medidas_cintas_espesor} mm")
+    else
+      doc.replace('{{detail_medidas_cintas_espesor}}', "S/I")
+
+    end
+
     doc.replace('{{detail_rv_marca}}', detail.rv_marca)
     doc.replace('{{detail_rv_n_serie}}', detail.rv_n_serie)
 

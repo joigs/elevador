@@ -138,6 +138,8 @@ Rails.application.routes.draw do
     collection do
       get :new_bulk_upload
       post :bulk_upload
+      get :new_bulk_upload_pdf
+      post :bulk_upload_pdf 
     end
 
 
