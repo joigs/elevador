@@ -40,8 +40,10 @@
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Emisión</th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Entregado</th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Resultado</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">OC</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Orden de compra</th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Factura</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha inspección</th>
+
           </tr>
           </thead>
           <tbody class="bg-gray-700 divide-y divide-gray-600">
@@ -75,6 +77,10 @@
               <td class="px-6 py-4 whitespace-normal break-words">
                 <p class="text-white"><%= format_date(facturacion.factura) %></p>
               </td>
+              <td class="px-6 py-4 whitespace-normal break-words">
+                <p class="text-white"><%= format_date(facturacion.fecha_inspeccion) %></p>
+              </td>
+
             </tr>
           <% end %>
           </tbody>
@@ -94,7 +100,7 @@
             typeof simpleDatatables !== "undefined" &&
             simpleDatatables.DataTable
           ) {
-              const columnsWithoutFilter = [2, 3, 4, 6, 7];
+              const columnsWithoutFilter = [2, 3, 4, 6, 7, 8];
 
               const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
                   columns: [
@@ -103,6 +109,7 @@
                       { select: 4, searchable: false },
                       { select: 6, searchable: false },
                       { select: 7, searchable: false },
+                      { select: 8, searchable: false },
                   ],
                   labels: {
                       placeholder: "Buscar...",

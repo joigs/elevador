@@ -119,7 +119,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :facturacions, path: 'cotizaciones' do
+  resources :facturacions, only: [:new, :create, :index, :edit, :update, :show], path: 'cotizaciones' do
 
     member do
       get :download_solicitud_file
@@ -132,6 +132,8 @@ Rails.application.routes.draw do
       patch :marcar_entregado
       patch :upload_orden_compra
       patch :upload_factura
+      get :manage_files
+      patch :replace_file
     end
 
     resources :observacions, only: [:create, :edit, :update, :destroy]

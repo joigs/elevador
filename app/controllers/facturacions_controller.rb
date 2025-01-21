@@ -1,6 +1,6 @@
 class FacturacionsController < ApplicationController
   before_action :set_facturacion, only: [
-    :show, :edit, :update, :destroy,
+    :show, :edit, :update,
     :download_solicitud_file, :download_cotizacion_doc_file,
     :download_cotizacion_pdf_file, :download_orden_compra_file,
     :download_facturacion_file, :download_all_files
@@ -44,16 +44,7 @@ class FacturacionsController < ApplicationController
     end
   end
 
-  def destroy
-    authorize!
-      @facturacion.destroy
-      flash[:notice] = "facturación eliminado exitosamente"
-      respond_to do |format|
-        format.html { redirect_to home_path(tab: 'cotizaciones') }
-        format.turbo_stream { head :no_content }
-      end
 
-  end
 
 
 
@@ -139,35 +130,31 @@ class FacturacionsController < ApplicationController
   def upload_orden_compra
     @facturacion = Facturacion.find(params[:id])
 
-    # Asegurar que params[:facturacion] existe
     unless params[:facturacion].present?
       flash.now[:alert] = "No se proporcionaron datos para procesar la Orden de Compra."
       render :show, status: :unprocessable_entity
       return
     end
 
-    # Extraer parámetros relevantes
     resultado = params[:facturacion][:resultado]&.to_i
     orden_compra_file = params[:facturacion][:orden_compra_file]
 
-    # Validar resultado
     unless resultado.present? && Facturacion.resultados.values.include?(resultado)
       flash.now[:alert] = "Debes seleccionar un resultado válido (Aceptado o Rechazado)."
       render :show, status: :unprocessable_entity
       return
     end
 
-    # Validar archivo si el resultado es aceptado
-    if resultado == 2 && (!orden_compra_file || !valid_uploaded_file?(orden_compra_file, ["application/pdf"]))
-      flash.now[:alert] = "Debes subir un archivo PDF válido para la orden de compra cuando el resultado es Aceptado."
+    allowed_types = ["application/pdf", "image/png", "image/jpeg", "image/jpg"]
+    if resultado == 2 && (!orden_compra_file || !valid_uploaded_file?(orden_compra_file, allowed_types))
+      flash.now[:alert] = "Debes subir un archivo válido (PDF, PNG, JPG, o JPEG) para la orden de compra cuando el resultado es Aceptado."
       render :show, status: :unprocessable_entity
       return
     end
 
-    # Actualizar la facturación
     @facturacion.resultado = resultado
-    @facturacion.oc = Date.current if resultado == 2 || (resultado == 3 && orden_compra_file.present?)
-    @facturacion.orden_compra_file.attach(orden_compra_file) if orden_compra_file.present?
+    @facturacion.oc = Date.current if resultado == 2
+    @facturacion.orden_compra_file.attach(orden_compra_file) if orden_compra_file.present? && resultado == 2
 
     if @facturacion.save
       redirect_to @facturacion, notice: "Orden de Compra procesada correctamente."
@@ -180,38 +167,90 @@ class FacturacionsController < ApplicationController
 
 
 
-
   def upload_factura
     @facturacion = Facturacion.find(params[:id])
 
     unless params[:facturacion]
+      flash.now[:alert] = "El archivo PDF y la fecha de inspección son obligatorios."
+      render :show, status: :unprocessable_entity
+      return
+    end
+
+    facturacion_file = params[:facturacion][:facturacion_file]
+    fecha_inspeccion = params[:facturacion][:fecha_inspeccion]
+
+    if facturacion_file.blank?
       flash.now[:alert] = "El archivo PDF es obligatorio."
       render :show, status: :unprocessable_entity
       return
     end
 
-    if params[:facturacion][:facturacion_file].present?
-      @facturacion.facturacion_file.attach(params[:facturacion][:facturacion_file])
+    if fecha_inspeccion.blank?
+      flash.now[:alert] = "La fecha de inspección es obligatoria."
+      render :show, status: :unprocessable_entity
+      return
+    end
 
-      if valid_file_type?(@facturacion.facturacion_file, %w[application/pdf])
-        @facturacion.factura = Date.current
+    @facturacion.facturacion_file.attach(facturacion_file)
+    unless valid_file_type?(@facturacion.facturacion_file, %w[application/pdf])
+      flash.now[:alert] = "El archivo debe ser un PDF."
+      @facturacion.facturacion_file.purge
+      render :show, status: :unprocessable_entity
+      return
+    end
 
-        if @facturacion.save
-          redirect_to @facturacion, notice: "Factura subida correctamente y fecha de factura actualizada."
-        else
-          flash.now[:alert] = "No se pudo procesar la solicitud."
-          render :show, status: :unprocessable_entity
-        end
-      else
-        flash.now[:alert] = "El archivo debe ser un PDF."
-        @facturacion.facturacion_file.purge
-        render :show, status: :unprocessable_entity
-      end
+    @facturacion.factura = Date.current
+    @facturacion.fecha_inspeccion = fecha_inspeccion
+
+    if @facturacion.save
+      redirect_to @facturacion, notice: "Factura subida correctamente y fecha de inspección actualizada."
     else
-      flash.now[:alert] = "El archivo PDF es obligatorio."
+      flash.now[:alert] = "No se pudo procesar la solicitud."
       render :show, status: :unprocessable_entity
     end
   end
+
+  def manage_files
+    @facturacion = Facturacion.find(params[:id])
+  end
+
+  def replace_file
+    @facturacion = Facturacion.find(params[:id])
+
+    unless params[:file].present? && params[:file_field].present?
+      flash[:alert] = "Debes seleccionar un archivo válido y un campo para reemplazar."
+      redirect_to manage_files_facturacion_path(@facturacion)
+      return
+    end
+
+    allowed_types = {
+      "solicitud_file" => ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+      "cotizacion_doc_file" => ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      "cotizacion_pdf_file" => ["application/pdf"],
+      "orden_compra_file" => ["application/pdf", "image/png", "image/jpeg", "image/jpg"],
+      "facturacion_file" => ["application/pdf"]
+    }
+
+    file_field = params[:file_field]
+    file = params[:file]
+
+    if allowed_types[file_field].nil? || !allowed_types[file_field].include?(file.content_type)
+      flash[:alert] = "El archivo seleccionado no es válido para el campo #{file_field.humanize}."
+      redirect_to manage_files_facturacion_path(@facturacion)
+      return
+    end
+
+    @facturacion.public_send(file_field).attach(file)
+
+    if @facturacion.save
+      flash[:notice] = "Archivo reemplazado correctamente en el campo #{file_field.humanize}."
+    else
+      flash[:alert] = "No se pudo reemplazar el archivo. Inténtalo de nuevo."
+    end
+
+    redirect_to manage_files_facturacion_path(@facturacion)
+  end
+
 
 
 

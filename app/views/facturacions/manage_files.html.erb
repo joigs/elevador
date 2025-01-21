@@ -1,0 +1,106 @@
+<div class="max-w-7xl mx-auto p-6 bg-gray-900 rounded-lg shadow-md text-white">
+  <h2 class="text-3xl font-semibold mb-6">Gestión de Archivos para Cotización N° <%= @facturacion.number %></h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <% if false %>
+          <% if Current.user.solicitar %>
+            <div class="bg-gray-800 p-4 rounded-lg shadow">
+              <h3 class="text-lg font-bold mb-2">Archivo de Solicitud</h3>
+              <% if @facturacion.solicitud_file.attached? %>
+                <p class="text-sm text-gray-400 mb-4">Archivo adjunto: <%= @facturacion.solicitud_file.filename %></p>
+                <%= link_to "Descargar",
+                            download_solicitud_file_facturacion_path(@facturacion),
+                            class: "inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded mb-4" %>
+                <%= form_with(url: replace_file_facturacion_path(@facturacion), method: :patch, local: true) do |form| %>
+                  <%= hidden_field_tag :file_field, "solicitud_file" %>
+                  <%= form.file_field :file, accept: "application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                      class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4" %>
+                  <%= form.submit "Reemplazar", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+                <% end %>
+              <% else %>
+                <p class="text-sm text-red-500 mb-4">No hay archivo adjunto.</p>
+              <% end %>
+            </div>
+          <% end %>
+    <% end %>
+    <% if Current.user.solicitar %>
+      <div class="bg-gray-800 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-bold mb-2">Orden de Compra</h3>
+        <% if @facturacion.orden_compra_file.attached? %>
+          <p class="text-sm text-gray-400 mb-4">Archivo adjunto: <%= @facturacion.orden_compra_file.filename %></p>
+          <%= link_to "Descargar",
+                      download_orden_compra_file_facturacion_path(@facturacion),
+                      class: "inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded mb-4" %>
+          <%= form_with(url: replace_file_facturacion_path(@facturacion), method: :patch, local: true) do |form| %>
+            <%= hidden_field_tag :file_field, "orden_compra_file" %>
+            <%= form.file_field :file, accept: "application/pdf,image/png,image/jpeg",
+                                class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4" %>
+            <%= form.submit "Reemplazar", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-red-500 mb-4">No hay archivo adjunto.</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if Current.user.cotizar && @facturacion.oc==nil %>
+      <div class="bg-gray-800 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-bold mb-2">Cotización (DOCX)</h3>
+        <% if @facturacion.cotizacion_doc_file.attached? %>
+          <p class="text-sm text-gray-400 mb-4">Archivo adjunto: <%= @facturacion.cotizacion_doc_file.filename %></p>
+          <%= link_to "Descargar",
+                      download_cotizacion_doc_file_facturacion_path(@facturacion),
+                      class: "inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded mb-4" %>
+          <%= form_with(url: replace_file_facturacion_path(@facturacion), method: :patch, local: true) do |form| %>
+            <%= hidden_field_tag :file_field, "cotizacion_doc_file" %>
+            <%= form.file_field :file, accept: "application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4" %>
+            <%= form.submit "Reemplazar", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-red-500 mb-4">No hay archivo adjunto.</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if Current.user.cotizar && @facturacion.oc==nil %>
+      <div class="bg-gray-800 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-bold mb-2">Cotización (PDF)</h3>
+        <% if @facturacion.cotizacion_pdf_file.attached? %>
+          <p class="text-sm text-gray-400 mb-4">Archivo adjunto: <%= @facturacion.cotizacion_pdf_file.filename %></p>
+          <%= link_to "Descargar",
+                      download_cotizacion_pdf_file_facturacion_path(@facturacion),
+                      class: "inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded mb-4" %>
+          <%= form_with(url: replace_file_facturacion_path(@facturacion), method: :patch, local: true) do |form| %>
+            <%= hidden_field_tag :file_field, "cotizacion_pdf_file" %>
+            <%= form.file_field :file, accept: "application/pdf",
+                                class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4" %>
+            <%= form.submit "Reemplazar", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-red-500 mb-4">No hay archivo adjunto.</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if Current.user.cotizar %>
+      <div class="bg-gray-800 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-bold mb-2">Factura</h3>
+        <% if @facturacion.facturacion_file.attached? %>
+          <p class="text-sm text-gray-400 mb-4">Archivo adjunto: <%= @facturacion.facturacion_file.filename %></p>
+          <%= link_to "Descargar",
+                      download_facturacion_file_facturacion_path(@facturacion),
+                      class: "inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded mb-4" %>
+          <%= form_with(url: replace_file_facturacion_path(@facturacion), method: :patch, local: true) do |form| %>
+            <%= hidden_field_tag :file_field, "facturacion_file" %>
+            <%= form.file_field :file, accept: "application/pdf",
+                                class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4" %>
+            <%= form.submit "Reemplazar", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-red-500 mb-4">No hay archivo adjunto.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
