@@ -1,4 +1,17 @@
+<div class="max-w-7xl mx-auto p-6 rounded-lg ">
+  <%= link_to "Volver a la cotización",
+              facturacion_path(@facturacion),
+              class: "inline-flex items-center px-4 py-2 border border-transparent \
+                        text-base leading-6 font-medium rounded-md text-blue-400 \
+                        bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none \
+                        focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out"
+  %>
+</div>
+
+
 <div class="max-w-7xl mx-auto p-6 bg-gray-900 rounded-lg shadow-md text-white">
+
+
   <h2 class="text-3xl font-semibold mb-6">Gestión de Archivos para Cotización N° <%= @facturacion.number %></h2>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

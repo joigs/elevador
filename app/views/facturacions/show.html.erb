@@ -45,7 +45,12 @@
     <hr class="my-4 border-gray-700" />
 
     <h3 class="text-xl font-semibold mb-2 text-white">Archivos disponibles</h3>
-    <%= link_to "Modificar archivos", manage_files_facturacion_path(@facturacion) %>
+    <div class="mb-4">
+      <%= link_to "Modificar archivos",
+                  manage_files_facturacion_path(@facturacion),
+                  class: "inline-block px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 transition duration-200" %>
+    </div>
+
 
     <div class="space-y-2">
       <% if @facturacion.solicitud_file.attached? %>
