@@ -13,7 +13,6 @@ class Facturacion < ApplicationRecord
   validates :name, presence: true
   validates :solicitud_file, presence: true
 
-  validates :cotizacion_doc_file, presence: true, if: -> { emicion.present? }
   validates :cotizacion_pdf_file, presence: true, if: -> { emicion.present? }
 
   validates :fecha_inspeccion, presence: true, if: -> { factura.present? }

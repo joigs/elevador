@@ -135,6 +135,11 @@ Rails.application.routes.draw do
       get :manage_files
       patch :replace_file
     end
+    collection do
+      get :new_bulk_upload
+      post :bulk_upload
+    end
+
 
     resources :observacions, only: [:create, :edit, :update, :destroy]
   end

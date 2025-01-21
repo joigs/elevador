@@ -1,0 +1,10 @@
+<%= form_with(url: bulk_upload_facturacions_path, local: true, html: { multipart: true }) do |form| %>
+  <div>
+    <%= form.label :files, "Subir archivos Excel", class: "block text-gray-300 font-bold mb-2" %>
+    <%= form.file_field :files, multiple: true, accept: ".xlsx", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+  </div>
+
+  <div class="mt-4">
+    <%= form.submit "Subir Archivos", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+  </div>
+<% end %>

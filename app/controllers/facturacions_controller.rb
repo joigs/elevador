@@ -253,6 +253,53 @@ class FacturacionsController < ApplicationController
 
 
 
+  def new_bulk_upload
+  end
+
+  # Acción para procesar los archivos subidos
+  def bulk_upload
+    files = params[:files] # Archivos subidos
+
+    if files.blank?
+      redirect_to new_bulk_upload_facturacions_path, alert: "No se seleccionaron archivos para subir."
+      return
+    end
+
+    errores = [] # Para registrar errores
+    archivos_procesados = 0
+
+    files.each do |file|
+      # Asegúrate de que `file` es un objeto válido
+      next unless file.is_a?(ActionDispatch::Http::UploadedFile)
+
+      # Extraer el número y el nombre del archivo
+      begin
+        nombre_archivo = file.original_filename
+        number, name = parse_filename(nombre_archivo)
+
+        # Crear la facturación
+        facturacion = Facturacion.new(number: number, name: name)
+        facturacion.solicitud_file.attach(file)
+
+        if facturacion.save
+          archivos_procesados += 1
+        else
+          errores << "#{nombre_archivo}: #{facturacion.errors.full_messages.join(', ')}"
+        end
+      rescue StandardError => e
+        errores << "#{file.original_filename}: Error procesando el archivo - #{e.message}"
+      end
+    end
+
+    # Mostrar mensaje final
+    if errores.any?
+      flash[:alert] = "Se procesaron #{archivos_procesados} archivos, pero hubo errores: #{errores.join('; ')}"
+    else
+      flash[:notice] = "Todos los archivos se procesaron correctamente. #{archivos_procesados} facturaciones creadas."
+    end
+
+    redirect_to facturacions_path
+  end
 
 
   private
@@ -308,6 +355,34 @@ class FacturacionsController < ApplicationController
   end
   def valid_uploaded_file?(file, allowed_types)
     file.is_a?(ActionDispatch::Http::UploadedFile) && file.content_type.in?(allowed_types)
+  end
+
+
+  def parse_filename(filename)
+    base_name = File.basename(filename, File.extname(filename))
+
+    parts = base_name.split(' ', 2)
+    number = parts[0].to_i
+
+    name_match = base_name.match(/OPORTUNIDAD DE NEGOCIO.*?\.\s*(.+)/i)
+    name = name_match[1] if name_match
+
+    if name.present?
+      name = name.split.map(&:capitalize).join(' ')
+    else
+      raise "No se pudo extraer el nombre de '#{filename}'. Asegúrate de que siga el formato esperado."
+    end
+
+    [number, name]
+  end
+
+
+
+
+
+
+  def capitalize_words(texto)
+    texto.split.map(&:capitalize).join(' ')
   end
 
 end
