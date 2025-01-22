@@ -1,5 +1,5 @@
 <% @notifications.each do |notification| %>
-  <div class="p-4 mb-4 border rounded-lg shadow-md <%= notification_class(notification.notification_type) %>" role="alert">
+  <div class="p-4 mb-4 border rounded-lg shadow-md mx-4 <%= notification_class(notification.notification_type) %>" role="alert">
     <div class="flex items-center">
       <svg class="flex-shrink-0 w-6 h-6 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
         <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 1 1 0 1v4h1a1 1 0 0 1 0 2Z"/>
@@ -10,7 +10,7 @@
       <%= notification.text %>
     </div>
     <div class="flex">
-      <%= link_to "Ver facturaciones relacionadas",
+      <%= link_to "Ver pendientes",
                   facturacions_path(notification_id: notification.id),
                   class: "text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-s px-3 py-3 me-2 text-center inline-flex items-center" %>
     </div>
