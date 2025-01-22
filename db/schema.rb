@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_01_21_201204) do
+ActiveRecord::Schema[7.1].define(version: 2025_01_22_155549) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -207,6 +207,24 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_21_201204) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "text", null: false
+    t.integer "notification_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "notifications_facturacions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "notification_id", null: false
+    t.bigint "facturacion_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facturacion_id"], name: "index_notifications_facturacions_on_facturacion_id"
+    t.index ["notification_id", "facturacion_id"], name: "index_notifications_facturacions_on_notification_and_facturacion", unique: true
+    t.index ["notification_id"], name: "index_notifications_facturacions_on_notification_id"
+  end
+
   create_table "observacions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.text "texto"
     t.bigint "facturacion_id", null: false
@@ -383,6 +401,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_21_201204) do
   add_foreign_key "ladder_details", "items"
   add_foreign_key "ladder_revisions", "inspections"
   add_foreign_key "ladder_revisions", "items"
+  add_foreign_key "notifications_facturacions", "facturacions"
+  add_foreign_key "notifications_facturacions", "notifications"
   add_foreign_key "observacions", "facturacions"
   add_foreign_key "observacions", "users"
   add_foreign_key "reports", "inspections"

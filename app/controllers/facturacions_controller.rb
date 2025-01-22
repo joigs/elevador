@@ -9,8 +9,12 @@ class FacturacionsController < ApplicationController
   before_action :authorize_user
 
   def index
-    @facturacions_origin = Facturacion.all
-    @facturacions = @facturacions_origin
+    if params[:notification_id].present?
+      @notification = Notification.find(params[:notification_id])
+      @facturacions = @notification.facturacions.order(number: :desc)
+    else
+      @facturacions = Facturacion.order(number: :desc)
+    end
   end
 
   def show
@@ -26,11 +30,16 @@ class FacturacionsController < ApplicationController
     @facturacion = Facturacion.new(facturacion_params)
 
     if @facturacion.save
+      notification = Notification.find_by(notification_type: :solicitud_pendiente)
+      notification.facturacions << @facturacion if notification
+
       redirect_to @facturacion, notice: "Facturación creada con éxito."
     else
       render :new, status: :unprocessable_entity
     end
   end
+
+
 
 
   def edit
@@ -91,6 +100,8 @@ class FacturacionsController < ApplicationController
     @facturacion = Facturacion.find(params[:id])
 
     if @facturacion.update(entregado: Date.current, resultado: 1)
+      notification = Notification.find_by(notification_type: :entrega_pendiente)
+      notification.facturacions.delete(@facturacion) if notification
       render json: { success: true, message: "Fecha de entrega actualizada correctamente." }, status: :ok
     else
       render json: { success: false, message: "No se pudo actualizar la fecha de entrega." }, status: :unprocessable_entity
@@ -113,6 +124,13 @@ class FacturacionsController < ApplicationController
       if valid_file_type?(@facturacion.cotizacion_doc_file, %w[application/msword application/vnd.openxmlformats-officedocument.wordprocessingml.document]) &&
         valid_file_type?(@facturacion.cotizacion_pdf_file, %w[application/pdf])
         @facturacion.update(emicion: Date.current)
+
+        notification = Notification.find_by(notification_type: :solicitud_pendiente)
+        notification.facturacions.delete(@facturacion) if notification
+
+        next_notification = Notification.find_by(notification_type: :entrega_pendiente)
+        next_notification.facturacions << @facturacion if next_notification
+
         redirect_to @facturacion, notice: "Documentos subidos correctamente y fecha de emisión actualizada."
       else
         flash.now[:alert] = "Ambos archivos deben ser del tipo correcto (DOCX y PDF)."
@@ -125,6 +143,7 @@ class FacturacionsController < ApplicationController
       render :show, status: :unprocessable_entity
     end
   end
+
 
 
   def upload_orden_compra
@@ -157,6 +176,12 @@ class FacturacionsController < ApplicationController
     @facturacion.orden_compra_file.attach(orden_compra_file) if orden_compra_file.present? && resultado == 2
 
     if @facturacion.save
+
+      if @facturacion.resultado == "Aceptado"
+        next_notification = Notification.find_by(notification_type: :factura_pendiente)
+        next_notification.facturacions << @facturacion if next_notification
+      end
+
       redirect_to @facturacion, notice: "Orden de Compra procesada correctamente."
     else
       flash.now[:alert] = "No se pudo procesar la Orden de Compra."
@@ -203,7 +228,12 @@ class FacturacionsController < ApplicationController
     @facturacion.fecha_inspeccion = fecha_inspeccion
 
     if @facturacion.save
-      redirect_to @facturacion, notice: "Factura subida correctamente y fecha de inspección actualizada."
+
+      notification = Notification.find_by(notification_type: :factura_pendiente)
+      notification.facturacions.delete(@facturacion) if notification
+
+
+      redirect_to @facturacion, notice: "Factura subida correctamente."
     else
       flash.now[:alert] = "No se pudo procesar la solicitud."
       render :show, status: :unprocessable_entity
@@ -256,28 +286,24 @@ class FacturacionsController < ApplicationController
   def new_bulk_upload
   end
 
-  # Acción para procesar los archivos subidos
   def bulk_upload
-    files = params[:files] # Archivos subidos
+    files = params[:files]
 
     if files.blank?
       redirect_to new_bulk_upload_facturacions_path, alert: "No se seleccionaron archivos para subir."
       return
     end
 
-    errores = [] # Para registrar errores
+    errores = []
     archivos_procesados = 0
 
     files.each do |file|
-      # Asegúrate de que `file` es un objeto válido
       next unless file.is_a?(ActionDispatch::Http::UploadedFile)
 
-      # Extraer el número y el nombre del archivo
       begin
         nombre_archivo = file.original_filename
         number, name = parse_filename(nombre_archivo)
 
-        # Crear la facturación
         facturacion = Facturacion.new(number: number, name: name)
         facturacion.solicitud_file.attach(file)
 
@@ -291,7 +317,6 @@ class FacturacionsController < ApplicationController
       end
     end
 
-    # Mostrar mensaje final
     if errores.any?
       flash[:alert] = "Se procesaron #{archivos_procesados} archivos, pero hubo errores: #{errores.join('; ')}"
     else
@@ -302,26 +327,21 @@ class FacturacionsController < ApplicationController
   end
 
   def new_bulk_upload_pdf
-    # Solo muestra el formulario
   end
   def bulk_upload_pdf
-    archivos = params[:archivos] || [] # Asegurarse de que archivos es un array válido
+    archivos = params[:archivos] || []
     errores = []
     procesados = 0
 
     archivos.each do |file|
       begin
-        # Verificar que el archivo sea del tipo esperado
         if file.is_a?(ActionDispatch::Http::UploadedFile)
-          # Extraer el nombre base del archivo
           base_name = File.basename(file.original_filename, File.extname(file.original_filename))
           number = base_name.split(' ', 2).first.to_i
 
-          # Buscar la facturación correspondiente
           facturacion = Facturacion.find_by(number: number)
 
           if facturacion
-            # Adjuntar el archivo y actualizar la fecha de emisión
             facturacion.cotizacion_pdf_file.attach(file)
             facturacion.update!(emicion: Date.current)
 
@@ -337,7 +357,6 @@ class FacturacionsController < ApplicationController
       end
     end
 
-    # Generar mensajes de resultado
     if errores.any?
       flash[:alert] = "Se procesaron #{procesados} archivos, pero hubo errores: #{errores.join(', ')}"
     else

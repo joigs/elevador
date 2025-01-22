@@ -1,5 +1,7 @@
 class Facturacion < ApplicationRecord
   has_many :observacions, dependent: :destroy
+  has_many :notifications_facturacions, dependent: :destroy
+  has_many :notifications, through: :notifications_facturacions
 
   has_one_attached :solicitud_file
   has_one_attached :cotizacion_doc_file

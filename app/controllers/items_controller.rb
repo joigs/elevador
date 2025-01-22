@@ -26,7 +26,7 @@ class ItemsController < ApplicationController
 
 
     @inspection = Inspection.where(item: @item).order(number: :desc).first
-    @condicion =  Current.user.admin || @item.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
+    @condicion =  Current.user.admin || @item.inspections.where("number > 0").last&.users&.exists?(id: Current.user&.id)
   end
 
   def new
