@@ -27,7 +27,12 @@
                       class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
                               hover:bg-green-600 transition duration-200" %>
         </div>
+
+
       <% end %>
+
+
+
       <div class="mt-6">
         <p class="mb-0"><strong>Solicitud:</strong> <%= format_date(@facturacion.solicitud) %></p>
         <p class="mb-0"><strong>Emisión:</strong> <%= format_date(@facturacion.emicion) %></p>
@@ -37,6 +42,24 @@
         <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
         <p class="mb-0"><strong>Fecha de inspección:</strong> <%= format_date(@facturacion.fecha_inspeccion) %></p>
       </div>
+
+
+      <% if Current.user.super %>
+        <div class="mt-6">
+          <% if Current.user.solicitar %>
+            <%= link_to "Descargar Plantilla de Solicitud",
+                        download_solicitud_template_facturacion_path(@facturacion),
+                        class: "inline-block px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition" %>
+          <% end %>
+
+          <% if Current.user.cotizar %>
+            <%= link_to "Descargar Plantilla de Cotización",
+                        download_cotizacion_template_facturacion_path(@facturacion),
+                        class: "inline-block px-4 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition" %>
+          <% end %>
+        </div>
+      <% end %>
+
 
       <div class="mt-6">
       </div>

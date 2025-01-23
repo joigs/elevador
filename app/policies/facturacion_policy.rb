@@ -52,6 +52,14 @@ class FacturacionPolicy < BasePolicy
     Current.user.super
   end
 
+  def download_solicitud_template
+    Current.user.solicitar
+  end
+
+  def download_cotizacion_template
+    Current.user.cotizar
+  end
+
   def method_missing(m, *args, &block)
     Current.user.gestion
   end

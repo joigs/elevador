@@ -364,6 +364,31 @@ class FacturacionsController < ApplicationController
     end
     redirect_to facturacions_path
   end
+  def download_solicitud_template
+    file_path = Rails.root.join("app", "templates", "solicitud_template.xlsx")
+    if File.exist?(file_path)
+      send_file file_path, filename: "Solicitud_Template.xlsx", type: "application/vnd.ms-excel"
+    else
+      redirect_to facturacion_path(@facturacion), alert: "La plantilla de solicitud no está disponible."
+    end
+  end
+
+  def download_cotizacion_template
+    @facturacion = Facturacion.find(params[:id])
+
+    begin
+      # Llamar al servicio para generar el documento
+      new_doc_path = DocumentGeneratorCotizacion.generate_document(@facturacion.id)
+
+      send_file new_doc_path,
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                disposition: 'attachment',
+                filename: File.basename(new_doc_path)
+    rescue StandardError => e
+      flash[:alert] = "Error al generar la plantilla de cotización: #{e.message}"
+      redirect_to facturacion_path(@facturacion)
+    end
+  end
 
 
 

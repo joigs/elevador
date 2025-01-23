@@ -134,6 +134,8 @@ Rails.application.routes.draw do
       patch :upload_factura
       get :manage_files
       patch :replace_file
+      get :download_solicitud_template
+      get :download_cotizacion_template
     end
     collection do
       get :new_bulk_upload
