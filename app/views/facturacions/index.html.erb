@@ -77,31 +77,32 @@
                   <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                 </strong>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
-                <p class="text-white "><%= format_date(facturacion.solicitud) %></p>
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.solicitud&.strftime('%Y%m%d') %>">
+                <p class="text-white"><%= format_date(facturacion.solicitud) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.emicion&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.emicion) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.entregado&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.entregado) %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
                 <p class="text-white"><%= facturacion.resultado %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.oc&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.oc) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.factura&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.factura) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.fecha_inspeccion&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.fecha_inspeccion) %></p>
               </td>
-
             </tr>
           <% end %>
           </tbody>
+
+
         </table>
       </div>
     </div>

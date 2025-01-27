@@ -209,17 +209,20 @@
                         <td class="px-6 py-4 whitespace-normal break-words">
                           <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                         </td>
-                        <td class="px-6 py-4 whitespace-normal break-words">
+                        <!-- Inspección con data-order para ordenamiento -->
+                        <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.ins_date.strftime('%Y%m%d') %>">
                           <p class="text-white"><%= format_date(inspection.ins_date) %></p>
                         </td>
                         <td class="px-6 py-4 whitespace-normal break-words">
                           <p class="text-white"><%= inspection.result %></p>
                         </td>
-                        <td class="px-6 py-4 whitespace-normal break-words">
+                        <!-- Cambio de días -->
+                        <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= (Date.current - inspection.cambio).to_i %>">
                           <p class="text-white">
                             <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
                           </p>
                         </td>
+                        <!-- Usuarios -->
                         <td class="px-6 py-4 whitespace-normal break-words">
                           <% if inspection.users.any? %>
                             <ul>
@@ -231,16 +234,8 @@
                             <p class="text-gray-400">No asignado</p>
                           <% end %>
                         </td>
-                        <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date < Date.today ? 'Atrasada' : (inspection.ins_date == Date.today ? 'Hoy' : 'Próxima') %>">
-                          <span class="sr-only">
-                            <% if inspection.ins_date < Date.today %>
-                              Atrasada
-                            <% elsif inspection.ins_date == Date.today %>
-                              Hoy
-                            <% else %>
-                              Próxima
-                            <% end %>
-                          </span>
+                        <!-- Estado de la inspección -->
+                        <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date %>">
                           <div class="relative group">
                             <% if inspection.ins_date < Date.today %>
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -248,27 +243,28 @@
                                 <circle cx="12" cy="12" r="5" fill="red" />
                               </svg>
                               <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
-                                Inspección Atrasada
-                              </span>
+              Inspección Atrasada
+            </span>
                             <% elsif inspection.ins_date == Date.today %>
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="green" />
                               </svg>
                               <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
-                                Agendada para hoy
-                              </span>
+              Agendada para hoy
+            </span>
                             <% else %>
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="yellow" />
                               </svg>
                               <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
-                                Agendada para <%= format_date(inspection.ins_date) %>
-                              </span>
+              Agendada para <%= format_date(inspection.ins_date) %>
+            </span>
                             <% end %>
                           </div>
                         </td>
+                        <!-- Acción -->
                         <td class="px-6 py-4">
                           <%= link_to "Ver inspección", inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
                         </td>

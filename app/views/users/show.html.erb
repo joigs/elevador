@@ -106,32 +106,42 @@
                     <%= inspection.name %>
                   </strong>
                 </td>
+
                 <td class="px-6 py-4 whitespace-normal break-words">
                   <%= link_to inspection.item&.identificador,
                               item_path(inspection.item),
                               data: { turbo_frame: "_top" },
                               class: "text-blue-400 hover:text-blue-600" %>
                 </td>
+
                 <td class="px-6 py-4 whitespace-normal break-words">
                   <%= link_to inspection.item&.principal&.name,
                               principal_path(inspection.item.principal),
                               data: { turbo_frame: "_top" },
                               class: "text-blue-400 hover:text-blue-600" %>
                 </td>
-                <td class="px-6 py-4 whitespace-normal break-words">
+
+                <!-- Fecha de inspección con data-order -->
+                <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.ins_date.strftime('%Y%m%d') %>">
                   <p class="text-white"><%= format_date(inspection.ins_date) %></p>
                 </td>
+
                 <td class="px-6 py-4 whitespace-normal break-words">
                   <p class="text-white"><%= inspection.result %></p>
                 </td>
 
-                <td class="px-6 py-4 whitespace-normal break-words">
-                  <p class="text-white"><%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %></p>
+                <!-- Días transcurridos con data-order -->
+                <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= (Date.current - inspection.cambio).to_i %>">
+                  <p class="text-white">
+                    <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
+                  </p>
                 </td>
 
-                <td class="px-6 py-4 whitespace-normal break-words">
+                <!-- Fecha de reporte con data-order -->
+                <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.report&.ending&.strftime('%Y%m%d') %>">
                   <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
                 </td>
+
                 <td class="px-6 py-4">
                   <%= link_to "Ver inspección",
                               inspection_path(inspection),
@@ -141,6 +151,7 @@
               </tr>
             <% end %>
             </tbody>
+
           </table>
         </div>
         </div>
