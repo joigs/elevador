@@ -30,8 +30,20 @@
     <%= form.label :"Fecha Permiso de edificación", class: "block text-gray-300" %>
     <%= form.date_field :fecha_permiso, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Destino", class: "block text-gray-300" %>
-    <%= form.select :destino, options_for_select([['S/I', 'S/I'], ['Equipamiento', 'Equipamiento'], ['Residencial', 'Residencial'], ['Habitacional (excepto vivienda)', 'Habitacional (excepto vivienda)'],['Habitacional', 'Habitacional'],['Infraestructura', 'Infraestructura'],]), {}, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
+
+    <%= form.label :destino, class: "block text-gray-300" %>
+    <%= form.select :destino,
+                      options_for_select([['S/I', 'S/I'],
+                                          ['Equipamiento', 'Equipamiento'],
+                                          ['Residencial', 'Residencial'],
+                                          ['Habitacional (excepto vivienda)', 'Habitacional (excepto vivienda)'],
+                                          ['Habitacional', 'Habitacional'],
+                                          ['Infraestructura', 'Infraestructura']],
+                                         detail.destino.present? ? detail.destino : 'S/I'),
+                      {},
+                      class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
+
 
     <%= form.label :"Recepción", class: "block text-gray-300" %>
     <%= form.date_field :recepcion, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
