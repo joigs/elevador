@@ -184,16 +184,12 @@ class ItemsController < ApplicationController
       render :edit_group, status: :unprocessable_entity and return
     end
 
-    puts(item_group_params.inspect)
-    puts("item_group_params[:group_id]: #{item_group_params[:group_id]}")
-    puts("@item.group_id: #{@item.group_id}")
+
 
     if item_group_params[:group_id] == @item.group_id.to_s
-      puts("adasasdbasdibsab")
       flash[:alert] = "El activo ya pertenece a este grupo."
-      render :edit_group, status: :unprocessable_entity and return
+      redirect_to item_path(@item) and return
     end
-
 
     if @item.update(item_group_params)
 
