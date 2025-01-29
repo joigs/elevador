@@ -1,6 +1,4 @@
-<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
 
 <% if Current.user.super %>
   <div class="flex justify-end mb-4">
@@ -217,38 +215,46 @@
       }
 
       function initFlatpickrFilters(){
-          const startDate=document.querySelector("[data-date-filter-target='startDate']")
-          const endDate=document.querySelector("[data-date-filter-target='endDate']")
-          const submitButton=document.querySelector("[data-date-filter-target='submitButton']")
 
-          flatpickr(startDate,{
-              dateFormat:"d-m-Y",
-              minDate:"01-01-2020",
-              maxDate:"31-12-3000",
-              locale:"es",
-              static:false,
-              altInput:true,
-              altFormat:"d-m-Y",
-              onChange:function(){
-                  submitButton.click()
-              },
-              plugins:[ clearButtonPlugin() ]
-          })
+          const startDate = document.querySelector("[data-date-filter-target='startDate']")
+          const endDate   = document.querySelector("[data-date-filter-target='endDate']")
+          const submitButton = document.querySelector("[data-date-filter-target='submitButton']")
 
-          flatpickr(endDate,{
-              dateFormat:"d-m-Y",
-              minDate:"01-01-2020",
-              maxDate:"31-12-3000",
-              locale:"es",
-              static:false,
-              altInput:true,
-              altFormat:"d-m-Y",
-              onChange:function(){
-                  submitButton.click()
-              },
-              plugins:[ clearButtonPlugin() ]
-          })
+          if (!submitButton) return
+
+          if (startDate) {
+              flatpickr(startDate, {
+                  dateFormat:"d-m-Y",
+                  minDate:"01-01-2020",
+                  maxDate:"31-12-3000",
+                  locale:"es",
+                  static:false,
+                  altInput:true,
+                  altFormat:"d-m-Y",
+                  onChange:function(){
+                      submitButton.click()
+                  },
+                  plugins:[ clearButtonPlugin() ]
+              })
+          }
+
+          if (endDate) {
+              flatpickr(endDate, {
+                  dateFormat:"d-m-Y",
+                  minDate:"01-01-2020",
+                  maxDate:"31-12-3000",
+                  locale:"es",
+                  static:false,
+                  altInput:true,
+                  altFormat:"d-m-Y",
+                  onChange:function(){
+                      submitButton.click()
+                  },
+                  plugins:[ clearButtonPlugin() ]
+              })
+          }
       }
+
 
       document.addEventListener("turbo:load",function(){
           initFlatpickrFilters()
@@ -261,6 +267,7 @@
               initFacturacionsTable()
           }
       })
+
   </script>
 
   <style>
