@@ -302,7 +302,7 @@ class FacturacionsController < ApplicationController
 
       begin
         nombre_archivo = file.original_filename
-        number, name = parse_filename(nombre_archivo)
+        number, name = parse_excel_filename(nombre_archivo)
 
         facturacion = Facturacion.new(number: number, name: name)
         facturacion.solicitud_file.attach(file)
@@ -326,26 +326,37 @@ class FacturacionsController < ApplicationController
     redirect_to facturacions_path
   end
 
+
   def new_bulk_upload_pdf
   end
   def bulk_upload_pdf
     archivos = params[:archivos] || []
     errores = []
-    procesados = 0
+    procesados_pdf = 0
+    procesados_docx = 0
 
     archivos.each do |file|
       begin
         if file.is_a?(ActionDispatch::Http::UploadedFile)
           base_name = File.basename(file.original_filename, File.extname(file.original_filename))
-          number = base_name.split(' ', 2).first.to_i
+          number, name = parse_filename(base_name)
 
           facturacion = Facturacion.find_by(number: number)
 
           if facturacion
-            facturacion.cotizacion_pdf_file.attach(file)
-            facturacion.update!(emicion: Date.current)
+            case file.content_type
+            when "application/pdf"
+              facturacion.cotizacion_pdf_file.attach(file)
+              procesados_pdf += 1
+            when "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              facturacion.cotizacion_doc_file.attach(file)
+              procesados_docx += 1
+            else
+              errores << "#{file.original_filename}: Tipo de archivo no permitido."
+              next
+            end
 
-            procesados += 1
+            facturacion.update!(emicion: Date.current)
           else
             errores << "#{file.original_filename}: No se encontró una facturación con el número #{number}."
           end
@@ -358,12 +369,13 @@ class FacturacionsController < ApplicationController
     end
 
     if errores.any?
-      flash[:alert] = "Se procesaron #{procesados} archivos, pero hubo errores: #{errores.join(', ')}"
+      flash[:alert] = "Se procesaron #{procesados_pdf} PDFs y #{procesados_docx} DOCX, pero hubo errores: #{errores.join('; ')}"
     else
-      flash[:notice] = "Todos los archivos se procesaron exitosamente (#{procesados} archivos)."
+      flash[:notice] = "Todos los archivos se procesaron exitosamente (#{procesados_pdf} PDFs y #{procesados_docx} DOCX)."
     end
     redirect_to facturacions_path
   end
+
   def download_solicitud_template
     file_path = Rails.root.join("app", "templates", "solicitud_template.xlsx")
     if File.exist?(file_path)
@@ -449,19 +461,13 @@ class FacturacionsController < ApplicationController
 
 
   def parse_filename(filename)
-    base_name = File.basename(filename, File.extname(filename))
-
-    parts = base_name.split(' ', 2)
+    # Separar en partes usando "_" o "-" como delimitador
+    parts = filename.split(/[_-]/, 2)
     number = parts[0].to_i
 
-    name_match = base_name.match(/OPORTUNIDAD DE NEGOCIO.*?\.\s*(.+)/i)
-    name = name_match[1] if name_match
-
-    if name.present?
-      name = name.split.map(&:capitalize).join(' ')
-    else
-      raise "No se pudo extraer el nombre de '#{filename}'. Asegúrate de que siga el formato esperado."
-    end
+    # Extraer el nombre ignorando números y guiones al inicio
+    name_part = parts[1]&.strip || ""
+    name = name_part.sub(/^[\d_\-]+/, '').strip
 
     [number, name]
   end
@@ -471,8 +477,26 @@ class FacturacionsController < ApplicationController
 
 
 
+
   def capitalize_words(texto)
     texto.split.map(&:capitalize).join(' ')
   end
+
+
+
+  def parse_excel_filename(filename)
+    base_name = File.basename(filename, File.extname(filename))
+
+    # Separar en partes usando "_" o "-" como delimitador
+    parts = base_name.split(/[_-]/, 2)
+    number = parts[0].to_i
+
+    # Extraer el nombre ignorando números y guiones al inicio
+    name_part = parts[1]&.strip || ""
+    name = name_part.sub(/^[\d_\-]+/, '').strip
+
+    [number, name]
+  end
+
 
 end

@@ -1,10 +1,10 @@
 <div class="max-w-4xl mx-auto p-6 bg-gray-900 text-white rounded-lg shadow-md">
-  <h2 class="text-2xl font-bold mb-4">Subir PDFs en Masa</h2>
+  <h2 class="text-2xl font-bold mb-4">Subir Cotizaciones en Masa (PDF y DOCX)</h2>
 
   <%= form_with url: bulk_upload_pdf_facturacions_path, multipart: true, method: :post, class: "space-y-4" do |form| %>
     <div>
-      <%= form.label :archivos, "Seleccionar archivos (PDF)", class: "block text-gray-300 font-bold mb-2" %>
-      <%= form.file_field :archivos, multiple: true, accept: "application/pdf",
+      <%= form.label :archivos, "Seleccionar archivos (PDF y DOCX)", class: "block text-gray-300 font-bold mb-2" %>
+      <%= form.file_field :archivos, multiple: true, accept: "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                           class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 \
                                   file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
     </div>
