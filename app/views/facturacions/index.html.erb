@@ -123,6 +123,25 @@
   </div>
 
   <script>
+      // Plugin que añade un botón de "Clear"
+      function clearButtonPlugin() {
+          return function(fp) {
+              return {
+                  onReady: function() {
+                      const clearBtn=document.createElement("button")
+                      clearBtn.type="button"
+                      clearBtn.textContent="Clear"
+                      clearBtn.className="flatpickr-clear-btn"
+                      clearBtn.addEventListener("click",function(){
+                          fp.clear()
+                          fp.close()
+                      })
+                      fp.calendarContainer.appendChild(clearBtn)
+                  }
+              }
+          }
+      }
+
       function initFacturacionsTable(){
           const tableEl=document.getElementById("facturacions-table")
           if(tableEl&&typeof simpleDatatables!=="undefined"&&simpleDatatables.DataTable){
@@ -198,8 +217,6 @@
       }
 
       function initFlatpickrFilters(){
-          // Este controller Stimulus se simula con un objeto JS para manejar onChange
-          // real Stimulus se implementaría en un archivo .js, pero aquí se pone inline
           const startDate=document.querySelector("[data-date-filter-target='startDate']")
           const endDate=document.querySelector("[data-date-filter-target='endDate']")
           const submitButton=document.querySelector("[data-date-filter-target='submitButton']")
@@ -214,7 +231,8 @@
               altFormat:"d-m-Y",
               onChange:function(){
                   submitButton.click()
-              }
+              },
+              plugins:[ clearButtonPlugin() ]
           })
 
           flatpickr(endDate,{
@@ -227,7 +245,8 @@
               altFormat:"d-m-Y",
               onChange:function(){
                   submitButton.click()
-              }
+              },
+              plugins:[ clearButtonPlugin() ]
           })
       }
 
@@ -288,6 +307,20 @@
           background-color: #3a3a3a !important;
           color: #aaa !important;
           cursor: not-allowed !important;
+      }
+
+      .flatpickr-clear-btn {
+          background: #e53e3e;
+          border: 0;
+          color: #fff;
+          padding: 0.25rem 0.5rem;
+          margin-left: 1rem;
+          cursor: pointer;
+          font-size: 0.9rem;
+          border-radius: 4px;
+      }
+      .flatpickr-clear-btn:hover {
+          background: #c53030;
       }
   </style>
 </turbo-frame>
