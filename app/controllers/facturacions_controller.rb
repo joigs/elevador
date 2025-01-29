@@ -15,6 +15,16 @@ class FacturacionsController < ApplicationController
     else
       @facturacions = Facturacion.order(number: :desc)
     end
+
+    if params[:fecha_inicio].present? && params[:fecha_fin].present?
+      begin
+        fi = Date.strptime(params[:fecha_inicio], '%d-%m-%Y')
+        ff = Date.strptime(params[:fecha_fin], '%d-%m-%Y')
+        @facturacions = @facturacions.where("solicitud >= ? AND solicitud <= ?", fi, ff)
+      rescue ArgumentError
+        flash[:alert] = "Fechas no válidas."
+      end
+    end
   end
 
   def show
