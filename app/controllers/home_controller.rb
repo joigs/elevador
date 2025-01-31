@@ -21,8 +21,6 @@ class HomeController < ApplicationController
     @facturacions = Facturacion.order(number: :desc)
     @notifications = current_notifications
 
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(@notifications.inspect)
   end
 
 

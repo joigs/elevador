@@ -26,8 +26,6 @@ class DetailsController < ApplicationController
     @revision = @inspection.revision
     revision_2 = @revision.revision_colors.find_by(section: 2)
     revision_9 = @revision.revision_colors.find_by(section: 9)
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(params.inspect)
     if detail.update(detail_params)
 
 
@@ -59,14 +57,10 @@ class DetailsController < ApplicationController
 
       if params[:closed].nil? || params[:closed] == "false"
 
-        puts("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
-        puts("1")
         redirect_to edit_report_path(@report)
 
 
       else
-        puts("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-        puts("2")
         redirect_to inspection_path(params[:inspection_origin])
       end
 

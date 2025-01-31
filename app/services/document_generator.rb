@@ -987,7 +987,6 @@ class DocumentGenerator
     doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
 
-    puts("11111111111111111111111111111")
 
 
     rules.each_with_index do |rule, index|
@@ -1083,7 +1082,6 @@ class DocumentGenerator
       end
     end
 
-    puts("222222222222222222222222222222222222")
 
     if detail.sala_maquinas == "Si"
       doc.replace('{{tabla_aplica1}}', 'NO APLICA A ÉSTA INSPECCIÓN')
@@ -1213,7 +1211,6 @@ class DocumentGenerator
     counter = 1
 
 
-    puts("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
     revision_photos.each do |photo|
 
       original_ext = File.extname(photo.photo.blob.filename.to_s)

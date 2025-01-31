@@ -605,7 +605,6 @@ class PrincipalsController < ApplicationController
                 else
                   stuff = color.comment[index2]
                 end
-                puts color.inspect
                 worksheet.write(row+3, 8 + index, stuff)
 
               end

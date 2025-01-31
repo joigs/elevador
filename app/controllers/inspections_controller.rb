@@ -285,9 +285,6 @@ class InspectionsController < ApplicationController
       admin_id = params[:admin_id].presence || Current.user.id
     end
 
-    debug = User.find(admin_id)
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(debug.inspect)
 
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
@@ -308,8 +305,6 @@ class InspectionsController < ApplicationController
       new_doc_path = DocumentGeneratorLibre.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     end
 
-    puts("555555555555555555555555555555555555555555555555555")
-    puts(new_doc_path)
     send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
   rescue StandardError => e
     flash[:alert] = "Error al generar el documento: #{e.message}"
