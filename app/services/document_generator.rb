@@ -906,6 +906,26 @@ class DocumentGenerator
 
     doc.replace('{{admin_profesion}}', admin.profesion)
 
+
+    general_photos = revision_base.revision_photos.ordered_by_code.select { |photo| photo.code.start_with?('GENERALCODE') }
+    non_general_photos = revision_base.revision_photos.ordered_by_code.reject { |photo| photo.code.start_with?('GENERALCODE') }
+
+    # Combina ambas colecciones, con las que empiezan por GENERALCODE primero
+    revision_photos = general_photos + non_general_photos
+
+
+
+
+
+
+    if revision_photos.empty?
+      doc.replace('CODIGO IMAGEN 24123123', '')
+    end
+
+
+
+
+
     output_path2 = Rails.root.join('tmp', "#{inspection.number}_part3.docx")
     doc.commit(output_path2)
 
@@ -935,236 +955,6 @@ class DocumentGenerator
     original_files << output_path2
 
 
-    general_photos = revision_base.revision_photos.ordered_by_code.select { |photo| photo.code.start_with?('GENERALCODE') }
-    non_general_photos = revision_base.revision_photos.ordered_by_code.reject { |photo| photo.code.start_with?('GENERALCODE') }
-
-    # Combina ambas colecciones, con las que empiezan por GENERALCODE primero
-    revision_photos = general_photos + non_general_photos
-
-
-    unless revision_photos.empty?
-
-      # Directorio temporal para guardar el archivo LaTeX y las imágenes
-      latex_dir = Rails.root.join('tmp', 'latex')
-      FileUtils.mkdir_p(latex_dir)
-
-      # Nombre base que incluye `inspection.number`
-      base_name = inspection.number.to_s + '_' + inspection.ins_date.strftime('%m') + '_' + inspection.ins_date.strftime('%Y') + '_' + item_rol
-
-      # Nombre del archivo LaTeX
-      latex_file = File.join(latex_dir, "#{base_name}_document.tex")
-
-      # Generar el contenido LaTeX dinámicamente basado en las imágenes
-      latex_content = "\\documentclass{article}\n"
-      latex_content += "\\usepackage{graphicx}\n"
-      latex_content += "\\usepackage{geometry}\n"
-      latex_content += "\\geometry{a4paper, margin=1in}\n"
-      latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
-      latex_content += "\\begin{document}\n"
-
-
-      # Ciclo para procesar todas las duplas de imágenes
-      revision_photos.each_slice(2) do |photos|
-        latex_content += "\\begin{figure}[h!]\n"
-
-        # Si solo hay una imagen en el grupo, centrarla
-        if photos.size == 1
-          photo = photos.first
-          image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
-          image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
-          FileUtils.cp(image_path, image_destination)
-
-          latex_content += "  \\centering\n"
-          latex_content += "  \\includegraphics[width=0.4\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-        else
-          # Para pares de imágenes, dividirlas en columnas
-          photos.each do |photo|
-            image_path = ActiveStorage::Blob.service.path_for(photo.photo.key)
-            image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
-            FileUtils.cp(image_path, image_destination)
-            latex_content += "  \\begin{minipage}[b]{0.45\\textwidth}\n"
-            latex_content += "    \\centering\n"
-            latex_content += "    \\includegraphics[width=0.8\\textwidth, height=0.5\\textheight, keepaspectratio]{#{File.basename(image_destination)}}\n"
-            latex_content += "  \\end{minipage}\n"
-            latex_content += "  \\hfill\n" if photos.size > 1
-          end
-        end
-
-        latex_content += "\\end{figure}\n"
-        latex_content += "\\newpage\n" # Forzar salto de página después de cada par de imágenes
-      end
-
-
-      latex_content += "\\end{document}\n"
-
-      # Guardar el contenido en el archivo LaTeX
-      File.open(latex_file, 'w') { |file| file.write(latex_content) }
-
-      # Compilar el archivo LaTeX a PDF usando el comando pdflatex
-      Dir.chdir(latex_dir) do
-        stdout, stderr, status = Open3.capture3("pdflatex #{File.basename(latex_file)}")
-        unless status.success?
-          render plain: "Error al compilar LaTeX: #{stderr}", status: :internal_server_error
-          return
-        end
-      end
-
-      # Convertir PDF a imágenes (una por página)
-      pdf_file = File.join(latex_dir, "#{base_name}_document.pdf")
-      image_output_base = File.join(latex_dir, "#{base_name}_page")
-      stdout, stderr, status = Open3.capture3("pdftoppm -png #{pdf_file} #{image_output_base}")
-      unless status.success?
-        render plain: "Error al convertir PDF a imágenes: #{stderr}", status: :internal_server_error
-        return
-      end
-
-      n_images = 0;
-      # Recortar las áreas vacías alrededor de las imágenes usando `convert`
-      Dir.glob("#{image_output_base}-*.png").each do |image|
-        n_images+=1
-        stdout, stderr, status = Open3.capture3("convert #{image} -trim #{image}")
-        unless status.success?
-          render plain: "Error al recortar la imagen: #{stderr}", status: :internal_server_error
-          return
-        end
-      end
-
-      texto_imagen_doble_path = Rails.root.join('app', 'templates', 'texto_imagen.docx')
-      texto_imagen_singular_path = Rails.root.join('app', 'templates', 'texto_imagen-1.docx')
-
-      for i in (1..n_images)
-        # Construimos la ruta de la imagen basada en el índice actual
-        image_path = "#{image_output_base}-#{i}.png"
-
-        # Comprobamos si la imagen existe
-        if File.exist?(image_path)
-          # Debug para mostrar la imagen que se está procesando
-
-          # Obtener las dimensiones de la imagen
-          image_height = FastImage.size(image_path)[1]
-          image_width = FastImage.size(image_path)[0]
-
-          # Limitar la altura a un máximo de 400 px, manteniendo la escala
-          if image_height > 400
-            scale_factor = 400.0 / image_height
-            scaled_height = 400
-            scaled_width = (image_width * scale_factor).to_i
-          else
-            scaled_height = image_height
-            scaled_width = image_width
-          end
-
-          # Crear el hash con las dimensiones ajustadas para la imagen
-          images_to_write = [
-            {
-              path: image_path,
-              height: scaled_height,
-              width: scaled_width
-            }
-          ]
-
-          # Escribimos la imagen en el documento
-          Omnidocx::Docx.write_images_to_doc(images_to_write, output_path, output_path)
-
-          # Verificar si es la última iteración y si el número de imágenes es impar
-          if i == n_images && revision_photos.size.odd?
-
-            # Usar el texto para una sola imagen
-            Omnidocx::Docx.merge_documents([output_path, texto_imagen_singular_path], output_path, false)
-            doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
-
-
-            text_imagen_comment = nil
-
-            if !revision_photos.last.code.start_with?("GENERALCODE")
-
-              temp_code, temp_point = revision_photos.last.code.split(" ", 2)
-
-              index2 = nil
-              revision.codes.each_with_index do |code, index|
-                if code == temp_code && revision.points[index] == temp_point
-                  index2 = index
-                  text_imagen_comment = revision.comment[index2]
-                  break
-                end
-              end
-            end
-
-            if text_imagen_comment
-              doc_code_photo.replace('{{code}}', "#{revision_photos.last.code.sub('GENERALCODE', '')} #{text_imagen_comment}")
-            else
-              doc_code_photo.replace('{{code}}', revision_photos.last.code.sub('GENERALCODE', ''))
-            end
-
-
-          else
-            # Usar el texto para imagen doble
-            Omnidocx::Docx.merge_documents([output_path, texto_imagen_doble_path], output_path, false)
-            doc_code_photo = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
-
-
-
-            text_imagen_comment = nil
-
-            if !revision_photos[(i*2)-2].code.start_with?("GENERALCODE")
-
-              temp_code, temp_point = revision_photos[(i*2)-2].code.split(" ", 2)
-
-              index2 = nil
-              revision.codes.each_with_index do |code, index|
-                if code == temp_code && revision.points[index] == temp_point
-                  index2 = index
-                  text_imagen_comment = revision.comment[index2]
-                  break
-                end
-              end
-            end
-
-            if text_imagen_comment
-              doc_code_photo.replace('{{code_1}}', "#{revision_photos[(i*2)-2].code.sub('GENERALCODE', '')} #{text_imagen_comment}")
-            else
-              doc_code_photo.replace('{{code_1}}', revision_photos[(i*2)-2].code.sub('GENERALCODE', ''))
-            end
-
-            text_imagen_comment = nil
-
-            if !revision_photos[(i*2)-1].code.start_with?("GENERALCODE")
-
-              temp_code, temp_point = revision_photos[(i*2)-1].code.split(" ", 2)
-
-              index2 = nil
-              revision.codes.each_with_index do |code, index|
-                if code == temp_code && revision.points[index] == temp_point
-                  index2 = index
-                  text_imagen_comment = revision.comment[index2]
-                  break
-                end
-              end
-            end
-
-            if text_imagen_comment
-              doc_code_photo.replace('{{code_2}}', "#{revision_photos[(i*2)-1].code.sub('GENERALCODE', '')} #{text_imagen_comment}")
-            else
-              doc_code_photo.replace('{{code_2}}', revision_photos[(i*2)-1].code.sub('GENERALCODE', ''))
-            end
-
-          end
-          doc_code_photo.commit(output_path)
-
-
-        end
-      end
-
-
-
-
-
-      Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
-        File.delete(file_path) if File.exist?(file_path)
-      end
-
-
-    end
 
 
 
@@ -1398,7 +1188,6 @@ class DocumentGenerator
     end
 
 
-    puts("3333333333333333333333333333333333333333333333333333333")
 
     doc.commit(output_path)
 
@@ -1406,7 +1195,81 @@ class DocumentGenerator
       File.delete(file_path) if File.exist?(file_path)
     end
 
-    puts("44444444444444444444444444444444444444444444444444444444444444444")
+
+
+    require 'json'
+    require 'fileutils'
+
+    dir_name = "imagenes_#{inspection.number}"
+    dir_path = File.join(Rails.root, 'tmp', dir_name)
+
+    FileUtils.mkdir_p(dir_path)
+
+    docx_basename = File.basename(output_path)
+    docx_new_path = File.join(dir_path, docx_basename)
+    FileUtils.mv(output_path, docx_new_path)
+
+    photos_mapping = []
+    counter = 1
+
+
+    puts("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
+    revision_photos.each do |photo|
+
+      original_ext = File.extname(photo.photo.blob.filename.to_s)
+      ext = original_ext.empty? ? ".jpg" : original_ext
+
+      new_filename = "#{counter}#{ext}"
+      new_file_path = File.join(dir_path, new_filename)
+
+      File.open(new_file_path, 'wb') do |file|
+        file.write(photo.photo.download)
+      end
+
+      text_imagen_comment = nil
+      unless photo.code.start_with?("GENERALCODE")
+
+        temp_code, temp_point = photo.code.split(' ', 2)
+        index2 = nil
+        revision.codes.each_with_index do |c, idx|
+          if c == temp_code && revision.points[idx] == temp_point
+            index2 = idx
+            text_imagen_comment = revision.comment[idx]
+            break
+          end
+        end
+      end
+
+      final_code_text = photo.code.sub('GENERALCODE', '')
+      final_text = if text_imagen_comment
+                     "#{final_code_text} #{text_imagen_comment}"
+                   else
+                     final_code_text
+                   end
+
+      photos_mapping << {
+        "filename" => new_filename,
+        "text"     => final_text.strip
+      }
+
+      counter += 1
+    end
+
+    mapping_json_path = File.join(dir_path, 'mapping.json')
+    File.write(mapping_json_path, photos_mapping.to_json)
+
+    script_path = File.join(Rails.root, 'app', 'scripts', 'insertar_imagenes.py')
+    token       = "CODIGO IMAGEN 24123123"
+
+    cmd = "python3 #{script_path} --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
+    system(cmd)
+
+    FileUtils.mv(docx_new_path, output_path)
+
+    FileUtils.rm_rf(dir_path)
+
+
+
 
     return output_path
 

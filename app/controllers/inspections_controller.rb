@@ -273,7 +273,6 @@ class InspectionsController < ApplicationController
   end
 
 
-
   def download_document
 
     inspection = Inspection.find(params[:id])
@@ -316,6 +315,7 @@ class InspectionsController < ApplicationController
     flash[:alert] = "Error al generar el documento: #{e.message}"
     redirect_to inspection_path(inspection)
   end
+
 
   def close_inspection
     @inspection = Inspection.find(params[:id])

@@ -658,6 +658,24 @@ class DocumentGeneratorLadder
     doc.replace('{{admin_profesion}}', admin.profesion)
 
 
+    general_photos = revision_base.revision_photos.ordered_by_code.select { |photo| photo.code.start_with?('GENERALCODE') }
+    non_general_photos = revision_base.revision_photos.ordered_by_code.reject { |photo| photo.code.start_with?('GENERALCODE') }
+
+    # Combina ambas colecciones, con las que empiezan por GENERALCODE primero
+    revision_photos = general_photos + non_general_photos
+
+
+
+
+
+
+    if revision_photos.empty?
+      doc.replace('CODIGO IMAGEN 24123123', '')
+    end
+
+
+
+
     output_path2 = Rails.root.join('tmp', "#{inspection.number}_part3.docx")
     doc.commit(output_path2)
 
