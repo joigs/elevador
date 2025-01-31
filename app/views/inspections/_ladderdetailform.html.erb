@@ -9,14 +9,14 @@
                     data: {
                       controller: "form-completion-alert",
                       action: "click->form-completion-alert#handleClick",
-                      form_completion_alert_destination_url_value: edit_ladder_detail_path(detail, closed: true, inspection_origin: inspection),
+                      form_completion_alert_destination_url_value: edit_ladder_detail_path(ladder_detail, closed: true, inspection_origin: inspection),
                       form_completion_alert_is_inspection_open_value: (inspection.state == 'Abierto').to_s
                     },
                     class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" %>
 
     <% else %>
       <%= link_to 'Modificar datos',
-                  edit_ladder_detail_path(detail, closed: true, inspection_origin: inspection),
+                  edit_ladder_detail_path(ladder_detail, closed: true, inspection_origin: inspection),
                   class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" %>
     <% end %>
   <% end %>

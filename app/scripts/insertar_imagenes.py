@@ -93,7 +93,6 @@ def main():
             inserted = True
             break
 
-    if not inserted:
 
     doc.save(docx_path)
 
