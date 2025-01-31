@@ -30,7 +30,7 @@
            data-warning-control="<%= @control %>"
            data-warning-last-inspection-url="<%= inspection_path(@last_inspection) %>">
 
-        <% if Current.user.admin %>
+        <% if Current.user.admin || Current.user.certificar %>
           <% if @inspection.informe.attached? %>
             <div class="flex items-center">
               <strong class="mr-2">Informe:</strong>
@@ -48,7 +48,9 @@
                       class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
                               hover:bg-green-600 transition duration-200" %>
 
-        <% elsif Current.user.empresa.nil? %>
+        <% end %>
+
+        <% if Current.user.empresa.nil? && (Current.user.inspeccionar || @inspection.users.exists?(id: Current.user&.id)) %>
           <% if @control2 %>
             <%= link_to 'Realizar inspección',
                         edit_ladder_detail_path(@detail),
@@ -106,7 +108,7 @@
             <% end %>
           </div>
 
-          <% if Current.user.admin && @report.ending.present? %>
+          <% if (Current.user.admin || Current.user.certificar) && @report.ending.present? %>
             <%= form_with model: @inspection, url: update_inf_date_inspection_path(@inspection), local: true do |f| %>
               <div class="mb-2">
                 <%= f.label :inf_date, "Fecha de emisión del informe", class: "block mb-1" %>
@@ -129,15 +131,15 @@
           <%= link_to 'Ver fallas encontradas',
                       ladder_revision_path(inspection_id: @inspection),
                       class: "px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 mt-2" \
-                if Current.user.admin || @inspection.owner? %>
+                if Current.user.admin || @inspection.owner? || Current.user.certificar %>
         <% else %>
           <%= link_to 'Ver fallas encontradas',
                       revision_path(inspection_id: @inspection),
                       class: "px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 mt-2" \
-                if Current.user.admin || @inspection.owner? %>
+                if Current.user.admin || @inspection.owner? || Current.user.certificar %>
         <% end %>
 
-        <% if Current.user.admin && @inspection.state != "Cerrado" %>
+        <% if (Current.user.admin || Current.user.crear || Current.user.certificar) && @inspection.state != "Cerrado" %>
           <%= link_to 'Forzar cierre de inspección',
                       '#',
                       class: "px-3 py-2 rounded bg-teal-600 text-gray-900 font-bold hover:bg-teal-700 mt-2",
@@ -154,20 +156,43 @@
           <% end %>
         <% end %>
 
-        <%= link_to 'Generar informe',
-                    download_document_inspection_path(@inspection),
-                    class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 mt-2" \
-              if @inspection.state == "Cerrado" && Current.user.admin && @report.ending %>
+        <% if @inspection.state == "Cerrado" && (Current.user.admin || Current.user.certificar) && @report.ending %>
+          <% if Current.user.admin %>
+            <%= link_to 'Generar informe',
+                        download_document_inspection_path(@inspection),
+                        class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 mt-2" %>
+          <% else %>
+            <%= form_with url: download_document_inspection_path(@inspection),
+                          method: :get,
+                          local: true,
+                          data: { turbo: "false" } do |form| %>
+
+              <%= form.label :admin_id, "Seleccione un administrador:",
+                             class: "block text-sm font-medium text-gray-300" %>
+
+              <%= form.collection_select :admin_id, User.where(admin: true, super: false),
+                                         :id, :real_name, {},
+                                         {
+                                           class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                                           data: { controller: 'slim' }
+                                         } %>
+
+              <%= form.submit "Generar informe",
+                              class: "mt-3 px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 cursor-pointer" %>
+            <% end %>
+
+      <% end %>
+        <% end %>
 
         <%= link_to 'Modificar inspección',
                     edit_inspection_path(@inspection),
                     class: "px-3 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-600 mt-2" \
-              if Current.user.admin || @inspection.owner? %>
+              if Current.user.admin || @inspection.owner? || Current.user.crear %>
 
         <%= link_to 'Programar nueva inspección para este activo',
                     new_with_last_inspection_path(@inspection),
                     class: "px-3 py-2 rounded bg-pink-600 text-gray-900 font-bold hover:bg-pink-800 mt-2" \
-              if Current.user.admin && @inspection.state == "Cerrado" && @inspection == @last_inspection %>
+              if (Current.user.admin || Current.user.crear) && @inspection.state == "Cerrado" && @inspection == @last_inspection %>
 
         <%= link_to 'Eliminar inspección',
                     inspection_path(@inspection),
@@ -176,7 +201,7 @@
                       controller: "inspection-delete-confirmation",
                       action: "click->inspection-delete-confirmation#deleteItem",
                       delete_confirmation_redirect_url_value: "/inspections"
-                    } if Current.user.admin %>
+                    } if Current.user.admin || Current.user.crear %>
       </div>
 
       <div>

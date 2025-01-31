@@ -51,4 +51,33 @@ class User < ApplicationRecord
     permisos.exists?(nombre: 'cotizar')
   end
 
+  def certificar
+    permisos.exists?(nombre: 'certificar')
+  end
+
+  def inspeccionar
+    permisos.exists?(nombre: 'inspeccionar')
+  end
+
+  def crear
+    permisos.exists?(nombre: 'crear')
+  end
+
+
+
+  scope :con_permiso_inspeccionar, -> {
+    joins(:permisos).where(permisos: { nombre: 'inspeccionar' })
+  }
+
+  scope :admin_false_o_inspeccionar, -> {
+    left_joins(:permisos)
+      .where(admin: false)
+      .or(
+        left_joins(:permisos)
+          .where(permisos: { nombre: 'inspeccionar' })
+      )
+      .distinct
+  }
+
+
 end

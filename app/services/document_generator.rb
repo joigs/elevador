@@ -1197,7 +1197,7 @@ class DocumentGenerator
     doc = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
 
-
+    puts("11111111111111111111111111111")
 
 
     rules.each_with_index do |rule, index|
@@ -1293,7 +1293,7 @@ class DocumentGenerator
       end
     end
 
-
+    puts("222222222222222222222222222222222222")
 
     if detail.sala_maquinas == "Si"
       doc.replace('{{tabla_aplica1}}', 'NO APLICA A ÉSTA INSPECCIÓN')
@@ -1398,7 +1398,7 @@ class DocumentGenerator
     end
 
 
-
+    puts("3333333333333333333333333333333333333333333333333333333")
 
     doc.commit(output_path)
 
@@ -1406,6 +1406,7 @@ class DocumentGenerator
       File.delete(file_path) if File.exist?(file_path)
     end
 
+    puts("44444444444444444444444444444444444444444444444444444444444444444")
 
     return output_path
 

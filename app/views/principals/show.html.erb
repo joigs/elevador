@@ -15,19 +15,19 @@
 
   <div class="flex flex-wrap justify-start space-x-2 mt-4">
     <div class="lg:w-auto flex flex-col space-y-2">
-      <% if Current.user.admin?%>
+      <% if Current.user.admin? || Current.user.crear %>
         <%= link_to 'Modificar empresa', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% elsif Current.user.principal_id == @principal.id  %>
         <%= link_to 'Modificar datos', edit_principal_path(@principal), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% end %>
-      <% if Current.user.admin? %>
+      <% if Current.user.admin? || Current.user.crear %>
         <%= link_to 'Eliminar empresa', principal_path(@principal), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/principals" } %>
       <% end %>
 
     </div>
   </div>
 
-  <% if Current.user.admin || Current.user.principal_id == @principal.id %>
+  <% if Current.user.admin || Current.user.principal_id == @principal.id || Current.user.crear %>
 
     <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
       <div class="tracking-wide text-2xl font-bold text-gray-300 mb-4">Descarga de reportes</div>
