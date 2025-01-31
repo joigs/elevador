@@ -15,7 +15,7 @@
         <%= link_to "Modificar Identificador", edit_identificador_item_path(@item), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
       <% end %>
 
-      <% if Current.user.admin %>
+      <% if Current.user.admin  || Current.user.crear %>
         <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" %>
       <% end %>
 
@@ -26,7 +26,7 @@
         <%= link_to "Ver última inspección", inspection_path(@inspection), class: "px-4 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-300" %>
       <% end %>
 
-      <% if Current.user.admin %>
+      <% if Current.user.admin  || Current.user.crear %>
         <%= link_to "Eliminar activo", item_path(@item), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/items" } %>
       <% end %>
 
