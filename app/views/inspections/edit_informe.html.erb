@@ -20,12 +20,13 @@
 
   <%= form_with(model: @inspection, url: update_informe_inspection_path(@inspection), method: :patch, multipart: true, class: "space-y-4") do |form| %>
     <div>
-      <%= form.label :informe, "Subir nuevo informe (.docx solamente):", class: "block text-gray-300 font-bold mb-2" %>
+      <%= form.label :informe, "Subir informe (de preferencia .docx):", class: "block text-gray-300 font-bold mb-2" %>
       <%= form.file_field :informe, accept: ".docx,.pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
     </div>
+    <%= form.hidden_field :dummy_field, value: "1" %>
 
     <div>
-      <%= form.submit "Subir", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+      <%= form.submit "Subir", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
     </div>
   <% end %>
 

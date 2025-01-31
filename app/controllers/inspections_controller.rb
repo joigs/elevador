@@ -670,23 +670,33 @@ class InspectionsController < ApplicationController
   end
 
   def update_informe
-
     @inspection = Inspection.find(params[:id])
     authorize! @inspection
 
-    if params[:inspection][:informe].present?
-      @inspection.informe.purge if @inspection.informe.attached?
-      if @inspection.update(informe: params[:inspection][:informe])
-        redirect_to @inspection, notice: "Informe actualizado exitosamente. Subido el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
-      else
-        flash.now[:alert] = "Error al subir el informe."
-        render :edit_informe
-      end
-    else
+    if params[:inspection].nil? || params[:inspection][:informe].blank?
       flash.now[:alert] = "Debes seleccionar un archivo para subir."
-      render :edit_informe
+
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.append('flash', partial: 'shared/flash') }
+        format.html { render :edit_informe }
+      end
+      return
+    end
+
+    @inspection.informe.purge if @inspection.informe.attached?
+
+    if @inspection.update(informe: params[:inspection][:informe])
+      redirect_to @inspection, notice: "Informe actualizado exitosamente. Subido el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
+    else
+      flash.now[:alert] = "Error al subir el informe."
+
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.append('flash', partial: 'shared/flash') }
+        format.html { render :edit_informe }
+      end
     end
   end
+
 
   def download_informe
 
@@ -749,7 +759,7 @@ class InspectionsController < ApplicationController
   end
 
   def informe_params
-    params.require(:inspection).permit(:informe)
+    params.require(:inspection).permit(:informe, :dummy_field)
   end
 
 
