@@ -1258,10 +1258,12 @@ class DocumentGenerator
     mapping_json_path = File.join(dir_path, 'mapping.json')
     File.write(mapping_json_path, photos_mapping.to_json)
 
-    script_path = File.join(Rails.root, 'app', 'scripts', 'insertar_imagenes.py')
+    venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
+
+    script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
     token       = "CODIGO IMAGEN 24123123"
 
-    cmd = "python3 #{script_path} --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
+    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
     system(cmd)
 
     FileUtils.mv(docx_new_path, output_path)
