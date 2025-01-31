@@ -4,10 +4,10 @@ class ItemPolicy < BasePolicy
   end
 
   def edit_identificador
-    Current.user.admin || record.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
+    Current.user.admin || record.inspections.where("number > 0").last&.users&.exists?(id: Current.user&.id)
   end
   def update_identificador
-    Current.user.admin || record.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
+    Current.user.admin || record.inspections.where("number > 0").last&.users&.exists?(id: Current.user&.id)
   end
 
   def edit_empresa
@@ -18,11 +18,11 @@ class ItemPolicy < BasePolicy
   end
 
   def edit_group
-    Current.user.admin || record.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
+    Current.user.admin || record.inspections.where("number > 0").last&.users&.exists?(id: Current.user&.id)
   end
 
   def update_group
-    Current.user.admin || record.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
+    Current.user.admin || record.inspections.where("number > 0").last&.users&.exists?(id: Current.user&.id)
   end
 
 end

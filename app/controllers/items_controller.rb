@@ -26,7 +26,7 @@ class ItemsController < ApplicationController
 
 
     @inspection = Inspection.where(item: @item).order(number: :desc).first
-    @condicion =  Current.user.admin || @item.inspections.where("number > 0").last.users.exists?(id: Current.user&.id)
+    @condicion =  Current.user.admin || @item.inspections.where("number > 0").last&.users&.exists?(id: Current.user&.id)
   end
 
   def new
@@ -185,6 +185,11 @@ class ItemsController < ApplicationController
     end
 
 
+
+    if item_group_params[:group_id] == @item.group_id.to_s
+      flash[:alert] = "El activo ya pertenece a este grupo."
+      redirect_to item_path(@item) and return
+    end
 
     if @item.update(item_group_params)
 

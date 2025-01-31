@@ -17,9 +17,7 @@ class FacturacionPolicy < BasePolicy
     Current.user.solicitar
   end
 
-  def destroy
-    Current.user.solicitar
-  end
+
 
   def upload_cotizacion
     Current.user.cotizar
@@ -35,6 +33,30 @@ class FacturacionPolicy < BasePolicy
   end
 
   def upload_factura
+    Current.user.cotizar
+  end
+
+  def new_bulk_upload
+    Current.user.super
+  end
+
+  def bulk_upload
+    Current.user.super
+  end
+
+  def new_bulk_upload_pdf
+    Current.user.super
+  end
+
+  def bulk_upload_pdf
+    Current.user.super
+  end
+
+  def download_solicitud_template
+    Current.user.solicitar
+  end
+
+  def download_cotizacion_template
     Current.user.cotizar
   end
 

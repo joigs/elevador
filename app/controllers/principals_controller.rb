@@ -37,7 +37,7 @@ class PrincipalsController < ApplicationController
     if params[:tab] == 'inspections'
       @q_inspections = @principal.inspections.ransack(params[:q])
       @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).order(number: :desc)
-      unless Current.user.table
+      unless Current.user.tabla
         @pagy_inspections, @inspections = pagy_countless(@inspections, items: 10)
       end
     end

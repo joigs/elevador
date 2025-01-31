@@ -119,7 +119,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :facturacions, path: 'cotizaciones' do
+  resources :facturacions, only: [:new, :create, :index, :edit, :update, :show], path: 'cotizaciones' do
 
     member do
       get :download_solicitud_file
@@ -132,7 +132,18 @@ Rails.application.routes.draw do
       patch :marcar_entregado
       patch :upload_orden_compra
       patch :upload_factura
+      get :manage_files
+      patch :replace_file
+      get :download_solicitud_template
+      get :download_cotizacion_template
     end
+    collection do
+      get :new_bulk_upload
+      post :bulk_upload
+      get :new_bulk_upload_pdf
+      post :bulk_upload_pdf 
+    end
+
 
     resources :observacions, only: [:create, :edit, :update, :destroy]
   end

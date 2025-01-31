@@ -19,7 +19,7 @@
         <%= link_to "Modificar Empresa", edit_empresa_item_path(@item), class: "px-4 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 transition duration-300" %>
       <% end %>
 
-      <% if @item.group.type_of=="ascensor" %>
+      <% if @item.group.type_of=="ascensor" && @condicion %>
         <%= link_to "Cambiar de grupo", edit_group_item_path(@item), class: "px-4 py-2 rounded bg-cyan-500 text-gray-900 font-bold hover:bg-cyan-600 transition duration-300" %>
       <% end %>
       <% if @inspection %>
@@ -115,16 +115,19 @@
                 <td class="px-6 py-4 whitespace-normal break-words">
                   <%= link_to inspection.item&.principal&.name, principal_path(inspection.item.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                 </td>
-                <td class="px-6 py-4 whitespace-normal break-words">
+                <!-- Fecha de inspección con data-order -->
+                <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.ins_date.strftime('%Y%m%d') %>">
                   <p class="text-white"><%= format_date(inspection.ins_date) %></p>
                 </td>
                 <td class="px-6 py-4 whitespace-normal break-words">
                   <p class="text-white"><%= inspection.result %></p>
                 </td>
-                <td class="px-6 py-4 whitespace-normal break-words">
-                  <p class="text-white"><%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %></p>
+                <!-- Días transcurridos con data-order -->
+                <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= (Date.current - inspection.cambio).to_i %>">
+                  <p class="text-white">
+                    <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
+                  </p>
                 </td>
-
                 <td class="px-6 py-4 whitespace-normal break-words">
                   <% if inspection.users.any? %>
                     <ul>

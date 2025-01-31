@@ -104,10 +104,16 @@ class Inspection < ApplicationRecord
   def informe_format
     return unless informe.attached?
 
-    if informe.blob.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      errors.add(:informe, "debe ser un archivo .docx")
+    valid_content_types = [
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", # .docx
+      "application/pdf" # .pdf
+    ]
+
+    unless valid_content_types.include?(informe.blob.content_type)
+      errors.add(:informe, "debe ser un archivo .docx o .pdf")
     end
   end
+
 
   def update_cambio_if_result_changed
     if result_changed?

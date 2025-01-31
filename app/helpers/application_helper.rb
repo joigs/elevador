@@ -55,4 +55,22 @@ module ApplicationHelper
     pages
   end
 
+
+
+
+  def notification_class(notification_type)
+    case notification_type.to_sym
+    when :solicitud_pendiente
+      "text-yellow-800 border-yellow-300 bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800"
+    when :entrega_pendiente
+      "text-blue-800 border-blue-300 bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
+    when :factura_pendiente
+      "text-green-800 border-green-300 bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800"
+    else
+      "text-gray-800 border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+    end
+  end
+
+
+
 end

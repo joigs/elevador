@@ -21,7 +21,7 @@
   <%= form_with(model: @inspection, url: update_informe_inspection_path(@inspection), method: :patch, multipart: true, class: "space-y-4") do |form| %>
     <div>
       <%= form.label :informe, "Subir nuevo informe (.docx solamente):", class: "block text-gray-300 font-bold mb-2" %>
-      <%= form.file_field :informe, accept: ".docx", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      <%= form.file_field :informe, accept: ".docx,.pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
     </div>
 
     <div>

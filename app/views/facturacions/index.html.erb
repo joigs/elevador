@@ -1,8 +1,20 @@
+
+
+<% if Current.user.super %>
+  <div class="flex justify-end mb-4">
+    <%= link_to "Carga Masiva de Excel", new_bulk_upload_facturacions_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+  </div>
+  <div class="flex justify-end mb-4">
+    <%= link_to "Carga Masiva de pdf", new_bulk_upload_pdf_facturacions_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+  </div>
+<% end %>
+
 <turbo-frame id="facturacions_frame">
   <div class="bg-gray-800">
     <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
       <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
     </div>
+
     <div class="mx-auto px-6 mx-auto text-gray-200 mt-6">
       <div class="text-center mb-4">
         <% if notice.present? %>
@@ -17,17 +29,38 @@
         <% end %>
       </div>
 
-      <label class="text-lg font-semibold mt-6">Fecha de solicitud:</label>
-
-      <div class="mt-2 flex flex-wrap items-end gap-4">
-        <div>
-          <label for="fechaInicio" class="block mb-1">Desde:</label>
-          <input type="date" id="fechaInicio" class="text-black rounded p-1" />
-        </div>
-        <div>
-          <label for="fechaFin" class="block mb-1">Hasta:</label>
-          <input type="date" id="fechaFin" class="text-black rounded p-1" />
-        </div>
+      <div class="mb-4" data-controller="date-filter">
+        <label class="text-lg font-semibold mt-6">Filtrar por fecha de solicitud:</label>
+        <%= form_with(url: facturacions_path, method: :get, local: true, class: "flex flex-wrap items-end gap-4", data: { action: "date-filter#onSubmit" }) do %>
+          <% if params[:notification_id].present? %>
+            <%= hidden_field_tag :notification_id, params[:notification_id] %>
+          <% end %>
+          <div>
+            <label for="fechaInicio" class="block mb-1">Desde:</label>
+            <input type="text"
+                   id="fechaInicio"
+                   name="fecha_inicio"
+                   value="<%= params[:fecha_inicio] %>"
+                   class="text-black rounded p-1"
+                   data-date-filter-target="startDate"
+                   placeholder="Selecciona fecha inicio">
+          </div>
+          <div>
+            <label for="fechaFin" class="block mb-1">Hasta:</label>
+            <input type="text"
+                   id="fechaFin"
+                   name="fecha_fin"
+                   value="<%= params[:fecha_fin] %>"
+                   class="text-black rounded p-1"
+                   data-date-filter-target="endDate"
+                   placeholder="Selecciona fecha fin">
+          </div>
+          <div style="display:none">
+            <button type="submit" data-date-filter-target="submitButton">
+              Filtrar
+            </button>
+          </div>
+        <% end %>
       </div>
 
       <div class="overflow-x-auto table-responsive mt-6">
@@ -40,8 +73,9 @@
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Emisión</th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Entregado</th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Resultado</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">OC</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Orden de <br> compra</th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Factura</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha <br> inspección</th>
           </tr>
           </thead>
           <tbody class="bg-gray-700 divide-y divide-gray-600">
@@ -49,31 +83,34 @@
             <tr class="bg-gray-800 border-b border-gray-700">
               <td class="px-6 py-4 whitespace-normal break-words">
                 <strong>
-                  <%= link_to facturacion.number, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                  <%= link_to facturacion.number, facturacion_path(facturacion, notification_id: params[:notification_id]), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                 </strong>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
                 <strong>
-                  <%= link_to facturacion.name, facturacion_path(facturacion), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                  <%= link_to facturacion.name, facturacion_path(facturacion, notification_id: params[:notification_id]), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                 </strong>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.solicitud&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.solicitud) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.emicion&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.emicion) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.entregado&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.entregado) %></p>
               </td>
               <td class="px-6 py-4 whitespace-normal break-words">
                 <p class="text-white"><%= facturacion.resultado %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.oc&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.oc) %></p>
               </td>
-              <td class="px-6 py-4 whitespace-normal break-words">
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.factura&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.factura) %></p>
+              </td>
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.fecha_inspeccion&.strftime('%Y%m%d') %>">
+                <p class="text-white"><%= format_date(facturacion.fecha_inspeccion) %></p>
               </td>
             </tr>
           <% end %>
@@ -84,154 +121,153 @@
   </div>
 
   <script>
-      document.addEventListener("turbo:load", function() {
-          const tableEl = document.getElementById("facturacions-table");
-          const fechaInicioInput = document.getElementById("fechaInicio");
-          const fechaFinInput = document.getElementById("fechaFin");
-
-          if (
-            tableEl &&
-            typeof simpleDatatables !== "undefined" &&
-            simpleDatatables.DataTable
-          ) {
-              const columnsWithoutFilter = [2, 3, 4, 6, 7];
-
-              const dataTable = new simpleDatatables.DataTable("#facturacions-table", {
-                  columns: [
-                      { select: 2, searchable: false },
-                      { select: 3, searchable: false },
-                      { select: 4, searchable: false },
-                      { select: 6, searchable: false },
-                      { select: 7, searchable: false },
-                  ],
-                  labels: {
-                      placeholder: "Buscar...",
-                      perPage: "Registros por pág.",
-                      noRows: "No hay datos para mostrar",
-                      noResults: "No hay resultados que coincidan con tu búsqueda",
-                      info: "Mostrando {start} a {end} de {rows} entradas"
-                  },
-                  tableRender: (_data, table, type) => {
-                      if (type === "print") {
-                          return table;
-                      }
-                      table.childNodes[0].childNodes.forEach((row) => {
-                          if (!row.attributes) row.attributes = {};
-                          row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                          row.childNodes.forEach((th) => {
-                              if (!th.attributes) th.attributes = {};
-                              th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                          });
-                      });
-
-                      const tHead = table.childNodes[0];
-                      const firstRow = tHead.childNodes[0];
-
-                      const filterHeaders = {
-                          nodeName: "TR",
-                          attributes: {
-                              class: "search-filtering-row bg-gray-800 text-white",
-                          },
-                          childNodes: firstRow.childNodes.map((_th, index) => {
-                              if (columnsWithoutFilter.includes(index)) {
-                                  return {
-                                      nodeName: "TH",
-                                      attributes: { style: "padding-top: 1rem;" },
-                                      childNodes: [
-                                          {
-                                              nodeName: "INPUT",
-                                              attributes: {
-                                                  type: "search",
-                                                  disabled: "disabled",
-                                                  placeholder: "Sin filtro",
-                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
-                                                  style: "cursor: not-allowed;",
-                                              }
-                                          }
-                                      ]
-                                  };
-                              }
-                              return {
-                                  nodeName: "TH",
-                                  attributes: { style: "padding-top: 1rem;" },
-                                  childNodes: [
-                                      {
-                                          nodeName: "INPUT",
-                                          attributes: {
-                                              class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                              type: "search",
-                                              "data-columns": "[" + index + "]",
-                                              placeholder: "Filtrar"
-                                          }
-                                      }
-                                  ]
-                              };
-                          })
-                      };
-
-                      tHead.childNodes.push(filterHeaders);
-                      return table;
-                  },
-              });
-
-              dataTable.on("datatable.page", filtrarPorFechas);
-              dataTable.on("datatable.sort", filtrarPorFechas);
-              dataTable.on("datatable.search", filtrarPorFechas);
-              dataTable.on("datatable.perpage", filtrarPorFechas);
-
-              fechaInicioInput.addEventListener("change", filtrarPorFechas);
-              fechaFinInput.addEventListener("change", filtrarPorFechas);
-
-              function filtrarPorFechas() {
-                  const fechaInicioValue = fechaInicioInput.value;
-                  const fechaFinValue = fechaFinInput.value;
-
-                  const fechaInicio = fechaInicioValue ? new Date(fechaInicioValue) : null;
-                  const fechaFin = fechaFinValue ? new Date(fechaFinValue) : null;
-
-                  if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-                      alert(
-                        "Las fechas no son válidas: la fecha inicial no puede ser posterior a la fecha final."
-                      );
-                      return;
+      // Plugin que añade un botón de "Clear"
+      function clearButtonPlugin() {
+          return function(fp) {
+              return {
+                  onReady: function() {
+                      const clearBtn=document.createElement("button")
+                      clearBtn.type="button"
+                      clearBtn.textContent="Quitar fecha"
+                      clearBtn.className="flatpickr-clear-btn"
+                      clearBtn.addEventListener("click",function(){
+                          fp.clear()
+                          fp.close()
+                      })
+                      fp.calendarContainer.appendChild(clearBtn)
                   }
-
-                  const allRows = tableEl.querySelectorAll("tbody tr");
-
-                  allRows.forEach((row) => {
-                      const solicitudCell = row.querySelectorAll("td")[2];
-                      const solicitudTexto = (solicitudCell?.textContent || "").trim();
-
-                      if (!solicitudTexto) {
-                          row.style.display = fechaInicio || fechaFin ? "none" : "";
-                          return;
-                      }
-
-                      const partes = solicitudTexto.split("/");
-                      if (partes.length !== 3) {
-                          row.style.display = "";
-                          return;
-                      }
-
-                      const dia = parseInt(partes[0], 10);
-                      const mes = parseInt(partes[1], 10) - 1;
-                      const anio = parseInt(partes[2], 10);
-                      const fechaSolicitud = new Date(anio, mes, dia);
-
-                      if (
-                        (fechaInicio && fechaSolicitud < fechaInicio) ||
-                        (fechaFin && fechaSolicitud > fechaFin)
-                      ) {
-                          row.style.display = "none";
-                      } else {
-                          row.style.display = "";
-                      }
-                  });
               }
-
-              filtrarPorFechas();
           }
-      });
+      }
+
+      function initFacturacionsTable(){
+          const tableEl=document.getElementById("facturacions-table")
+          if(tableEl&&typeof simpleDatatables!=="undefined"&&simpleDatatables.DataTable){
+              const columnsWithoutFilter=[2,3,4,6,7,8]
+              new simpleDatatables.DataTable(tableEl,{
+                  columns:[
+                      {select:2,searchable:false},
+                      {select:3,searchable:false},
+                      {select:4,searchable:false},
+                      {select:6,searchable:false},
+                      {select:7,searchable:false},
+                      {select:8,searchable:false}
+                  ],
+                  labels:{
+                      placeholder:"Buscar...",
+                      perPage:"Registros por pág.",
+                      noRows:"No hay datos para mostrar",
+                      noResults:"No hay resultados que coincidan con tu búsqueda",
+                      info:"Mostrando {start} a {end} de {rows} entradas"
+                  },
+                  tableRender:function(_data,table,type){
+                      if(type==="print"){return table}
+                      table.childNodes[0].childNodes.forEach(function(row){
+                          if(!row.attributes)row.attributes={}
+                          row.attributes.class=(row.attributes.class||"")+" bg-gray-800 text-white"
+                          row.childNodes.forEach(function(th){
+                              if(!th.attributes)th.attributes={}
+                              th.attributes.class=(th.attributes.class||"")+" bg-gray-800 text-white"
+                          })
+                      })
+                      const tHead=table.childNodes[0]
+                      const firstRow=tHead.childNodes[0]
+                      const filterHeaders={
+                          nodeName:"TR",
+                          attributes:{class:"search-filtering-row bg-gray-800 text-white"},
+                          childNodes:firstRow.childNodes.map(function(_th,index){
+                              if(columnsWithoutFilter.includes(index)){
+                                  return{
+                                      nodeName:"TH",
+                                      attributes:{style:"padding-top: 1rem;"},
+                                      childNodes:[{
+                                          nodeName:"INPUT",
+                                          attributes:{
+                                              type:"search",
+                                              disabled:"disabled",
+                                              placeholder:"Sin filtro",
+                                              class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                              style:"cursor: not-allowed;"
+                                          }
+                                      }]
+                                  }
+                              }
+                              return{
+                                  nodeName:"TH",
+                                  attributes:{style:"padding-top: 1rem;"},
+                                  childNodes:[{
+                                      nodeName:"INPUT",
+                                      attributes:{
+                                          class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                          type:"search",
+                                          "data-columns":"["+index+"]",
+                                          placeholder:"Filtrar"
+                                      }
+                                  }]
+                              }
+                          })
+                      }
+                      tHead.childNodes.push(filterHeaders)
+                      return table
+                  }
+              })
+          }
+      }
+
+      function initFlatpickrFilters(){
+
+          const startDate = document.querySelector("[data-date-filter-target='startDate']")
+          const endDate   = document.querySelector("[data-date-filter-target='endDate']")
+          const submitButton = document.querySelector("[data-date-filter-target='submitButton']")
+
+          if (!submitButton) return
+
+          if (startDate) {
+              flatpickr(startDate, {
+                  dateFormat:"d-m-Y",
+                  minDate:"01-01-2020",
+                  maxDate:"31-12-3000",
+                  locale:"es",
+                  static:false,
+                  altInput:true,
+                  altFormat:"d-m-Y",
+                  onChange:function(){
+                      submitButton.click()
+                  },
+                  plugins:[ clearButtonPlugin() ]
+              })
+          }
+
+          if (endDate) {
+              flatpickr(endDate, {
+                  dateFormat:"d-m-Y",
+                  minDate:"01-01-2020",
+                  maxDate:"31-12-3000",
+                  locale:"es",
+                  static:false,
+                  altInput:true,
+                  altFormat:"d-m-Y",
+                  onChange:function(){
+                      submitButton.click()
+                  },
+                  plugins:[ clearButtonPlugin() ]
+              })
+          }
+      }
+
+
+      document.addEventListener("turbo:load",function(){
+          initFlatpickrFilters()
+          initFacturacionsTable()
+      })
+
+      document.addEventListener("turbo:frame-load",function(e){
+          if(e.target.id==="facturacions_frame"){
+              initFlatpickrFilters()
+              initFacturacionsTable()
+          }
+      })
+
   </script>
 
   <style>
@@ -278,6 +314,20 @@
           background-color: #3a3a3a !important;
           color: #aaa !important;
           cursor: not-allowed !important;
+      }
+
+      .flatpickr-clear-btn {
+          background: #e53e3e;
+          border: 0;
+          color: #fff;
+          padding: 0.25rem 0.5rem;
+          margin-left: 1rem;
+          cursor: pointer;
+          font-size: 0.9rem;
+          border-radius: 4px;
+      }
+      .flatpickr-clear-btn:hover {
+          background: #c53030;
       }
   </style>
 </turbo-frame>
