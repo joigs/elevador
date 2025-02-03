@@ -23,6 +23,18 @@ def add_table_after(paragraph, doc, rows=0, cols=2):
     paragraph._p.addnext(tbl_elem)
     return Table(tbl_elem, paragraph._parent)
 
+def remove_table_header_formatting(table):
+    """
+    Elimina cualquier formato de encabezado en la primera fila de la tabla.
+    También fuerza el fondo blanco en todas las celdas.
+    """
+    for row in table.rows:
+        for cell in row.cells:
+            tcPr = cell._element.get_or_add_tcPr()
+            shading = OxmlElement('w:shd')
+            shading.set(qn('w:fill'), "FFFFFF")  # Fondo blanco
+            tcPr.append(shading)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--folder", required=True, help="Directorio donde están el DOCX, mapping.json e imágenes")
@@ -63,7 +75,7 @@ def main():
 
             new_paragraph = add_paragraph_after(paragraph)
             table = add_table_after(new_paragraph, doc, rows=0, cols=2)
-            table.style = 'Table Grid'
+            remove_table_header_formatting(table)  # ← Aquí se corrige el formato de la tabla
 
             for i in range(0, len(photos_mapping), 2):
                 row_img  = table.add_row()
@@ -93,9 +105,7 @@ def main():
             inserted = True
             break
 
-
     doc.save(docx_path)
 
 if __name__ == "__main__":
     main()
-
