@@ -24,16 +24,26 @@ def add_table_after(paragraph, doc, rows=0, cols=2):
     return Table(tbl_elem, paragraph._parent)
 
 def remove_table_header_formatting(table):
-    """
-    Elimina cualquier formato de encabezado en la primera fila de la tabla.
-    También fuerza el fondo blanco en todas las celdas.
-    """
+ 
     for row in table.rows:
         for cell in row.cells:
             tcPr = cell._element.get_or_add_tcPr()
+
             shading = OxmlElement('w:shd')
             shading.set(qn('w:fill'), "FFFFFF")  # Fondo blanco
             tcPr.append(shading)
+
+            borders = OxmlElement('w:tcBorders')
+
+            for border_name in ['top', 'left', 'bottom', 'right']:
+                border = OxmlElement(f'w:{border_name}')
+                border.set(qn('w:val'), 'single') 
+                border.set(qn('w:sz'), '4')  
+                border.set(qn('w:space'), '0')  
+                border.set(qn('w:color'), '000000')  
+                borders.append(border)
+
+            tcPr.append(borders)
 
 def main():
     parser = argparse.ArgumentParser()
