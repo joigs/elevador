@@ -24,28 +24,12 @@ def add_table_after(paragraph, doc, rows=0, cols=2):
     return Table(tbl_elem, paragraph._parent)
 
 def remove_table_header_formatting(table):
-
     for row in table.rows:
         for cell in row.cells:
             tcPr = cell._element.get_or_add_tcPr()
             shading = OxmlElement('w:shd')
             shading.set(qn('w:fill'), "FFFFFF")  
             tcPr.append(shading)
-
-def set_table_borders(table):
-
-    for row in table.rows:
-        for cell in row.cells:
-            tcPr = cell._element.get_or_add_tcPr()
-            borders = OxmlElement('w:tcBorders')
-            for border_name in ['top', 'left', 'bottom', 'right']:
-                border = OxmlElement(f'w:{border_name}')
-                border.set(qn('w:val'), 'single') 
-                border.set(qn('w:sz'), '4')    
-                border.set(qn('w:space'), '0')   
-                border.set(qn('w:color'), '000000')  
-                borders.append(border)
-            tcPr.append(borders)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -87,8 +71,7 @@ def main():
 
             new_paragraph = add_paragraph_after(paragraph)
             table = add_table_after(new_paragraph, doc, rows=0, cols=2)
-            remove_table_header_formatting(table)  # Elimina formato de encabezado
-            set_table_borders(table)  # Agrega bordes manualmente
+            remove_table_header_formatting(table) 
 
             for i in range(0, len(photos_mapping), 2):
                 row_img  = table.add_row()
