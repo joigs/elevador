@@ -62,11 +62,8 @@ class Inspection < ApplicationRecord
   end
 
   def check_and_update_state
-
-
     return unless report
-
-    if Date.today > report.ending&
+    if report.ending && Date.today > report.ending
       self.result = 'Vencido'
     end
   end

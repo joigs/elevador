@@ -37,12 +37,12 @@
 
     <% unless request.path =~ /\/revisions\/\d+\/edit/ || request.path =~ /\/ladder_revisions\/\d+\/edit/ %>
 
-    <div class="flex items-center">
-      <%= link_to raw('<svg class="h-4 w-4 text-blue-600 inline-block mr-2 align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-</svg> Home'), home_path, class: "text-lg text-blue-600 hover:text-blue-700 font-semibold transition duration-150 ease-in-out" %>
-    </div>
-<% end %>
+      <div class="flex items-center">
+        <%= link_to raw('<svg class="h-4 w-4 text-blue-600 inline-block mr-2 align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg> Home'), home_path, class: "text-lg text-blue-600 hover:text-blue-700 font-semibold transition duration-150 ease-in-out" %>
+      </div>
+    <% end %>
 
     <div class="flex">
       <%= link_to 'Mi perfil', perfil_path(Current.user.username), class: "text-green-500 hover:text-green-700" if Current.user %>
