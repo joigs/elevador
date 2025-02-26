@@ -84,10 +84,10 @@
     <%= form.label :"N° Serie", class: "block text-gray-300" %>
     <%= form.text_field :mm_nserie, data: { controller: "uppercase", uppercase_target: "input" }, maxlength: 100, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Potencia", class: "block text-gray-300" %>
+    <%= form.label :"Potencia kw", class: "block text-gray-300" %>
     <%= form.number_field :potencia, max: 1000000, min:0, step: 0.00001, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Capacidad", class: "block text-gray-300" %>
+    <%= form.label :"Capacidad kg", class: "block text-gray-300" %>
     <%= form.number_field :capacidad, max: 1000000, min:0, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Personas", class: "block text-gray-300" %>
@@ -96,22 +96,22 @@
     <hr class="my-4 border-gray-500">
 
 
-    <%= form.label :"Peldaños", class: "block text-gray-300" %>
+    <%= form.label :"Peldaños mm", class: "block text-gray-300" %>
     <%= form.number_field :peldaños, max: 1000000, min:0, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Longitud", class: "block text-gray-300" %>
     <%= form.number_field :longitud, max: 1000000, min:0, step: 0.00001, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Inclinación", class: "block text-gray-300" %>
+    <%= form.label :"Inclinación °", class: "block text-gray-300" %>
     <%= form.number_field :inclinacion, max: 90, min:0, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Ancho", class: "block text-gray-300" %>
+    <%= form.label :"Ancho mm", class: "block text-gray-300" %>
     <%= form.number_field :ancho, max: 1000000, min:0, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Velocidad", class: "block text-gray-300" %>
+    <%= form.label :"Velocidad m/s", class: "block text-gray-300" %>
     <%= form.number_field :velocidad, max: 1000000, min:0, step: 0.00001, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
-    <%= form.label :"Fabricación", class: "block text-gray-300" %>
+    <%= form.label :"Año de Fabricación", class: "block text-gray-300" %>
     <%= form.number_field :fabricacion, max: 1000000, min:0, class: "block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full" %>
 
     <%= form.label :"Procedencia", class: "block text-gray-300" %>
