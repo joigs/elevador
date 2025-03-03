@@ -129,9 +129,8 @@
       </button>
     </div>
 
-
     <div data-tabs-target="originalSection">
-      <div class="flex justify-center my-4 items-center" data-controller="file-upload show-comment-on-upload">
+      <div class="flex justify-center my-4 items-center" data-controller="file-upload show-comment-on-upload preview">
         <div class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
           <label for="imagen_general_original" class="flex items-center cursor-pointer">
             <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none"
@@ -148,16 +147,20 @@
                              data: {
                                file_upload_target: "file",
                                show_comment_on_upload_target: "file",
-                               action: "file-upload#fileChanged change->file-upload#fileChanged change->show-comment-on-upload#fileChanged"
+                               preview_target: "fileInput",
+                               action: "file-upload#fileChanged change->file-upload#fileChanged change->show-comment-on-upload#fileChanged change->preview#showImage"
                              },
                              accept: "image/*" %>
         </div>
-        <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
+
+        <img data-preview-target="previewImage"
+             alt="Vista previa"
+             style="display: none; max-width: 200px; margin-left: 10px;" />
       </div>
     </div>
 
     <div data-tabs-target="reducedSection" class="hidden">
-      <div class="flex justify-center my-4 items-center" data-controller="file-upload image-resize show-comment-on-upload">
+      <div class="flex justify-center my-4 items-center" data-controller="file-upload image-resize show-comment-on-upload preview">
         <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center cursor-pointer">
           <label for="imagen_general_reducida" class="flex items-center cursor-pointer">
             <svg class="h-8 w-8 text-white mr-2" viewBox="0 0 24 24" fill="none"
@@ -175,14 +178,19 @@
                                file_upload_target: "file",
                                image_resize_target: "file",
                                show_comment_on_upload_target: "file",
-                               action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->show-comment-on-upload#fileChanged"
+                               preview_target: "fileInput",
+                               action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->show-comment-on-upload#fileChanged change->preview#showImage"
                              },
                              accept: "image/*" %>
         </div>
-        <span data-file-upload-target="filename" class="text-gray-500 ml-4">No hay archivo seleccionado</span>
+
+        <img data-preview-target="previewImage"
+             alt="Vista previa"
+             style="display: none; max-width: 200px; margin-left: 10px;" />
       </div>
     </div>
   </div>
+
 
 
 
@@ -324,7 +332,7 @@
             <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
 
             <td class="px-4 py-4 justify-center items-center overflow-hidden">
-              <div data-controller="file-upload image-resize">
+              <div data-controller="file-upload image-resize preview">
                 <%= file_field_tag "revision_photos[photo][]",
                                    class: "w-full",
                                    id: "photo_#{index}",
@@ -334,15 +342,23 @@
                                      rules_form_target: "photo",
                                      file_upload_target: "file",
                                      image_resize_target: "file",
-                                     action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage",
+                                     preview_target: "fileInput",
+                                     action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->preview#showImage",
                                    },
                                    accept: "image/*" %>
 
                 <label for="photo_#{index}" class="cursor-pointer">
-                  <span data-file-upload-target="filename" class="text-gray-500">No hay archivo seleccionado</span>
+      <span data-file-upload-target="filename" class="text-gray-500">
+        No hay archivo seleccionado
+      </span>
                 </label>
+
+                <img data-preview-target="previewImage"
+                     alt="Vista previa"
+                     style="display: none; max-width: 200px; margin-top: 8px;" />
               </div>
             </td>
+
 
             <% comment_index = if @revision_map[rule.code] && @revision_map[rule.code][rule.point]
                                  @revision_map[rule.code][rule.point]
