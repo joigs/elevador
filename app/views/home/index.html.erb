@@ -1,3 +1,12 @@
+
+<% if Current.user.super %>
+  <div class="flex justify-center mt-6">
+    <%= button_to '🔄 Revisar Vencimientos', check_all_expirations_path, method: :post, class: "px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" %>
+  </div>
+<% end %>
+
+
+
 <% @notifications.each do |notification| %>
   <div class="p-4 mb-4 border rounded-lg shadow-md mx-4 <%= notification_class(notification.notification_type) %>" role="alert">
     <div class="flex items-center">

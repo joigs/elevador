@@ -19,6 +19,9 @@ Rails.application.routes.draw do
     end
   end
   root 'home#index', as: 'home'
+
+  post 'check_all_expirations', to: 'home#check_all_expirations', as: :check_all_expirations
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :authentication, path: '', as: '' do
     resources :users, path: '/users' do

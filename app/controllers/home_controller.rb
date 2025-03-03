@@ -23,7 +23,10 @@ class HomeController < ApplicationController
 
   end
 
-
+  def check_all_expirations
+    Inspection.check_all_expirations
+    redirect_to home_path, notice: 'Se han revisado los vencimientos.'
+  end
 
   private
 
