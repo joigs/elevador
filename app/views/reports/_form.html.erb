@@ -67,7 +67,7 @@
           <div  class="space-y-4 mt-4">
             <div>
               <%= form.label :fecha_sistema, "Fecha certificación anterior", class: "block text-gray-300" %>
-              <%= form.date_field :fecha_sistema, value: @report.fecha, class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+              <%= form.date_field :fecha_sistema, value: (@report.fecha || @previous_inspection.ins_date), class: "block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
             </div>
 
             <div>
