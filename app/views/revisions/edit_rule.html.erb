@@ -1,0 +1,38 @@
+<!-- app/views/revisions/edit_rule.html.erb -->
+<div class="max-w-4xl mx-auto">
+  <h1>Editar defecto personalizado</h1>
+
+  <div>
+    <%= form_with(model: @another,
+                  url: update_rule_revision_path(@inspection.id),
+                  method: :patch) do |f| %>
+
+      <%= hidden_field_tag "another[id]", @another.id %>
+      <%= hidden_field_tag "another[section]", @another.section %>
+      <%= hidden_field_tag :inspection_id, @inspection.id %>
+
+      <div>
+        <%= f.label :point, "Defecto" %>
+        <%= f.text_area :point, rows: 5 %>
+      </div>
+
+      <div>
+        <%= f.label :level, "Nivel de importancia" %>
+        <%= f.collection_check_boxes(:level, [['L', 'Leve'], ['G', 'Grave']], :first, :last, include_hidden: false) do |b| %>
+          <%= b.check_box %>
+          <%= b.label %>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :ins_type, "Tipo de defecto" %>
+        <%= f.collection_check_boxes(:ins_type, [['DO','DO'],['VI','VI'],['FU','FU'],['DI','DI']], :first, :last, include_hidden: false) do |b| %>
+          <%= b.check_box %>
+          <%= b.label %>
+        <% end %>
+      </div>
+
+      <%= f.submit "Guardar cambios" %>
+    <% end %>
+  </div>
+</div>

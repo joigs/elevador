@@ -174,12 +174,15 @@ class RevisionsController < ApplicationController
         @third_revision = @third_revision_base.revision_colors.find_by(section: @section)
       end
     end
+    @original_rules_count = @rules.size
 
     @anothers = Another.where(item_id: @item.id, section: @section)
 
-
+    @another_ids = []
 
     additional_rules = @anothers.map do |another|
+      @another_ids << another.id
+
       Rule.new(
         point: another.point,
         level: another.level,
@@ -828,6 +831,39 @@ class RevisionsController < ApplicationController
       render :new_rule
     end
   end
+
+
+  def edit_rule
+    @inspection = Inspection.find(params[:inspection_id])
+    # Asegúrate de tener @revision_base, etc. si lo requieres
+
+    @another = Another.find(params[:another_id])
+    @section = params[:section]
+
+    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+    authorize! @revision_base  # O como manejes tu pundit/cancancan
+
+    # Renderizar una vista "edit_rule.html.erb" muy similar a tu "new_rule" pero con @another cargado
+  end
+
+  def update_rule
+    @inspection = Inspection.find(params[:inspection_id])
+    @another = Another.find(params[:another][:id])
+    @section = params[:another][:section]
+    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+
+    authorize! @revision_base
+
+    if @another.update(another_params)
+      flash[:notice] = "Defecto personalizado actualizado."
+      redirect_to edit_revision_path(inspection_id: @inspection.id, section: @section)
+    else
+      flash[:alert] = "Error al actualizar."
+      render :edit_rule
+    end
+  end
+
+
 
   private
 

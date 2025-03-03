@@ -251,14 +251,41 @@
           <% end %>
 
           <tr class="border-b bg-gray-800 border-gray-700" data-controller="rules-form">
+
+            <% if index >= @original_rules_count %>
+
             <td>
-              <div class="flex justify-center items-center">
-                <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
-                <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}", class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
-                                  data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox' } %>
-                <%= label_tag "null_condition_#{index}", "" %>
-              </div>
+
+              <% another_index = index - @original_rules_count %>
+              <% another_id    = @another_ids[another_index] %>
+              <%= link_to "Editar",
+                          edit_rule_revision_path(
+                            id: @revision_base,
+                            inspection_id: @inspection.id,
+                            section: @section,
+                            another_id: another_id
+                          ),
+                          class: "bg-yellow-500 text-white px-3 py-1 rounded" %>
+
+              <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+              <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}", class: "hidden",
+                                data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox' } %>
+              <%= label_tag "null_condition_#{index}", "" %>
+
             </td>
+
+            <% else %>
+
+              <td>
+                <div class="flex justify-center items-center">
+                  <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
+                  <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}", class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                                    data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox' } %>
+                  <%= label_tag "null_condition_#{index}", "" %>
+                </div>
+              </td>
+            <% end %>
+
 
 
             <% if @black_inspection %>
