@@ -110,6 +110,8 @@ Rails.application.routes.draw do
       #get 'edit_libre', to: 'revisions#edit_libre'
       get 'new_rule', to: 'revisions#new_rule'
       post 'create_rule', to: 'revisions#create_rule'
+      get   :edit_rule
+      patch :update_rule
     end
   end
 

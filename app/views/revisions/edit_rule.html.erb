@@ -1,0 +1,75 @@
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-8">Editar defecto personalizado</h1>
+
+  <div class="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+    <%= form_with(model: @another, local: true, url: update_rule_revision_path(@inspection.id), method: :patch) do |form| %>
+
+      <!-- Importante para que luego puedas ubicar la Another en el update_rule -->
+      <%= hidden_field_tag "another[id]", @another.id %>
+      <%= hidden_field_tag "another[section]", @another.section %>
+      <%= hidden_field_tag :inspection_id, @inspection.id %>
+
+      <% if @another.errors.any? %>
+        <div class="text-red-400 bg-red-800 p-2 rounded">
+          <h2>Error: El defecto no pudo ser actualizado:</h2>
+          <ul>
+            <% @another.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="mb-4">
+        <%= form.label :point, "Defecto", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.text_area :point,
+                           rows: 5,
+                           class: "shadow appearance-none border rounded w-full py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :level, "Nivel de importancia", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.collection_check_boxes(
+          :level,
+          [['L', 'Leve'], ['G', 'Grave']],
+          :first,
+          :last,
+          include_hidden: false
+        ) do |b| %>
+          <div class="inline-block mr-2">
+            <%= b.check_box(class: "form-checkbox text-blue-600 bg-gray-700 border-white focus:ring-2 focus:ring-blue-600") %>
+            <%= b.label(class: "ml-1 text-white") %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mb-4">
+        <%= form.label :ins_type, "Tipo de defecto", class: "block text-gray-300 font-bold mb-2" %>
+        <%= form.collection_check_boxes(
+          :ins_type,
+          [['DO', 'DO'], ['VI', 'VI'], ['FU', 'FU'], ['DI', 'DI']],
+          :first,
+          :last,
+          include_hidden: false
+        ) do |b| %>
+          <div class="inline-block mr-2">
+            <%= b.check_box(class: "form-checkbox text-blue-600 bg-gray-700 border-white focus:ring-2 focus:ring-blue-600") %>
+            <%= b.label(class: "ml-1 text-white") %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <%= form.submit "Guardar cambios",
+                        class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="text-center mt-4">
+    <%= link_to 'Volver a inspección',
+                edit_revision_path(inspection_id: @inspection.id, section: @section),
+                class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+  </div>
+</div>

@@ -174,12 +174,15 @@ class RevisionsController < ApplicationController
         @third_revision = @third_revision_base.revision_colors.find_by(section: @section)
       end
     end
+    @original_rules_count = @rules.size
 
     @anothers = Another.where(item_id: @item.id, section: @section)
 
-
+    @another_ids = []
 
     additional_rules = @anothers.map do |another|
+      @another_ids << another.id
+
       Rule.new(
         point: another.point,
         level: another.level,
@@ -828,6 +831,74 @@ class RevisionsController < ApplicationController
       render :new_rule
     end
   end
+
+
+  def edit_rule
+    @inspection = Inspection.find(params[:inspection_id])
+    # Asegúrate de tener @revision_base, etc. si lo requieres
+
+    @another = Another.find(params[:another_id])
+    @section = params[:section]
+
+    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+    authorize! @revision_base  # O como manejes tu pundit/cancancan
+
+    # Renderizar una vista "edit_rule.html.erb" muy similar a tu "new_rule" pero con @another cargado
+  end
+
+  def update_rule
+    @inspection = Inspection.find(params[:inspection_id])
+    @another = Another.find(params[:another][:id])
+    @section = params[:another][:section]
+    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+
+    authorize! @revision_base
+
+    past_text = @another.point
+
+    if @another.update(another_params)
+
+      @revision_bases_ids = Revision.where(item_id: @inspection.item_id).pluck(:id)
+
+      @revisions = []
+      @revision_bases_ids.each do |revision_id|
+        @revisions << RevisionColor.find_by(revision_id: revision_id, section: @section)
+      end
+
+      @revisions.each do |revision|
+        revision.codes.each_with_index do |code, index|
+          if code == @another.code && revision.points[index] == past_text
+
+
+
+
+            if revision.levels[index] == "G"
+              puts(another_params.inspect)
+              if @another.level == ["L"]
+                revision.levels[index] = "L"
+              end
+            elsif revision.levels[index] == "L"
+              if @another.level == ["G"]
+                revision.levels[index] = "G"
+              end
+            end
+
+
+            revision.points[index] = @another.point
+            revision.save
+          end
+        end
+      end
+
+      flash[:notice] = "Defecto personalizado actualizado."
+      redirect_to edit_revision_path(inspection_id: @inspection.id, section: @section)
+    else
+      flash[:alert] = "Error al actualizar."
+      render :edit_rule
+    end
+  end
+
+
 
   private
 
