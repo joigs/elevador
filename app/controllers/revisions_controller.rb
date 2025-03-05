@@ -854,7 +854,42 @@ class RevisionsController < ApplicationController
 
     authorize! @revision_base
 
+    past_text = @another.point
+
     if @another.update(another_params)
+
+      @revision_bases_ids = Revision.where(item_id: @inspection.item_id).pluck(:id)
+
+      @revisions = []
+      @revision_bases_ids.each do |revision_id|
+        @revisions << RevisionColor.find_by(revision_id: revision_id, section: @section)
+      end
+
+      @revisions.each do |revision|
+        revision.codes.each_with_index do |code, index|
+          if code == @another.code && revision.points[index] == past_text
+
+
+
+
+            if revision.levels[index] == "G"
+              puts(another_params.inspect)
+              if @another.level == ["L"]
+                revision.levels[index] = "L"
+              end
+            elsif revision.levels[index] == "L"
+              if @another.level == ["G"]
+                revision.levels[index] = "G"
+              end
+            end
+
+
+            revision.points[index] = @another.point
+            revision.save
+          end
+        end
+      end
+
       flash[:notice] = "Defecto personalizado actualizado."
       redirect_to edit_revision_path(inspection_id: @inspection.id, section: @section)
     else

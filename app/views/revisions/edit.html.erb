@@ -265,7 +265,11 @@
                             section: @section,
                             another_id: another_id
                           ),
-                          class: "bg-yellow-500 text-white px-3 py-1 rounded" %>
+                          class: "bg-yellow-500 text-white px-3 py-1 rounded",
+                          data: { controller: "submit-redirect",
+                                  action: "click->submit-redirect#submitAndRedirect",
+                                  submit_redirect_redirect_url: edit_rule_revision_path(inspection_id: @inspection.id, section: @section, another_id: another_id) }
+              %>
 
               <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
               <%= check_box_tag "revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}", class: "hidden",
