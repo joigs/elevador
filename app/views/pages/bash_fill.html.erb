@@ -148,6 +148,18 @@
 
 </div>
 
+
+<!-- Botón para continuar a la edición múltiple -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+  <form id="selected-inspections-form" action="<%= bash_fill_detail_path %>" method="get">
+    <!-- Este input oculto contendrá los números de las inspecciones seleccionadas, separados por coma -->
+    <input type="hidden" name="inspection_numbers" id="inspection_numbers_input" value="">
+    <button type="submit" id="continue-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+      Continuar a Editar Detalles
+    </button>
+  </form>
+</div>
+
 <!-- Modal (ventana emergente) para mostrar Inspection / Detail / Report -->
 <!--
   Se añaden clases para animación:
@@ -239,6 +251,9 @@
       </div>
     </div>
   </div>
+
+
+
 </div>
 
 <script>
@@ -525,5 +540,31 @@
                 }
             });
         });
+
+
+        // Código para recolectar los números de las inspecciones seleccionadas
+        const continueButton = document.getElementById('continue-button');
+        continueButton.addEventListener('click', function(e) {
+            const selectedContainer = document.getElementById('selected-inspections');
+            const selectedItems = selectedContainer.querySelectorAll('.inspection-item');
+            let numbers = [];
+            selectedItems.forEach(item => {
+                const dataInspection = JSON.parse(item.getAttribute('data-inspection') || '{}');
+                if (dataInspection.number) {
+                    numbers.push(dataInspection.number);
+                }
+            });
+            if (numbers.length === 0) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No hay inspecciones seleccionadas',
+                    text: 'Por favor, seleccione al menos una inspección para continuar.'
+                });
+                return;
+            }
+            document.getElementById('inspection_numbers_input').value = numbers.join(',');
+        });
+
     });
 </script>

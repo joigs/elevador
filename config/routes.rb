@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
 
   get 'bash_fill', to: 'pages#bash_fill'
+  get 'bash_fill_detail', to: 'pages#bash_fill_detail'
 
   resources :details
   resources :ladder_details

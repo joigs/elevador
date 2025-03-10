@@ -1,0 +1,538 @@
+<!-- app/views/pages/bash_fill_detail.html.erb -->
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <h1 class="text-3xl font-bold text-white mb-6 text-center">
+    Editar Detalles de Inspecciones Seleccionadas
+  </h1>
+
+  <!-- Panel Global para datos compartidos (todos los campos excepto los seriales) -->
+  <div id="global-panel" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-4 bg-gray-800 p-4 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-white mb-4">Datos Globales (Aplicar a todos)</h2>
+
+    <!-- Campos generales -->
+    <div class="form-group">
+      <label for="global_rol_n" class="block text-gray-300">Rol N°</label>
+      <input type="text" id="global_rol_n" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para Rol N°">
+    </div>
+    <div class="form-group">
+      <label for="global_numero_permiso" class="block text-gray-300">N° de permiso de edificación</label>
+      <input type="number" id="global_numero_permiso" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para permiso">
+    </div>
+    <div class="form-group">
+      <label for="global_fecha_permiso" class="block text-gray-300">Fecha de permiso de edificación</label>
+      <input type="date" id="global_fecha_permiso" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md">
+    </div>
+    <div class="form-group">
+      <label for="global_porcentaje" class="block text-gray-300">% de ocupación</label>
+      <input type="number" id="global_porcentaje" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para % de ocupación">
+    </div>
+    <div class="form-group">
+      <label for="global_destino" class="block text-gray-300">Destino</label>
+      <select id="global_destino" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md">
+        <option value="S/I">S/I</option>
+        <option value="Equipamiento">Equipamiento</option>
+        <option value="Residencial">Residencial</option>
+        <option value="Habitacional (excepto vivienda)">Habitacional (excepto vivienda)</option>
+        <option value="Habitacional">Habitacional</option>
+        <option value="Infraestructura">Infraestructura</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="global_recepcion" class="block text-gray-300">Recepción</label>
+      <input type="date" id="global_recepcion" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md">
+    </div>
+    <div class="form-group">
+      <label for="global_empresa_instaladora_rut" class="block text-gray-300">Empresa Instaladora RUT</label>
+      <input type="text" id="global_empresa_instaladora_rut" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para empresa instaladora RUT">
+    </div>
+    <div class="form-group">
+      <label for="global_empresa_instaladora" class="block text-gray-300">Empresa Instaladora</label>
+      <input type="text" id="global_empresa_instaladora" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para empresa instaladora">
+    </div>
+    <div class="form-group">
+      <label for="global_detalle" class="block text-gray-300">Detalle</label>
+      <input type="text" id="global_detalle" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para detalle">
+    </div>
+    <div class="form-group">
+      <label for="global_descripcion" class="block text-gray-300">Descripción</label>
+      <input type="text" id="global_descripcion" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para descripción">
+    </div>
+    <div class="form-group">
+      <label for="global_marca" class="block text-gray-300">Marca</label>
+      <input type="text" id="global_marca" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para marca">
+    </div>
+    <div class="form-group">
+      <label for="global_modelo" class="block text-gray-300">Modelo</label>
+      <input type="text" id="global_modelo" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para modelo">
+    </div>
+    <!-- Motor Motriz (excluyendo mm_n_serie) -->
+    <div class="form-group">
+      <label for="global_mm_marca" class="block text-gray-300">Motor Motriz - Marca</label>
+      <input type="text" id="global_mm_marca" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para motor motriz marca">
+    </div>
+    <div class="form-group">
+      <label for="global_potencia" class="block text-gray-300">Potencia Kw</label>
+      <input type="number" id="global_potencia" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para potencia">
+    </div>
+    <div class="form-group">
+      <label for="global_capacidad" class="block text-gray-300">Capacidad Kg</label>
+      <input type="number" id="global_capacidad" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para capacidad">
+    </div>
+    <div class="form-group">
+      <label for="global_personas" class="block text-gray-300">Personas</label>
+      <input type="number" id="global_personas" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para personas">
+    </div>
+    <!-- Cables de Tracción -->
+    <div class="form-group">
+      <label for="global_ct_marca" class="block text-gray-300">Cables de Tracción - Marca</label>
+      <input type="text" id="global_ct_marca" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para ct_marca">
+    </div>
+    <div class="form-group">
+      <label for="global_ct_cantidad" class="block text-gray-300">Cables de Tracción - Cantidad</label>
+      <input type="number" id="global_ct_cantidad" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para ct_cantidad">
+    </div>
+    <div class="form-group">
+      <label for="global_ct_diametro" class="block text-gray-300">Cables de Tracción - Diámetro mm</label>
+      <input type="number" id="global_ct_diametro" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para ct_diametro">
+    </div>
+    <div class="form-group">
+      <label for="global_medidas_cintas" class="block text-gray-300">Medidas de cintas - Ancho (mm)</label>
+      <input type="number" id="global_medidas_cintas" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para medidas cintas">
+    </div>
+    <div class="form-group">
+      <label for="global_medidas_cintas_espesor" class="block text-gray-300">Medidas de cintas - Espesor (mm)</label>
+      <input type="number" id="global_medidas_cintas_espesor" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para medidas cintas espesor">
+    </div>
+    <!-- Regulador de Velocidad (excluyendo rv_n_serie) -->
+    <div class="form-group">
+      <label for="global_velocidad" class="block text-gray-300">Velocidad m/s</label>
+      <input type="number" id="global_velocidad" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para velocidad">
+    </div>
+    <div class="form-group">
+      <label for="global_rv_marca" class="block text-gray-300">Regulador de Velocidad - Marca</label>
+      <input type="text" id="global_rv_marca" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para rv_marca">
+    </div>
+    <!-- Otros campos -->
+    <div class="form-group">
+      <label for="global_paradas" class="block text-gray-300">Paradas</label>
+      <input type="number" id="global_paradas" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para paradas">
+    </div>
+    <div class="form-group">
+      <label for="global_embarques" class="block text-gray-300">Embarques</label>
+      <input type="number" id="global_embarques" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para embarques">
+    </div>
+    <div class="form-group">
+      <label for="global_sala_maquinas" class="block text-gray-300">Sala de maquinas</label>
+      <select id="global_sala_maquinas" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md">
+        <option value="Responder más tarde">Responder más tarde</option>
+        <option value="Si">Si</option>
+        <option value="No. Máquina en la parte superior">No. Máquina en la parte superior</option>
+        <option value="No. Máquina en foso">No. Máquina en foso</option>
+        <option value="No. Maquinaria fuera de la caja de elevadores">No. Maquinaria fuera de la caja de elevadores</option>
+      </select>
+    </div>
+    <button type="button" id="apply-global" class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+      Aplicar a todos
+    </button>
+  </div>
+
+  <!-- Formulario único para todos los detalles -->
+  <%= form_with url: "#", id: "multi-detail-form", local: true do |form| %>
+    <div id="inspections-container">
+      <% @inspections.each do |inspection| %>
+        <% detail = inspection.item.detail || Detail.new %>
+        <div class="inspection-detail bg-gray-900 p-6 rounded-lg shadow-md my-4" data-inspection-number="<%= inspection.number %>">
+          <h2 class="text-2xl font-bold text-white mb-4">
+            Detalle para Inspección N° <%= inspection.number %>
+          </h2>
+          <!-- Cada campo se muestra con su input y una checkbox "Aplicar" -->
+          <!-- Campo: Rol N° -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][rol_n]", "Rol N°", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][rol_n]", maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.rol_n, id: "detail_#{inspection.number}_rol_n" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="rol_n" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: N° de permiso de edificación -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][numero_permiso]", "N° de permiso de edificación", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][numero_permiso]", max: 1000000000, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.numero_permiso, id: "detail_#{inspection.number}_numero_permiso" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="numero_permiso" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Fecha de permiso de edificación -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][fecha_permiso]", "Fecha de permiso de edificación", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.date_field "details[#{inspection.number}][fecha_permiso]", class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.fecha_permiso, id: "detail_#{inspection.number}_fecha_permiso" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="fecha_permiso" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: % de ocupación -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][porcentaje]", "% de ocupación", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][porcentaje]", max: 100, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.porcentaje, id: "detail_#{inspection.number}_porcentaje" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="porcentaje" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Destino -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][destino]", "Destino", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.select "details[#{inspection.number}][destino]", options_for_select([['S/I', 'S/I'],
+                                                                                            ['Equipamiento', 'Equipamiento'],
+                                                                                            ['Residencial', 'Residencial'],
+                                                                                            ['Habitacional (excepto vivienda)', 'Habitacional (excepto vivienda)'],
+                                                                                            ['Habitacional', 'Habitacional'],
+                                                                                            ['Infraestructura', 'Infraestructura']],
+                                                                                           detail.destino.present? ? detail.destino : 'S/I'),
+                              {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", id: "detail_#{inspection.number}_destino" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="destino" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Recepción -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][recepcion]", "Recepción", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.date_field "details[#{inspection.number}][recepcion]", class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.recepcion, id: "detail_#{inspection.number}_recepcion" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="recepcion" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <hr class="my-4 border-gray-500">
+          <!-- Campo: Empresa Instaladora RUT -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][empresa_instaladora_rut]", "Empresa Instaladora RUT", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][empresa_instaladora_rut]", data: { controller: "rut", rut_target: "rut" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.empresa_instaladora_rut, id: "detail_#{inspection.number}_empresa_instaladora_rut" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="empresa_instaladora_rut" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Empresa Instaladora -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][empresa_instaladora]", "Empresa Instaladora", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][empresa_instaladora]", data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.empresa_instaladora, id: "detail_#{inspection.number}_empresa_instaladora" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="empresa_instaladora" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <hr class="my-4 border-gray-500">
+          <!-- Campo: Detalle -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][detalle]", "Detalle", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][detalle]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.detalle, id: "detail_#{inspection.number}_detalle" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="detalle" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Descripción -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][descripcion]", "Descripción", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][descripcion]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.descripcion, id: "detail_#{inspection.number}_descripcion" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="descripcion" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Marca -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][marca]", "Marca", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][marca]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.marca, id: "detail_#{inspection.number}_marca" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="marca" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Modelo -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][modelo]", "Modelo", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][modelo]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.modelo, id: "detail_#{inspection.number}_modelo" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="modelo" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- No se incluyen los campos de número de serie (n_serie, mm_n_serie, rv_n_serie) -->
+          <hr class="my-4 border-gray-500">
+          <!-- Motor Motriz -->
+          <div class="text-white text-lg font-semibold mt-6 mb-2">
+            Motor Motriz
+          </div>
+          <!-- Campo: mm_marca -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][mm_marca]", "Motor Motriz - Marca", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][mm_marca]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.mm_marca, id: "detail_#{inspection.number}_mm_marca" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="mm_marca" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Potencia -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][potencia]", "Potencia Kw", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][potencia]", max: 1000000, min: 0, step: 0.00001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.potencia, id: "detail_#{inspection.number}_potencia" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="potencia" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Capacidad -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][capacidad]", "Capacidad Kg", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][capacidad]", max: 1000000, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.capacidad, id: "detail_#{inspection.number}_capacidad" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="capacidad" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Personas -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][personas]", "Personas", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][personas]", max: 1000000, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.personas, id: "detail_#{inspection.number}_personas" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="personas" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <hr class="my-4 border-gray-500">
+          <!-- Cables de Tracción -->
+          <div class="text-white text-lg font-semibold mt-6 mb-2">
+            Cables de Tracción
+          </div>
+          <!-- Campo: ct_marca -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][ct_marca]", "Cables de Tracción - Marca", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][ct_marca]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.ct_marca, id: "detail_#{inspection.number}_ct_marca" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="ct_marca" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: ct_cantidad -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][ct_cantidad]", "Cables de Tracción - Cantidad", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][ct_cantidad]", max: 1000000, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.ct_cantidad, id: "detail_#{inspection.number}_ct_cantidad" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="ct_cantidad" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: ct_diametro -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][ct_diametro]", "Cables de Tracción - Diámetro mm", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][ct_diametro]", max: 1000000, min: 0, step: 0.00001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.ct_diametro, id: "detail_#{inspection.number}_ct_diametro" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="ct_diametro" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: medidas_cintas -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][medidas_cintas]", "Medidas de cintas - Ancho (mm)", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][medidas_cintas]", max: 1000000, min: 0, step: 0.0001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.medidas_cintas, id: "detail_#{inspection.number}_medidas_cintas" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="medidas_cintas" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: medidas_cintas_espesor -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][medidas_cintas_espesor]", "Medidas de cintas - Espesor (mm)", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][medidas_cintas_espesor]", max: 1000000, min: 0, step: 0.0001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.medidas_cintas_espesor, id: "detail_#{inspection.number}_medidas_cintas_espesor" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="medidas_cintas_espesor" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <hr class="my-4 border-gray-500">
+          <!-- Regulador de Velocidad -->
+          <div class="text-white text-lg font-semibold mt-6 mb-2">
+            Regulador de Velocidad
+          </div>
+          <!-- Campo: velocidad -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][velocidad]", "Velocidad m/s", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][velocidad]", max: 1000000, min: 0, step: 0.0001, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.velocidad, id: "detail_#{inspection.number}_velocidad" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="velocidad" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: rv_marca -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][rv_marca]", "Regulador de Velocidad - Marca", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.text_field "details[#{inspection.number}][rv_marca]", data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.rv_marca, id: "detail_#{inspection.number}_rv_marca" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="rv_marca" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- No se incluye rv_n_serie -->
+          <!-- Campo: Paradas -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][paradas]", "Paradas", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][paradas]", max: 1000000, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.paradas, id: "detail_#{inspection.number}_paradas" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="paradas" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Embarques -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][embarques]", "Embarques", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.number_field "details[#{inspection.number}][embarques]", max: 1000000, min: 0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.embarques, id: "detail_#{inspection.number}_embarques" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="embarques" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <!-- Campo: Sala de maquinas -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][sala_maquinas]", "Sala de maquinas", class: "block text-gray-300" %>
+            <div class="flex items-center">
+              <%= form.select "details[#{inspection.number}][sala_maquinas]", ["Responder más tarde", "Si", "No. Máquina en la parte superior", "No. Máquina en foso", "No. Maquinaria fuera de la caja de elevadores"], {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", selected: detail.sala_maquinas, id: "detail_#{inspection.number}_sala_maquinas" %>
+              <label class="ml-2 text-white">
+                <input type="checkbox" class="apply-global-checkbox" data-field="sala_maquinas" data-inspection="<%= inspection.number %>" checked>
+                Aplicar
+              </label>
+            </div>
+          </div>
+          <%= hidden_field_tag "details[#{inspection.number}][closed]", params[:closed] || false %>
+          <%= hidden_field_tag "details[#{inspection.number}][inspection_origin]", inspection.number %>
+        </div>
+      <% end %>
+    </div>
+    <div class="mt-6">
+      <button type="button" id="multi-submit-button" class="w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        Guardar información
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funcionalidad para aplicar datos globales a cada campo individual (excluyendo seriales)
+        document.getElementById('apply-global').addEventListener('click', function() {
+            // Lista de campos globales (excluye: n_serie, mm_n_serie, rv_n_serie)
+            const globalFields = [
+                'rol_n', 'numero_permiso', 'fecha_permiso', 'porcentaje', 'destino', 'recepcion',
+                'empresa_instaladora_rut', 'empresa_instaladora', 'detalle', 'descripcion', 'marca', 'modelo',
+                'mm_marca', 'potencia', 'capacidad', 'personas',
+                'ct_marca', 'ct_cantidad', 'ct_diametro', 'medidas_cintas', 'medidas_cintas_espesor',
+                'velocidad', 'rv_marca', 'paradas', 'embarques', 'sala_maquinas'
+            ];
+            globalFields.forEach(function(field) {
+                const globalInput = document.getElementById('global_' + field);
+                if (globalInput) {
+                    const globalValue = globalInput.value;
+                    document.querySelectorAll('input.apply-global-checkbox[data-field="'+field+'"]').forEach(function(checkbox) {
+                        if (checkbox.checked) {
+                            const inspection = checkbox.getAttribute('data-inspection');
+                            const detailInput = document.getElementById('detail_' + inspection + '_' + field);
+                            if (detailInput) {
+                                detailInput.value = globalValue;
+                            }
+                        }
+                    });
+                    // Para campos select, manejamos de forma similar
+                    document.querySelectorAll('select.apply-global-select[data-field="'+field+'"]').forEach(function(select) {
+                        if (select.getAttribute('data-apply') === 'true') {
+                            const inspection = select.getAttribute('data-inspection');
+                            const globalSelect = document.getElementById('global_' + field);
+                            if (globalSelect) {
+                                select.value = globalSelect.value;
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        // Funcionalidad del botón "Guardar información"
+        const submitButton = document.getElementById('multi-submit-button');
+        submitButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const form = document.getElementById('multi-detail-form');
+            const formData = new FormData(form);
+            let data = {};
+            formData.forEach((value, key) => {
+                if (data[key]) {
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            });
+            Swal.fire({
+                title: 'Información a enviar',
+                html: `<pre>${JSON.stringify(data, null, 2)}</pre>`,
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+</script>

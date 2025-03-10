@@ -12,6 +12,14 @@ class PagesController < ApplicationController
 
   end
 
-
+  def bash_fill_detail
+    if params[:inspection_numbers].present?
+      numbers = params[:inspection_numbers].split(',')
+      @inspections = Inspection.where(number: numbers)
+    else
+      flash[:alert] = "No se ingresaron inspecciones"
+      redirect_to bash_fill_path
+    end
+  end
 
 end
