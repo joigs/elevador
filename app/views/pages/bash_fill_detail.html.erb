@@ -8,7 +8,6 @@
   <div id="global-panel" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-4 bg-gray-800 p-4 rounded-lg shadow-md">
     <h2 class="text-2xl font-bold text-white mb-4">Datos Globales (Aplicar a todos)</h2>
 
-    <!-- Campos generales -->
     <div class="form-group">
       <label for="global_rol_n" class="block text-gray-300">Rol N°</label>
       <input type="text" id="global_rol_n" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para Rol N°">
@@ -111,7 +110,6 @@
       <label for="global_rv_marca" class="block text-gray-300">Regulador de Velocidad - Marca</label>
       <input type="text" id="global_rv_marca" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para rv_marca">
     </div>
-    <!-- Otros campos -->
     <div class="form-group">
       <label for="global_paradas" class="block text-gray-300">Paradas</label>
       <input type="number" id="global_paradas" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" placeholder="Valor global para paradas">
@@ -144,7 +142,7 @@
           <h2 class="text-2xl font-bold text-white mb-4">
             Detalle para Inspección N° <%= inspection.number %>
           </h2>
-          <!-- Cada campo se muestra con su input y una checkbox "Aplicar" -->
+          <!-- Cada campo se muestra con su input y, para los campos globales, una checkbox "Aplicar" -->
           <!-- Campo: Rol N° -->
           <div class="form-group">
             <%= form.label "details[#{inspection.number}][rol_n]", "Rol N°", class: "block text-gray-300" %>
@@ -286,7 +284,11 @@
               </label>
             </div>
           </div>
-          <!-- No se incluyen los campos de número de serie (n_serie, mm_n_serie, rv_n_serie) -->
+          <!-- Campo: N° de serie (específico, sin checkbox global) -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][n_serie]", "N° de serie", class: "block text-gray-300" %>
+            <%= form.text_field "details[#{inspection.number}][n_serie]", data: { controller: "uppercase", uppercase_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.n_serie, id: "detail_#{inspection.number}_n_serie" %>
+          </div>
           <hr class="my-4 border-gray-500">
           <!-- Motor Motriz -->
           <div class="text-white text-lg font-semibold mt-6 mb-2">
@@ -302,6 +304,11 @@
                 Aplicar
               </label>
             </div>
+          </div>
+          <!-- Campo: mm_n_serie (específico) -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][mm_n_serie]", "Motor Motriz - N° de serie", class: "block text-gray-300" %>
+            <%= form.text_field "details[#{inspection.number}][mm_n_serie]", data: { controller: "uppercase", uppercase_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.mm_n_serie, id: "detail_#{inspection.number}_mm_n_serie" %>
           </div>
           <!-- Campo: Potencia -->
           <div class="form-group">
@@ -423,7 +430,12 @@
               </label>
             </div>
           </div>
-          <!-- No se incluye rv_n_serie -->
+          <!-- Campo: rv_n_serie (específico, sin checkbox) -->
+          <div class="form-group">
+            <%= form.label "details[#{inspection.number}][rv_n_serie]", "Regulador de Velocidad - N° serie", class: "block text-gray-300" %>
+            <%= form.text_field "details[#{inspection.number}][rv_n_serie]", data: { controller: "uppercase", uppercase_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md", value: detail.rv_n_serie, id: "detail_#{inspection.number}_rv_n_serie" %>
+          </div>
+          <hr class="my-4 border-gray-500">
           <!-- Campo: Paradas -->
           <div class="form-group">
             <%= form.label "details[#{inspection.number}][paradas]", "Paradas", class: "block text-gray-300" %>
@@ -472,7 +484,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Funcionalidad para aplicar datos globales a cada campo individual (excluyendo seriales)
+        // Funcionalidad para aplicar datos globales a cada campo individual (excluyendo los seriales)
         document.getElementById('apply-global').addEventListener('click', function() {
             // Lista de campos globales (excluye: n_serie, mm_n_serie, rv_n_serie)
             const globalFields = [
@@ -485,26 +497,56 @@
             globalFields.forEach(function(field) {
                 const globalInput = document.getElementById('global_' + field);
                 if (globalInput) {
-                    const globalValue = globalInput.value;
-                    document.querySelectorAll('input.apply-global-checkbox[data-field="'+field+'"]').forEach(function(checkbox) {
+                    const globalValue = globalInput.value.trim();
+                    // No se considera reemplazo si el valor global está vacío o es "S/I"
+                    if (!globalValue || globalValue === "S/I") return;
+                    // Recorre cada checkbox para este campo
+                    const checkboxes = document.querySelectorAll('input.apply-global-checkbox[data-field="'+field+'"]');
+                    let warnings = [];
+                    checkboxes.forEach(function(checkbox) {
                         if (checkbox.checked) {
                             const inspection = checkbox.getAttribute('data-inspection');
                             const detailInput = document.getElementById('detail_' + inspection + '_' + field);
                             if (detailInput) {
-                                detailInput.value = globalValue;
+                                const currentVal = detailInput.value.trim();
+                                if (currentVal && currentVal !== "S/I" && currentVal !== globalValue) {
+                                    warnings.push(inspection);
+                                }
                             }
                         }
                     });
-                    // Para campos select, manejamos de forma similar
-                    document.querySelectorAll('select.apply-global-select[data-field="'+field+'"]').forEach(function(select) {
-                        if (select.getAttribute('data-apply') === 'true') {
-                            const inspection = select.getAttribute('data-inspection');
-                            const globalSelect = document.getElementById('global_' + field);
-                            if (globalSelect) {
-                                select.value = globalSelect.value;
+                    if (warnings.length > 0) {
+                        Swal.fire({
+                            title: 'Advertencia',
+                            text: 'El campo "' + field + '" en las inspecciones [' + warnings.join(', ') + '] ya tiene un valor diferente. ¿Desea sobrescribirlo?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sobrescribir',
+                            cancelButtonText: 'No sobrescribir'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                checkboxes.forEach(function(checkbox) {
+                                    if (checkbox.checked) {
+                                        const inspection = checkbox.getAttribute('data-inspection');
+                                        const detailInput = document.getElementById('detail_' + inspection + '_' + field);
+                                        if (detailInput) {
+                                            detailInput.value = globalValue;
+                                        }
+                                    }
+                                });
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        checkboxes.forEach(function(checkbox) {
+                            if (checkbox.checked) {
+                                const inspection = checkbox.getAttribute('data-inspection');
+                                const detailInput = document.getElementById('detail_' + inspection + '_' + field);
+                                if (detailInput) {
+                                    detailInput.value = globalValue;
+                                }
+                            }
+                        });
+                    }
                 }
             });
         });
