@@ -508,9 +508,17 @@
                             const inspection = checkbox.getAttribute('data-inspection');
                             const detailInput = document.getElementById('detail_' + inspection + '_' + field);
                             if (detailInput) {
-                                const currentVal = detailInput.value.trim();
-                                if (currentVal && currentVal !== "S/I" && currentVal !== globalValue) {
-                                    warnings.push(inspection);
+                                let currentVal = detailInput.value.trim();
+                                // Si el campo es un dropdown (select), compararlo en minúsculas
+                                if (detailInput.tagName.toLowerCase() === 'select') {
+                                    currentVal = currentVal.toLowerCase();
+                                    if (currentVal && currentVal !== "s/i" && currentVal !== globalValue.toLowerCase()) {
+                                        warnings.push(inspection);
+                                    }
+                                } else {
+                                    if (currentVal && currentVal !== "S/I" && currentVal !== globalValue) {
+                                        warnings.push(inspection);
+                                    }
                                 }
                             }
                         }
