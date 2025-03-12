@@ -3,9 +3,10 @@
   <h1 class="text-3xl font-bold text-white mb-6 text-center">
     Editar Detalles de Inspecciones Seleccionadas
   </h1>
+  <div class="flex flex-col md:flex-row md:space-x-4">
 
   <!-- PANEL GLOBAL (aplicar a todos) -->
-  <div id="global-panel" class="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+    <div id="global-panel" class="bg-gray-800 p-6 rounded-lg shadow-md mb-8 md:mb-0 md:w-1/2">
     <h2 class="text-2xl font-bold text-white mb-4">Datos Globales (Aplicar a todos)</h2>
     <!-- Grid de 2 columnas -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -314,7 +315,9 @@
   </div>
 
   <!-- FORMULARIO CARRUSEL -->
-  <%= form_with url: "#", id: "multi-detail-form", local: true do |form| %>
+    <div class="md:w-1/2">
+
+    <%= form_with url: "#", id: "multi-detail-form", local: true do |form| %>
     <!-- Controles del carrusel (arriba) -->
     <div class="carousel-controls flex justify-between mb-4">
       <button
@@ -334,7 +337,7 @@
     </div>
 
     <!-- Contenedor del carrusel -->
-    <div id="inspections-container" class="relative min-h-[500px]">
+    <div id="inspections-container" >
       <% @inspections.each_with_index do |inspection, index| %>
         <% detail = inspection.item.detail || Detail.new %>
         <div
@@ -342,7 +345,7 @@
           data-inspection-number="<%= inspection.number %>"
         >
           <!-- Fondo y padding del detalle -->
-          <div class="bg-gray-900 p-6 rounded-lg shadow-md h-full overflow-y-auto">
+          <div class="bg-gray-900 p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-bold text-white mb-6">
               Detalle para Inspección N° <%= inspection.number %>
             </h2>
@@ -996,6 +999,8 @@
         </div> <!-- Fin .inspection-detail -->
       <% end %>
     </div>
+        </div>
+    </div>
 
     <!-- Controles del carrusel (abajo) -->
     <div class="carousel-controls flex justify-between mt-4">
@@ -1036,11 +1041,6 @@
     }
     .inspection-detail {
         display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
     }
     .inspection-detail.active {
         display: block;
