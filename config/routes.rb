@@ -39,6 +39,13 @@ Rails.application.routes.draw do
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }
   end
 
+  namespace :api do
+    namespace :v1 do
+      resources :facturacions, only: [:index]
+    end
+  end
+
+
   resources :users, only: :show, path: '/user', param: :username, as: 'perfil' do
     member do
       patch :toggle_tabla

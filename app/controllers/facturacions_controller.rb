@@ -144,7 +144,33 @@ class FacturacionsController < ApplicationController
 
       if valid_file_type?(@facturacion.cotizacion_doc_file, %w[application/msword application/vnd.openxmlformats-officedocument.wordprocessingml.document]) &&
         valid_file_type?(@facturacion.cotizacion_pdf_file, %w[application/pdf])
-        @facturacion.update(emicion: Date.current)
+
+        venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
+        script_path = Rails.root.join('app', 'scripts', 'extract_table_value.py').to_s
+
+        require 'tempfile'
+        temp_file = Tempfile.new(["facturacion_doc", ".docx"])
+        temp_file.binmode
+        temp_file.write(@facturacion.cotizacion_doc_file.blob.download)
+        temp_file.flush
+
+        cmd = "#{venv_python} \"#{script_path}\" --docx \"#{temp_file.path}\""
+        table_value = `#{cmd}`.strip
+
+        temp_file.close
+        temp_file.unlink
+
+        if match = table_value.match(/(\d+(?:[.,]\d+)?)/)
+          number_str = match[1].gsub(/\s+/, '').tr(',', '.')
+          extracted_number = number_str.to_f
+          puts "Número extraído: #{extracted_number}"
+        else
+          flash.now[:alert] = "No se pudo extraer un número válido de la tabla."
+          render :show, status: :unprocessable_entity
+          return
+        end
+
+        @facturacion.update(emicion: Date.current, precio: extracted_number)
 
         notification = Notification.find_by(notification_type: :solicitud_pendiente)
         notification.facturacions.delete(@facturacion) if notification
