@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_17_175328) do
+ActiveRecord::Schema[7.1].define(version: 2025_03_17_185857) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -143,6 +143,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_17_175328) do
     t.date "cambio", default: -> { "curdate()" }, null: false
     t.string "region", null: false
     t.string "comuna", null: false
+    t.bigint "facturacion_id", null: false
+    t.index ["facturacion_id"], name: "index_inspections_on_facturacion_id"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
     t.index ["principal_id"], name: "index_inspections_on_principal_id"
@@ -397,6 +399,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_17_175328) do
   add_foreign_key "details", "items"
   add_foreign_key "inspection_users", "inspections"
   add_foreign_key "inspection_users", "users"
+  add_foreign_key "inspections", "facturacions"
   add_foreign_key "inspections", "items"
   add_foreign_key "inspections", "principals"
   add_foreign_key "items", "groups"

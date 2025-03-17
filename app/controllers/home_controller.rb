@@ -19,6 +19,8 @@ class HomeController < ApplicationController
       @pagy, @inspections = pagy_countless(@inspections, items: 10)
     end
     @facturacions = Facturacion.order(number: :desc)
+    @facturacions = @facturacions.where.not(number: 0)
+
     @notifications = current_notifications
 
   end
@@ -47,5 +49,4 @@ class HomeController < ApplicationController
 
     notifications.uniq
   end
-
 end

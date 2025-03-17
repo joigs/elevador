@@ -5,7 +5,7 @@ module Api
       before_action :authenticate_api_key!
 
       def index
-        @facturacions = Facturacion.all
+        @facturacions = Facturacion.where.not(number: 0)
         render json: @facturacions
       end
 
