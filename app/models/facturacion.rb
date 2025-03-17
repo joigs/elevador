@@ -9,7 +9,7 @@ class Facturacion < ApplicationRecord
   has_one_attached :orden_compra_file
   has_one_attached :facturacion_file
 
-  enum resultado: { "N/A": 0, "En espera": 1, "Aceptado": 2, "Rechazado": 3 }
+  enum resultado: { "N/A": 0, "En espera": 1, "Aceptado": 2, "Rechazado": 3, "Relleno": 4 }
 
   validates :number, presence: true
   validates :name, presence: true
