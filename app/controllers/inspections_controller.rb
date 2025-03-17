@@ -118,6 +118,8 @@ class InspectionsController < ApplicationController
         return
       end
 
+      @facturacion = Facturacion.find_by(number: 0)
+      @inspection.facturacion_id = @facturacion.id
 
       @item.save!
       @inspection.item = @item
