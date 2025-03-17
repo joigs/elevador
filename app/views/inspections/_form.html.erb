@@ -66,11 +66,41 @@
     <%= form.text_field :name, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <div data-controller="place-select" class="mt-3">
-    <%= form.label :place, "Lugar de inspección", class: "block text-gray-300" %>
-    <%= form.text_field :place, list: "place-options", id: "inspection_place", maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { place_select_target: "place" } %>
-    <datalist id="place-options" data-place-select-target="placeList"></datalist>
+  <%= form.hidden_field :place, id: "inspection_place" %>
+
+  <div class="mt-3">
+    <%= form.label :region, "Región", class: "block text-gray-300" %>
+    <%= form.select :region,
+                    options_for_select(communes_by_region.keys),
+                    { prompt: "Selecciona Región" },
+                    { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                      id: "inspection_region",
+                      data: { controller: "slim-select" },
+                      required: true
+                    } %>
   </div>
+
+  <div class="mt-3">
+    <%= form.label :comuna, "Comuna", class: "block text-gray-300" %>
+    <%= form.select :comuna,
+                    [],
+                    { prompt: "Selecciona Comuna" },
+                    { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                      id: "inspection_comuna",
+                      data: { controller: "slim-select" },
+                      required: true
+                    } %>
+  </div>
+
+  <div class="mt-3">
+    <%= form.label :calle, "Calle", class: "block text-gray-300" %>
+    <%= form.text_field :calle,
+                        class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                        id: "inspection_calle",
+                        required: true %>
+  </div>
+
+
 
   <div class="mt-3">
     <%= form.label :ins_date, "Fecha de inspección", class: "block text-gray-300" %>
@@ -95,3 +125,49 @@
     <%= form.submit "#{inspection.new_record? ? 'Crear' : 'Actualizar'} Inspección", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   </div>
 <% end %>
+<script>
+    document.addEventListener("turbo:load", () => {
+        const places = <%= communes_by_region.to_json.html_safe %>;
+
+        const regionSelect = document.getElementById("inspection_region");
+        if (!regionSelect) return;
+
+        const comunaSelect = document.getElementById("inspection_comuna");
+        const calleInput   = document.getElementById("inspection_calle");
+        const placeHidden  = document.getElementById("inspection_place");
+
+        regionSelect.addEventListener("change", function() {
+            const region = regionSelect.value;
+            const comunas = places[region] || [];
+
+            while (comunaSelect.firstChild) {
+                comunaSelect.removeChild(comunaSelect.firstChild);
+            }
+
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Selecciona Comuna";
+            comunaSelect.appendChild(defaultOption);
+
+            comunas.forEach((comuna) => {
+                const option = document.createElement("option");
+                option.value = comuna;
+                option.textContent = comuna;
+                comunaSelect.appendChild(option);
+            });
+
+
+            comunaSelect.value = "";
+            updatePlace();
+        });
+
+        function updatePlace() {
+            const comuna = comunaSelect.value;
+            const calle = calleInput.value;
+            placeHidden.value = comuna ? `${calle}, ${comuna}` : calle;
+        }
+
+        comunaSelect.addEventListener("change", updatePlace);
+        calleInput.addEventListener("input",  updatePlace);
+    });
+</script>

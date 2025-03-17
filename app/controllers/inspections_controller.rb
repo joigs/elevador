@@ -68,7 +68,6 @@ class InspectionsController < ApplicationController
       item_params = inspection_params.slice(:identificador, :group_id, :principal_id)
       item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
 
-      # Agrega errores al objeto @inspection en lugar de flash.now
       if item_params[:group_id] == "bad"
         @inspection.errors.add(:base, "Seleccione un grupo")
         control = false
@@ -741,7 +740,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :principal_name, :name, :number, :rerun, :group_id, :principal_id, user_ids: [])
+    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :comuna, :region, :principal_name, :name, :number, :rerun, :group_id, :principal_id, user_ids: [])
 
   end
   #indices para ordenar

@@ -33,6 +33,9 @@ class Inspection < ApplicationRecord
   validates :inf_date, date: true
   validates :rerun, inclusion: { in: [true, false] }
   validate :informe_format
+  validates :region, presence: true
+  validates :comuna, presence: true
+
 
   has_one_attached :informe
 
