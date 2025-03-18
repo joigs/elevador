@@ -214,8 +214,8 @@ class FacturacionsController < ApplicationController
     end
 
     allowed_types = ["application/pdf", "image/png", "image/jpeg", "image/jpg"]
-    if resultado == 2 && (!orden_compra_file || !valid_uploaded_file?(orden_compra_file, allowed_types))
-      flash.now[:alert] = "Debes subir un archivo válido (PDF, PNG, JPG, o JPEG) para la orden de compra cuando el resultado es Aceptado."
+    if orden_compra_file.present? && !valid_uploaded_file?(orden_compra_file, allowed_types)
+      flash.now[:alert] = "Tipo de archivo invalido"
       render :show, status: :unprocessable_entity
       return
     end
