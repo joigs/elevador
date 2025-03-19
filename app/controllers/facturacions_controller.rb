@@ -251,7 +251,6 @@ class FacturacionsController < ApplicationController
     end
 
     facturacion_file = params[:facturacion][:facturacion_file]
-    fecha_inspeccion = params[:facturacion][:fecha_inspeccion]
 
     if facturacion_file.blank?
       flash.now[:alert] = "El archivo PDF es obligatorio."
@@ -259,11 +258,7 @@ class FacturacionsController < ApplicationController
       return
     end
 
-    if fecha_inspeccion.blank?
-      flash.now[:alert] = "La fecha de inspección es obligatoria."
-      render :show, status: :unprocessable_entity
-      return
-    end
+
 
     @facturacion.facturacion_file.attach(facturacion_file)
     unless valid_file_type?(@facturacion.facturacion_file, %w[application/pdf])
@@ -274,7 +269,6 @@ class FacturacionsController < ApplicationController
     end
 
     @facturacion.factura = Date.current
-    @facturacion.fecha_inspeccion = fecha_inspeccion
 
     if @facturacion.save
 

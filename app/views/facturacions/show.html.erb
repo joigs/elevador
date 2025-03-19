@@ -264,16 +264,7 @@
         <%= form.file_field :facturacion_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
       </div>
 
-      <div>
-        <%= form.label :fecha_inspeccion, "Fecha de Inspección", class: "block text-gray-300 font-bold mb-2" %>
-        <div class="relative">
-          <input type="text"
-                 name="facturacion[fecha_inspeccion]"
-                 id="datepicker"
-                 placeholder="Selecciona una fecha"
-                 class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500">
-        </div>
-      </div>
+
 
       <div class="mt-4">
         <%= form.submit "Subir Factura", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
@@ -281,27 +272,6 @@
     <% end %>
   </div>
 
-<script>
-    function initializeFlatpickr() {
-        flatpickr("#datepicker", {
-            dateFormat: "d-m-Y", // Formato dd-mm-yyyy
-            minDate: "01-01-2020", // Fecha mínima
-            maxDate: "31-12-3000", // Fecha máxima
-            locale: "es", // Idioma español
-            static: false, // Compatible con móviles
-            altInput: true,
-            altFormat: "d-m-Y",
-        });
-    }
-
-    // Ejecutar Flatpickr al cargar la página
-    document.addEventListener("DOMContentLoaded", initializeFlatpickr);
-
-    // Reejecutar Flatpickr cuando Turbo Stream actualice el formulario
-    document.addEventListener("turbo:render", initializeFlatpickr);
-    document.addEventListener("turbo:load", initializeFlatpickr);
-
-</script>
 
 <% end %>
 

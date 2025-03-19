@@ -11,15 +11,11 @@
     <% end %>
   <% end %>
 
-
+  <!-- ================== CAMPOS DEL FORMULARIO ================== -->
   <div class="mt-3">
     <%= form.label :number, "Número de inspección.", class: "block text-gray-300" %>
     <%= form.number_field :number, min:1, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-
   </div>
-
-
-
 
   <% if @manual_action_name == 'new' %>
     <div>
@@ -58,10 +54,6 @@
 
       <%= form.hidden_field :group_id, value: @item.group.id %>
       <%= form.hidden_field :principal_id, value: @item.principal.id %>
-    </div>
-
-
-
   <% end %>
 
   <div class="mt-3">
@@ -96,17 +88,12 @@
   </div>
 
   <div class="mt-3">
-    <%= form.label :calle, "Dirección", class: "block text-gray-300" %>
+    <%= form.label :calle, "Calle", class: "block text-gray-300" %>
     <%= form.text_field :calle,
                         class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                         id: "inspection_calle",
                         required: true %>
-    <p class="text-xs text-gray-500 mt-1">
-      Nuevo formato: Se selecciona región, columna, y en el campo de texto se escribe la calle y el número. La "," y la comuna seleccionada las pone automaticamente en la dirección al guardar
-    </p>
   </div>
-
-
 
   <div class="mt-3">
     <%= form.label :ins_date, "Fecha de inspección", class: "block text-gray-300" %>
@@ -125,18 +112,341 @@
     </div>
   <% end %>
 
+  <!-- ================== FACTURACIÓN SELECCIONADA ================== -->
+  <%= form.hidden_field :facturacion_id, id: "inspection_facturacion_id" %>
+
+  <div class="mt-3">
+    <%= form.label :facturacion_id, "Facturación Seleccionada", class: "block text-gray-300" %>
+    <div class="flex items-center gap-2 mt-2">
+      <span id="facturacion_selected_display" class="text-gray-200">
+        <% if @inspection.facturacion&.number.present? %>
+          <%= @inspection.facturacion.number %>
+        <% else %>
+          Ninguna seleccionada
+        <% end %>
+      </span>
+
+      <!-- Botón para abrir el modal de Facturaciones -->
+      <button type="button"
+              onclick="openFacturacionModal()"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Buscar Facturación
+      </button>
+    </div>
+  </div>
+
   <%= form.hidden_field :manual_action_name, value: @manual_action_name %>
 
   <div class="mt-6 py-5">
     <%= form.submit "#{inspection.new_record? ? 'Crear' : 'Actualizar'} Inspección", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   </div>
 <% end %>
+
+<!-- ============================= MODAL ============================= -->
+<div id="facturacionModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
+     onclick="closeWhenClickOutside(event)">
+  <div class="modal-content relative w-11/12 max-w-6xl bg-gray-800 p-6 rounded shadow-md"
+       style="overflow-y: auto; min-height: 600px; max-height: 85vh;"
+       onclick="event.stopPropagation()">
+    <!-- Botón "X" -->
+    <button type="button"
+            class="absolute top-4 right-4 text-white text-2xl font-bold"
+            onclick="closeFacturacionModal()">
+      &times;
+    </button>
+
+    <!-- Carga la vista facturacions#index sin modificarla -->
+    <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
+      Cargando Facturaciones...
+    </turbo-frame>
+  </div>
+</div>
+</div>
 <script>
+    // =========================================
+    //   ABRIR / CERRAR MODAL
+    // =========================================
+    function openFacturacionModal() {
+        document.getElementById('facturacionModal').classList.remove('hidden');
+        // Evitar scroll del fondo
+        document.body.classList.add('overflow-hidden');
+    }
+    function closeFacturacionModal() {
+        document.getElementById('facturacionModal').classList.add('hidden');
+        // Restaurar scroll
+        document.body.classList.remove('overflow-hidden');
+    }
+    function closeWhenClickOutside(e) {
+        if(e.target.id === "facturacionModal") {
+            closeFacturacionModal();
+        }
+    }
+    // Cerrar con ESC
+    document.addEventListener("keydown", function(e) {
+        if(e.key === "Escape") closeFacturacionModal();
+    });
+
+
+    // =========================================
+    //   onSelectFacturacion: asigna al form
+    // =========================================
+    function onSelectFacturacion(facturacionId, facturacionNumber) {
+        document.getElementById('inspection_facturacion_id').value = facturacionId;
+        document.getElementById('facturacion_selected_display').textContent = facturacionNumber;
+        closeFacturacionModal();
+    }
+
+
+    // =========================================
+    //  prepareFacturacionsTable():
+    //  Antes de DataTables, elimina filas no deseadas
+    //  y quita columnas 7 y 8 (Factura y Fecha inspección)
+    //  y añade columna "Seleccionar"
+    // =========================================
+    function prepareFacturacionsTable(tableEl) {
+        const theadRow = tableEl.querySelector("thead tr");
+        const tbodyRows = tableEl.querySelectorAll("tbody tr");
+
+        // 1) Para cada fila: si NO tiene OC o SÍ tiene factura, remove() del DOM
+        //    (asumiendo col 6 es OC, col 7 es factura, col 8 es fecha insp)
+        //    *Primero* leemos oc y factura (antes de quitar col 7 y 8)
+        tbodyRows.forEach(row => {
+            const tds = row.querySelectorAll("td");
+            if(tds.length < 9) return; // Prevenir errores
+
+            const ocValue      = tds[6].textContent.trim(); // col 6
+            const facturaValue = tds[7].textContent.trim(); // col 7
+
+            // Si no hay OC o sí hay factura => no la queremos
+            if(!ocValue || facturaValue) {
+                row.remove(); // Elimina toda la fila del DOM
+            }
+        });
+
+        // 2) Quitar las columnas 7 (Factura) y 8 (Fecha de inspección) del thead
+        //    Ojo: index 7,8 en base 0 => 8va y 9na col
+        //    Hazlo en orden descendente (primero la col 8, luego la 7)
+        const ths = theadRow.querySelectorAll("th");
+        if(ths.length >= 9) {
+            theadRow.removeChild(ths[8]); // elimina 9na col
+            theadRow.removeChild(ths[7]); // elimina 8va col
+        }
+
+        // 3) Quitar esas mismas columnas en cada fila del tbody
+        const finalRows = tableEl.querySelectorAll("tbody tr"); // (Ya sin las removidas)
+        finalRows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            if(cells.length >= 9) {
+                // remove col index 8, then col index 7
+                cells[8].remove();
+                cells[7].remove();
+            }
+        });
+
+        // 4) Agregar nueva columna "Seleccionar" al thead
+        const newTh = document.createElement("th");
+        newTh.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider";
+        newTh.textContent = "Seleccionar";
+        theadRow.appendChild(newTh);
+
+        // 5) Recorre las filas finales (ya sin las eliminadas)
+        //    y agrega el td con botón “Seleccionar”
+        tableEl.querySelectorAll("tbody tr").forEach(row => {
+            const tds = row.querySelectorAll("td");
+            if(tds.length < 7) return;
+
+            // Tomamos la primera celda (0) para extraer ID y n°
+            let facturacionId = null;
+            let facturacionNumber = null;
+            const link = tds[0].querySelector("a");
+            if(link) {
+                const href = link.getAttribute("href") || "";
+                const match = href.match(/facturacions\/(\d+)/);
+                if(match) {
+                    facturacionId = match[1];
+                    facturacionNumber = link.textContent.trim();
+                }
+            }
+
+            // Creamos la celda al final (col #7 o #8)
+            const selectTd = document.createElement("td");
+            selectTd.className = "px-6 py-4 whitespace-normal";
+
+            if(facturacionId && facturacionNumber) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = "Seleccionar";
+                btn.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded";
+                btn.onclick = () => onSelectFacturacion(facturacionId, facturacionNumber);
+                selectTd.appendChild(btn);
+            } else {
+                selectTd.textContent = "—";
+            }
+            row.appendChild(selectTd);
+        });
+    }
+
+
+    // =========================================
+    //   initFacturacionsTable():
+    //   Crea DataTable con sus filtros
+    // =========================================
+    function initFacturacionsTable() {
+        const tableEl = document.getElementById("facturacions-table");
+        if(!tableEl || typeof simpleDatatables === "undefined" || !simpleDatatables.DataTable) return;
+
+        // Columnas sin filtro (ajusta a tu gusto)
+        //   2-> Solicitud, 3-> Emisión, 4-> Entregado, 6-> Orden de compra
+        const columnsWithoutFilter = [2,3,4,6];
+
+        new simpleDatatables.DataTable(tableEl, {
+            columns: [
+                { select: 2, searchable: false },
+                { select: 3, searchable: false },
+                { select: 4, searchable: false },
+                { select: 6, searchable: false },
+            ],
+            labels: {
+                placeholder: "Buscar...",
+                perPage: "Registros por pág.",
+                noRows: "No hay datos para mostrar",
+                noResults: "No hay resultados que coincidan con tu búsqueda",
+                info: "Mostrando {start} a {end} de {rows} entradas"
+            },
+            tableRender: function(_data, table, type) {
+                // Añade la fila de filtros en el thead, exceptuando columnsWithoutFilter
+                if(type === "print") return table;
+                const thead = table.querySelector("thead");
+                if(!thead) return table;
+
+                const firstRow = thead.querySelector("tr");
+                if(!firstRow) return table;
+
+                const filterHeaders = {
+                    nodeName: "TR",
+                    attributes: { class: "search-filtering-row bg-gray-800 text-white" },
+                    childNodes: []
+                };
+
+                const allTH = firstRow.querySelectorAll("th");
+                allTH.forEach((th, index) => {
+                    if(columnsWithoutFilter.includes(index)) {
+                        // filtro deshabilitado
+                        filterHeaders.childNodes.push({
+                            nodeName: "TH",
+                            attributes: { style: "padding-top: 1rem;" },
+                            childNodes: [{
+                                nodeName: "INPUT",
+                                attributes: {
+                                    type: "search",
+                                    disabled: "disabled",
+                                    placeholder: "Sin filtro",
+                                    class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50"
+                                }
+                            }]
+                        });
+                    } else {
+                        filterHeaders.childNodes.push({
+                            nodeName: "TH",
+                            attributes: { style: "padding-top: 1rem;" },
+                            childNodes: [{
+                                nodeName: "INPUT",
+                                attributes: {
+                                    class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                    type: "search",
+                                    "data-columns": `[${index}]`,
+                                    placeholder: "Filtrar"
+                                }
+                            }]
+                        });
+                    }
+                });
+                thead.appendChild(simpleDatatables.helpers.createElement(filterHeaders));
+                return table;
+            }
+        });
+    }
+
+
+    // =========================================
+    //   initFlatpickrFilters():
+    //   (Si tu index usa filtros de fecha)
+    // =========================================
+    function initFlatpickrFilters() {
+        const startDate   = document.querySelector("[data-date-filter-target='startDate']");
+        const endDate     = document.querySelector("[data-date-filter-target='endDate']");
+        const submitButton= document.querySelector("[data-date-filter-target='submitButton']");
+        if(!submitButton) return;
+
+        function clearButtonPlugin() {
+            return fp => ({
+                onReady: () => {
+                    const clearBtn = document.createElement("button");
+                    clearBtn.type = "button";
+                    clearBtn.textContent = "Quitar fecha";
+                    clearBtn.className = "flatpickr-clear-btn";
+                    clearBtn.addEventListener("click", () => {
+                        fp.clear();
+                        fp.close();
+                    });
+                    fp.calendarContainer.appendChild(clearBtn);
+                }
+            });
+        }
+
+        if(startDate) {
+            flatpickr(startDate, {
+                dateFormat: "d-m-Y",
+                locale: "es",
+                onChange: () => submitButton.click(),
+                plugins: [clearButtonPlugin()]
+            });
+        }
+        if(endDate) {
+            flatpickr(endDate, {
+                dateFormat: "d-m-Y",
+                locale: "es",
+                onChange: () => submitButton.click(),
+                plugins: [clearButtonPlugin()]
+            });
+        }
+    }
+
+
+    // =========================================
+    //  EVENTO: cuando carga el turbo-frame
+    // =========================================
+    document.addEventListener("turbo:frame-load", function(e) {
+        if(e.target.id === "facturacions_frame") {
+            // 1) Eliminamos filas que no cumplan (oc? / !factura)
+            //    y quitamos columnas 7,8, agregamos “Seleccionar”...
+            const tableEl = document.getElementById("facturacions-table");
+            if(tableEl) {
+                prepareFacturacionsTable(tableEl);
+            }
+
+            // 2) Flatpickr (si usas filtros de fecha)
+            initFlatpickrFilters();
+
+            // 3) Inicializa DataTables (ya sin las filas coladas)
+            initFacturacionsTable();
+
+            // 4) Abre enlaces en pestaña nueva (por si quieres)
+            if(tableEl) {
+                tableEl.querySelectorAll("a").forEach(a => a.target = "_blank");
+            }
+        }
+    });
+
+
+    // =========================================
+    //  SCRIPT PARA DIRECCIÓN (TU LÓGICA)
+    // =========================================
     document.addEventListener("turbo:load", () => {
         const places = <%= communes_by_region.to_json.html_safe %>;
-
         const regionSelect = document.getElementById("inspection_region");
-        if (!regionSelect) return;
+        if(!regionSelect) return;
 
         const comunaSelect = document.getElementById("inspection_comuna");
         const calleInput   = document.getElementById("inspection_calle");
@@ -146,7 +456,7 @@
             const region = regionSelect.value;
             const comunas = places[region] || [];
 
-            while (comunaSelect.firstChild) {
+            while(comunaSelect.firstChild) {
                 comunaSelect.removeChild(comunaSelect.firstChild);
             }
 
@@ -162,14 +472,13 @@
                 comunaSelect.appendChild(option);
             });
 
-
             comunaSelect.value = "";
             updatePlace();
         });
 
         function updatePlace() {
             const comuna = comunaSelect.value;
-            const calle = calleInput.value;
+            const calle  = calleInput.value;
             placeHidden.value = comuna ? `${calle}, ${comuna}` : calle;
         }
 
