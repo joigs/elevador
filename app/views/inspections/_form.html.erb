@@ -186,6 +186,15 @@
     document.addEventListener("keydown", function(e) {
         if(e.key === "Escape") closeFacturacionModal();
     });
+    document.addEventListener("turbo:frame-load", function(e) {
+        if(e.target.id === "facturacions_frame") {
+            // Buscar el enlace con href "/cotizaciones/new" y eliminarlo
+            const newCotizacionBtn = e.target.querySelector("a[href='/cotizaciones/new']");
+            if(newCotizacionBtn) {
+                newCotizacionBtn.remove();
+            }
+        }
+    });
 
 
     // =========================================
@@ -262,7 +271,7 @@
             const link = tds[0].querySelector("a");
             if(link) {
                 const href = link.getAttribute("href") || "";
-                const match = href.match(/facturacions\/(\d+)/);
+                const match = href.match(/cotizaciones\/(\d+)/);
                 if(match) {
                     facturacionId = match[1];
                     facturacionNumber = link.textContent.trim();
