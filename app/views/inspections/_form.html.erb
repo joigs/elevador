@@ -11,7 +11,6 @@
     <% end %>
   <% end %>
 
-  <!-- ================== CAMPOS DEL FORMULARIO ================== -->
   <div class="mt-3">
     <%= form.label :number, "Número de inspección.", class: "block text-gray-300" %>
     <%= form.number_field :number, min:1, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
@@ -112,23 +111,19 @@
     </div>
   <% end %>
 
-  <!-- ================== FACTURACIÓN SELECCIONADA ================== -->
-  <!-- Este es el campo oculto donde guardamos facturacion_id -->
   <%= form.hidden_field :facturacion_id, id: "inspection_facturacion_id" %>
 
-  <!-- Visualización de la Facturación elegida -->
   <div class="mt-3">
     <%= form.label :facturacion_id, "Facturación Seleccionada", class: "block text-gray-300" %>
     <div class="flex items-center gap-2 mt-2">
       <span id="facturacion_selected_display" class="text-gray-200">
         <% if @inspection.facturacion&.number.present? %>
-          <%= @inspection.facturacion.number %>
+          <%= "Facturación N° #{@inspection.facturacion.number}. #{@inspection.facturacion.name}" %>
         <% else %>
           Ninguna seleccionada
         <% end %>
       </span>
 
-      <!-- Botón para abrir el modal -->
       <button type="button"
               onclick="openFacturacionModal()"
               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -144,32 +139,26 @@
   </div>
 <% end %>
 
-<!-- ============================= MODAL ============================= -->
 <div id="facturacionModal"
      class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
      onclick="closeWhenClickOutside(event)">
   <div class="modal-content relative w-11/12 max-w-6xl bg-gray-800 p-6 rounded shadow-md"
        style="overflow-y: auto; min-height: 600px; max-height: 85vh;"
        onclick="event.stopPropagation()">
-    <!-- Botón "X" para cerrar -->
     <button type="button"
             class="absolute top-4 right-4 text-white text-2xl font-bold"
             onclick="closeFacturacionModal()">
       &times;
     </button>
 
-    <!-- Se carga la vista facturacions#index (o cotizaciones#index) -->
     <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
       Cargando Facturaciones...
     </turbo-frame>
   </div>
 </div>
 </div>
-
 <script>
-    // -----------------------------------
-    // ABRIR / CERRAR MODAL
-    // -----------------------------------
+
     function openFacturacionModal() {
         document.getElementById('facturacionModal').classList.remove('hidden');
         document.body.classList.add('overflow-hidden'); // Evita scroll de fondo
@@ -188,90 +177,77 @@
         if(e.key === "Escape") closeFacturacionModal();
     });
 
-    // -----------------------------------
-    // onSelectFacturacion
-    // -----------------------------------
-    function onSelectFacturacion(facturacionId, facturacionNumber) {
-        console.log("Seleccionaste Facturación:", facturacionId, facturacionNumber);
+    function onSelectFacturacion(facturacionId, facturacionNumber, facturacionName) {
+        console.log("Seleccionaste Facturación:", facturacionId, facturacionNumber, facturacionName);
 
-        // 1) Colocamos el ID en el campo oculto
         const hiddenField = document.getElementById('inspection_facturacion_id');
         if(hiddenField) hiddenField.value = facturacionId;
 
-        // 2) Mostramos el número en el <span>
         const displaySpan = document.getElementById('facturacion_selected_display');
-        if(displaySpan) displaySpan.textContent = facturacionNumber;
+        if(displaySpan) {
+            displaySpan.textContent = `Facturación N° ${facturacionNumber}. ${facturacionName}`;
+        }
 
-        // 3) Cerrar el modal
         closeFacturacionModal();
     }
 
 
-    // -----------------------------------
-    //  prepareFacturacionsTable(tableEl)
-    //  1) Elimina filas sin OC o con Factura
-    //  2) Quita columnas 7, 8
-    //  3) Agrega columna "Seleccionar"
-    // -----------------------------------
+
     function prepareFacturacionsTable(tableEl) {
         const theadRow = tableEl.querySelector("thead tr");
         const tbodyRows = tableEl.querySelectorAll("tbody tr");
 
-        // 1) Remover filas no deseadas
         tbodyRows.forEach(row => {
             const tds = row.querySelectorAll("td");
             if(tds.length < 9) return;
 
-            const ocValue      = tds[6].textContent.trim(); // col 6
-            const facturaValue = tds[7].textContent.trim(); // col 7
-            // Solo deben quedar las que tienen ocValue y NO tienen facturaValue
+            const ocValue      = tds[6].textContent.trim();
+            const facturaValue = tds[7].textContent.trim();
             if(!ocValue || facturaValue) {
                 row.remove();
             }
         });
 
-        // 2) Quitar las columnas 7, 8 en thead (Factura y Fecha inspección)
         const ths = theadRow.querySelectorAll("th");
         if(ths.length >= 9) {
-            theadRow.removeChild(ths[8]); // col 8
-            theadRow.removeChild(ths[7]); // col 7
+            theadRow.removeChild(ths[8]);
+            theadRow.removeChild(ths[7]);
         }
 
-        // 3) Quitar esas mismas columnas en cada fila
         const finalRows = tableEl.querySelectorAll("tbody tr");
         finalRows.forEach(row => {
             const cells = row.querySelectorAll("td");
             if(cells.length >= 9) {
-                cells[8].remove(); // col 8
-                cells[7].remove(); // col 7
+                cells[8].remove();
+                cells[7].remove();
             }
         });
 
-        // 4) Agregar nueva columna "Seleccionar"
         const newTh = document.createElement("th");
         newTh.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider";
         newTh.textContent = "Seleccionar";
         theadRow.appendChild(newTh);
 
-        // 5) Añadir el botón en cada fila (usando data-attributes)
         finalRows.forEach(row => {
             const tds = row.querySelectorAll("td");
             if(tds.length < 7) return;
 
             let facturacionId = null;
             let facturacionNumber = null;
+            let facturacionName = "";
 
-            // Busca el ID y número en la primera columna (según tu URL)
+
             const link = tds[0].querySelector("a");
             if(link) {
                 const href = link.getAttribute("href") || "";
-                // Cambia "cotizaciones" según tu URL real
                 const match = href.match(/cotizaciones\/(\d+)/);
                 if(match) {
-                    facturacionId = match[1];                  // e.g. "274"
-                    facturacionNumber = link.textContent.trim();  // e.g. "201"
+                    facturacionId = match[1];
+                    facturacionNumber = link.textContent.trim();
                 }
             }
+
+            facturacionName = tds[1]?.textContent.trim() || "";
 
             const selectTd = document.createElement("td");
             selectTd.className = "px-6 py-4 whitespace-normal";
@@ -282,9 +258,9 @@
                 btn.className = "seleccionar-facturacion bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded";
                 btn.textContent = "Seleccionar";
 
-                // En lugar de onclick, usamos data-attributes
                 btn.setAttribute("data-facturacion-id", facturacionId);
                 btn.setAttribute("data-facturacion-number", facturacionNumber);
+                btn.setAttribute("data-facturacion-name", facturacionName);
 
                 selectTd.appendChild(btn);
             } else {
@@ -294,10 +270,7 @@
         });
     }
 
-    // -----------------------------------
-    // initFacturacionsTable():
-    // Aplica DataTable (simple-datatables)
-    // -----------------------------------
+
     function initFacturacionsTable() {
         const tableEl = document.getElementById("facturacions-table");
         if(!tableEl || typeof simpleDatatables === "undefined" || !simpleDatatables.DataTable) return;
@@ -318,7 +291,6 @@
                 info: "Mostrando {start} a {end} de {rows} entradas"
             },
             tableRender: function(_data, table, type) {
-                // Se ejecuta cada vez que la tabla se renderiza
                 if(type === "print") return table;
 
                 const thead = table.querySelector("thead");
@@ -327,7 +299,6 @@
                 const firstRow = thead.querySelector("tr");
                 if(!firstRow) return table;
 
-                // Fila de inputs de búsqueda
                 const filterHeaders = {
                     nodeName: "TR",
                     attributes: { class: "search-filtering-row bg-gray-800 text-white" },
@@ -335,6 +306,7 @@
                 };
 
                 const allTH = firstRow.querySelectorAll("th");
+                const columnsWithoutFilter = [2,3,4,6];
                 allTH.forEach((th, index) => {
                     if(columnsWithoutFilter.includes(index)) {
                         filterHeaders.childNodes.push({
@@ -371,9 +343,7 @@
             }
         });
     }
-    // -----------------------------------
-    // initFlatpickrFilters(): (Opcional, si usas date-filters)
-    // -----------------------------------
+
     function initFlatpickrFilters() {
         const startDate   = document.querySelector("[data-date-filter-target='startDate']");
         const endDate     = document.querySelector("[data-date-filter-target='endDate']");
@@ -414,41 +384,32 @@
         }
     }
 
-    // -----------------------------------
-    // Al cargar el turbo-frame (facturacions_frame)
-    // -----------------------------------
     document.addEventListener("turbo:frame-load", function(e) {
         if(e.target.id === "facturacions_frame") {
             const tableEl = document.getElementById("facturacions-table");
 
-            // Quitar filas sin OC o con Factura, etc.
             if(tableEl) prepareFacturacionsTable(tableEl);
 
-            // Si usas date-filters
             initFlatpickrFilters();
 
-            // Inicia DataTables
             initFacturacionsTable();
 
-            // Abre links en pestaña nueva
             if(tableEl) {
                 tableEl.querySelectorAll("a").forEach(a => a.target = '_blank');
             }
 
-            // **Delegación de eventos**: Al hacer click en los botones "Seleccionar"
             tableEl.addEventListener("click", function(ev) {
                 if(ev.target.matches("button.seleccionar-facturacion")) {
                     const fid = ev.target.getAttribute("data-facturacion-id");
                     const fnum = ev.target.getAttribute("data-facturacion-number");
-                    onSelectFacturacion(fid, fnum);
+                    const fname = ev.target.getAttribute("data-facturacion-name");
+                    onSelectFacturacion(fid, fnum, fname);
                 }
             });
         }
     });
 
-    // -----------------------------------
-    // Script tuyo para dirección
-    // -----------------------------------
+
     document.addEventListener("turbo:load", () => {
         const places = <%= communes_by_region.to_json.html_safe %>;
         const regionSelect = document.getElementById("inspection_region");
