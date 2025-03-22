@@ -122,6 +122,7 @@ class InspectionsController < ApplicationController
 
       @item.save!
       @inspection.item = @item
+      puts(@inspection.inspect)
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       if @item.group.type_of == "escala"
