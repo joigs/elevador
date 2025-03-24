@@ -18,7 +18,6 @@ class Facturacion < ApplicationRecord
 
   validates :cotizacion_pdf_file, presence: true, if: -> { emicion.present? }
 
-  validates :fecha_inspeccion, presence: true, if: -> { factura.present? }
 
 
   after_initialize do
@@ -27,6 +26,21 @@ class Facturacion < ApplicationRecord
 
 
   validate :valid_file_types
+
+  def fecha_inspeccion
+    inspections.maximum(:ins_date)
+  end
+
+  def empresa
+    principal_ids = inspections.pluck(:principal_id).uniq
+
+    return nil if principal_ids.empty?
+
+    return "Error-empresa" if principal_ids.size > 1
+
+    principal = Principal.find_by(id: principal_ids.first)
+    principal ? principal.name : "Error-empresa"
+  end
 
   private
 
