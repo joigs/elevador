@@ -83,7 +83,7 @@ class ReportsController < ApplicationController
 
         if was_created
           factura = Facturacion.find_by(number: 0)
-          black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black', rerun: false, facturacion_id: factura.id)
+          black_inspection= Inspection.create!(number: black_number, item_id: @item.id, principal_id: @item.principal_id, place: inspection.place, ins_date: inspection.ins_date, state: 'black', result: 'black', rerun: false, facturacion_id: factura.id, region: "no", comuna: "no")
           inspection.users.each do |user|
             black_inspection.users << user
           end
