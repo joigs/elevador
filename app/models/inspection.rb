@@ -43,7 +43,7 @@ class Inspection < ApplicationRecord
   has_many :users, through: :inspection_users
   belongs_to :item
   belongs_to :principal
-  belongs_to :facturacion
+  belongs_to :facturacion, optional: true
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
   has_one :revision, dependent: :destroy
