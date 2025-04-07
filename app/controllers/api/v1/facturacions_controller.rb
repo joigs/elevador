@@ -64,7 +64,7 @@ module Api
 
       def authenticate_api_key!
         provided_key = request.headers['X-API-KEY'] || params[:api_key]
-        unless provided_key.present? && ActiveSupport::SecurityUtils.secure_compare(provided_key, ENV['API_KEY'])
+        unless provided_key.present? && ActiveSupport::SecurityUtils.secure_compare(provided_key, ENV['VERTICAL_API_KEY'])
           render json: { error: "Unauthorized" }, status: :unauthorized
         end
       end

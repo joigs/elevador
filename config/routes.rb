@@ -143,11 +143,14 @@ Rails.application.routes.draw do
       patch :upload_cotizacion
       patch :marcar_entregado
       patch :upload_orden_compra
+      patch :update_fecha_entrega
       patch :upload_factura
       get :manage_files
       patch :replace_file
       get :download_solicitud_template
       get :download_cotizacion_template
+      patch :update_price
+
     end
     collection do
       get :new_bulk_upload

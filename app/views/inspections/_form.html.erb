@@ -65,34 +65,45 @@
   <div class="mt-3">
     <%= form.label :region, "Región", class: "block text-gray-300" %>
     <%= form.select :region,
-                    options_for_select(communes_by_region.keys),
+                    options_for_select(communes_by_region.keys, selected: @inspection.region),
                     { prompt: "Selecciona Región" },
-                    { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                    {
+                      class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                       id: "inspection_region",
                       data: { controller: "slim-select" },
                       required: true
-                    } %>
+                    }
+    %>
   </div>
 
   <div class="mt-3">
     <%= form.label :comuna, "Comuna", class: "block text-gray-300" %>
     <%= form.select :comuna,
-                    [],
+                    options_for_select(communes_by_region[@inspection.region] || [], selected: @inspection.comuna),
                     { prompt: "Selecciona Comuna" },
-                    { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                    {
+                      class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                       id: "inspection_comuna",
                       data: { controller: "slim-select" },
                       required: true
                     } %>
   </div>
 
+  <% calle_value = if @inspection.place.present?
+                       @inspection.place.rpartition(",").first.strip
+                   else
+                     ""
+                   end %>
+
   <div class="mt-3">
     <%= form.label :calle, "Calle", class: "block text-gray-300" %>
     <%= form.text_field :calle,
+                        value: calle_value,
                         class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                         id: "inspection_calle",
                         required: true %>
   </div>
+
 
   <div class="mt-3">
     <%= form.label :ins_date, "Fecha de inspección", class: "block text-gray-300" %>
@@ -113,8 +124,8 @@
 
   <%= form.hidden_field :facturacion_id, id: "inspection_facturacion_id" %>
 
-  <div class="mt-3">
-    <%= form.label :facturacion_id, "Facturación Seleccionada", class: "block text-gray-300" %>
+  <div class="mt-6">
+    <%= form.label :facturacion_id, "Facturación Seleccionada", class: "block text-gray-300 text-2xl" %>
     <div class="flex items-center gap-2 mt-2">
       <span id="facturacion_selected_display" class="text-gray-200">
         <% if @inspection.facturacion&.number.present? %>
@@ -126,7 +137,7 @@
 
       <button type="button"
               onclick="openFacturacionModal()"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded">
         Buscar Facturación
       </button>
     </div>
@@ -374,6 +385,7 @@
                 plugins: [ clearButtonPlugin() ]
             });
         }
+
         if(endDate) {
             flatpickr(endDate, {
                 dateFormat: "d-m-Y",
