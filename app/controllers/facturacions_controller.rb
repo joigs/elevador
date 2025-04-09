@@ -245,7 +245,17 @@ class FacturacionsController < ApplicationController
     end
   end
 
+  def update_fecha_inspeccion
+    @facturacion = Facturacion.find(params[:id])
 
+    if @facturacion.update(facturacion_params)
+
+      redirect_to @facturacion, notice: "Fecha de inspección actualizada con éxito."
+    else
+      flash.now[:alert] = "No se pudo actualizar la fecha de inspección."
+      render :show, status: :unprocessable_entity
+    end
+  end
 
   def update_fecha_entrega
     @facturacion = Facturacion.find(params[:id])
@@ -493,13 +503,15 @@ class FacturacionsController < ApplicationController
       :entregado,
       :resultado,
       :oc,
+      :fecha_inspeccion,
       :fecha_entrega,
       :factura,
       :solicitud_file,
       :cotizacion_doc_file,
       :cotizacion_pdf_file,
       :orden_compra_file,
-      :facturacion_file
+      :facturacion_file,
+      :principal_id
     )
   end
 

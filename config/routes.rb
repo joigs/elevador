@@ -143,6 +143,7 @@ Rails.application.routes.draw do
       patch :upload_cotizacion
       patch :marcar_entregado
       patch :upload_orden_compra
+      patch :update_fecha_inspeccion
       patch :update_fecha_entrega
       patch :upload_factura
       get :manage_files

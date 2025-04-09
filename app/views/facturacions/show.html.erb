@@ -19,7 +19,7 @@
         </h2>
       </div>
 
-      <% if Current.user.solicitar %>
+      <% if Current.user.mini_solicitar %>
 
         <div class="flex items-center space-x-2">
           <%= link_to "Editar Solicitud",
@@ -283,7 +283,57 @@
 <% end %>
 
 
-<% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.fecha_entrega.blank? && @facturacion.resultado != "Rechazado" %>
+
+<% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.fecha_inspeccion.blank? && @facturacion.resultado != "Rechazado" %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Registrar fecha de inspección</h3>
+
+    <%= form_with(model: @facturacion,
+                  url: update_fecha_inspeccion_facturacion_path(@facturacion),
+                  method: :patch,
+                  local: true,
+                  class: "space-y-4") do |form| %>
+
+      <div>
+        <%= form.label :fecha_inspeccion, "Fecha de inspección", class: "block text-gray-300 font-bold mb-2" %>
+        <div class="relative">
+          <%= form.text_field :fecha_inspeccion,
+                              placeholder: "Selecciona una fecha",
+                              id: "datepicker",
+                              class: "block w-full px-3 py-2 bg-gray-700 text-white border \
+                                      border-gray-600 rounded-md shadow-sm focus:outline-none \
+                                      focus:ring focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <%= form.submit "Registrar fecha de inspección",
+                        class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold \
+                                py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+      function initializeFlatpickr() {
+          flatpickr("#datepicker", {
+              dateFormat: "d-m-Y", // Formato dd-mm-yyyy
+              minDate: "01-01-2020", // Fecha mínima, ajusta a conveniencia
+              maxDate: "31-12-3000", // Fecha máxima, ajusta a conveniencia
+              locale: "es",         // Idioma español
+              static: false,        // Compatible con móviles
+              altInput: true,
+              altFormat: "d-m-Y",
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", initializeFlatpickr);
+      document.addEventListener("turbo:render", initializeFlatpickr);
+      document.addEventListener("turbo:load", initializeFlatpickr);
+  </script>
+<% end %>
+
+<% if Current.user.cotizar && @facturacion.fecha_inspeccion.present? && @facturacion.fecha_entrega.blank? && @facturacion.resultado != "Rechazado" %>
   <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
     <h3 class="text-xl font-semibold text-white mb-4">Registrar fecha de entrega de informe</h3>
 

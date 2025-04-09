@@ -22,8 +22,7 @@ class Principal < ApplicationRecord
   has_many :items
   has_many :inspections
   has_many :users, dependent: :nullify
-
-
+  has_many :facturacions, dependent: :nullify
 
   private
 

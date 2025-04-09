@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_25_141234) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_07_205430) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -103,6 +103,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_25_141234) do
     t.float "precio"
     t.date "fecha_entrega"
     t.integer "pesos"
+    t.bigint "principal_id"
+    t.date "fecha_inspeccion"
+    t.index ["principal_id"], name: "index_facturacions_on_principal_id"
   end
 
   create_table "groups", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -398,6 +401,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_25_141234) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "details", "items"
+  add_foreign_key "facturacions", "principals"
   add_foreign_key "inspection_users", "inspections"
   add_foreign_key "inspection_users", "users"
   add_foreign_key "inspections", "facturacions"

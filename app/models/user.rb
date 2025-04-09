@@ -63,6 +63,10 @@ class User < ApplicationRecord
     permisos.exists?(nombre: 'crear')
   end
 
+  def mini_solicitar
+    permisos.exists?(nombre: 'mini_solicitar')
+  end
+
 
 
   scope :con_permiso_inspeccionar, -> {
