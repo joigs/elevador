@@ -28,7 +28,7 @@ class Facturacion < ApplicationRecord
 
   validate :valid_file_types
 
-  def fecha_inspeccion
+  def fecha_inspeccion_funcion
     inspections.maximum(:ins_date)
   end
 
