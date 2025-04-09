@@ -68,6 +68,9 @@ class FacturacionPolicy < BasePolicy
     Current.user.cotizar
   end
 
+  def update_price
+    Current.user.gestion
+  end
   def method_missing(m, *args, &block)
     Current.user.gestion
   end
