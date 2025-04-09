@@ -5,10 +5,13 @@
   <div class="mb-4">
 
     <% if params[:closed] %>
-      <%= link_to "Volver atrás", inspection_path(params[:inspection_origin]), class: "inline-flex items-center px-4 py-2 border border-transparent \
+      <% if params[:inspection_origin].present? %>
+
+        <%= link_to "Volver atrás", inspection_path(params[:inspection_origin]), class: "inline-flex items-center px-4 py-2 border border-transparent \
                         text-base leading-6 font-medium rounded-md text-blue-400 \
                         bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none \
                         focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" %>
+      <% end %>
 
     <% else %>
 
