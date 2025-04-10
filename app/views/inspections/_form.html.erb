@@ -114,11 +114,11 @@
   <%= form.hidden_field :facturacion_id, id: "inspection_facturacion_id" %>
 
   <div class="mt-3">
-    <%= form.label :facturacion_id, "Facturación Seleccionada", class: "block text-gray-300" %>
+    <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300" %>
     <div class="flex items-center gap-2 mt-2">
       <span id="facturacion_selected_display" class="text-gray-200">
         <% if @inspection.facturacion&.number.present? %>
-          <%= "Facturación N° #{@inspection.facturacion.number}. #{@inspection.facturacion.name}" %>
+          <%= "Cotización N° #{@inspection.facturacion.number}. #{@inspection.facturacion.name}" %>
         <% else %>
           Ninguna seleccionada
         <% end %>
@@ -127,7 +127,7 @@
       <button type="button"
               onclick="openFacturacionModal()"
               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Buscar Facturación
+        Buscar Cotización
       </button>
     </div>
   </div>
@@ -152,7 +152,7 @@
     </button>
 
     <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
-      Cargando Facturaciones...
+      Cargando Cotizaciones...
     </turbo-frame>
   </div>
 </div>
