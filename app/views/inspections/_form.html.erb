@@ -172,11 +172,11 @@
 
     function openFacturacionModal() {
         document.getElementById('facturacionModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden'); // Evita scroll de fondo
+        document.body.classList.add('overflow-hidden');
     }
     function closeFacturacionModal() {
         document.getElementById('facturacionModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden'); // Restaura scroll
+        document.body.classList.remove('overflow-hidden');
     }
     function closeWhenClickOutside(e) {
         if(e.target.id === "facturacionModal") {

@@ -84,6 +84,36 @@
 
             </div>
           <% end %>
+          <div id="principal-container" data-facturacion-id="<%= @facturacion.id %>" class="mt-4">
+            <p>
+              <strong>Empresa Principal:</strong>
+              <span id="principal-display">
+      <%= @facturacion.principal.present? ? @facturacion.principal.name : "Ninguna seleccionada" %>
+    </span>
+              <button type="button" onclick="openPrincipalModal()" class="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded">
+                Cambiar Principal
+              </button>
+            </p>
+          </div>
+
+          <!-- Modal para seleccionar la Principal -->
+          <div id="principalModal"
+               class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
+               onclick="closePrincipalModalWhenClickOutside(event)">
+            <div class="modal-content relative w-11/12 max-w-6xl bg-gray-800 p-6 rounded shadow-md"
+                 style="overflow-y: auto; min-height: 600px; max-height: 85vh;"
+                 onclick="event.stopPropagation()">
+              <button type="button"
+                      class="absolute top-4 right-4 text-white text-2xl font-bold"
+                      onclick="closePrincipalModal()">
+                &times;
+              </button>
+              <!-- Turbo-frame que carga el index de Principals (que debe renderizar una tabla con id="principals-table") -->
+              <turbo-frame id="principals" src="<%= principals_path %>">
+                Cargando Principals...
+              </turbo-frame>
+            </div>
+          </div>
 
         </div>
 
@@ -653,3 +683,174 @@
             });
     }
 </script>
+
+<script>
+    // -------------------------------
+    // Funciones para el Modal
+    // -------------------------------
+    function openPrincipalModal() {
+        document.getElementById('principalModal').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+    function closePrincipalModal() {
+        document.getElementById('principalModal').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+    function closePrincipalModalWhenClickOutside(e) {
+        if(e.target.id === "principalModal") {
+            closePrincipalModal();
+        }
+    }
+    document.addEventListener("keydown", function(e) {
+        if(e.key === "Escape") closePrincipalModal();
+    });
+
+    // -------------------------------
+    // Función para Actualizar la Principal vía AJAX
+    // -------------------------------
+    function updatePrincipal(facturacionId, principalId) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch('<%= update_principal_facturacion_path(@facturacion) %>', {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-Token': token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ facturacion: { principal_id: principalId } })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Actualizamos el span que muestra la empresa principal en el show
+                    document.getElementById('principal-display').textContent = data.principal_name;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Empresa Principal actualizada'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar',
+                        text: data.error || "Ocurrió un error."
+                    });
+                }
+                closePrincipalModal();
+            })
+            .catch(error => {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar la Empresa Principal.'
+                });
+                closePrincipalModal();
+            });
+    }
+
+    // -------------------------------
+    // Preparar la Tabla y Agregar Columna "Seleccionar"
+    // -------------------------------
+    function preparePrincipalsTable(tableEl) {
+        // Agregar columna "Seleccionar" en el header, si no existe
+        const theadRow = tableEl.querySelector("thead tr");
+        if (theadRow) {
+            let existingSelectTh = theadRow.querySelector("th.seleccionar-col");
+            if(!existingSelectTh) {
+                let newTh = document.createElement("th");
+                newTh.className = "seleccionar-col px-6 py-3 text-left text-xs font-medium uppercase tracking-wider";
+                newTh.textContent = "Seleccionar";
+                theadRow.appendChild(newTh);
+            }
+        }
+
+        // Procesar cada fila del body para agregar el botón "Seleccionar"
+        const tbodyRows = tableEl.querySelectorAll("tbody tr");
+        tbodyRows.forEach(row => {
+            let selectTd = row.querySelector("td.seleccionar-col");
+            if (!selectTd) {
+                selectTd = document.createElement("td");
+                selectTd.className = "seleccionar-col px-6 py-4 whitespace-normal";
+                row.appendChild(selectTd);
+            } else {
+                selectTd.innerHTML = "";
+            }
+            const tds = row.querySelectorAll("td");
+            let principalId = null;
+            let principalName = "";
+            // Se asume que en la primera celda hay un link con el href del tipo "/principals/:id"
+            let link = tds[0].querySelector("a");
+            if(link) {
+                let href = link.getAttribute("href") || "";
+                let match = href.match(/principals\/(\d+)/);
+                if(match) {
+                    principalId = match[1];
+                    principalName = link.textContent.trim();
+                }
+            }
+            if(principalId && principalName) {
+                let btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "seleccionar-principal bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded";
+                btn.textContent = "Seleccionar";
+                btn.setAttribute("data-principal-id", principalId);
+                btn.setAttribute("data-principal-name", principalName);
+                btn.addEventListener("click", function() {
+                    const facturacionId = document.getElementById("principal-container").dataset.facturacionId;
+                    updatePrincipal(facturacionId, principalId);
+                });
+                selectTd.appendChild(btn);
+            } else {
+                selectTd.textContent = "—";
+            }
+        });
+    }
+
+    // -------------------------------
+    // Inicializar el Plugin DataTable (simple-datatables)
+    // -------------------------------
+    function initPrincipalsDataTable() {
+        const tableEl = document.getElementById("principals-table");
+        if (!tableEl || typeof simpleDatatables === "undefined" || !simpleDatatables.DataTable) return;
+
+        // Inicialización sencilla, puedes ajustar la configuración de columnas según tu tabla
+        new simpleDatatables.DataTable(tableEl, {
+            columns: [
+                { select: 0 }, // Primera columna (por ejemplo, nombre)
+                { select: 1 }, // Segunda columna (por ejemplo, detalles)
+                // ...
+                { select: tableEl.querySelector("thead tr").children.length - 1, searchable: false } // Última columna "Seleccionar"
+            ],
+            labels: {
+                placeholder: "Buscar...",
+                perPage: "Registros por pág.",
+                noRows: "No hay datos para mostrar",
+                noResults: "No hay resultados que coincidan con tu búsqueda",
+                info: "Mostrando {start} a {end} de {rows} entradas"
+            },
+            tableRender: function(data, table, type) {
+                if (type === "print") return table;
+                // Opcional: puedes agregar acá elementos de filtrado en el header (similar a tu código anterior)
+                return table;
+            }
+        });
+    }
+
+    // -------------------------------
+    // Integración al cargar el Turbo-Frame
+    // -------------------------------
+    document.addEventListener("turbo:frame-load", function(e) {
+        if(e.target.id === "principals") {
+            const tableEl = document.getElementById("principals-table");
+            if (tableEl) {
+                // Opcional: asegurar que todos los links abran en nueva pestaña
+                tableEl.querySelectorAll("a").forEach(a => { a.target = "_blank"; });
+
+                // Preparamos la tabla para agregar la columna de selección
+                preparePrincipalsTable(tableEl);
+                // Inicializamos el DataTable con el plugin simple-datatables
+                initPrincipalsDataTable();
+            }
+        }
+    });
+</script>
+

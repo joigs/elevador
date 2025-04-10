@@ -3,7 +3,7 @@ class FacturacionsController < ApplicationController
     :show, :edit, :update,
     :download_solicitud_file, :download_cotizacion_doc_file,
     :download_cotizacion_pdf_file, :download_orden_compra_file,
-    :download_facturacion_file, :download_all_files
+    :download_facturacion_file, :download_all_files, :update_principal
   ]
 
   before_action :authorize_user
@@ -484,7 +484,15 @@ class FacturacionsController < ApplicationController
     end
   end
 
-
+  def update_principal
+    respond_to do |format|
+      if @facturacion.update(facturacion_params)
+        format.json { render json: { success: true, principal_name: @facturacion.principal.try(:name) }, status: :ok }
+      else
+        format.json { render json: { success: false, error: @facturacion.errors.full_messages.to_sentence }, status: :unprocessable_entity }
+      end
+    end
+  end
 
   private
 
