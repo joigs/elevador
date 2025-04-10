@@ -280,11 +280,8 @@ class InspectionsController < ApplicationController
     authorize!
 
     inspection_id = inspection.id
-    if Current.user.admin
-      admin_id = Current.user.id
-    else
-      admin_id = params[:admin_id].presence || Current.user.id
-    end
+
+    admin_id = params[:admin_id].presence || Current.user.id
 
 
     principal_id = inspection.item.principal_id

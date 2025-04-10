@@ -157,11 +157,7 @@
         <% end %>
 
         <% if @inspection.state == "Cerrado" && (Current.user.admin || Current.user.certificar) && @report.ending %>
-          <% if Current.user.admin %>
-            <%= link_to 'Generar informe',
-                        download_document_inspection_path(@inspection),
-                        class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 mt-2" %>
-          <% else %>
+
             <%= form_with url: download_document_inspection_path(@inspection),
                           method: :get,
                           local: true,
@@ -182,7 +178,6 @@
             <% end %>
 
       <% end %>
-        <% end %>
 
         <%= link_to 'Modificar inspección',
                     edit_inspection_path(@inspection),
