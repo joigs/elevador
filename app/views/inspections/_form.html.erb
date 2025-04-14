@@ -105,7 +105,7 @@
 
   <div class="mt-3">
     <%= form.label :validation, "Periodicidad", class: "block text-gray-300" %>
-    <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]]), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]], @inspection.validation), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <% if Current.user.admin || Current.user.crear %>
