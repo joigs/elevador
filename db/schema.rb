@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_24_052010) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_14_042336) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -101,6 +101,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_24_052010) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "precio"
+    t.date "fecha_entrega"
+    t.integer "pesos"
   end
 
   create_table "groups", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -142,7 +144,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_24_052010) do
     t.date "cambio", default: -> { "curdate()" }, null: false
     t.string "region", null: false
     t.string "comuna", null: false
-    t.bigint "facturacion_id", null: false
+    t.bigint "facturacion_id"
     t.index ["facturacion_id"], name: "index_inspections_on_facturacion_id"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
