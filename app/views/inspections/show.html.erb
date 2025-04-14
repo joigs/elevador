@@ -82,7 +82,7 @@
 
         <p class="mb-0">
           <strong>Cotización:</strong>
-          <%= link_to "#{@inspection.facturacion&.number} #{@inspection.facturacion&.name}",
+          <%= link_to "N°#{@inspection.facturacion&.number}: #{@inspection.facturacion&.name}",
                       @inspection.facturacion,
                       class: "text-blue-400" %>
         </p>
