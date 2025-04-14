@@ -39,8 +39,31 @@
         <p class="mb-0"><strong>Entregado:</strong> <%= format_date(@facturacion.entregado) %></p>
         <p class="mb-0"><strong>Resultado:</strong> <%= @facturacion.resultado %></p>
         <p class="mb-0"><strong>Orden de compra (OC):</strong> <%= format_date(@facturacion.oc) %></p>
-        <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
         <p class="mb-0"><strong>Fecha de inspección:</strong>   <%= format_date(@facturacion.fecha_inspeccion) %> </p>
+        <p class="mb-0"><strong>Fecha de entrega:</strong>   <%= format_date(@facturacion.fecha_entrega) %> </p>
+        <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
+        <% if @facturacion.emicion.present? %>
+        <div id="precio-container" class="mb-0">
+          <strong>Precio (sin iva):</strong>
+          <span id="precio-text"><%= @facturacion.precio %></span> UF
+
+          <button
+            id="editar-precio-btn"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white ml-2"
+            onclick="startEditPrecio()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.232 5.232l3.536 3.536M2.999 17.999l4.242-.354.354-4.242 9.536-9.536a1.5 1.5 0 012.121 0l.707.707a1.5 1.5 0 010 2.121l-9.536 9.536z" />
+            </svg>
+          </button>
+        </div>
+      <% else %>
+        <p class="mb-0">
+          <strong>Precio (sin iva):</strong>
+          <%= @facturacion.precio %> UF
+        </p>
+      <% end %>
       </div>
 
 
@@ -132,6 +155,7 @@
       { name: "Emisión de Cotización", date: @facturacion.emicion },
       { name: "Entrega a Cliente", date: @facturacion.entregado },
       { name: "Orden de Compra", date: @facturacion.oc },
+      { name: "Definir fecha de entrega", date: @facturacion.fecha_entrega },
       { name: "Factura", date: @facturacion.factura }
     ] %>
 
@@ -253,7 +277,59 @@
 
 
 
+<% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.fecha_entrega.blank? && @facturacion.resultado != "Rechazado" %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Registrar fecha de entrega de informe</h3>
 
+    <%= form_with(model: @facturacion,
+                  url: update_fecha_entrega_facturacion_path(@facturacion),
+                  method: :patch,
+                  local: true,
+                  class: "space-y-4") do |form| %>
+
+      <div>
+        <%= form.label :fecha_entrega, "Fecha de entrega", class: "block text-gray-300 font-bold mb-2" %>
+        <div class="relative">
+          <%= form.text_field :fecha_entrega,
+                              placeholder: "Selecciona una fecha",
+                              id: "datepicker",
+                              class: "block w-full px-3 py-2 bg-gray-700 text-white border \
+                                      border-gray-600 rounded-md shadow-sm focus:outline-none \
+                                      focus:ring focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <%= form.submit "Registrar fecha de entrega",
+                        class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold \
+                                py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+      </div>
+
+  <script>
+      function initializeFlatpickr() {
+          flatpickr("#datepicker", {
+              dateFormat: "d-m-Y", // Formato dd-mm-yyyy
+              minDate: "01-01-2020", // Fecha mínima, ajusta a conveniencia
+              maxDate: "31-12-3000", // Fecha máxima, ajusta a conveniencia
+              locale: "es",         // Idioma español
+              static: false,        // Compatible con móviles
+              altInput: true,
+              altFormat: "d-m-Y",
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", initializeFlatpickr);
+      document.addEventListener("turbo:render", initializeFlatpickr);
+      document.addEventListener("turbo:load", initializeFlatpickr);
+  </script>
+<% end %>
+
+    <% end %>
+    
+  </div>
+
+
+#Subir factura
 <% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.factura.nil? && @facturacion.resultado != "Rechazado" %>
   <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
     <h3 class="text-xl font-semibold text-white mb-4">Subir Factura</h3>
@@ -457,4 +533,70 @@
         });
     }
 
+</script>
+<script>
+    function startEditPrecio() {
+        const container = document.getElementById('precio-container');
+        const currentPrecio = document.getElementById('precio-text').innerText.trim();
+
+        container.innerHTML = `
+      <form id="edit-precio-form" onsubmit="submitEditPrecio(event)">
+        <!-- Necesitamos el token de protección CSRF: -->
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <label><strong>Precio (sin iva):</strong></label>
+        <input
+          type="number"
+          name="facturacion[precio]"
+          step="any"
+          id="edit-precio-input"
+          class="bg-gray-700 text-white border border-gray-600 rounded-md p-1 ml-2"
+          value="${currentPrecio}"
+        />
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded ml-2">
+          Guardar
+        </button>
+      </form>
+    `;
+    }
+
+    function submitEditPrecio(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch('<%= update_price_facturacion_path(@facturacion) %>', {
+            method: 'PATCH',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('precio-container');
+                    container.innerHTML = `
+          <strong>Precio (sin iva):</strong>
+          <span id="precio-text">${data.precio}</span> UF
+          <button
+            id="editar-precio-btn"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white ml-2"
+            onclick="startEditPrecio()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.232 5.232l3.536 3.536M2.999 17.999l4.242-.354.354-4.242
+                       9.536-9.536a1.5 1.5 0 012.121 0l.707.707a1.5 1.5 0
+                       010 2.121l-9.536 9.536z" />
+            </svg>
+          </button>
+        `;
+                } else {
+                    alert("No se pudo actualizar el precio. Revisa el valor ingresado.");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Ha ocurrido un error al actualizar el precio.");
+            });
+    }
 </script>

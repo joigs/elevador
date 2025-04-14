@@ -3,7 +3,7 @@ class FacturacionsController < ApplicationController
     :show, :edit, :update,
     :download_solicitud_file, :download_cotizacion_doc_file,
     :download_cotizacion_pdf_file, :download_orden_compra_file,
-    :download_facturacion_file, :download_all_files
+    :download_facturacion_file, :download_all_files, :update_principal
   ]
 
   before_action :authorize_user
@@ -148,8 +148,40 @@ class FacturacionsController < ApplicationController
         valid_file_type?(@facturacion.cotizacion_pdf_file, %w[application/pdf])
 
 
-        @facturacion.update(emicion: Date.current)
+        venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
+        script_path = Rails.root.join('app', 'scripts', 'extract_table_value.py').to_s
 
+        require 'tempfile'
+        temp_file = Tempfile.new(["facturacion_doc", ".docx"])
+        temp_file.binmode
+        temp_file.write(@facturacion.cotizacion_doc_file.blob.download)
+        temp_file.flush
+
+        cmd = "#{venv_python} \"#{script_path}\" --docx \"#{temp_file.path}\""
+        table_value = `#{cmd}`.strip
+        puts "original: #{table_value}"
+
+        temp_file.close
+        temp_file.unlink
+
+        matches = table_value.scan(/(\d+(?:[.,]\d+)?)/)
+
+        if matches.any?
+          sum = 0.0
+          matches.each do |match|
+            number_str = match[0].gsub(/\s+/, '').tr(',', '.')
+            sum += number_str.to_f
+          end
+          extracted_number = sum
+          flash[:alert] = "El precio obtenido del documento es #{extracted_number}. Si es que es erróneo, por favor cambiar manualmente."
+          flash[:alert_type] = "info"
+
+          @facturacion.update(emicion: Date.current, precio: extracted_number)
+        else
+          flash[:alert] = "Se subieron los documentos, pero no se pudo extraer un precio válido. Por favor ingresar manualmente."
+          flash[:alert_type] = "warning"
+          @facturacion.update(emicion: Date.current)
+        end
         notification = Notification.find_by(notification_type: :solicitud_pendiente)
         notification.facturacions.delete(@facturacion) if notification
 
@@ -202,11 +234,7 @@ class FacturacionsController < ApplicationController
 
     if @facturacion.save
 
-      if @facturacion.resultado == "Aceptado"
-        next_notification = Notification.find_by(notification_type: :factura_pendiente)
-        next_notification.facturacions << @facturacion if next_notification
-      end
-
+   
       redirect_to @facturacion, notice: "Orden de Compra procesada correctamente."
     else
       flash.now[:alert] = "No se pudo procesar la Orden de Compra."
@@ -215,7 +243,18 @@ class FacturacionsController < ApplicationController
   end
 
 
+  def update_fecha_entrega
+    @facturacion = Facturacion.find(params[:id])
 
+    if @facturacion.update(facturacion_params)
+        next_notification = Notification.find_by(notification_type: :factura_pendiente)
+        next_notification.facturacions << @facturacion if next_notification
+      redirect_to @facturacion, notice: "Fecha de evaluación actualizada con éxito."
+    else
+      flash.now[:alert] = "No se pudo actualizar la fecha de evaluación."
+      render :show, status: :unprocessable_entity
+    end
+  end
 
   def upload_factura
     @facturacion = Facturacion.find(params[:id])
@@ -258,6 +297,19 @@ class FacturacionsController < ApplicationController
       render :show, status: :unprocessable_entity
     end
   end
+
+  def update_price
+    @facturacion = Facturacion.find(params[:id])
+
+    if @facturacion.update(precio_params)
+      render json: { success: true, precio: @facturacion.precio }
+    else
+      render json: { success: false, errors: @facturacion.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+
+  
 
   def manage_files
     @facturacion = Facturacion.find(params[:id])
@@ -433,11 +485,14 @@ class FacturacionsController < ApplicationController
     params.require(:facturacion).permit(
       :number,
       :name,
+      :precio,
+      :presos,
       :solicitud,
       :emicion,
       :entregado,
       :resultado,
-      :oc,
+      :oc,      
+      :fecha_entrega,
       :factura,
       :solicitud_file,
       :cotizacion_doc_file,
@@ -492,7 +547,9 @@ class FacturacionsController < ApplicationController
   end
 
 
-
+  def precio_params
+    params.require(:facturacion).permit(:precio)
+  end
 
 
 

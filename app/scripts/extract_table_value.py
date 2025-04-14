@@ -1,27 +1,29 @@
 import sys
+import re
 import argparse
 from docx import Document
 
 def extract_table_value(docx_path):
     doc = Document(docx_path)
-    if len(doc.tables) < 3:
-        sys.exit("No se encontró la tercera tabla.")
 
-    table = doc.tables[2]
+    pattern = re.compile(r"\bu\.?f\.?\b", re.IGNORECASE)
 
-    if len(table.rows) < 2:
-        sys.exit("No se encontró la segunda fila en la tercera tabla.")
+    for table in doc.tables:
+        for row in table.rows:
+            for i, cell in enumerate(row.cells):
+                texto_celda = cell.text.strip()
 
-    row = table.rows[1]  # Segunda fila
+                if pattern.search(texto_celda):
+                    if i + 1 < len(row.cells):
+                        return row.cells[i+1].text.strip()
+                    else:
+                        return texto_celda
 
-    if len(row.cells) < 3:
-        sys.exit("No se encontró la tercera columna en la segunda fila.")
-
-    return row.cells[2].text
+    sys.exit("No se encontró ningún texto 'UF' (en ninguna de sus variaciones) dentro de una tabla.")
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extrae el contenido de la tercera tabla, segunda fila y tercera columna de un DOCX."
+        description="Extrae el contenido de la celda siguiente a aquella donde aparezca UF en una tabla."
     )
     parser.add_argument("--docx", required=True, help="Ruta al archivo DOCX.")
     args = parser.parse_args()
