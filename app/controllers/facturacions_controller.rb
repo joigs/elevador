@@ -3,7 +3,7 @@ class FacturacionsController < ApplicationController
     :show, :edit, :update,
     :download_solicitud_file, :download_cotizacion_doc_file,
     :download_cotizacion_pdf_file, :download_orden_compra_file,
-    :download_facturacion_file, :download_all_files, :update_principal
+    :download_facturacion_file, :download_all_files,
   ]
 
   before_action :authorize_user
