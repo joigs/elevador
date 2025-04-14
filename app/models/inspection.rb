@@ -79,6 +79,7 @@ class Inspection < ApplicationRecord
     end
   end
 
+  scope :con_resultado, -> { where(result: %w[Aprobado Rechazado Vencido]) }
 
   private
 

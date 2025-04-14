@@ -40,7 +40,12 @@
         <p class="mb-0"><strong>Resultado:</strong> <%= @facturacion.resultado %></p>
         <p class="mb-0"><strong>Orden de compra (OC):</strong> <%= format_date(@facturacion.oc) %></p>
         <p class="mb-0"><strong>Fecha de inspección:</strong>   <%= format_date(@facturacion.fecha_inspeccion) %> </p>
+        <p class="mb-0"><strong>Inspecciones completadas:</strong>   <%="#{@facturacion.inspecciones_con_resultado_count}/#{@facturacion.inspecciones_total}"%> </p>
         <p class="mb-0"><strong>Fecha de entrega:</strong>   <%= format_date(@facturacion.fecha_entrega) %> </p>
+
+
+
+
         <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
         <% if @facturacion.emicion.present? %>
         <div id="precio-container" class="mb-0">
@@ -84,7 +89,19 @@
             </div>
           <% end %>
 
-        </div>
+          <% if Current.user.admin == true || Current.user.admin == false %>
+            <div class="mt-6">
+
+
+            <%= link_to "Ver inspecciones asociadas",
+                        inspections_path(facturacion_id: @facturacion.id),
+                        class: "inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700
+                    text-white rounded-md" %>
+            </div>
+
+<% end %>
+
+            </div>
 
 
       <div class="mt-6">

@@ -4,12 +4,24 @@ class InspectionsController < ApplicationController
   require 'fileutils'
   require 'open3'
   def index
-    @q = Inspection.ransack(params[:q])
-    @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal, :report).order(number: :desc)
-    unless Current.user.tabla
-      @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
+    if params[:facturacion_id].present?
+      params[:q] ||= {}
+      params[:q][:facturacion_id_eq] = params[:facturacion_id]
+      @facturacion = Facturacion.find(params[:facturacion_id])
     end
 
+    @q = Inspection.ransack(params[:q])
+
+    @inspections = @q.result(distinct: true)
+                     .where("number > 0")
+                     .includes(:item, :principal, :report)
+                     .order(number: :desc)
+                     .then { |relation| @facturacion ? relation.where(facturacion_id: @facturacion.id) : relation }
+
+
+    unless Current.user.tabla
+      @pagy, @inspections = pagy_countless(@inspections, items: 10)
+    end
   end
 
   def show

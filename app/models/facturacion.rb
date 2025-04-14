@@ -42,6 +42,17 @@ class Facturacion < ApplicationRecord
     principal ? principal.name : "Error-empresa"
   end
 
+
+
+  def inspecciones_con_resultado_count
+    inspections.con_resultado.count
+  end
+
+  def inspecciones_total
+    inspections.count 
+  end
+
+
   private
 
   def valid_file_types
