@@ -75,7 +75,19 @@
                       @inspection.item.principal,
                       class: "text-blue-400" %>
         </p>
+
+
+
         <p class="mb-0"><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
+
+        <p class="mb-0">
+          <strong>Cotización:</strong>
+          <%= link_to "#{@inspection.facturacion&.number} #{@inspection.facturacion&.name}",
+                      @inspection.facturacion,
+                      class: "text-blue-400" %>
+        </p>
+
+
         <p class="mb-0"><strong>Periodicidad:</strong> <%= display_periodicity(@inspection.validation) %></p>
         <p class="mb-0"><strong>Clasificación:</strong> <%= @inspection.item&.group&.name %></p>
         <p class="mb-0"><strong>¿Es reinspección?</strong> <%= @inspection.rerun ? "Sí" : "No" %></p>
