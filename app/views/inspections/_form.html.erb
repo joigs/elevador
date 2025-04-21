@@ -167,300 +167,209 @@
     #facturacions-table         { border-collapse: collapse; }
     #facturacions-table tbody tr{ border-bottom: 1px solid rgba(255,255,255,0.20); }
 </style>
-
 <script>
-
     function openFacturacionModal() {
-        document.getElementById('facturacionModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
+        document.getElementById('facturacionModal').classList.remove('hidden')
+        document.body.classList.add('overflow-hidden')
     }
     function closeFacturacionModal() {
-        document.getElementById('facturacionModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
+        document.getElementById('facturacionModal').classList.add('hidden')
+        document.body.classList.remove('overflow-hidden')
     }
     function closeWhenClickOutside(e) {
-        if(e.target.id === "facturacionModal") {
-            closeFacturacionModal();
-        }
+        if (e.target.id === "facturacionModal") closeFacturacionModal()
     }
-    // Cerrar con ESC
-    document.addEventListener("keydown", function(e) {
-        if(e.key === "Escape") closeFacturacionModal();
-    });
-
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeFacturacionModal() })
     function onSelectFacturacion(facturacionId, facturacionNumber, facturacionName) {
-        console.log("Seleccionaste Facturación:", facturacionId, facturacionNumber, facturacionName);
-
-        const hiddenField = document.getElementById('inspection_facturacion_id');
-        if(hiddenField) hiddenField.value = facturacionId;
-
-        const displaySpan = document.getElementById('facturacion_selected_display');
-        if(displaySpan) {
-            displaySpan.textContent = `Facturación N° ${facturacionNumber}. ${facturacionName}`;
-        }
-
-        closeFacturacionModal();
+        const hiddenField = document.getElementById('inspection_facturacion_id')
+        if (hiddenField) hiddenField.value = facturacionId
+        const displaySpan = document.getElementById('facturacion_selected_display')
+        if (displaySpan) displaySpan.textContent = `Facturación N° ${facturacionNumber}. ${facturacionName}`
+        closeFacturacionModal()
     }
-
-
-
     function prepareFacturacionsTable(tableEl) {
-        const theadRow = tableEl.querySelector("thead tr");
-        const tbodyRows = tableEl.querySelectorAll("tbody tr");
-
+        const theadRow = tableEl.querySelector("thead tr")
+        const tbodyRows = tableEl.querySelectorAll("tbody tr")
         tbodyRows.forEach(row => {
-            const tds = row.querySelectorAll("td");
-            if(tds.length < 9) return;
-
-            //const ocValue      = tds[6].textContent.trim();
-            //const facturaValue = tds[7].textContent.trim();
-            //if(!ocValue || facturaValue) {
-            //    row.remove();
-            //}
-        });
-
-        const ths = theadRow.querySelectorAll("th");
-        if(ths.length >= 9) {
-            theadRow.removeChild(ths[8]);
-            theadRow.removeChild(ths[7]);
+            const tds = row.querySelectorAll("td")
+            if (tds.length < 9) return
+        })
+        const ths = theadRow.querySelectorAll("th")
+        if (ths.length >= 9) {
+            theadRow.removeChild(ths[8])
+            theadRow.removeChild(ths[7])
         }
-
-        const finalRows = tableEl.querySelectorAll("tbody tr");
+        const finalRows = tableEl.querySelectorAll("tbody tr")
         finalRows.forEach(row => {
-            const cells = row.querySelectorAll("td");
-            if(cells.length >= 9) {
-                cells[8].remove();
-                cells[7].remove();
+            const cells = row.querySelectorAll("td")
+            if (cells.length >= 9) {
+                cells[8].remove()
+                cells[7].remove()
             }
-        });
-
-        const newTh = document.createElement("th");
-        newTh.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider";
-        newTh.textContent = "Seleccionar";
-        theadRow.appendChild(newTh);
-
+        })
+        const newTh = document.createElement("th")
+        newTh.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+        newTh.textContent = "Seleccionar"
+        theadRow.appendChild(newTh)
         finalRows.forEach(row => {
-            const tds = row.querySelectorAll("td");
-            if(tds.length < 7) return;
-
-            let facturacionId = null;
-            let facturacionNumber = null;
-            let facturacionName = "";
-
-
-            const link = tds[0].querySelector("a");
-            if(link) {
-                const href = link.getAttribute("href") || "";
-                const match = href.match(/cotizaciones\/(\d+)/);
-                if(match) {
-                    facturacionId = match[1];
-                    facturacionNumber = link.textContent.trim();
+            const tds = row.querySelectorAll("td")
+            if (tds.length < 7) return
+            let facturacionId = null
+            let facturacionNumber = null
+            let facturacionName = ""
+            const link = tds[0].querySelector("a")
+            if (link) {
+                const href = link.getAttribute("href") || ""
+                const match = href.match(/cotizaciones\/(\d+)/)
+                if (match) {
+                    facturacionId = match[1]
+                    facturacionNumber = link.textContent.trim()
                 }
             }
-
-            facturacionName = tds[1]?.textContent.trim() || "";
-
-            const selectTd = document.createElement("td");
-            selectTd.className = "px-6 py-4 whitespace-normal";
-
-            if(facturacionId && facturacionNumber) {
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.className = "seleccionar-facturacion bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded";
-                btn.textContent = "Seleccionar";
-
-                btn.setAttribute("data-facturacion-id", facturacionId);
-                btn.setAttribute("data-facturacion-number", facturacionNumber);
-                btn.setAttribute("data-facturacion-name", facturacionName);
-
-                selectTd.appendChild(btn);
+            facturacionName = tds[1]?.textContent.trim() || ""
+            const selectTd = document.createElement("td")
+            selectTd.className = "px-6 py-4 whitespace-normal"
+            if (facturacionId && facturacionNumber) {
+                const btn = document.createElement("button")
+                btn.type = "button"
+                btn.className = "seleccionar-facturacion bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded"
+                btn.textContent = "Seleccionar"
+                btn.setAttribute("data-facturacion-id", facturacionId)
+                btn.setAttribute("data-facturacion-number", facturacionNumber)
+                btn.setAttribute("data-facturacion-name", facturacionName)
+                selectTd.appendChild(btn)
             } else {
-                selectTd.textContent = "—";
+                selectTd.textContent = "—"
             }
-            row.appendChild(selectTd);
-        });
+            row.appendChild(selectTd)
+        })
     }
-
-
     function initFacturacionsTable() {
-        const tableEl = document.getElementById("facturacions-table");
-        if(!tableEl || typeof simpleDatatables === "undefined" || !simpleDatatables.DataTable) return;
-
-        const columnsWithoutFilter = [2,3,4,6];
-        new simpleDatatables.DataTable(tableEl, {
-            columns: [
-                { select: 2, searchable: false },
-                { select: 3, searchable: false },
-                { select: 4, searchable: false },
-                { select: 6, searchable: false },
-            ],
-            labels: {
-                placeholder: "Buscar...",
-                perPage: "Registros por pág.",
-                noRows: "No hay datos para mostrar",
-                noResults: "No hay resultados que coincidan con tu búsqueda",
-                info: "Mostrando {start} a {end} de {rows} entradas"
-            },
-            tableRender: function(_data, table, type) {
-                if(type === "print") return table;
-
-                const thead = table.querySelector("thead");
-                if(!thead) return table;
-
-                const firstRow = thead.querySelector("tr");
-                if(!firstRow) return table;
-
-                const filterHeaders = {
-                    nodeName: "TR",
-                    attributes: { class: "search-filtering-row bg-gray-800 text-white" },
-                    childNodes: []
-                };
-
-                const allTH = firstRow.querySelectorAll("th");
-                const columnsWithoutFilter = [2,3,4,6];
-                allTH.forEach((th, index) => {
-                    if(columnsWithoutFilter.includes(index)) {
-                        filterHeaders.childNodes.push({
-                            nodeName: "TH",
-                            attributes: { style: "padding-top: 1rem;" },
-                            childNodes: [{
-                                nodeName: "INPUT",
-                                attributes: {
-                                    type: "search",
-                                    disabled: "disabled",
-                                    placeholder: "Sin filtro",
-                                    class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50"
-                                }
-                            }]
-                        });
-                    } else {
-                        filterHeaders.childNodes.push({
-                            nodeName: "TH",
-                            attributes: { style: "padding-top: 1rem;" },
-                            childNodes: [{
-                                nodeName: "INPUT",
-                                attributes: {
-                                    class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                    type: "search",
-                                    "data-columns": `[${index}]`,
-                                    placeholder: "Filtrar"
-                                }
-                            }]
-                        });
+        const t = document.getElementById("facturacions-table")
+        if (!t || t._simpleDt || typeof simpleDatatables === "undefined" || !simpleDatatables.DataTable) return
+        const noFilter = [2,3,4,6]
+        const dt = new simpleDatatables.DataTable(t,{
+            columns:[{select:2,searchable:false},{select:3,searchable:false},{select:4,searchable:false},{select:6,searchable:false}],
+            labels:{placeholder:"Buscar...",perPage:"Registros por pág.",noRows:"No hay datos para mostrar",noResults:"No hay resultados que coincidan con tu búsqueda",info:"Mostrando {start} a {end} de {rows} entradas"},
+            tableRender:(_d,table,type)=>{
+                if(type==="print") return table
+                table.childNodes[0].childNodes.forEach(r=>{
+                    r.attributes ||= {}
+                    r.attributes.class = (r.attributes.class||"")+" bg-gray-800 text-white"
+                    r.childNodes.forEach(th=>{
+                        th.attributes ||= {}
+                        th.attributes.class = (th.attributes.class||"")+" bg-gray-800 text-white"
+                    })
+                })
+                const head = table.childNodes[0]
+                const first = head.childNodes[0]
+                const filterHeaders = {nodeName:"TR",attributes:{class:"search-filtering-row bg-gray-800 text-white"},childNodes:[]}
+                first.childNodes.forEach((_,i)=>{
+                    if(noFilter.includes(i)){
+                        filterHeaders.childNodes.push({nodeName:"TH",attributes:{style:"padding-top:1rem;"},childNodes:[{nodeName:"INPUT",attributes:{type:"search",disabled:"disabled",placeholder:"Sin filtro",class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50"}}]})
+                    }else{
+                        filterHeaders.childNodes.push({nodeName:"TH",attributes:{style:"padding-top:1rem;"},childNodes:[{nodeName:"INPUT",attributes:{class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",type:"search","data-columns":`[${i}]`,placeholder:"Filtrar"}}]})
                     }
-                });
-                thead.appendChild(simpleDatatables.helpers.createElement(filterHeaders));
-                return table;
+                })
+                head.childNodes.push(filterHeaders)
+                return table
             }
-        });
+        })
+        t._simpleDt = dt
     }
 
     function initFlatpickrFilters() {
-        const startDate   = document.querySelector("[data-date-filter-target='startDate']");
-        const endDate     = document.querySelector("[data-date-filter-target='endDate']");
-        const submitButton= document.querySelector("[data-date-filter-target='submitButton']");
-        if(!submitButton) return;
-
+        const startDate = document.querySelector("[data-date-filter-target='startDate']")
+        const endDate = document.querySelector("[data-date-filter-target='endDate']")
+        const submitButton = document.querySelector("[data-date-filter-target='submitButton']")
+        if (!submitButton) return
         function clearButtonPlugin() {
             return fp => ({
                 onReady: () => {
-                    const clearBtn = document.createElement("button");
-                    clearBtn.type = "button";
-                    clearBtn.textContent = "Quitar fecha";
-                    clearBtn.className = "flatpickr-clear-btn";
+                    const clearBtn = document.createElement("button")
+                    clearBtn.type = "button"
+                    clearBtn.textContent = "Quitar fecha"
+                    clearBtn.className = "flatpickr-clear-btn"
                     clearBtn.addEventListener("click", () => {
-                        fp.clear();
-                        fp.close();
-                    });
-                    fp.calendarContainer.appendChild(clearBtn);
+                        fp.clear()
+                        fp.close()
+                    })
+                    fp.calendarContainer.appendChild(clearBtn)
                 }
-            });
+            })
         }
-
-        if(startDate) {
+        if (startDate && !startDate._flatpickr) {
             flatpickr(startDate, {
                 dateFormat: "d-m-Y",
                 locale: "es",
                 onChange: () => submitButton.click(),
-                plugins: [ clearButtonPlugin() ]
-            });
+                plugins: [clearButtonPlugin()]
+            })
         }
-        if(endDate) {
+        if (endDate && !endDate._flatpickr) {
             flatpickr(endDate, {
                 dateFormat: "d-m-Y",
                 locale: "es",
                 onChange: () => submitButton.click(),
-                plugins: [ clearButtonPlugin() ]
-            });
+                plugins: [clearButtonPlugin()]
+            })
         }
     }
-
-    document.addEventListener("turbo:frame-load", function(e) {
-        if(e.target.id === "facturacions_frame") {
-            const tableEl = document.getElementById("facturacions-table");
-
-            if(tableEl) prepareFacturacionsTable(tableEl);
-
-            initFlatpickrFilters();
-
-            initFacturacionsTable();
-
-            if(tableEl) {
-                tableEl.querySelectorAll("a").forEach(a => a.target = '_blank');
-            }
-
-            tableEl.addEventListener("click", function(ev) {
-                if(ev.target.matches("button.seleccionar-facturacion")) {
-                    const fid = ev.target.getAttribute("data-facturacion-id");
-                    const fnum = ev.target.getAttribute("data-facturacion-number");
-                    const fname = ev.target.getAttribute("data-facturacion-name");
-                    onSelectFacturacion(fid, fnum, fname);
+    document.addEventListener("turbo:before-cache", () => {
+        const tableEl = document.getElementById("facturacions-table")
+        if (tableEl && tableEl._simpleDt) {
+            tableEl._simpleDt.destroy()
+            delete tableEl._simpleDt
+        }
+        document.querySelectorAll("[data-date-filter-target='startDate'], [data-date-filter-target='endDate']").forEach(el => { if (el._flatpickr) el._flatpickr.destroy() })
+    })
+    document.addEventListener("turbo:frame-load", e => {
+        if (e.target.id === "facturacions_frame") {
+            const tableEl = document.getElementById("facturacions-table")
+            if (tableEl) prepareFacturacionsTable(tableEl)
+            initFlatpickrFilters()
+            initFacturacionsTable()
+            if (tableEl) tableEl.querySelectorAll("a").forEach(a => a.target = '_blank')
+            tableEl.addEventListener("click", ev => {
+                if (ev.target.matches("button.seleccionar-facturacion")) {
+                    const fid = ev.target.getAttribute("data-facturacion-id")
+                    const fnum = ev.target.getAttribute("data-facturacion-number")
+                    const fname = ev.target.getAttribute("data-facturacion-name")
+                    onSelectFacturacion(fid, fnum, fname)
                 }
-            });
+            })
         }
-    });
-
-
+    })
     document.addEventListener("turbo:load", () => {
-        const places = <%= communes_by_region.to_json.html_safe %>;
-        const regionSelect = document.getElementById("inspection_region");
-        if(!regionSelect) return;
-
-        const comunaSelect = document.getElementById("inspection_comuna");
-        const calleInput   = document.getElementById("inspection_calle");
-        const placeHidden  = document.getElementById("inspection_place");
-
-        regionSelect.addEventListener("change", function() {
-            const region = regionSelect.value;
-            const comunas = places[region] || [];
-
-            while(comunaSelect.firstChild) {
-                comunaSelect.removeChild(comunaSelect.firstChild);
-            }
-
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.textContent = "Selecciona Comuna";
-            comunaSelect.appendChild(defaultOption);
-
-            comunas.forEach((comuna) => {
-                const option = document.createElement("option");
-                option.value = comuna;
-                option.textContent = comuna;
-                comunaSelect.appendChild(option);
-            });
-
-            comunaSelect.value = "";
-            updatePlace();
-        });
-
+        const places = <%= communes_by_region.to_json.html_safe %>
+        const regionSelect = document.getElementById("inspection_region")
+        if (!regionSelect) return
+        const comunaSelect = document.getElementById("inspection_comuna")
+        const calleInput = document.getElementById("inspection_calle")
+        const placeHidden = document.getElementById("inspection_place")
+        regionSelect.addEventListener("change", function () {
+            const region = regionSelect.value
+            const comunas = places[region] || []
+            while (comunaSelect.firstChild) comunaSelect.removeChild(comunaSelect.firstChild)
+            const defaultOption = document.createElement("option")
+            defaultOption.value = ""
+            defaultOption.textContent = "Selecciona Comuna"
+            comunaSelect.appendChild(defaultOption)
+            comunas.forEach(comuna => {
+                const option = document.createElement("option")
+                option.value = comuna
+                option.textContent = comuna
+                comunaSelect.appendChild(option)
+            })
+            comunaSelect.value = ""
+            updatePlace()
+        })
         function updatePlace() {
-            const comuna = comunaSelect.value;
-            const calle  = calleInput.value;
-            placeHidden.value = comuna ? `${calle}, ${comuna}` : calle;
+            const comuna = comunaSelect.value
+            const calle = calleInput.value
+            placeHidden.value = comuna ? `${calle}, ${comuna}` : calle
         }
-
-        comunaSelect.addEventListener("change", updatePlace);
-        calleInput.addEventListener("input",  updatePlace);
-    });
+        comunaSelect.addEventListener("change", updatePlace)
+        calleInput.addEventListener("input", updatePlace)
+    })
 </script>

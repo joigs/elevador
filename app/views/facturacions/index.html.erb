@@ -129,153 +129,168 @@
   </div>
 
   <script>
-      function clearButtonPlugin() {
-          return function(fp) {
-              return {
-                  onReady: function() {
-                      const clearBtn=document.createElement("button")
-                      clearBtn.type="button"
-                      clearBtn.textContent="Quitar fecha"
-                      clearBtn.className="flatpickr-clear-btn"
-                      clearBtn.addEventListener("click",function(){
-                          fp.clear()
-                          fp.close()
-                      })
-                      fp.calendarContainer.appendChild(clearBtn)
-                  }
+      (function () {
+          document.addEventListener("turbo:before-cache", () => {
+              const tableEl = document.getElementById("facturacions-table");
+              if (tableEl && tableEl._dataTableInstance) {
+                  tableEl._dataTableInstance.destroy();
+                  delete tableEl._dataTableInstance;
+              }
+              document
+                .querySelectorAll(
+                  "[data-date-filter-target='startDate'], [data-date-filter-target='endDate']"
+                )
+                .forEach((el) => {
+                    if (el._flatpickr) el._flatpickr.destroy();
+                });
+          });
+
+          function initFacturacionsTable() {
+              const tableEl = document.getElementById("facturacions-table");
+              if (
+                tableEl &&
+                !tableEl._dataTableInstance &&
+                typeof simpleDatatables !== "undefined" &&
+                simpleDatatables.DataTable
+              ) {
+                  const columnsWithoutFilter = [2, 3, 4, 6, 7, 8, 9];
+                  const dataTable = new simpleDatatables.DataTable(tableEl, {
+                      columns: [
+                          { select: 2, searchable: false },
+                          { select: 3, searchable: false },
+                          { select: 4, searchable: false },
+                          { select: 6, searchable: false },
+                          { select: 7, searchable: false },
+                          { select: 8, searchable: false },
+                          { select: 9, searchable: false }
+                      ],
+                      labels: {
+                          placeholder: "Buscar...",
+                          perPage: "Registros por pág.",
+                          noRows: "No hay datos para mostrar",
+                          noResults: "No hay resultados que coincidan con tu búsqueda",
+                          info: "Mostrando {start} a {end} de {rows} entradas"
+                      },
+                      tableRender: function (_data, table, type) {
+                          if (type === "print") return table;
+                          table.childNodes[0].childNodes.forEach((row) => {
+                              if (!row.attributes) row.attributes = {};
+                              row.attributes.class =
+                                (row.attributes.class || "") + " bg-gray-800 text-white";
+                              row.childNodes.forEach((th) => {
+                                  if (!th.attributes) th.attributes = {};
+                                  th.attributes.class =
+                                    (th.attributes.class || "") + " bg-gray-800 text-white";
+                              });
+                          });
+                          const tHead = table.childNodes[0];
+                          const firstRow = tHead.childNodes[0];
+                          const filterHeaders = {
+                              nodeName: "TR",
+                              attributes: { class: "search-filtering-row bg-gray-800 text-white" },
+                              childNodes: firstRow.childNodes.map((_th, index) => {
+                                  if (columnsWithoutFilter.includes(index)) {
+                                      return {
+                                          nodeName: "TH",
+                                          attributes: { style: "padding-top: 1rem;" },
+                                          childNodes: [
+                                              {
+                                                  nodeName: "INPUT",
+                                                  attributes: {
+                                                      type: "search",
+                                                      disabled: "disabled",
+                                                      placeholder: "Sin filtro",
+                                                      class:
+                                                        "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                                      style: "cursor: not-allowed;"
+                                                  }
+                                              }
+                                          ]
+                                      };
+                                  }
+                                  return {
+                                      nodeName: "TH",
+                                      attributes: { style: "padding-top: 1rem;" },
+                                      childNodes: [
+                                          {
+                                              nodeName: "INPUT",
+                                              attributes: {
+                                                  class:
+                                                    "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                                  type: "search",
+                                                  "data-columns": "[" + index + "]",
+                                                  placeholder: "Filtrar"
+                                              }
+                                          }
+                                      ]
+                                  };
+                              })
+                          };
+                          tHead.childNodes.push(filterHeaders);
+                          return table;
+                      }
+                  });
+                  tableEl._dataTableInstance = dataTable;
               }
           }
-      }
 
-      function initFacturacionsTable(){
-          const tableEl=document.getElementById("facturacions-table")
-          if(tableEl&&typeof simpleDatatables!=="undefined"&&simpleDatatables.DataTable){
-              const columnsWithoutFilter=[2,3,4,6,7,8,9]
-              new simpleDatatables.DataTable(tableEl,{
-                  columns:[
-                      {select:2,searchable:false},
-                      {select:3,searchable:false},
-                      {select:4,searchable:false},
-                      {select:6,searchable:false},
-                      {select:7,searchable:false},
-                      {select:8,searchable:false},
-                      {select:9,searchable:false}
-                  ],
-                  labels:{
-                      placeholder:"Buscar...",
-                      perPage:"Registros por pág.",
-                      noRows:"No hay datos para mostrar",
-                      noResults:"No hay resultados que coincidan con tu búsqueda",
-                      info:"Mostrando {start} a {end} de {rows} entradas"
-                  },
-                  tableRender:function(_data,table,type){
-                      if(type==="print"){return table}
-                      table.childNodes[0].childNodes.forEach(function(row){
-                          if(!row.attributes)row.attributes={}
-                          row.attributes.class=(row.attributes.class||"")+" bg-gray-800 text-white"
-                          row.childNodes.forEach(function(th){
-                              if(!th.attributes)th.attributes={}
-                              th.attributes.class=(th.attributes.class||"")+" bg-gray-800 text-white"
-                          })
-                      })
-                      const tHead=table.childNodes[0]
-                      const firstRow=tHead.childNodes[0]
-                      const filterHeaders={
-                          nodeName:"TR",
-                          attributes:{class:"search-filtering-row bg-gray-800 text-white"},
-                          childNodes:firstRow.childNodes.map(function(_th,index){
-                              if(columnsWithoutFilter.includes(index)){
-                                  return{
-                                      nodeName:"TH",
-                                      attributes:{style:"padding-top: 1rem;"},
-                                      childNodes:[{
-                                          nodeName:"INPUT",
-                                          attributes:{
-                                              type:"search",
-                                              disabled:"disabled",
-                                              placeholder:"Sin filtro",
-                                              class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
-                                              style:"cursor: not-allowed;"
-                                          }
-                                      }]
-                                  }
-                              }
-                              return{
-                                  nodeName:"TH",
-                                  attributes:{style:"padding-top: 1rem;"},
-                                  childNodes:[{
-                                      nodeName:"INPUT",
-                                      attributes:{
-                                          class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                          type:"search",
-                                          "data-columns":"["+index+"]",
-                                          placeholder:"Filtrar"
-                                      }
-                                  }]
-                              }
-                          })
+          function clearButtonPlugin() {
+              return function (fp) {
+                  return {
+                      onReady: function () {
+                          const btn = document.createElement("button");
+                          btn.type = "button";
+                          btn.textContent = "Quitar fecha";
+                          btn.className = "flatpickr-clear-btn";
+                          btn.addEventListener("click", function () {
+                              fp.clear();
+                              fp.close();
+                          });
+                          fp.calendarContainer.appendChild(btn);
                       }
-                      tHead.childNodes.push(filterHeaders)
-                      return table
+                  };
+              };
+          }
+
+          function initFlatpickrFilters() {
+              const startDate = document.querySelector(
+                "[data-date-filter-target='startDate']"
+              );
+              const endDate = document.querySelector(
+                "[data-date-filter-target='endDate']"
+              );
+              const submitButton = document.querySelector(
+                "[data-date-filter-target='submitButton']"
+              );
+              if (!submitButton) return;
+              [startDate, endDate].forEach((el) => {
+                  if (el && !el._flatpickr) {
+                      flatpickr(el, {
+                          dateFormat: "d-m-Y",
+                          minDate: "01-01-2020",
+                          maxDate: "31-12-3000",
+                          locale: "es",
+                          altInput: true,
+                          altFormat: "d-m-Y",
+                          onChange: () => submitButton.click(),
+                          plugins: [clearButtonPlugin()]
+                      });
                   }
-              })
-          }
-      }
-
-      function initFlatpickrFilters(){
-
-          const startDate = document.querySelector("[data-date-filter-target='startDate']")
-          const endDate   = document.querySelector("[data-date-filter-target='endDate']")
-          const submitButton = document.querySelector("[data-date-filter-target='submitButton']")
-
-          if (!submitButton) return
-
-          if (startDate) {
-              flatpickr(startDate, {
-                  dateFormat:"d-m-Y",
-                  minDate:"01-01-2020",
-                  maxDate:"31-12-3000",
-                  locale:"es",
-                  static:false,
-                  altInput:true,
-                  altFormat:"d-m-Y",
-                  onChange:function(){
-                      submitButton.click()
-                  },
-                  plugins:[ clearButtonPlugin() ]
-              })
+              });
           }
 
-          if (endDate) {
-              flatpickr(endDate, {
-                  dateFormat:"d-m-Y",
-                  minDate:"01-01-2020",
-                  maxDate:"31-12-3000",
-                  locale:"es",
-                  static:false,
-                  altInput:true,
-                  altFormat:"d-m-Y",
-                  onChange:function(){
-                      submitButton.click()
-                  },
-                  plugins:[ clearButtonPlugin() ]
-              })
-          }
-      }
+          document.addEventListener("turbo:load", () => {
+              initFlatpickrFilters();
+              initFacturacionsTable();
+          });
 
-
-      document.addEventListener("turbo:load",function(){
-          initFlatpickrFilters()
-          initFacturacionsTable()
-      })
-
-      document.addEventListener("turbo:frame-load",function(e){
-          if(e.target.id==="facturacions_frame"){
-              initFlatpickrFilters()
-              initFacturacionsTable()
-          }
-      })
-
+          document.addEventListener("turbo:frame-load", (e) => {
+              if (e.target.id === "facturacions_frame") {
+                  initFlatpickrFilters();
+                  initFacturacionsTable();
+              }
+          });
+      })();
   </script>
 
   <style>

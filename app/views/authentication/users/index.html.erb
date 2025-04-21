@@ -99,71 +99,84 @@
           </div>
 
           <script>
-              document.addEventListener("turbo:load", function() {
-                  const tableEl = document.getElementById("users-table");
-                  if (
-                      tableEl &&
-                      typeof simpleDatatables !== "undefined" &&
-                      simpleDatatables.DataTable
-                  ) {
-                      const dataTable = new simpleDatatables.DataTable("#users-table", {
-                          labels: {
-                              placeholder: "Buscar...",
-                              perPage: "registros por pág.",
-                              noRows: "No hay datos para mostrar",
-                              noResults: "No hay resultados que coincidan con tu búsqueda",
-                              info: "Mostrando {start} a {end} de {rows} entradas"
-                          },
-                          tableRender: (_data, table, type) => {
-                              // Evita cambios en modo print
-                              if (type === "print") {
+              (function () {
+                  document.addEventListener("turbo:before-cache", () => {
+                      const tableEl = document.getElementById("users-table");
+                      if (tableEl && tableEl._dataTableInstance) {
+                          tableEl._dataTableInstance.destroy();
+                          delete tableEl._dataTableInstance;
+                      }
+                  });
+
+                  function initUsersTable() {
+                      const tableEl = document.getElementById("users-table");
+                      if (
+                        tableEl &&
+                        !tableEl._dataTableInstance &&
+                        typeof simpleDatatables !== "undefined" &&
+                        simpleDatatables.DataTable
+                      ) {
+                          const dataTable = new simpleDatatables.DataTable(tableEl, {
+                              labels: {
+                                  placeholder: "Buscar...",
+                                  perPage: "registros por pág.",
+                                  noRows: "No hay datos para mostrar",
+                                  noResults: "No hay resultados que coincidan con tu búsqueda",
+                                  info: "Mostrando {start} a {end} de {rows} entradas"
+                              },
+                              tableRender: (_data, table, type) => {
+                                  if (type === "print") return table;
+
+                                  table.childNodes[0].childNodes.forEach((row) => {
+                                      if (!row.attributes) row.attributes = {};
+                                      row.attributes.class =
+                                        (row.attributes.class || "") + " bg-gray-800 text-white";
+                                      row.childNodes.forEach((th) => {
+                                          if (!th.attributes) th.attributes = {};
+                                          th.attributes.class =
+                                            (th.attributes.class || "") + " bg-gray-800 text-white";
+                                      });
+                                  });
+
+                                  const tHead = table.childNodes[0];
+                                  const firstRow = tHead.childNodes[0];
+                                  const filterHeaders = {
+                                      nodeName: "TR",
+                                      attributes: {
+                                          class: "search-filtering-row bg-gray-800 text-white"
+                                      },
+                                      childNodes: firstRow.childNodes.map((_th, index) => ({
+                                          nodeName: "TH",
+                                          attributes: { style: "padding-top: 1rem;" },
+                                          childNodes: [
+                                              {
+                                                  nodeName: "INPUT",
+                                                  attributes: {
+                                                      class:
+                                                        "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                                      type: "search",
+                                                      "data-columns": "[" + index + "]",
+                                                      placeholder: "Filtrar"
+                                                  }
+                                              }
+                                          ]
+                                      }))
+                                  };
+                                  tHead.childNodes.push(filterHeaders);
+
                                   return table;
                               }
-                              // Forzamos el <thead> oscuro
-                              table.childNodes[0].childNodes.forEach((row) => {
-                                  if (!row.attributes) row.attributes = {};
-                                  row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                                  row.childNodes.forEach((th) => {
-                                      if (!th.attributes) th.attributes = {};
-                                      th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                                  });
-                              });
+                          });
 
-                              // Agregar la fila de filtros (search-filtering-row)
-                              const tHead = table.childNodes[0];
-                              const firstRow = tHead.childNodes[0];
-                              const filterHeaders = {
-                                  nodeName: "TR",
-                                  attributes: {
-                                      class: "search-filtering-row bg-gray-800 text-white"
-                                  },
-                                  childNodes: firstRow.childNodes.map((_th, index) => ({
-                                      nodeName: "TH",
-                                      attributes: {
-                                          style: "padding-top: 1rem;" // simular un mt-4
-                                      },
-                                      childNodes: [
-                                          {
-                                              nodeName: "INPUT",
-                                              attributes: {
-                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                                  type: "search",
-                                                  "data-columns": "[" + index + "]",
-                                                  placeholder: "Filtrar"
-                                              }
-                                          }
-                                      ]
-                                  }))
-                              };
-                              tHead.childNodes.push(filterHeaders);
-
-                              return table;
-                          }
-                      });
-
+                          tableEl._dataTableInstance = dataTable;
+                      }
                   }
-              });
+
+                  document.addEventListener("turbo:load", initUsersTable);
+                  document.addEventListener("turbo:frame-load", initUsersTable);
+              })();
           </script>
+
 
           <style>
               .dataTable-table tbody td {

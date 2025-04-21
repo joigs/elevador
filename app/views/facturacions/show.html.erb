@@ -645,60 +645,59 @@
 
 <script>
     (() => {
-        const overlay  = document.getElementById('inspections-modal-overlay');
-        const openBtn  = document.getElementById('open-inspections-btn');
+        const overlay = document.getElementById('inspections-modal-overlay');
+        const openBtn = document.getElementById('open-inspections-btn');
         const closeBtn = document.getElementById('close-inspections-btn');
-        const frame    = document.getElementById('inspections');
+        const frame = document.getElementById('inspections');
 
-        /* -------- Modal helpers -------- */
-        function openModal () {
+        function openModal() {
             if (!frame.src) frame.src = openBtn.dataset.url;
             overlay.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
         }
-        function closeModal () {
+        function closeModal() {
             overlay.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
         }
 
-        openBtn .addEventListener('click', e => { e.preventDefault(); openModal(); });
+        openBtn.addEventListener('click', e => {
+            e.preventDefault();
+            openModal();
+        });
         closeBtn.addEventListener('click', closeModal);
-        overlay .addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-        document.addEventListener('keydown',  e => { if (e.key === 'Escape') closeModal(); });
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) closeModal();
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
 
-        /* ---- add target="_blank" a los <a> de la tabla ---- */
-        function addBlankTargets (tableEl) {
+        function addBlankTargets(tableEl) {
             tableEl.querySelectorAll('a').forEach(a => {
                 a.setAttribute('target', '_blank');
-                a.setAttribute('rel',    'noopener noreferrer');
+                a.setAttribute('rel', 'noopener noreferrer');
             });
         }
 
-        /* ------------- simple‑Datatables ------------- */
-        function initInspectionsTable () {
+        function initInspectionsTable() {
             const tableEl = document.getElementById('inspections-table');
             if (!tableEl) return;
-
-            // Si ya existía, refresca y vuelve a marcar enlaces
             if (tableEl.dataset.datatableReady) {
                 if (tableEl._simpleDt) tableEl._simpleDt.refresh();
                 addBlankTargets(tableEl);
                 return;
             }
-
             if (typeof simpleDatatables !== 'undefined' && simpleDatatables.DataTable) {
                 const dt = new simpleDatatables.DataTable('#inspections-table', {
                     labels: {
                         placeholder: 'Buscar...',
-                        perPage:     'registros por pág.',
-                        noRows:      'No hay datos para mostrar',
-                        noResults:   'No hay resultados que coincidan con tu búsqueda',
-                        info:        'Mostrando {start} a {end} de {rows} entradas'
+                        perPage: 'registros por pág.',
+                        noRows: 'No hay datos para mostrar',
+                        noResults: 'No hay resultados que coincidan con tu búsqueda',
+                        info: 'Mostrando {start} a {end} de {rows} entradas'
                     },
                     tableRender: (_data, table, type) => {
                         if (type === 'print') return table;
-
-                        /* cabeceras en gris oscuro + texto blanco */
                         table.childNodes[0].childNodes.forEach(row => {
                             row.attributes ||= {};
                             row.attributes.class = (row.attributes.class || '') + ' bg-gray-800 text-white';
@@ -707,51 +706,53 @@
                                 th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white';
                             });
                         });
-
-                        /* fila de filtros */
-                        const tHead  = table.childNodes[0];
-                        const first  = tHead.childNodes[0];
+                        const tHead = table.childNodes[0];
+                        const first = tHead.childNodes[0];
                         const filterHeaders = {
                             nodeName: 'TR',
                             attributes: { class: 'search-filtering-row bg-gray-800 text-white' },
                             childNodes: first.childNodes.map((_th, idx) => ({
-                                nodeName:  'TH',
-                                attributes:{ style: 'padding-top:1rem;' },
-                                childNodes:[{
-                                    nodeName:'INPUT',
-                                    attributes:{
-                                        class:'datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full',
-                                        type:'search',
-                                        'data-columns':`[${idx}]`,
-                                        placeholder:'Filtrar'
+                                nodeName: 'TH',
+                                attributes: { style: 'padding-top:1rem;' },
+                                childNodes: [
+                                    {
+                                        nodeName: 'INPUT',
+                                        attributes: {
+                                            class: 'datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full',
+                                            type: 'search',
+                                            'data-columns': `[${idx}]`,
+                                            placeholder: 'Filtrar'
+                                        }
                                     }
-                                }]
+                                ]
                             }))
                         };
                         tHead.childNodes.push(filterHeaders);
                         return table;
                     }
                 });
-
-                /* Marca enlaces ahora… */
                 addBlankTargets(tableEl);
-
-                /* …y también cada vez que la tabla se vuelva a dibujar */
-                dt.on('datatable.page',  () => addBlankTargets(tableEl));
-                dt.on('datatable.sort',  () => addBlankTargets(tableEl));
-                dt.on('datatable.search',() => addBlankTargets(tableEl));
-
+                dt.on('datatable.page', () => addBlankTargets(tableEl));
+                dt.on('datatable.sort', () => addBlankTargets(tableEl));
+                dt.on('datatable.search', () => addBlankTargets(tableEl));
                 tableEl.dataset.datatableReady = 'true';
                 tableEl._simpleDt = dt;
             }
         }
 
-        /* ———  Inicializa en página normal y en el modal ——— */
-        document.addEventListener('turbo:load',        initInspectionsTable);
+        document.addEventListener('turbo:before-cache', () => {
+            const tableEl = document.getElementById('inspections-table');
+            if (tableEl && tableEl._simpleDt) {
+                tableEl._simpleDt.destroy();
+                delete tableEl._simpleDt;
+                delete tableEl.dataset.datatableReady;
+            }
+        });
+
+        document.addEventListener('turbo:load', initInspectionsTable);
         document.addEventListener('turbo:frame-load', e => {
             if (e.target === frame) {
                 initInspectionsTable();
-                // por si hubiese enlaces fuera de la tabla dentro del frame
                 addBlankTargets(frame);
             }
         });
