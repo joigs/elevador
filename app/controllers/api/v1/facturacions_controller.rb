@@ -66,8 +66,6 @@ module Api
         provided_key = request.headers['X-API-KEY'] || params[:api_key]
         expected_key = ENV['VERTICAL_API_KEY']
 
-        Rails.logger.warn "[API_KEY] provided=#{provided_key.inspect} (#{provided_key&.bytesize}) "\
-                            "expected=#{expected_key.inspect} (#{expected_key&.bytesize})"
 
         unless provided_key.present? &&
           expected_key.present? &&
