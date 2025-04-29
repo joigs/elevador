@@ -66,12 +66,17 @@ module Api
         provided_key = request.headers['X-API-KEY'] || params[:api_key]
         expected_key = ENV['VERTICAL_API_KEY']
 
-        unless provided_key.present? && expected_key.present? &&
-          provided_key.length == expected_key.length &&
+        Rails.logger.warn "[API_KEY] provided=#{provided_key.inspect} (#{provided_key&.bytesize}) "\
+                            "expected=#{expected_key.inspect} (#{expected_key&.bytesize})"
+
+        unless provided_key.present? &&
+          expected_key.present? &&
+          provided_key.bytesize == expected_key.bytesize &&
           ActiveSupport::SecurityUtils.secure_compare(provided_key, expected_key)
           render json: { error: 'Unauthorized' }, status: :unauthorized
         end
       end
+
 
     end
   end
