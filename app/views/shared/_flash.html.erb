@@ -1,9 +1,15 @@
 <%= turbo_frame_tag 'flash' do %>
   <% if alert %>
+    <% alert_type = flash[:alert_type] || "error" %>
+    <% alert_title = case alert_type
+                     when "info" then "Información"
+                     when "warning" then "Advertencia"
+                     else "Error"
+                     end %>
     <%= javascript_tag do %>
       Swal.fire({
-      icon: 'error',
-      title: 'Error',
+      icon: '<%= j alert_type %>',
+      title: '<%= j alert_title %>',
       text: '<%= j alert %>',
       confirmButtonText: 'OK'
       });

@@ -11,11 +11,9 @@
     <% end %>
   <% end %>
 
-
   <div class="mt-3">
     <%= form.label :number, "Número de inspección.", class: "block text-gray-300" %>
     <%= form.number_field :number, min:1, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-
   </div>
 
   <% if @manual_action_name == 'new' %>
@@ -55,10 +53,6 @@
 
       <%= form.hidden_field :group_id, value: @item.group.id %>
       <%= form.hidden_field :principal_id, value: @item.principal.id %>
-    </div>
-
-
-
   <% end %>
 
   <div class="mt-3">
@@ -66,10 +60,42 @@
     <%= form.text_field :name, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <div data-controller="place-select" class="mt-3">
-    <%= form.label :place, "Lugar de inspección", class: "block text-gray-300" %>
-    <%= form.text_field :place, list: "place-options", id: "inspection_place", maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { place_select_target: "place" } %>
-    <datalist id="place-options" data-place-select-target="placeList"></datalist>
+  <%= form.hidden_field :place, id: "inspection_place" %>
+
+  <div class="mt-3">
+    <%= form.label :region, "Región", class: "block text-gray-300" %>
+    <%= form.select :region,
+                    options_for_select(communes_by_region.keys, selected: @inspection.region),
+                    { prompt: "Selecciona Región" },
+                    { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                      id: "inspection_region",
+                      data: { controller: "slim-select" },
+                      required: true
+                    } %>
+  </div>
+
+  <div class="mt-3">
+    <%= form.label :comuna, "Comuna", class: "block text-gray-300" %>
+    <%= form.select :comuna,
+                    options_for_select(communes_by_region[@inspection.region] || [], selected: @inspection.comuna),
+                    { prompt: "Selecciona Comuna" },
+                    { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                      id: "inspection_comuna",
+                      data: { controller: "slim-select" },
+                      required: true
+                    } %>
+  </div>
+  <% calle_value = if @inspection.place.present?
+                     @inspection.place.rpartition(",").first.strip
+                   else
+                     ""
+                   end %>
+  <div class="mt-3">
+    <%= form.label :calle, "Calle", class: "block text-gray-300" %>
+    <%= form.text_field :calle, value: calle_value,
+                        class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
+                        id: "inspection_calle",
+                        required: true %>
   </div>
 
   <div class="mt-3">
@@ -79,7 +105,7 @@
 
   <div class="mt-3">
     <%= form.label :validation, "Periodicidad", class: "block text-gray-300" %>
-    <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]]), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    <%= form.select :validation, options_for_select([['1 año', 1], ['2 años', 2]], @inspection.validation), {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
   <% if Current.user.admin || Current.user.crear %>
@@ -89,9 +115,261 @@
     </div>
   <% end %>
 
+  <%= form.hidden_field :facturacion_id, id: "inspection_facturacion_id" %>
+
+  <div class="mt-6">
+    <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300 text-2xl" %>
+    <div class="flex items-center gap-2 mt-2">
+      <span id="facturacion_selected_display" class="text-gray-200">
+        <% if @inspection.facturacion&.number.present? %>
+          <%= "Cotización N° #{@inspection.facturacion.number}. #{@inspection.facturacion.name}" %>
+        <% else %>
+          Ninguna seleccionada
+        <% end %>
+      </span>
+
+      <button type="button"
+              onclick="openFacturacionModal()"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded ml-4">
+        Buscar Cotización
+      </button>
+    </div>
+  </div>
+
   <%= form.hidden_field :manual_action_name, value: @manual_action_name %>
 
   <div class="mt-6 py-5">
     <%= form.submit "#{inspection.new_record? ? 'Crear' : 'Actualizar'} Inspección", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   </div>
 <% end %>
+
+<div id="facturacionModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
+     onclick="closeWhenClickOutside(event)">
+  <div class="modal-content relative w-11/12 max-w-8xl bg-gray-800 p-6 rounded shadow-md"
+       style="overflow-y: auto; min-height: 600px; max-height: 85vh;"
+       onclick="event.stopPropagation()">
+    <button type="button"
+            class="absolute top-4 right-4 text-white text-2xl font-bold"
+            onclick="closeFacturacionModal()">
+      &times;
+    </button>
+
+    <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
+      Cargando Cotizaciones...
+    </turbo-frame>
+  </div>
+</div>
+</div>
+
+
+<style>
+    #facturacions-table         { border-collapse: collapse; }
+    #facturacions-table tbody tr{ border-bottom: 1px solid rgba(255,255,255,0.20); }
+</style>
+<script>
+    function openFacturacionModal() {
+        document.getElementById('facturacionModal').classList.remove('hidden')
+        document.body.classList.add('overflow-hidden')
+    }
+    function closeFacturacionModal() {
+        document.getElementById('facturacionModal').classList.add('hidden')
+        document.body.classList.remove('overflow-hidden')
+    }
+    function closeWhenClickOutside(e) {
+        if (e.target.id === "facturacionModal") closeFacturacionModal()
+    }
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeFacturacionModal() })
+    function onSelectFacturacion(facturacionId, facturacionNumber, facturacionName) {
+        const hiddenField = document.getElementById('inspection_facturacion_id')
+        if (hiddenField) hiddenField.value = facturacionId
+        const displaySpan = document.getElementById('facturacion_selected_display')
+        if (displaySpan) displaySpan.textContent = `Facturación N° ${facturacionNumber}. ${facturacionName}`
+        closeFacturacionModal()
+    }
+    function prepareFacturacionsTable(tableEl) {
+        const theadRow = tableEl.querySelector("thead tr")
+        const tbodyRows = tableEl.querySelectorAll("tbody tr")
+        tbodyRows.forEach(row => {
+            const tds = row.querySelectorAll("td")
+            if (tds.length < 9) return
+        })
+        const ths = theadRow.querySelectorAll("th")
+        if (ths.length >= 9) {
+            theadRow.removeChild(ths[8])
+            theadRow.removeChild(ths[7])
+        }
+        const finalRows = tableEl.querySelectorAll("tbody tr")
+        finalRows.forEach(row => {
+            const cells = row.querySelectorAll("td")
+            if (cells.length >= 9) {
+                cells[8].remove()
+                cells[7].remove()
+            }
+        })
+        const newTh = document.createElement("th")
+        newTh.className = "px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+        newTh.textContent = "Seleccionar"
+        theadRow.appendChild(newTh)
+        finalRows.forEach(row => {
+            const tds = row.querySelectorAll("td")
+            if (tds.length < 7) return
+            let facturacionId = null
+            let facturacionNumber = null
+            let facturacionName = ""
+            const link = tds[0].querySelector("a")
+            if (link) {
+                const href = link.getAttribute("href") || ""
+                const match = href.match(/cotizaciones\/(\d+)/)
+                if (match) {
+                    facturacionId = match[1]
+                    facturacionNumber = link.textContent.trim()
+                }
+            }
+            facturacionName = tds[1]?.textContent.trim() || ""
+            const selectTd = document.createElement("td")
+            selectTd.className = "px-6 py-4 whitespace-normal"
+            if (facturacionId && facturacionNumber) {
+                const btn = document.createElement("button")
+                btn.type = "button"
+                btn.className = "seleccionar-facturacion bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded"
+                btn.textContent = "Seleccionar"
+                btn.setAttribute("data-facturacion-id", facturacionId)
+                btn.setAttribute("data-facturacion-number", facturacionNumber)
+                btn.setAttribute("data-facturacion-name", facturacionName)
+                selectTd.appendChild(btn)
+            } else {
+                selectTd.textContent = "—"
+            }
+            row.appendChild(selectTd)
+        })
+    }
+    function initFacturacionsTable() {
+        const t = document.getElementById("facturacions-table")
+        if (!t || t._simpleDt || typeof simpleDatatables === "undefined" || !simpleDatatables.DataTable) return
+        const noFilter = [2,3,4,6]
+        const dt = new simpleDatatables.DataTable(t,{
+            columns:[{select:2,searchable:false},{select:3,searchable:false},{select:4,searchable:false},{select:6,searchable:false}],
+            labels:{placeholder:"Buscar...",perPage:"Registros por pág.",noRows:"No hay datos para mostrar",noResults:"No hay resultados que coincidan con tu búsqueda",info:"Mostrando {start} a {end} de {rows} entradas"},
+            tableRender:(_d,table,type)=>{
+                if(type==="print") return table
+                table.childNodes[0].childNodes.forEach(r=>{
+                    r.attributes ||= {}
+                    r.attributes.class = (r.attributes.class||"")+" bg-gray-800 text-white"
+                    r.childNodes.forEach(th=>{
+                        th.attributes ||= {}
+                        th.attributes.class = (th.attributes.class||"")+" bg-gray-800 text-white"
+                    })
+                })
+                const head = table.childNodes[0]
+                const first = head.childNodes[0]
+                const filterHeaders = {nodeName:"TR",attributes:{class:"search-filtering-row bg-gray-800 text-white"},childNodes:[]}
+                first.childNodes.forEach((_,i)=>{
+                    if(noFilter.includes(i)){
+                        filterHeaders.childNodes.push({nodeName:"TH",attributes:{style:"padding-top:1rem;"},childNodes:[{nodeName:"INPUT",attributes:{type:"search",disabled:"disabled",placeholder:"Sin filtro",class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50"}}]})
+                    }else{
+                        filterHeaders.childNodes.push({nodeName:"TH",attributes:{style:"padding-top:1rem;"},childNodes:[{nodeName:"INPUT",attributes:{class:"datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",type:"search","data-columns":`[${i}]`,placeholder:"Filtrar"}}]})
+                    }
+                })
+                head.childNodes.push(filterHeaders)
+                return table
+            }
+        })
+        t._simpleDt = dt
+    }
+
+    function initFlatpickrFilters() {
+        const startDate = document.querySelector("[data-date-filter-target='startDate']")
+        const endDate = document.querySelector("[data-date-filter-target='endDate']")
+        const submitButton = document.querySelector("[data-date-filter-target='submitButton']")
+        if (!submitButton) return
+        function clearButtonPlugin() {
+            return fp => ({
+                onReady: () => {
+                    const clearBtn = document.createElement("button")
+                    clearBtn.type = "button"
+                    clearBtn.textContent = "Quitar fecha"
+                    clearBtn.className = "flatpickr-clear-btn"
+                    clearBtn.addEventListener("click", () => {
+                        fp.clear()
+                        fp.close()
+                    })
+                    fp.calendarContainer.appendChild(clearBtn)
+                }
+            })
+        }
+        if (startDate && !startDate._flatpickr) {
+            flatpickr(startDate, {
+                dateFormat: "d-m-Y",
+                locale: "es",
+                onChange: () => submitButton.click(),
+                plugins: [clearButtonPlugin()]
+            })
+        }
+        if (endDate && !endDate._flatpickr) {
+            flatpickr(endDate, {
+                dateFormat: "d-m-Y",
+                locale: "es",
+                onChange: () => submitButton.click(),
+                plugins: [clearButtonPlugin()]
+            })
+        }
+    }
+    document.addEventListener("turbo:before-cache", () => {
+        const tableEl = document.getElementById("facturacions-table")
+        if (tableEl && tableEl._simpleDt) {
+            tableEl._simpleDt.destroy()
+            delete tableEl._simpleDt
+        }
+        document.querySelectorAll("[data-date-filter-target='startDate'], [data-date-filter-target='endDate']").forEach(el => { if (el._flatpickr) el._flatpickr.destroy() })
+    })
+    document.addEventListener("turbo:frame-load", e => {
+        if (e.target.id === "facturacions_frame") {
+            const tableEl = document.getElementById("facturacions-table")
+            if (tableEl) prepareFacturacionsTable(tableEl)
+            initFlatpickrFilters()
+            initFacturacionsTable()
+            if (tableEl) tableEl.querySelectorAll("a").forEach(a => a.target = '_blank')
+            tableEl.addEventListener("click", ev => {
+                if (ev.target.matches("button.seleccionar-facturacion")) {
+                    const fid = ev.target.getAttribute("data-facturacion-id")
+                    const fnum = ev.target.getAttribute("data-facturacion-number")
+                    const fname = ev.target.getAttribute("data-facturacion-name")
+                    onSelectFacturacion(fid, fnum, fname)
+                }
+            })
+        }
+    })
+    document.addEventListener("turbo:load", () => {
+        const places = <%= communes_by_region.to_json.html_safe %>
+        const regionSelect = document.getElementById("inspection_region")
+        if (!regionSelect) return
+        const comunaSelect = document.getElementById("inspection_comuna")
+        const calleInput = document.getElementById("inspection_calle")
+        const placeHidden = document.getElementById("inspection_place")
+        regionSelect.addEventListener("change", function () {
+            const region = regionSelect.value
+            const comunas = places[region] || []
+            while (comunaSelect.firstChild) comunaSelect.removeChild(comunaSelect.firstChild)
+            const defaultOption = document.createElement("option")
+            defaultOption.value = ""
+            defaultOption.textContent = "Selecciona Comuna"
+            comunaSelect.appendChild(defaultOption)
+            comunas.forEach(comuna => {
+                const option = document.createElement("option")
+                option.value = comuna
+                option.textContent = comuna
+                comunaSelect.appendChild(option)
+            })
+            comunaSelect.value = ""
+            updatePlace()
+        })
+        function updatePlace() {
+            const comuna = comunaSelect.value
+            const calle = calleInput.value
+            placeHidden.value = comuna ? `${calle}, ${comuna}` : calle
+        }
+        comunaSelect.addEventListener("change", updatePlace)
+        calleInput.addEventListener("input", updatePlace)
+    })
+</script>

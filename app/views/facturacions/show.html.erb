@@ -39,8 +39,36 @@
         <p class="mb-0"><strong>Entregado:</strong> <%= format_date(@facturacion.entregado) %></p>
         <p class="mb-0"><strong>Resultado:</strong> <%= @facturacion.resultado %></p>
         <p class="mb-0"><strong>Orden de compra (OC):</strong> <%= format_date(@facturacion.oc) %></p>
+        <p class="mb-0"><strong>Fecha de inspección:</strong>   <%= format_date(@facturacion.fecha_inspeccion) %> </p>
+        <p class="mb-0"><strong>Inspecciones completadas:</strong>   <%="#{@facturacion.inspecciones_con_resultado_count}/#{@facturacion.inspecciones_total}"%> </p>
+        <p class="mb-0"><strong>Fecha de entrega:</strong>   <%= format_date(@facturacion.fecha_entrega) %> </p>
+
+
+
+
         <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
-        <p class="mb-0"><strong>Fecha de inspección:</strong> <%= format_date(@facturacion.fecha_inspeccion) %></p>
+        <% if @facturacion.emicion.present? %>
+        <div id="precio-container" class="mb-0">
+          <strong>Precio (sin iva):</strong>
+          <span id="precio-text"><%= @facturacion.precio %></span> UF
+
+          <button
+            id="editar-precio-btn"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white ml-2"
+            onclick="startEditPrecio()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.232 5.232l3.536 3.536M2.999 17.999l4.242-.354.354-4.242 9.536-9.536a1.5 1.5 0 012.121 0l.707.707a1.5 1.5 0 010 2.121l-9.536 9.536z" />
+            </svg>
+          </button>
+        </div>
+      <% else %>
+        <p class="mb-0">
+          <strong>Precio (sin iva):</strong>
+          <%= @facturacion.precio %> UF
+        </p>
+      <% end %>
       </div>
 
 
@@ -61,7 +89,19 @@
             </div>
           <% end %>
 
-        </div>
+            <div class="mt-6">
+
+              <%= link_to "Ver inspecciones asociadas",
+                          "#",
+                          id:   "open-inspections-btn",
+                          data: { url: inspections_path(facturacion_id: @facturacion.id) },
+                          class: "px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 mt-2" %>
+
+
+            </div>
+
+
+            </div>
 
 
       <div class="mt-6">
@@ -132,6 +172,7 @@
       { name: "Emisión de Cotización", date: @facturacion.emicion },
       { name: "Entrega a Cliente", date: @facturacion.entregado },
       { name: "Orden de Compra", date: @facturacion.oc },
+      { name: "Definir fecha de entrega", date: @facturacion.fecha_entrega },
       { name: "Factura", date: @facturacion.factura }
     ] %>
 
@@ -253,6 +294,57 @@
 
 
 
+<% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.fecha_entrega.blank? && @facturacion.resultado != "Rechazado" %>
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
+    <h3 class="text-xl font-semibold text-white mb-4">Registrar fecha de entrega de informe</h3>
+
+    <%= form_with(model: @facturacion,
+                  url: update_fecha_entrega_facturacion_path(@facturacion),
+                  method: :patch,
+                  local: true,
+                  class: "space-y-4") do |form| %>
+
+      <div>
+        <%= form.label :fecha_entrega, "Fecha de entrega", class: "block text-gray-300 font-bold mb-2" %>
+        <div class="relative">
+          <%= form.text_field :fecha_entrega,
+                              placeholder: "Selecciona una fecha",
+                              id: "datepicker",
+                              class: "block w-full px-3 py-2 bg-gray-700 text-white border \
+                                      border-gray-600 rounded-md shadow-sm focus:outline-none \
+                                      focus:ring focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <%= form.submit "Registrar fecha de entrega",
+                        class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold \
+                                py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+      </div>
+
+  <script>
+      function initializeFlatpickr() {
+          flatpickr("#datepicker", {
+              dateFormat: "d-m-Y", // Formato dd-mm-yyyy
+              minDate: "01-01-2020", // Fecha mínima, ajusta a conveniencia
+              maxDate: "31-12-3000", // Fecha máxima, ajusta a conveniencia
+              locale: "es",         // Idioma español
+              static: false,        // Compatible con móviles
+              altInput: true,
+              altFormat: "d-m-Y",
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", initializeFlatpickr);
+      document.addEventListener("turbo:render", initializeFlatpickr);
+      document.addEventListener("turbo:load", initializeFlatpickr);
+  </script>
+<% end %>
+
+    <% end %>
+    
+  </div>
+
 
 <% if Current.user.cotizar && @facturacion.oc.present? && @facturacion.factura.nil? && @facturacion.resultado != "Rechazado" %>
   <div class="bg-gray-900 p-4 rounded-lg shadow-md mt-8">
@@ -264,16 +356,7 @@
         <%= form.file_field :facturacion_file, accept: "application/pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
       </div>
 
-      <div>
-        <%= form.label :fecha_inspeccion, "Fecha de Inspección", class: "block text-gray-300 font-bold mb-2" %>
-        <div class="relative">
-          <input type="text"
-                 name="facturacion[fecha_inspeccion]"
-                 id="datepicker"
-                 placeholder="Selecciona una fecha"
-                 class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500">
-        </div>
-      </div>
+
 
       <div class="mt-4">
         <%= form.submit "Subir Factura", class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
@@ -281,27 +364,6 @@
     <% end %>
   </div>
 
-<script>
-    function initializeFlatpickr() {
-        flatpickr("#datepicker", {
-            dateFormat: "d-m-Y", // Formato dd-mm-yyyy
-            minDate: "01-01-2020", // Fecha mínima
-            maxDate: "31-12-3000", // Fecha máxima
-            locale: "es", // Idioma español
-            static: false, // Compatible con móviles
-            altInput: true,
-            altFormat: "d-m-Y",
-        });
-    }
-
-    // Ejecutar Flatpickr al cargar la página
-    document.addEventListener("DOMContentLoaded", initializeFlatpickr);
-
-    // Reejecutar Flatpickr cuando Turbo Stream actualice el formulario
-    document.addEventListener("turbo:render", initializeFlatpickr);
-    document.addEventListener("turbo:load", initializeFlatpickr);
-
-</script>
 
 <% end %>
 
@@ -358,6 +420,25 @@
   </div>
 
 </div>
+
+<div id="inspections-modal-overlay"
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div id="inspections-modal"
+       class="relative w-11/12 max-w-8xl bg-gray-900 rounded-lg shadow-xl p-6
+              max-h-[90vh] overflow-y-auto">
+
+    <button id="close-inspections-btn"
+            class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl leading-none">
+      &times;
+    </button>
+
+    <turbo-frame id="inspections"></turbo-frame>
+  </div>
+</div>
+
+
+
+
 
 <script>
     document.getElementById("new-observacion-form").addEventListener("submit", function (event) {
@@ -487,4 +568,193 @@
         });
     }
 
+</script>
+<script>
+    function startEditPrecio() {
+        const container = document.getElementById('precio-container');
+        const currentPrecio = document.getElementById('precio-text').innerText.trim();
+
+        container.innerHTML = `
+      <form id="edit-precio-form" onsubmit="submitEditPrecio(event)">
+        <!-- Necesitamos el token de protección CSRF: -->
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <label><strong>Precio (sin iva):</strong></label>
+        <input
+          type="number"
+          name="facturacion[precio]"
+          step="any"
+          id="edit-precio-input"
+          class="bg-gray-700 text-white border border-gray-600 rounded-md p-1 ml-2"
+          value="${currentPrecio}"
+        />
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded ml-2">
+          Guardar
+        </button>
+      </form>
+    `;
+    }
+
+    function submitEditPrecio(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch('<%= update_price_facturacion_path(@facturacion) %>', {
+            method: 'PATCH',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('precio-container');
+                    container.innerHTML = `
+          <strong>Precio (sin iva):</strong>
+          <span id="precio-text">${data.precio}</span> UF
+          <button
+            id="editar-precio-btn"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white ml-2"
+            onclick="startEditPrecio()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.232 5.232l3.536 3.536M2.999 17.999l4.242-.354.354-4.242
+                       9.536-9.536a1.5 1.5 0 012.121 0l.707.707a1.5 1.5 0
+                       010 2.121l-9.536 9.536z" />
+            </svg>
+          </button>
+        `;
+                } else {
+                    alert("No se pudo actualizar el precio. Revisa el valor ingresado.");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Ha ocurrido un error al actualizar el precio.");
+            });
+    }
+</script>
+
+
+<style>
+    /* líneas separadoras */
+    #inspections-table         { border-collapse: collapse; }
+    #inspections-table tbody tr{ border-bottom: 1px solid rgba(255,255,255,0.20); }
+</style>
+
+<script>
+    (() => {
+        const overlay = document.getElementById('inspections-modal-overlay');
+        const openBtn = document.getElementById('open-inspections-btn');
+        const closeBtn = document.getElementById('close-inspections-btn');
+        const frame = document.getElementById('inspections');
+
+        function openModal() {
+            if (!frame.src) frame.src = openBtn.dataset.url;
+            overlay.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+        function closeModal() {
+            overlay.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        openBtn.addEventListener('click', e => {
+            e.preventDefault();
+            openModal();
+        });
+        closeBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) closeModal();
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        function addBlankTargets(tableEl) {
+            tableEl.querySelectorAll('a').forEach(a => {
+                a.setAttribute('target', '_blank');
+                a.setAttribute('rel', 'noopener noreferrer');
+            });
+        }
+
+        function initInspectionsTable() {
+            const tableEl = document.getElementById('inspections-table');
+            if (!tableEl) return;
+            if (tableEl.dataset.datatableReady) {
+                if (tableEl._simpleDt) tableEl._simpleDt.refresh();
+                addBlankTargets(tableEl);
+                return;
+            }
+            if (typeof simpleDatatables !== 'undefined' && simpleDatatables.DataTable) {
+                const dt = new simpleDatatables.DataTable('#inspections-table', {
+                    labels: {
+                        placeholder: 'Buscar...',
+                        perPage: 'registros por pág.',
+                        noRows: 'No hay datos para mostrar',
+                        noResults: 'No hay resultados que coincidan con tu búsqueda',
+                        info: 'Mostrando {start} a {end} de {rows} entradas'
+                    },
+                    tableRender: (_data, table, type) => {
+                        if (type === 'print') return table;
+                        table.childNodes[0].childNodes.forEach(row => {
+                            row.attributes ||= {};
+                            row.attributes.class = (row.attributes.class || '') + ' bg-gray-800 text-white';
+                            row.childNodes.forEach(th => {
+                                th.attributes ||= {};
+                                th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white';
+                            });
+                        });
+                        const tHead = table.childNodes[0];
+                        const first = tHead.childNodes[0];
+                        const filterHeaders = {
+                            nodeName: 'TR',
+                            attributes: { class: 'search-filtering-row bg-gray-800 text-white' },
+                            childNodes: first.childNodes.map((_th, idx) => ({
+                                nodeName: 'TH',
+                                attributes: { style: 'padding-top:1rem;' },
+                                childNodes: [
+                                    {
+                                        nodeName: 'INPUT',
+                                        attributes: {
+                                            class: 'datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full',
+                                            type: 'search',
+                                            'data-columns': `[${idx}]`,
+                                            placeholder: 'Filtrar'
+                                        }
+                                    }
+                                ]
+                            }))
+                        };
+                        tHead.childNodes.push(filterHeaders);
+                        return table;
+                    }
+                });
+                addBlankTargets(tableEl);
+                dt.on('datatable.page', () => addBlankTargets(tableEl));
+                dt.on('datatable.sort', () => addBlankTargets(tableEl));
+                dt.on('datatable.search', () => addBlankTargets(tableEl));
+                tableEl.dataset.datatableReady = 'true';
+                tableEl._simpleDt = dt;
+            }
+        }
+
+        document.addEventListener('turbo:before-cache', () => {
+            const tableEl = document.getElementById('inspections-table');
+            if (tableEl && tableEl._simpleDt) {
+                tableEl._simpleDt.destroy();
+                delete tableEl._simpleDt;
+                delete tableEl.dataset.datatableReady;
+            }
+        });
+
+        document.addEventListener('turbo:load', initInspectionsTable);
+        document.addEventListener('turbo:frame-load', e => {
+            if (e.target === frame) {
+                initInspectionsTable();
+                addBlankTargets(frame);
+            }
+        });
+    })();
 </script>

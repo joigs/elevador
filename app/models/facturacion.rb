@@ -2,6 +2,7 @@ class Facturacion < ApplicationRecord
   has_many :observacions, dependent: :destroy
   has_many :notifications_facturacions, dependent: :destroy
   has_many :notifications, through: :notifications_facturacions
+  has_many :inspections
 
   has_one_attached :solicitud_file
   has_one_attached :cotizacion_doc_file
@@ -9,7 +10,7 @@ class Facturacion < ApplicationRecord
   has_one_attached :orden_compra_file
   has_one_attached :facturacion_file
 
-  enum resultado: { "N/A": 0, "En espera": 1, "Aceptado": 2, "Rechazado": 3 }
+  enum resultado: { "N/A": 0, "En espera": 1, "Aceptado": 2, "Rechazado": 3, "Relleno": 4 }
 
   validates :number, presence: true
   validates :name, presence: true
@@ -17,7 +18,6 @@ class Facturacion < ApplicationRecord
 
   validates :cotizacion_pdf_file, presence: true, if: -> { emicion.present? }
 
-  validates :fecha_inspeccion, presence: true, if: -> { factura.present? }
 
 
   after_initialize do
@@ -26,6 +26,32 @@ class Facturacion < ApplicationRecord
 
 
   validate :valid_file_types
+
+  def fecha_inspeccion
+    inspections.maximum(:ins_date)
+  end
+
+  def empresa
+    principal_ids = inspections.pluck(:principal_id).uniq
+
+    return nil if principal_ids.empty?
+
+    return "Error-empresa" if principal_ids.size > 1
+
+    principal = Principal.find_by(id: principal_ids.first)
+    principal ? principal.name : "Error-empresa"
+  end
+
+
+
+  def inspecciones_con_resultado_count
+    inspections.con_resultado.count
+  end
+
+  def inspecciones_total
+    inspections.count 
+  end
+
 
   private
 

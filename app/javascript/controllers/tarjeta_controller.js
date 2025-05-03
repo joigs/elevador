@@ -1,3 +1,4 @@
+//javascript/controllers/tarjeta_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -8,7 +9,14 @@ export default class extends Controller {
     }
 
     toggleCard() {
-        const isSistemaSelected = this.element.querySelector('input[type="radio"][value="sistema"]').checked;
+        const sistemaRadio = this.element.querySelector('input[type="radio"][value="sistema"]');
+        if (!sistemaRadio) {
+            // Optionally hide the inspection card if the radio is not present
+            this.inspectionNumberTarget.style.display = 'none';
+            return;
+        }
+        const isSistemaSelected = sistemaRadio.checked;
         this.inspectionNumberTarget.style.display = isSistemaSelected ? 'block' : 'none';
     }
+
 }

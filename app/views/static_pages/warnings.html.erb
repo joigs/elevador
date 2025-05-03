@@ -102,86 +102,85 @@
     <% end %>
   </div>
 </div>
-
 <script>
-    function initInspectionsTable() {
-        const tableEl = document.getElementById("inspections-table");
-        if (
-            tableEl &&
-            typeof simpleDatatables !== "undefined" &&
-            simpleDatatables.DataTable
-        ) {
-            const dataTable = new simpleDatatables.DataTable("#inspections-table", {
-                labels: {
-                    placeholder: "Buscar...",
-                    perPage: "registros por pág.",
-                    noRows: "No hay datos para mostrar",
-                    noResults: "No hay resultados que coincidan con tu búsqueda",
-                    info: "Mostrando {start} a {end} de {rows} entradas"
-                },
-                tableRender: (_data, table, type) => {
-                    if (type === "print") {
+    (function(){
+        function initInspectionsTable(){
+            const tableEl = document.getElementById("inspections-table");
+            if(
+              tableEl &&
+              !tableEl._simpleDt &&
+              typeof simpleDatatables !== "undefined" &&
+              simpleDatatables.DataTable
+            ){
+                const dt = new simpleDatatables.DataTable(tableEl,{
+                    labels: {
+                        placeholder: "Buscar...",
+                        perPage: "registros por pág.",
+                        noRows: "No hay datos para mostrar",
+                        noResults: "No hay resultados que coincidan con tu búsqueda",
+                        info: "Mostrando {start} a {end} de {rows} entradas"
+                    },
+                    tableRender: (_data, table, type) => {
+                        if (type === "print") return table;
+                        table.childNodes[0].childNodes.forEach((row) => {
+                            row.attributes ||= {};
+                            row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                            row.childNodes.forEach((th) => {
+                                th.attributes ||= {};
+                                th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                            });
+                        });
+                        const tHead = table.childNodes[0];
+                        const firstRow = tHead.childNodes[0];
+                        const filterHeaders = {
+                            nodeName: "TR",
+                            attributes: { class: "search-filtering-row bg-gray-800 text-white" },
+                            childNodes: firstRow.childNodes.map((_th, index) => ({
+                                nodeName: "TH",
+                                attributes: { style: "padding-top: 1rem;" },
+                                childNodes: [
+                                    {
+                                        nodeName: "INPUT",
+                                        attributes: {
+                                            class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                            type: "search",
+                                            "data-columns": "[" + index + "]"
+                                        }
+                                    }
+                                ]
+                            }))
+                        };
+                        tHead.childNodes.push(filterHeaders);
                         return table;
                     }
-                    table.childNodes[0].childNodes.forEach((row) => {
-                        if (!row.attributes) row.attributes = {};
-                        row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-                        row.childNodes.forEach((th) => {
-                            if (!th.attributes) th.attributes = {};
-                            th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                        });
-                    });
-                    const tHead = table.childNodes[0];
-                    const firstRow = tHead.childNodes[0];
-                    const filterHeaders = {
-                        nodeName: "TR",
-                        attributes: {
-                            class: "search-filtering-row bg-gray-800 text-white"
-                        },
-                        childNodes: firstRow.childNodes.map((_th, index) => ({
-                            nodeName: "TH",
-                            attributes: {
-                                style: "padding-top: 1rem;"
-                            },
-                            childNodes: [
-                                {
-                                    nodeName: "INPUT",
-                                    attributes: {
-                                        class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                        type: "search",
-                                        "data-columns": "[" + index + "]"
-                                    }
-                                }
-                            ]
-                        }))
-                    };
-                    tHead.childNodes.push(filterHeaders);
-                    return table;
-                }
-            });
-            dataTable.on("datatable.init", function() {
-                const overlay = document.getElementById("tableLoadingOverlay");
-                const container = document.getElementById("tableContainer");
-                if (overlay) {
-                    overlay.remove();
-                }
-                if (container) {
-                    container.classList.remove("hidden");
-                }
-            });
-        }
-    }
+                });
 
-    document.addEventListener("turbo:load", () => {
-        initInspectionsTable();
-    });
+                dt.on("datatable.init", () => {
+                    const overlay = document.getElementById("tableLoadingOverlay");
+                    const container = document.getElementById("tableContainer");
+                    if (overlay) overlay.remove();
+                    if (container) container.classList.remove("hidden");
+                });
 
-    document.addEventListener("turbo:frame-load", (e) => {
-        if (e.target.id === "inspections") {
-            initInspectionsTable();
+                tableEl._simpleDt = dt;
+            }
         }
-    });
+
+        document.addEventListener("turbo:before-cache", () => {
+            const tableEl = document.getElementById("inspections-table");
+            if (tableEl && tableEl._simpleDt) {
+                tableEl._simpleDt.destroy();
+                delete tableEl._simpleDt;
+            }
+        });
+
+        document.addEventListener("turbo:load", initInspectionsTable);
+        document.addEventListener("turbo:frame-load", (e) => {
+            if (e.target.id === "inspections") initInspectionsTable();
+        });
+    })();
 </script>
+
 
 <style>
     .dataTable-table tbody td {

@@ -4,12 +4,24 @@ class InspectionsController < ApplicationController
   require 'fileutils'
   require 'open3'
   def index
-    @q = Inspection.ransack(params[:q])
-    @inspections = @q.result(distinct: true).where("number > 0").includes(:item, :principal, :report).order(number: :desc)
-    unless Current.user.tabla
-      @pagy, @inspections = pagy_countless(@inspections, items: 10) # Paginación infinita para las tarjetas
+    if params[:facturacion_id].present?
+      params[:q] ||= {}
+      params[:q][:facturacion_id_eq] = params[:facturacion_id]
+      @facturacion = Facturacion.find(params[:facturacion_id])
     end
 
+    @q = Inspection.ransack(params[:q])
+
+    @inspections = @q.result(distinct: true)
+                     .where("number > 0")
+                     .includes(:item, :principal, :report)
+                     .order(number: :desc)
+                     .then { |relation| @facturacion ? relation.where(facturacion_id: @facturacion.id) : relation }
+
+
+    unless Current.user.tabla
+      @pagy, @inspections = pagy_countless(@inspections, items: 10)
+    end
   end
 
   def show
@@ -68,7 +80,6 @@ class InspectionsController < ApplicationController
       item_params = inspection_params.slice(:identificador, :group_id, :principal_id)
       item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
 
-      # Agrega errores al objeto @inspection en lugar de flash.now
       if item_params[:group_id] == "bad"
         @inspection.errors.add(:base, "Seleccione un grupo")
         control = false
@@ -120,8 +131,10 @@ class InspectionsController < ApplicationController
       end
 
 
+
       @item.save!
       @inspection.item = @item
+      puts(@inspection.inspect)
       @inspection.save!
       @report = Report.create!(inspection: @inspection, item: @inspection.item)
       if @item.group.type_of == "escala"
@@ -279,11 +292,8 @@ class InspectionsController < ApplicationController
     authorize!
 
     inspection_id = inspection.id
-    if Current.user.admin
-      admin_id = Current.user.id
-    else
-      admin_id = params[:admin_id].presence || Current.user.id
-    end
+
+    admin_id = params[:admin_id].presence || Current.user.id
 
 
     principal_id = inspection.item.principal_id
@@ -741,7 +751,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :principal_name, :name, :number, :rerun, :group_id, :principal_id, user_ids: [])
+    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :comuna, :region, :principal_name, :name, :number, :rerun, :group_id, :principal_id, :facturacion_id, user_ids: [])
 
   end
   #indices para ordenar

@@ -33,6 +33,9 @@ class Inspection < ApplicationRecord
   validates :inf_date, date: true
   validates :rerun, inclusion: { in: [true, false] }
   validate :informe_format
+  validates :region, presence: true
+  validates :comuna, presence: true
+
 
   has_one_attached :informe
 
@@ -40,6 +43,7 @@ class Inspection < ApplicationRecord
   has_many :users, through: :inspection_users
   belongs_to :item
   belongs_to :principal
+  belongs_to :facturacion, optional: true
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
   has_one :revision, dependent: :destroy
@@ -75,6 +79,7 @@ class Inspection < ApplicationRecord
     end
   end
 
+  scope :con_resultado, -> { where(result: %w[Aprobado Rechazado Vencido]) }
 
   private
 

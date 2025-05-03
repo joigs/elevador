@@ -44,6 +44,13 @@ Rails.application.routes.draw do
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }
   end
 
+  namespace :api do
+    namespace :v1 do
+      resources :facturacions, only: [:index, :show]
+    end
+  end
+
+
   resources :users, only: :show, path: '/user', param: :username, as: 'perfil' do
     member do
       patch :toggle_tabla
@@ -140,12 +147,14 @@ Rails.application.routes.draw do
       get :download_all_files
       patch :upload_cotizacion
       patch :marcar_entregado
-      patch :upload_orden_compra
+      patch :upload_orden_compra      
+      patch :update_fecha_entrega
       patch :upload_factura
       get :manage_files
       patch :replace_file
       get :download_solicitud_template
       get :download_cotizacion_template
+      patch :update_price
     end
     collection do
       get :new_bulk_upload
