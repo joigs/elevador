@@ -1,0 +1,432 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md overflow-x-auto">
+  <%= form_with url: update_many_details_path, method: :patch, local: true do %>
+    <table class="min-w-full divide-y divide-gray-600 text-gray-200">
+      <thead class="bg-gray-800 text-xs uppercase tracking-wider">
+      <tr>
+        <th class="px-4 py-3 text-left">Preguntas / Nº Inspección</th>
+        <% @inspections.each do |insp| %>
+          <th class="px-4 py-3 text-center whitespace-nowrap">N° <%= insp.number %></th>
+        <% end %>
+      </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-700">
+
+      <!-- Rol N° -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Rol N°</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][rol_n]",
+                               insp.item.detail&.rol_n,
+                               maxlength: 100,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- N° permiso de edificación -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">N° de permiso de edificación</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][numero_permiso]",
+                                 insp.item.detail&.numero_permiso,
+                                 max: 1_000_000_000, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Fecha permiso -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Fecha de permiso de edificación</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "details[#{insp.id}][fecha_permiso]",
+                               insp.item.detail&.fecha_permiso,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- % de ocupación -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">% de ocupación</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][porcentaje]",
+                                 insp.item.detail&.porcentaje,
+                                 max: 100, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Destino -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Destino</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= select_tag "details[#{insp.id}][destino]",
+                           options_for_select(
+                             ['S/I','Equipamiento','Residencial',
+                              'Habitacional (excepto vivienda)',
+                              'Habitacional','Infraestructura'],
+                             insp.item.detail&.destino || 'S/I'
+                           ),
+                           class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Recepción -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Recepción</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "details[#{insp.id}][recepcion]",
+                               insp.item.detail&.recepcion,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Empresa instaladora RUT -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa instaladora RUT</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][empresa_instaladora_rut]",
+                               insp.item.detail&.empresa_instaladora_rut,
+                               maxlength: 100,
+                               data: { controller: "rut", rut_target: "rut" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Empresa instaladora -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa instaladora</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][empresa_instaladora]",
+                               insp.item.detail&.empresa_instaladora,
+                               maxlength: 100,
+                               data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Detalle -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Detalle</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][detalle]",
+                               insp.item.detail&.detalle,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Descripción -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Descripción</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][descripcion]",
+                               insp.item.detail&.descripcion,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Marca -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Marca</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][marca]",
+                               insp.item.detail&.marca,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Modelo -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Modelo</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][modelo]",
+                               insp.item.detail&.modelo,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- N° de serie -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">N° de serie</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][n_serie]",
+                               insp.item.detail&.n_serie,
+                               maxlength: 100,
+                               data: { controller: "uppercase", uppercase_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- --- Motor Motriz --- -->
+      <tr class="bg-gray-800">
+        <td colspan="<%= @inspections.size + 1 %>" class="px-4 py-2 text-white font-semibold">Motor Motriz</td>
+      </tr>
+
+      <!-- MM Marca -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">MM Marca</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][mm_marca]",
+                               insp.item.detail&.mm_marca,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- MM N° serie -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">MM N° de serie</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][mm_n_serie]",
+                               insp.item.detail&.mm_n_serie,
+                               maxlength: 100,
+                               data: { controller: "uppercase", uppercase_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Potencia -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Potencia Kw</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][potencia]",
+                                 insp.item.detail&.potencia,
+                                 max: 1_000_000, min: 0, step: 0.00001,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Capacidad -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Capacidad Kg</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][capacidad]",
+                                 insp.item.detail&.capacidad,
+                                 max: 1_000_000, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Personas -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Personas</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][personas]",
+                                 insp.item.detail&.personas,
+                                 max: 1_000_000, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- --- Cables de Tracción --- -->
+      <tr class="bg-gray-800">
+        <td colspan="<%= @inspections.size + 1 %>" class="px-4 py-2 text-white font-semibold">Cables de Tracción</td>
+      </tr>
+
+      <!-- CT Marca -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">CT Marca</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][ct_marca]",
+                               insp.item.detail&.ct_marca,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- CT Cantidad -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">CT Cantidad</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][ct_cantidad]",
+                                 insp.item.detail&.ct_cantidad,
+                                 max: 1_000_000, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- CT Diámetro -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">CT Diámetro mm</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][ct_diametro]",
+                                 insp.item.detail&.ct_diametro,
+                                 max: 1_000_000, min: 0, step: 0.00001,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Medidas cintas -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Ancho cintas mm</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][medidas_cintas]",
+                                 insp.item.detail&.medidas_cintas,
+                                 max: 1_000_000, min: 0, step: 0.0001,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Medidas cintas espesor -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Espesor cintas mm</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][medidas_cintas_espesor]",
+                                 insp.item.detail&.medidas_cintas_espesor,
+                                 max: 1_000_000, min: 0, step: 0.0001,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- --- Regulador de velocidad --- -->
+      <tr class="bg-gray-800">
+        <td colspan="<%= @inspections.size + 1 %>" class="px-4 py-2 text-white font-semibold">Regulador de Velocidad</td>
+      </tr>
+
+      <!-- Velocidad -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Velocidad m/s</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][velocidad]",
+                                 insp.item.detail&.velocidad,
+                                 max: 1_000_000, min: 0, step: 0.0001,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- RV Marca -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">RV Marca</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][rv_marca]",
+                               insp.item.detail&.rv_marca,
+                               maxlength: 100,
+                               data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- RV N° serie -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">RV N° serie</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "details[#{insp.id}][rv_n_serie]",
+                               insp.item.detail&.rv_n_serie,
+                               maxlength: 100,
+                               data: { controller: "uppercase", uppercase_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Paradas -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Paradas</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][paradas]",
+                                 insp.item.detail&.paradas,
+                                 max: 1_000_000, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Embarques -->
+      <tr>
+        <td class="px-4_py-2 font-semibold">Embarques</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "details[#{insp.id}][embarques]",
+                                 insp.item.detail&.embarques,
+                                 max: 1_000_000, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Sala de máquinas -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Sala de máquinas</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= select_tag "details[#{insp.id}][sala_maquinas]",
+                           options_for_select(
+                             ["Responder más tarde", "Si", "No. Máquina en la parte superior",
+                              "No. Máquina en foso", "No. Maquinaria fuera de la caja de elevadores"],
+                             insp.item.detail&.sala_maquinas
+                           ),
+                           class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      </tbody>
+    </table>
+
+    <div class="mt-6">
+      <%= submit_tag "Actualizar detalles",
+                     class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded" %>
+    </div>
+  <% end %>
+</div>

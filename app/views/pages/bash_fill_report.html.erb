@@ -1,0 +1,255 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md overflow-x-auto">
+  <%= form_with url: update_many_reports_path, method: :patch, local: true do %>
+    <table class="min-w-full divide-y divide-gray-600 text-gray-200">
+      <thead class="bg-gray-800 text-xs uppercase tracking-wider">
+      <tr>
+        <th class="px-4 py-3 text-left">Campos / Nº Inspección</th>
+        <% @inspections.each do |insp| %>
+          <th class="px-4 py-3 text-center whitespace-nowrap">N° <%= insp.number %></th>
+        <% end %>
+      </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-700">
+
+      <!-- Certificado MINVU -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Certificado MINVU</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][certificado_minvu]",
+                               insp.report&.certificado_minvu,
+                               maxlength: 100,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Cert_ant (drop‑down) -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Inspección anterior</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= select_tag "reports[#{insp.id}][cert_ant]",
+                           options_for_select(['Si','No'], insp.report&.cert_ant || 'No'),
+                           class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Fecha certificación anterior -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Fecha cert. anterior</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "reports[#{insp.id}][fecha]",
+                               insp.report&.fecha,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Empresa certificadora anterior -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa cert. anterior</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][empresa_anterior]",
+                               insp.report&.empresa_anterior,
+                               maxlength: 100,
+                               data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- EA rol -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa certificadora anterior Rol</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][ea_rol]",
+                               insp.report&.ea_rol,
+                               maxlength: 100,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- EA rut -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa certificadora anterior Rut</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][ea_rut]",
+                               insp.report&.ea_rut,
+                               maxlength: 100,
+                               data: { controller: "rut", rut_target: "rut" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Número inf. anterior -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Número inf. anterior</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][past_number]",
+                               insp.report&.past_number,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Fecha inf. anterior -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Fecha inf. anterior</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "reports[#{insp.id}][past_date]",
+                               insp.report&.past_date,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Cert_ant_real (drop‑down) -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Certificación anterior</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= select_tag "reports[#{insp.id}][cert_ant_real]",
+                           options_for_select(['Si','No'], insp.report&.cert_ant_real || 'No'),
+                           class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Empresa mantenedora -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa mantenedora</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][empresa_mantenedora]",
+                               insp.report&.empresa_mantenedora,
+                               maxlength: 100,
+                               data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- EM rol -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa mantenedora Rol</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][em_rol]",
+                               insp.report&.em_rol,
+                               maxlength: 100,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- EM Rut -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Empresa mantenedora Rut</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][em_rut]",
+                               insp.report&.em_rut,
+                               maxlength: 100,
+                               data: { controller: "rut", rut_target: "rut" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Vigencia contrato mantenimiento (inicio) -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Vigencia contrato mant. inicio</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "reports[#{insp.id}][vi_co_man_ini]",
+                               insp.report&.vi_co_man_ini,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Vigencia contrato mantenimiento (término) -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Vigencia contrato mant. término</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "reports[#{insp.id}][vi_co_man_ter]",
+                               insp.report&.vi_co_man_ter,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Nombre técnico mantenedor -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Nombre técnico mantenedor</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][nom_tec_man]",
+                               insp.report&.nom_tec_man,
+                               maxlength: 100,
+                               data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- TM Rut -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Técnico mantenedor Rut</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= text_field_tag "reports[#{insp.id}][tm_rut]",
+                               insp.report&.tm_rut,
+                               maxlength: 100,
+                               data: { controller: "rut", rut_target: "rut" },
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Último registro mantención Nº -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Último reg. mant. Nº</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= number_field_tag "reports[#{insp.id}][ul_reg_man]",
+                                 insp.report&.ul_reg_man,
+                                 max: 9_223_372_036_854_775_807, min: 0,
+                                 class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      <!-- Fecha último reg. mant. -->
+      <tr>
+        <td class="px-4 py-2 font-semibold">Último reg. mant. Fecha</td>
+        <% @inspections.each do |insp| %>
+          <td class="px-4 py-2">
+            <%= date_field_tag "reports[#{insp.id}][urm_fecha]",
+                               insp.report&.urm_fecha,
+                               class: "w-full bg-gray-700 rounded-md px-2 py-1" %>
+          </td>
+        <% end %>
+      </tr>
+
+      </tbody>
+    </table>
+
+    <div class="mt-6">
+      <%= submit_tag "Guardar reportes",
+                     class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded" %>
+    </div>
+  <% end %>
+</div>

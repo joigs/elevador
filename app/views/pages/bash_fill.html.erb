@@ -1,0 +1,570 @@
+<!-- Contenedor Principal -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+  <h1 class="text-3xl font-bold text-white mb-6 text-center">Seleccionar Inspections para Llenado Múltiple</h1>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+
+  <!-- Barra de búsqueda -->
+  <div class="mb-4">
+    <label for="search-input" class="block text-white mb-2 font-semibold">Buscar Inspections:</label>
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Busca por número, nombre o lugar..."
+      class="w-full md:w-1/2 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white"
+      />
+  </div>
+
+  <!-- Grid: Inspections disponibles vs. Seleccionadas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- Columna 1: Inspections disponibles -->
+    <div>
+      <h2 class="text-xl font-semibold text-white mb-2">Inspections Disponibles</h2>
+      <div
+        id="available-inspections"
+        class="bg-gray-800 rounded-md shadow p-4 h-[32rem] overflow-y-auto"
+      >
+        <% @inspections.each do |inspection| %>
+          <%
+            # Construir hash con los datos de Inspection
+            inspection_data = {
+              number: inspection.number,
+              name: inspection.name,
+              place: inspection.place,
+              ins_date: inspection.ins_date,
+              inf_date: inspection.inf_date,
+              validation: inspection.validation,
+              result: inspection.result,
+              state: inspection.state,
+              cambio: inspection.cambio,
+              created_at: inspection.created_at,
+              updated_at: inspection.updated_at,
+              item_id: inspection.item_id,
+              principal_id: inspection.principal_id,
+              rerun: inspection.rerun
+            }
+
+            # Construir hash con los datos de Detail (si existe)
+            detail_data = {}
+            if inspection.item&.detail.present?
+              detail_data = {
+                detalle: inspection.item.detail.detalle,
+                marca: inspection.item.detail.marca,
+                modelo: inspection.item.detail.modelo,
+                n_serie: inspection.item.detail.n_serie,
+                potencia: inspection.item.detail.potencia,
+                capacidad: inspection.item.detail.capacidad,
+                personas: inspection.item.detail.personas,
+                velocidad: inspection.item.detail.velocidad,
+                descripcion: inspection.item.detail.descripcion,
+                numero_permiso: inspection.item.detail.numero_permiso,
+                updated_at: inspection.item.detail.updated_at
+                # Agrega los campos extra que requieras
+              }
+            end
+
+            # Construir hash con los datos de Report (si existe)
+            report_data = {}
+            if inspection.report.present?
+              report_data = {
+                certificado_minvu: inspection.report.certificado_minvu,
+                fecha: inspection.report.fecha,
+                vi_co_man_ini: inspection.report.vi_co_man_ini,
+                vi_co_man_ter: inspection.report.vi_co_man_ter,
+                ul_reg_man: inspection.report.ul_reg_man,
+                urm_fecha: inspection.report.urm_fecha,
+                cert_ant: inspection.report.cert_ant,
+                ending: inspection.report.ending,
+                empresa_anterior: inspection.report.empresa_anterior,
+                updated_at: inspection.report.updated_at
+                # Agrega los campos extra que requieras
+              }
+            end
+
+            # Convertirlos a JSON para guardarlos en data-attributes
+            inspection_data_json = inspection_data.to_json
+            detail_data_json = detail_data.to_json
+            report_data_json = report_data.to_json
+
+            # Para el filtro en vivo por number, name, place:
+            search_str = "#{inspection.number} #{inspection.name} #{inspection.place}".downcase
+          %>
+
+          <div
+            class="inspection-item p-4 mb-4 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors duration-200"
+            data-inspection='<%= inspection_data_json %>'
+            data-detail='<%= detail_data_json %>'
+            data-report='<%= report_data_json %>'
+            data-search="<%= search_str %>"
+            draggable="true"
+          >
+            <div class="flex items-center justify-between">
+              <!-- Info principal -->
+              <div>
+                <p class="text-white font-semibold">
+                  N° <%= inspection.number %>
+                </p>
+                <p class="text-white">
+                  <span class="font-light">Nombre:</span> <%= inspection.name %>
+                </p>
+                <p class="text-white">
+                  <span class="font-light">Lugar:</span> <%= inspection.place %>
+                </p>
+              </div>
+              <!-- Botones -->
+              <div class="flex flex-col space-y-2">
+                <button
+                  class="btn-show-info bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Ver Info
+                </button>
+                <button
+                  class="btn-add bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Columna 2: Inspections seleccionadas -->
+    <div>
+      <h2 class="text-xl font-semibold text-white mb-2">Inspections Seleccionadas</h2>
+      <div
+        id="selected-inspections"
+        class="bg-gray-800 rounded-md shadow p-4 h-[32rem] overflow-y-auto"
+      >
+        <!-- Aquí se irán agregando (o moviendo) dinámicamente las inspections seleccionadas -->
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+
+
+<!-- Botón para continuar a la edición múltiple -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+  <form id="selected-inspections-form" action="<%= bash_fill_detail_path %>" method="get">
+    <!-- Este input oculto contendrá los números de las inspecciones seleccionadas, separados por coma -->
+    <input type="hidden" name="inspection_numbers" id="inspection_numbers_input" value="">
+    <button type="submit" id="continue-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+      Continuar a Editar Detalles
+    </button>
+  </form>
+</div>
+
+<!-- Modal (ventana emergente) para mostrar Inspection / Detail / Report -->
+<!--
+  Se añaden clases para animación:
+   - "opacity-0" al inicio,
+   - "transition ease-in-out duration-300" para el fade,
+   - Se manejará con JS: .hidden + .flex y .opacity-100 vs .opacity-0.
+-->
+<div
+  id="inspection-modal"
+  class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50
+         transition-opacity duration-300 opacity-0"
+>
+  <!-- Contenedor interno del modal (cartita) -->
+  <!-- Notar .transition-all .duration-300 .transform .scale-95 => para una leve animación de escala -->
+  <div
+    id="inspection-modal-content"
+    class="bg-white w-full max-w-xl mx-4 rounded shadow-lg relative p-6 text-gray-900
+           transform transition-all duration-300 scale-95"
+  >
+    <!-- Botón para cerrar el modal -->
+    <button
+      id="close-modal"
+      class="absolute top-3 right-3 text-gray-700 hover:text-gray-900 transition-colors text-2xl"
+      aria-label="Cerrar modal"
+    >
+      &times;
+    </button>
+
+    <!-- Contenedor con las "tres pantallas" de info: Inspection, Detail, Report -->
+    <div id="modal-panels">
+      <!-- Panel INSPECTION -->
+      <div id="panel-inspection" class="hidden">
+        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Inspección</h2>
+        <div id="inspection-content" class="space-y-2 text-gray-700"></div>
+        <div class="mt-6 flex justify-between">
+          <button
+            id="btn-close-inspection"
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-semibold"
+          >
+            Cerrar
+          </button>
+          <button
+            id="btn-go-detail"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
+          >
+            → Ver Detail
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel DETAIL -->
+      <div id="panel-detail" class="hidden">
+        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Detalle</h2>
+        <div id="detail-content" class="space-y-2 text-gray-700"></div>
+        <div class="mt-6 flex justify-between">
+          <button
+            id="btn-back-inspection"
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-semibold"
+          >
+            ← Inspección
+          </button>
+          <button
+            id="btn-go-report"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
+          >
+            → Ver Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel REPORT -->
+      <div id="panel-report" class="hidden">
+        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Reporte</h2>
+        <div id="report-content" class="space-y-2 text-gray-700"></div>
+        <div class="mt-6 flex justify-between">
+          <button
+            id="btn-back-detail"
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-semibold"
+          >
+            ← Detail
+          </button>
+          <button
+            id="btn-close-report"
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-semibold"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const availableContainer = document.getElementById('available-inspections');
+        const selectedContainer = document.getElementById('selected-inspections');
+        const searchInput = document.getElementById('search-input');
+
+        // Modal
+        const modal = document.getElementById('inspection-modal');
+        const modalContent = document.getElementById('inspection-modal-content');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        // Paneles del modal
+        const panelInspection = document.getElementById('panel-inspection');
+        const panelDetail = document.getElementById('panel-detail');
+        const panelReport = document.getElementById('panel-report');
+
+        // Contenedores de contenido
+        const inspectionContent = document.getElementById('inspection-content');
+        const detailContent = document.getElementById('detail-content');
+        const reportContent = document.getElementById('report-content');
+
+        // Botones de navegación
+        const btnCloseInspection = document.getElementById('btn-close-inspection');
+        const btnGoDetail = document.getElementById('btn-go-detail');
+
+        const btnBackInspection = document.getElementById('btn-back-inspection');
+        const btnGoReport = document.getElementById('btn-go-report');
+
+        const btnBackDetail = document.getElementById('btn-back-detail');
+        const btnCloseReport = document.getElementById('btn-close-report');
+
+        // Datos actuales en el modal
+        let currentInspectionData = {};
+        let currentDetailData = {};
+        let currentReportData = {};
+
+        // =========================================================================
+        //   FUNCIONES DE MODAL
+        // =========================================================================
+        function openModal() {
+            // Mostrar modal y forzar reflow para que la transición ocurra
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Usamos un pequeño timeout para permitir al navegador aplicar la transición
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            });
+        }
+
+        function closeModal() {
+            // Añadir las clases de "salida"
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+
+            // Esperar la duración de la transición (300ms) y luego esconder
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+
+            // Limpieza de contenido
+            inspectionContent.innerHTML = '';
+            detailContent.innerHTML = '';
+            reportContent.innerHTML = '';
+            hideAllPanels();
+        }
+
+        function hideAllPanels() {
+            panelInspection.classList.add('hidden');
+            panelDetail.classList.add('hidden');
+            panelReport.classList.add('hidden');
+        }
+
+        // Cerrar al hacer clic en la X
+        closeModalBtn.addEventListener('click', closeModal);
+
+        // Cerrar si hacemos clic fuera del contenido interno
+        modal.addEventListener('click', (e) => {
+            // Si el click es en el overlay (modal) y NO en el modalContent => cerrar
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Cerrar con la tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // =========================================================================
+        //   LÓGICA DE PANELES
+        // =========================================================================
+        function showInspectionPanel() {
+            hideAllPanels();
+            panelInspection.classList.remove('hidden');
+        }
+        function showDetailPanel() {
+            hideAllPanels();
+            panelDetail.classList.remove('hidden');
+        }
+        function showReportPanel() {
+            hideAllPanels();
+            panelReport.classList.remove('hidden');
+        }
+
+        // Inspección → Detail
+        btnGoDetail.addEventListener('click', showDetailPanel);
+        // Detail → Report
+        btnGoReport.addEventListener('click', showReportPanel);
+        // Detail ← Inspección
+        btnBackInspection.addEventListener('click', showInspectionPanel);
+        // Report ← Detail
+        btnBackDetail.addEventListener('click', showDetailPanel);
+
+        // Botones de “Cerrar”
+        btnCloseInspection.addEventListener('click', closeModal);
+        btnCloseReport.addEventListener('click', closeModal);
+
+        // =========================================================================
+        //   MOVER NODOS ENTRE CONTENEDORES
+        // =========================================================================
+        function moveToSelected(itemEl) {
+            // Quita el botón "Agregar"
+            const addBtn = itemEl.querySelector('.btn-add');
+            if (addBtn) addBtn.remove();
+
+            // Si no existe el botón “X” para remover:
+            if (!itemEl.querySelector('.btn-remove')) {
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'X';
+                removeBtn.className = 'btn-remove bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors';
+                const buttonsContainer = itemEl.querySelector('.flex.flex-col');
+                buttonsContainer.appendChild(removeBtn);
+            }
+            selectedContainer.appendChild(itemEl);
+        }
+
+        function moveToAvailable(itemEl) {
+            // Quita el botón “X”
+            const removeBtn = itemEl.querySelector('.btn-remove');
+            if (removeBtn) removeBtn.remove();
+
+            // Restaura el botón “Agregar”
+            if (!itemEl.querySelector('.btn-add')) {
+                const btnAdd = document.createElement('button');
+                btnAdd.textContent = 'Agregar';
+                btnAdd.className = 'btn-add bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors';
+                const buttonsContainer = itemEl.querySelector('.flex.flex-col');
+                buttonsContainer.appendChild(btnAdd);
+            }
+            availableContainer.appendChild(itemEl);
+        }
+
+        // =========================================================================
+        //   EVENT DELEGATION (CLICK): Ver Info, Agregar, X
+        // =========================================================================
+        document.addEventListener('click', (e) => {
+            const itemEl = e.target.closest('.inspection-item');
+            if (!itemEl) return;
+
+            // 1) Ver Info
+            if (e.target.classList.contains('btn-show-info')) {
+                // Tomar los data-attributes
+                currentInspectionData = JSON.parse(itemEl.dataset.inspection || '{}');
+                currentDetailData = JSON.parse(itemEl.dataset.detail || '{}');
+                currentReportData = JSON.parse(itemEl.dataset.report || '{}');
+
+                // Llenar el panel de INSPECTION
+                inspectionContent.innerHTML = `
+          <ul class="list-disc list-inside text-sm">
+            <li><strong>Número:</strong> ${currentInspectionData.number || ''}</li>
+            <li><strong>Nombre:</strong> ${currentInspectionData.name || ''}</li>
+            <li><strong>Lugar:</strong> ${currentInspectionData.place || ''}</li>
+            <li><strong>Fecha Inspección:</strong> ${currentInspectionData.ins_date || ''}</li>
+            <li><strong>Resultado:</strong> ${currentInspectionData.result || ''}</li>
+            <li><strong>State:</strong> ${currentInspectionData.state || ''}</li>
+            <!-- Agrega más campos si deseas -->
+          </ul>
+        `;
+
+                // Llenar el panel de DETAIL
+                if (Object.keys(currentDetailData).length > 0) {
+                    detailContent.innerHTML = `
+            <ul class="list-disc list-inside text-sm">
+              <li><strong>Detalle:</strong> ${currentDetailData.detalle || ''}</li>
+              <li><strong>Marca:</strong> ${currentDetailData.marca || ''}</li>
+              <li><strong>Modelo:</strong> ${currentDetailData.modelo || ''}</li>
+              <li><strong>Número Serie:</strong> ${currentDetailData.n_serie || ''}</li>
+              <li><strong>Capacidad:</strong> ${currentDetailData.capacidad || ''}</li>
+              <li><strong>Personas:</strong> ${currentDetailData.personas || ''}</li>
+              <li><strong>Velocidad:</strong> ${currentDetailData.velocidad || ''}</li>
+              <!-- ... más campos que necesites -->
+            </ul>
+          `;
+                } else {
+                    detailContent.innerHTML = `<p class="text-gray-600">Este ítem no tiene Detail registrado.</p>`;
+                }
+
+                // Llenar el panel de REPORT
+                if (Object.keys(currentReportData).length > 0) {
+                    reportContent.innerHTML = `
+            <ul class="list-disc list-inside text-sm">
+              <li><strong>Certificado Minvu:</strong> ${currentReportData.certificado_minvu || ''}</li>
+              <li><strong>Fecha:</strong> ${currentReportData.fecha || ''}</li>
+              <li><strong>Cert. Anterior:</strong> ${currentReportData.cert_ant || ''}</li>
+              <li><strong>ending:</strong> ${currentReportData.ending || ''}</li>
+              <!-- ... personaliza los campos a mostrar -->
+            </ul>
+          `;
+                } else {
+                    reportContent.innerHTML = `<p class="text-gray-600">Este ítem no tiene Report registrado.</p>`;
+                }
+
+                // Mostrar el modal en la pestaña "Inspection" por defecto
+                hideAllPanels();
+                panelInspection.classList.remove('hidden');
+                openModal();
+            }
+
+            // 2) Agregar
+            if (e.target.classList.contains('btn-add')) {
+                moveToSelected(itemEl);
+            }
+
+            // 3) Remover con “X”
+            if (e.target.classList.contains('btn-remove')) {
+                moveToAvailable(itemEl);
+            }
+        });
+
+        // =========================================================================
+        //   DRAG & DROP
+        // =========================================================================
+        let draggedItem = null;
+
+        document.querySelectorAll('.inspection-item').forEach(item => {
+            item.addEventListener('dragstart', (ev) => {
+                draggedItem = ev.target;
+            });
+        });
+
+        selectedContainer.addEventListener('dragover', (ev) => {
+            ev.preventDefault();
+        });
+        selectedContainer.addEventListener('drop', (ev) => {
+            ev.preventDefault();
+            if (draggedItem) {
+                moveToSelected(draggedItem);
+                draggedItem = null;
+            }
+        });
+
+        // Permitir volver arrastrar a “disponibles”
+        availableContainer.addEventListener('dragover', (ev) => {
+            ev.preventDefault();
+        });
+        availableContainer.addEventListener('drop', (ev) => {
+            ev.preventDefault();
+            if (draggedItem) {
+                moveToAvailable(draggedItem);
+                draggedItem = null;
+            }
+        });
+
+        // =========================================================================
+        //   FILTRO DE BÚSQUEDA (CLIENT-SIDE)
+        // =========================================================================
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const items = availableContainer.querySelectorAll('.inspection-item');
+
+            items.forEach(item => {
+                const itemSearchData = item.dataset.search || '';
+                if (itemSearchData.includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+
+
+        // Código para recolectar los números de las inspecciones seleccionadas
+        const continueButton = document.getElementById('continue-button');
+        continueButton.addEventListener('click', function(e) {
+            const selectedContainer = document.getElementById('selected-inspections');
+            const selectedItems = selectedContainer.querySelectorAll('.inspection-item');
+            let numbers = [];
+            selectedItems.forEach(item => {
+                const dataInspection = JSON.parse(item.getAttribute('data-inspection') || '{}');
+                if (dataInspection.number) {
+                    numbers.push(dataInspection.number);
+                }
+            });
+            if (numbers.length === 0) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No hay inspecciones seleccionadas',
+                    text: 'Por favor, seleccione al menos una inspección para continuar.'
+                });
+                return;
+            }
+            document.getElementById('inspection_numbers_input').value = numbers.join(',');
+        });
+
+    });
+</script>

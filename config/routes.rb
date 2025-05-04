@@ -5,6 +5,14 @@ Rails.application.routes.draw do
   get "/service-worker.js" => "service_worker#service_worker"
   get "/manifest.json" => "service_worker#manifest"
 
+
+
+  get 'bash_fill', to: 'pages#bash_fill'
+  get 'bash_fill_detail', to: 'pages#bash_fill_detail'
+  patch :bash_fill_detail, to: "pages#update_many_details", as: :update_many_details
+  get  :bash_fill_report,  to: "pages#bash_fill_report"
+  patch :bash_fill_report, to: "pages#update_many_reports", as: :update_many_reports
+
   resources :details
   resources :ladder_details
   resources :reports
