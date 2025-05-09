@@ -65,7 +65,7 @@
 
       <!-- EA rol -->
       <tr>
-        <td class="px-4 py-2 font-semibold">EA Rol</td>
+        <td class="px-4 py-2 font-semibold">Empresa certificadora anterior Rol</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "reports[#{insp.id}][ea_rol]",
@@ -78,7 +78,7 @@
 
       <!-- EA rut -->
       <tr>
-        <td class="px-4 py-2 font-semibold">EA Rut</td>
+        <td class="px-4 py-2 font-semibold">Empresa certificadora anterior Rut</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "reports[#{insp.id}][ea_rut]",
@@ -116,7 +116,7 @@
 
       <!-- Cert_ant_real (drop‑down) -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Certificación anterior real</td>
+        <td class="px-4 py-2 font-semibold">Certificación anterior</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= select_tag "reports[#{insp.id}][cert_ant_real]",
@@ -142,7 +142,7 @@
 
       <!-- EM rol -->
       <tr>
-        <td class="px-4 py-2 font-semibold">EM Rol</td>
+        <td class="px-4 py-2 font-semibold">Empresa mantenedora Rol</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "reports[#{insp.id}][em_rol]",
@@ -155,7 +155,7 @@
 
       <!-- EM Rut -->
       <tr>
-        <td class="px-4 py-2 font-semibold">EM Rut</td>
+        <td class="px-4 py-2 font-semibold">Empresa mantenedora Rut</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "reports[#{insp.id}][em_rut]",
@@ -207,7 +207,7 @@
 
       <!-- TM Rut -->
       <tr>
-        <td class="px-4 py-2 font-semibold">TM Rut</td>
+        <td class="px-4 py-2 font-semibold">Técnico mantenedor Rut</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "reports[#{insp.id}][tm_rut]",
@@ -234,7 +234,7 @@
 
       <!-- Fecha último reg. mant. -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Fecha último reg. mant.</td>
+        <td class="px-4 py-2 font-semibold">Último reg. mant. Fecha</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= date_field_tag "reports[#{insp.id}][urm_fecha]",
