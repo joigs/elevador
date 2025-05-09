@@ -1,7 +1,12 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md overflow-x-auto">
-  <%= form_with url: update_many_details_path, method: :patch, local: true do %>
-    <table class="min-w-full divide-y divide-gray-600 text-gray-200">
-      <thead class="bg-gray-800 text-xs uppercase tracking-wider">
+<div
+    class="relative w-full overflow-auto max-h-[80vh] bg-gray-900 p-6 rounded-lg shadow-md"
+    data-controller="autoscroll"
+    data-autoscroll-target="box"
+    data-action="mousedown->autoscroll#start mousemove->autoscroll#move mouseup->autoscroll#end mouseleave->autoscroll#end">
+
+<%= form_with url: update_many_details_path, method: :patch, local: true do %>
+    <table class="w-max min-w-full divide-y divide-gray-600 text-gray-200">
+      <thead class="sticky top-0 z-40 bg-gray-800 text-xs uppercase tracking-wider">
       <tr>
         <th class="px-4 py-3 text-left">Preguntas / Nº Inspección</th>
         <% @inspections.each do |insp| %>
@@ -14,9 +19,9 @@
 
       <!-- Rol N° -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Rol N°</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Rol N°</td>
         <% @inspections.each do |insp| %>
-          <td class="px-4 py-2">
+          <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">
             <%= text_field_tag "details[#{insp.id}][rol_n]",
                                insp.item.detail&.rol_n,
                                maxlength: 100,
@@ -27,7 +32,7 @@
 
       <!-- N° permiso de edificación -->
       <tr>
-        <td class="px-4 py-2 font-semibold">N° de permiso de edificación</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">N° de permiso de edificación</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][numero_permiso]",
@@ -40,7 +45,7 @@
 
       <!-- Fecha permiso -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Fecha de permiso de edificación</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Fecha de permiso de edificación</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= date_field_tag "details[#{insp.id}][fecha_permiso]",
@@ -52,7 +57,7 @@
 
       <!-- % de ocupación -->
       <tr>
-        <td class="px-4 py-2 font-semibold">% de ocupación</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">% de ocupación</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][porcentaje]",
@@ -65,7 +70,7 @@
 
       <!-- Destino -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Destino</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Destino</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= select_tag "details[#{insp.id}][destino]",
@@ -82,7 +87,7 @@
 
       <!-- Recepción -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Recepción</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Recepción</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= date_field_tag "details[#{insp.id}][recepcion]",
@@ -94,7 +99,7 @@
 
       <!-- Empresa instaladora RUT -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Empresa instaladora RUT</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Empresa instaladora RUT</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][empresa_instaladora_rut]",
@@ -108,7 +113,7 @@
 
       <!-- Empresa instaladora -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Empresa instaladora</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Empresa instaladora</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][empresa_instaladora]",
@@ -122,7 +127,7 @@
 
       <!-- Detalle -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Detalle</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Detalle</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][detalle]",
@@ -136,7 +141,7 @@
 
       <!-- Descripción -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Descripción</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Descripción</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][descripcion]",
@@ -150,7 +155,7 @@
 
       <!-- Marca -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Marca</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Marca</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][marca]",
@@ -164,7 +169,7 @@
 
       <!-- Modelo -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Modelo</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Modelo</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][modelo]",
@@ -178,7 +183,7 @@
 
       <!-- N° de serie -->
       <tr>
-        <td class="px-4 py-2 font-semibold">N° de serie</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">N° de serie</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][n_serie]",
@@ -197,7 +202,7 @@
 
       <!-- MM Marca -->
       <tr>
-        <td class="px-4 py-2 font-semibold">MM Marca</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">MM Marca</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][mm_marca]",
@@ -211,7 +216,7 @@
 
       <!-- MM N° serie -->
       <tr>
-        <td class="px-4 py-2 font-semibold">MM N° de serie</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">MM N° de serie</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][mm_n_serie]",
@@ -225,7 +230,7 @@
 
       <!-- Potencia -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Potencia Kw</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Potencia Kw</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][potencia]",
@@ -238,7 +243,7 @@
 
       <!-- Capacidad -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Capacidad Kg</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Capacidad Kg</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][capacidad]",
@@ -251,7 +256,7 @@
 
       <!-- Personas -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Personas</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Personas</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][personas]",
@@ -269,7 +274,7 @@
 
       <!-- CT Marca -->
       <tr>
-        <td class="px-4 py-2 font-semibold">CT Marca</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">CT Marca</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][ct_marca]",
@@ -283,7 +288,7 @@
 
       <!-- CT Cantidad -->
       <tr>
-        <td class="px-4 py-2 font-semibold">CT Cantidad</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">CT Cantidad</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][ct_cantidad]",
@@ -296,7 +301,7 @@
 
       <!-- CT Diámetro -->
       <tr>
-        <td class="px-4 py-2 font-semibold">CT Diámetro mm</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">CT Diámetro mm</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][ct_diametro]",
@@ -309,7 +314,7 @@
 
       <!-- Medidas cintas -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Ancho cintas mm</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Ancho cintas mm</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][medidas_cintas]",
@@ -322,7 +327,7 @@
 
       <!-- Medidas cintas espesor -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Espesor cintas mm</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Espesor cintas mm</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][medidas_cintas_espesor]",
@@ -340,7 +345,7 @@
 
       <!-- Velocidad -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Velocidad m/s</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Velocidad m/s</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][velocidad]",
@@ -353,7 +358,7 @@
 
       <!-- RV Marca -->
       <tr>
-        <td class="px-4 py-2 font-semibold">RV Marca</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">RV Marca</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][rv_marca]",
@@ -367,7 +372,7 @@
 
       <!-- RV N° serie -->
       <tr>
-        <td class="px-4 py-2 font-semibold">RV N° serie</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">RV N° serie</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][rv_n_serie]",
@@ -381,7 +386,7 @@
 
       <!-- Paradas -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Paradas</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Paradas</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][paradas]",
@@ -407,7 +412,7 @@
 
       <!-- Sala de máquinas -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Sala de máquinas</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Sala de máquinas</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= select_tag "details[#{insp.id}][sala_maquinas]",
