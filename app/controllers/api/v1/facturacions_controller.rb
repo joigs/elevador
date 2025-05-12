@@ -7,43 +7,37 @@ module Api
       before_action :authenticate_api_key!
 
       # GET /api/v1/facturacions
+      # app/controllers/api/v1/facturacions_controller.rb
       def index
         facturacions = Facturacion.where.not(number: 0).where.not(oc: nil).distinct
 
-        year    = params[:year]
-        month   = params[:month]
-        empresa = params[:empresa]
+        year, month, empresa = params.values_at(:year, :month, :empresa)
 
         if year.present? || month.present?
-          facturacions = facturacions
-                           .joins(:inspections)
-                           .where.not(inspections: { ins_date: nil }).distinct
+          facturacions = facturacions.joins(:inspections)
+                                     .where.not(inspections: { ins_date: nil })
         end
+        facturacions = facturacions.where("YEAR(inspections.ins_date) = ?", year)   if year.present?
+        facturacions = facturacions.where("MONTH(inspections.ins_date) = ?", month) if month.present?
+        facturacions = facturacions.select { |f| f.empresa == empresa }             if empresa.present?
 
-        if year.present?
-          facturacions = facturacions.where("YEAR(inspections.ins_date) = ?", year).distinct
+        if params[:meta].present?
+          years     = Inspection.where.not(ins_date: nil)
+                                .pluck(Arel.sql('DISTINCT YEAR(ins_date)'))
+                                .sort
+          empresas  = Facturacion.distinct.pluck(:empresa).compact.sort
+          render json: {   anios: years,
+                           meses: (1..12).to_a,
+                           empresas: empresas }
+          return
         end
-
-        if month.present?
-          facturacions = facturacions.where("MONTH(inspections.ins_date) = ?", month).distinct
-        end
-
-        if empresa.present?
-          facturacions = facturacions.select do |f|
-            f.empresa == empresa
-          end
-        end
-
 
         render json: facturacions.as_json(
-          include: {
-            inspections: {
-              include: :principal
-            }
-          },
+          include: { inspections: { include: :principal } },
           methods: [:fecha_inspeccion, :empresa]
         )
       end
+
 
 
       # GET /api/v1/facturacions/:id
