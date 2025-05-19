@@ -12,15 +12,13 @@ module Api
         facturacions = Facturacion.where.not(number: 0).where.not(oc: nil).distinct
 
         year, month, empresa = params.values_at(:year, :month, :empresa)
-
         if year.present? || month.present?
           facturacions = facturacions.joins(:inspections)
                                      .where.not(inspections: { ins_date: nil })
         end
         facturacions = facturacions.where("YEAR(inspections.ins_date) = ?", year)   if year.present?
         facturacions = facturacions.where("MONTH(inspections.ins_date) = ?", month) if month.present?
-        facturacions = facturacions.select { |f| f.empresa == empresa }             if empresa.present?
-
+        facturacions = facturacions.select { |f| f.empresa == empresa } if empresa.present?
         if params[:meta].present?
           years     = Inspection.where.not(ins_date: nil)
                                 .pluck(Arel.sql('DISTINCT YEAR(ins_date)'))
@@ -37,7 +35,6 @@ module Api
           methods: [:fecha_inspeccion, :empresa]
         )
       end
-
 
 
       # GET /api/v1/facturacions/:id
