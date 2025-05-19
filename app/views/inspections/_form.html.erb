@@ -277,36 +277,50 @@
                 placeholder:'Buscar…', perPage:'Registros por pág.', noRows:'No hay datos',
                 noResults:'Sin coincidencias', info:'Mostrando {start} a {end} de {rows}'
             },
-            tableRender:(_d,table,type)=>{
-                if(type==='print') return table
-                table.childNodes[0].childNodes.forEach(r=>{
-                    r.attributes ||= {}
-                    r.attributes.class = (r.attributes.class||'') + ' bg-gray-800 text-white'
-                    r.childNodes.forEach(th=>{
-                        th.attributes ||= {}
-                        th.attributes.class = (th.attributes.class||'') + ' bg-gray-800 text-white'
-                    })
-                })
-                const head = table.childNodes[0]
-                const first= head.childNodes[0]
-                const noF  = [2,3,4,6, 7, 8]
-                const filter={nodeName:'TR',attributes:{class:'search-filtering-row bg-gray-800 text-white'},childNodes:[]}
-                first.childNodes.forEach((_,i)=>{
-                    const dis=noF.includes(i)
+            tableRender: (_d, table, type) => {
+                if (type === 'print') return table;
+
+                table.childNodes[0].childNodes.forEach(r => {
+                    r.attributes ||= {};
+                    r.attributes.class = (r.attributes.class || '') + ' bg-gray-800 text-white';
+                    r.childNodes.forEach(th => {
+                        th.attributes ||= {};
+                        th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white';
+                    });
+                });
+
+                const head   = table.childNodes[0];
+                const first  = head.childNodes[0];
+                const noF    = [2, 3, 4, 6, 7, 8];
+                const filter = {
+                    nodeName: 'TR',
+                    attributes: { class: 'search-filtering-row bg-gray-800 text-white' },
+                    childNodes: []
+                };
+
+                first.childNodes.forEach((_, i) => {
+                    const disabled = noF.includes(i);
+
+                    /* atributos dinámicos */
+                    const inputAttrs = {
+                        class: `datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full${disabled ? ' cursor-not-allowed opacity-50' : ''}`,
+                        type:  'search',
+                        placeholder: disabled ? 'Sin filtro' : 'Filtrar'
+                    };
+                    if (!disabled) inputAttrs['data-columns'] = `[${i}]`;
+                    else           inputAttrs.disabled = 'disabled';
+
                     filter.childNodes.push({
-                        nodeName:'TH',attributes:{style:'padding-top:1rem;'},childNodes:[{
-                            nodeName:'INPUT',
-                            attributes:{
-                                class:`datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full${dis?' cursor-not-allowed opacity-50':''}`,
-                                type:'search',placeholder:dis?'Sin filtro':'Filtrar',
-                                disabled:dis? 'disabled':null,'data-columns':dis?null:`[${i}]`
-                            }
-                        }]
-                    })
-                })
-                head.childNodes.push(filter)
-                return table
+                        nodeName: 'TH',
+                        attributes: { style: 'padding-top:1rem;' },
+                        childNodes: [{ nodeName: 'INPUT', attributes: inputAttrs }]
+                    });
+                });
+
+                head.childNodes.push(filter);
+                return table;
             }
+
         })
 
         if (!window.facturacionClickHandler) {
