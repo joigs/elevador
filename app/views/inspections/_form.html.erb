@@ -173,18 +173,15 @@
                     class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer") %>
   </div>
 <% end %>
-
 <div id="facturacionModal"
      class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
      onclick="closeWhenClickOutside(event)">
   <div class="modal-content relative w-11/12 max-w-8xl bg-gray-800 p-6 rounded shadow-md"
-       style="overflow-y: auto; min-height: 600px; max-height: 85vh;"
+       style="overflow-y:auto;min-height:600px;max-height:85vh;"
        onclick="event.stopPropagation()">
     <button type="button"
             class="absolute top-4 right-4 text-white text-2xl font-bold"
-            onclick="closeFacturacionModal()">
-      &times;
-    </button>
+            onclick="closeFacturacionModal()">&times;</button>
 
     <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
       Cargando Cotizaciones...
@@ -193,190 +190,181 @@
 </div>
 
 <style>
-    #facturacions-table         { border-collapse: collapse; }
-    #facturacions-table tbody tr{ border-bottom: 1px solid rgba(255,255,255,0.20); }
+    #facturacions-table         { border-collapse:collapse; }
+    #facturacions-table tbody tr{ border-bottom:1px solid rgba(255,255,255,.20); }
 </style>
 
 <script>
-    let facturacionsDt = null
-    let facturacionsPrepared = false
+    if (!window.__facturacionGlobal__) {
+        window.__facturacionGlobal__     = true
+        window.facturacionsDt            = null        // instancia DataTable
+        window.facturacionClickHandler   = null        // referencia al listener
+    }
 
-    function openFacturacionModal() {
+    window.openFacturacionModal = function () {
         document.getElementById('facturacionModal').classList.remove('hidden')
         document.body.classList.add('overflow-hidden')
     }
-    function closeFacturacionModal() {
+    window.closeFacturacionModal = function () {
         document.getElementById('facturacionModal').classList.add('hidden')
         document.body.classList.remove('overflow-hidden')
     }
-    function closeWhenClickOutside(e) {
-        if (e.target.id === 'facturacionModal') closeFacturacionModal()
-    }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFacturacionModal() })
-
-    function onSelectFacturacion(fid, fnum, fname) {
-        const hiddenField = document.getElementById('inspection_facturacion_id')
-        if (hiddenField) hiddenField.value = fid
-        const displaySpan = document.getElementById('facturacion_selected_display')
-        if (displaySpan) displaySpan.textContent = `Facturación N° ${fnum}. ${fname}`
-        closeFacturacionModal()
+    window.closeWhenClickOutside = e => { if (e.target.id === 'facturacionModal') window.closeFacturacionModal() }
+    window.onSelectFacturacion = function (fid, fnum, fname) {
+        const hidden = document.getElementById('inspection_facturacion_id')
+        const span   = document.getElementById('facturacion_selected_display')
+        if (hidden) hidden.value = fid
+        if (span)   span.textContent = `Facturación N° ${fnum}. ${fname}`
+        window.closeFacturacionModal()
     }
 
-    function prepareFacturacionsTable(tableEl) {
-        if (facturacionsPrepared) return
-        const theadRow = tableEl.querySelector('thead tr')
-        const tbodyRows = tableEl.querySelectorAll('tbody tr')
-        tbodyRows.forEach(row => { const tds = row.querySelectorAll('td'); if (tds.length < 9) return })
-        const ths = theadRow.querySelectorAll('th')
-        if (ths.length >= 9) { theadRow.removeChild(ths[8]); theadRow.removeChild(ths[7]) }
-        const finalRows = tableEl.querySelectorAll('tbody tr')
-        finalRows.forEach(row => {
-            const cells = row.querySelectorAll('td')
-            if (cells.length >= 9) { cells[8].remove(); cells[7].remove() }
-        })
+    function addSelectColumn(tableEl) {
+        if ([...tableEl.querySelectorAll('thead th')].some(th => th.textContent.trim() === 'Seleccionar')) return
+
+        const theadRow  = tableEl.querySelector('thead tr')
+        const bodyRows  = tableEl.querySelectorAll('tbody tr')
+
+        tableEl.querySelectorAll('thead th:nth-last-child(-n+2), tbody td:nth-last-child(-n+2)').forEach(n => n.remove())
+
         const newTh = document.createElement('th')
         newTh.className = 'px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'
         newTh.textContent = 'Seleccionar'
         theadRow.appendChild(newTh)
-        finalRows.forEach(row => {
-            const tds = row.querySelectorAll('td')
-            if (tds.length < 7) return
-            let fid = null, fnum = null, fname = ''
-            const link = tds[0].querySelector('a')
+
+        bodyRows.forEach(row => {
+            const cells  = row.querySelectorAll('td')
+            let   fid    = null
+            let   fnum   = null
+            let   fname  = ''
+
+            const link = cells[0].querySelector('a')
             if (link) {
-                const href = link.getAttribute('href') || ''
-                const match = href.match(/cotizaciones\/(\d+)/)
-                if (match) { fid = match[1]; fnum = link.textContent.trim() }
+                const m = (link.getAttribute('href') || '').match(/cotizaciones\/(\d+)/)
+                if (m) { fid = m[1]; fnum = link.textContent.trim() }
             }
-            fname = tds[1]?.textContent.trim() || ''
-            const selectTd = document.createElement('td')
-            selectTd.className = 'px-6 py-4 whitespace-normal'
+            fname = cells[1]?.textContent.trim() || ''
+
+            const td = document.createElement('td')
+            td.className = 'px-6 py-4 whitespace-normal'
+
             if (fid && fnum) {
                 const btn = document.createElement('button')
-                btn.type = 'button'
+                btn.type  = 'button'
                 btn.className = 'seleccionar-facturacion bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded'
                 btn.textContent = 'Seleccionar'
-                btn.dataset.facturacionId = fid
+                btn.dataset.facturacionId     = fid
                 btn.dataset.facturacionNumber = fnum
-                btn.dataset.facturacionName = fname
-                selectTd.appendChild(btn)
-            } else { selectTd.textContent = '—' }
-            row.appendChild(selectTd)
+                btn.dataset.facturacionName   = fname
+                td.appendChild(btn)
+            } else {
+                td.textContent = '—'
+            }
+            row.appendChild(td)
         })
-        facturacionsPrepared = true
     }
 
-    function facturacionClickHandler(ev) {
-        if (ev.target.matches('button.seleccionar-facturacion')) {
-            const fid = ev.target.dataset.facturacionId
-            const fnum = ev.target.dataset.facturacionNumber
-            const fname = ev.target.dataset.facturacionName
-            onSelectFacturacion(fid, fnum, fname)
-        }
-    }
-
-    function initFacturacionsTable() {
+    function initDataTable() {
         const t = document.getElementById('facturacions-table')
-        if (!t || facturacionsDt || typeof simpleDatatables === 'undefined' || !simpleDatatables.DataTable) return
-        const dt = new simpleDatatables.DataTable(t, {
-            columns: [{ select: 2, searchable: false }, { select: 3, searchable: false }, { select: 4, searchable: false }, { select: 6, searchable: false }],
-            labels: { placeholder: 'Buscar...', perPage: 'Registros por pág.', noRows: 'No hay datos para mostrar', noResults: 'No hay resultados que coincidan con tu búsqueda', info: 'Mostrando {start} a {end} de {rows} entradas' },
-            tableRender: (_d, table, type) => {
-                if (type === 'print') return table
-                table.childNodes[0].childNodes.forEach(r => {
+        if (!t || window.facturacionsDt) return
+
+        window.facturacionsDt = new simpleDatatables.DataTable(t, {
+            columns:[{select:2,searchable:false},{select:3,searchable:false},{select:4,searchable:false},{select:6,searchable:false}],
+            labels :{
+                placeholder:'Buscar…',
+                perPage   :'Registros por pág.',
+                noRows    :'No hay datos para mostrar',
+                noResults :'No hay resultados para tu búsqueda',
+                info      :'Mostrando {start} a {end} de {rows} entradas'
+            },
+            tableRender:(_d,table,type)=>{
+                if(type==='print') return table
+                table.childNodes[0].childNodes.forEach(r=>{
                     r.attributes ||= {}
-                    r.attributes.class = (r.attributes.class || '') + ' bg-gray-800 text-white'
-                    r.childNodes.forEach(th => {
+                    r.attributes.class = (r.attributes.class||'') + ' bg-gray-800 text-white'
+                    r.childNodes.forEach(th=>{
                         th.attributes ||= {}
-                        th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white'
+                        th.attributes.class = (th.attributes.class||'') + ' bg-gray-800 text-white'
                     })
                 })
-                const head = table.childNodes[0]
-                const first = head.childNodes[0]
-                const filterHeaders = { nodeName: 'TR', attributes: { class: 'search-filtering-row bg-gray-800 text-white' }, childNodes: [] }
-                first.childNodes.forEach((_, i) => {
-                    if ([2, 3, 4, 6].includes(i)) {
-                        filterHeaders.childNodes.push({ nodeName: 'TH', attributes: { style: 'padding-top:1rem;' }, childNodes: [{ nodeName: 'INPUT', attributes: { type: 'search', disabled: 'disabled', placeholder: 'Sin filtro', class: 'datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50' } }] })
-                    } else {
-                        filterHeaders.childNodes.push({ nodeName: 'TH', attributes: { style: 'padding-top:1rem;' }, childNodes: [{ nodeName: 'INPUT', attributes: { class: 'datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full', type: 'search', 'data-columns': `[${i}]`, placeholder: 'Filtrar' } }] })
-                    }
+                const noFilter=[2,3,4,6]
+                const head   = table.childNodes[0]
+                const first  = head.childNodes[0]
+                const filter = {nodeName:'TR',attributes:{class:'search-filtering-row bg-gray-800 text-white'},childNodes:[]}
+                first.childNodes.forEach((_,i)=>{
+                    const disabled = noFilter.includes(i)
+                    filter.childNodes.push({
+                        nodeName:'TH',
+                        attributes:{style:'padding-top:1rem;'},
+                        childNodes:[{
+                            nodeName : 'INPUT',
+                            attributes:{
+                                class          : `datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full${disabled ? ' cursor-not-allowed opacity-50' : ''}`,
+                                type           : 'search',
+                                placeholder    : disabled ? 'Sin filtro' : 'Filtrar',
+                                disabled       : disabled ? 'disabled' : null,
+                                'data-columns' : disabled ? null : `[${i}]`
+                            }
+                        }]
+                    })
                 })
-                head.childNodes.push(filterHeaders)
+                head.childNodes.push(filter)
                 return table
             }
         })
-        facturacionsDt = dt
-        t.addEventListener('click', facturacionClickHandler, { once: false })
+
+        if (!window.facturacionClickHandler) {
+            window.facturacionClickHandler = ev => {
+                if (ev.target.matches('button.seleccionar-facturacion')) {
+                    const b = ev.target.dataset
+                    window.onSelectFacturacion(b.facturacionId, b.facturacionNumber, b.facturacionName)
+                }
+            }
+        }
+        t.addEventListener('click', window.facturacionClickHandler)
     }
 
     function initFlatpickrFilters() {
-        const startDate = document.querySelector('[data-date-filter-target="startDate"]')
-        const endDate = document.querySelector('[data-date-filter-target="endDate"]')
-        const submitButton = document.querySelector('[data-date-filter-target="submitButton"]')
-        if (!submitButton) return
-        function clearButtonPlugin() { return fp => ({ onReady: () => {
-                const clearBtn = document.createElement('button')
-                clearBtn.type = 'button'
-                clearBtn.textContent = 'Quitar fecha'
-                clearBtn.className = 'flatpickr-clear-btn'
-                clearBtn.addEventListener('click', () => { fp.clear(); fp.close() })
-                fp.calendarContainer.appendChild(clearBtn)
-            } }) }
-        if (startDate && !startDate._flatpickr) {
-            flatpickr(startDate, { dateFormat: 'd-m-Y', locale: 'es', onChange: () => submitButton.click(), plugins: [clearButtonPlugin()] })
-        }
-        if (endDate && !endDate._flatpickr) {
-            flatpickr(endDate, { dateFormat: 'd-m-Y', locale: 'es', onChange: () => submitButton.click(), plugins: [clearButtonPlugin()] })
-        }
-    }
+        const start = document.querySelector('[data-date-filter-target="startDate"]')
+        const end   = document.querySelector('[data-date-filter-target="endDate"]')
+        const btn   = document.querySelector('[data-date-filter-target="submitButton"]')
+        if (!btn) return
 
-    function setupFacturacionComponents() {
-        const tableEl = document.getElementById('facturacions-table')
-        if (tableEl) { prepareFacturacionsTable(tableEl); initFacturacionsTable(); tableEl.querySelectorAll('a').forEach(a => a.target = '_blank') }
-        initFlatpickrFilters()
+        const clearPlugin = () => fp => ({ onReady() {
+                const c = document.createElement('button')
+                c.type = 'button'
+                c.textContent = 'Quitar fecha'
+                c.className = 'flatpickr-clear-btn'
+                c.addEventListener('click', () => { fp.clear(); fp.close() })
+                fp.calendarContainer.appendChild(c)
+            }})
+
+        if (start && !start._flatpickr) flatpickr(start,{dateFormat:'d-m-Y',locale:'es',onChange:()=>btn.click(),plugins:[clearPlugin()]})
+        if (end   && !end  ._flatpickr) flatpickr(end  ,{dateFormat:'d-m-Y',locale:'es',onChange:()=>btn.click(),plugins:[clearPlugin()]})
     }
 
     document.addEventListener('turbo:before-cache', () => {
-        const tableEl = document.getElementById('facturacions-table')
-        if (facturacionsDt) { facturacionsDt.destroy(); facturacionsDt = null }
-        facturacionsPrepared = false
-        if (tableEl) tableEl.removeEventListener('click', facturacionClickHandler)
-        document.querySelectorAll('[data-date-filter-target="startDate"], [data-date-filter-target="endDate"]').forEach(el => { if (el._flatpickr) el._flatpickr.destroy() })
+        // destruir DataTable
+        if (window.facturacionsDt) {
+            window.facturacionsDt.destroy()
+            window.facturacionsDt = null
+        }
+        const t = document.getElementById('facturacions-table')
+        if (t && window.facturacionClickHandler) t.removeEventListener('click', window.facturacionClickHandler)
+        document.querySelectorAll('[data-date-filter-target="startDate"],[data-date-filter-target="endDate"]').forEach(el=>{ if(el._flatpickr) el._flatpickr.destroy() })
     })
+
+    function setupFacturacionComponents() {
+        const table = document.getElementById('facturacions-table')
+        if (table) {
+            addSelectColumn(table)
+            initDataTable()
+            table.querySelectorAll('a').forEach(a=>a.target='_blank')
+        }
+        initFlatpickrFilters()
+    }
 
     document.addEventListener('turbo:frame-load', e => { if (e.target.id === 'facturacions_frame') setupFacturacionComponents() })
-    document.addEventListener('turbo:render', setupFacturacionComponents)
+    document.addEventListener('turbo:render',       setupFacturacionComponents)
 
-    document.addEventListener('turbo:load', () => {
-        const places = <%= communes_by_region.to_json.html_safe %>
-        const regionSelect = document.getElementById('inspection_region')
-        if (!regionSelect) return
-        const comunaSelect = document.getElementById('inspection_comuna')
-        const calleInput = document.getElementById('inspection_calle')
-        const placeHidden = document.getElementById('inspection_place')
-        regionSelect.addEventListener('change', () => {
-            const region = regionSelect.value
-            const comunas = places[region] || []
-            while (comunaSelect.firstChild) comunaSelect.removeChild(comunaSelect.firstChild)
-            const defaultOption = document.createElement('option')
-            defaultOption.value = ''
-            defaultOption.textContent = 'Selecciona Comuna'
-            comunaSelect.appendChild(defaultOption)
-            comunas.forEach(comuna => {
-                const option = document.createElement('option')
-                option.value = comuna
-                option.textContent = comuna
-                comunaSelect.appendChild(option)
-            })
-            comunaSelect.value = ''
-            updatePlace()
-        })
-        function updatePlace() {
-            const comuna = comunaSelect.value
-            const calle = calleInput.value
-            placeHidden.value = comuna ? `${calle}, ${comuna}` : calle
-        }
-        comunaSelect.addEventListener('change', updatePlace)
-        calleInput.addEventListener('input', updatePlace)
-    })
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeFacturacionModal() })
 </script>
