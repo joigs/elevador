@@ -92,7 +92,8 @@
                     { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                       id: "inspection_region",
                       data: { controller: "slim-select" },
-                      required: true } %>
+                      required: true
+                    } %>
   </div>
 
   <div class="mt-3">
@@ -103,14 +104,17 @@
                     { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                       id: "inspection_comuna",
                       data: { controller: "slim-select" },
-                      required: true } %>
+                      required: true
+                    } %>
   </div>
-
-  <% calle_value = @inspection.place.present? ? @inspection.place.rpartition(",").first.strip : "" %>
+  <% calle_value = if @inspection.place.present?
+                     @inspection.place.rpartition(",").first.strip
+                   else
+                     ""
+                   end %>
   <div class="mt-3">
     <%= form.label :calle, "Calle", class: "block text-gray-300" %>
-    <%= form.text_field :calle,
-                        value: calle_value,
+    <%= form.text_field :calle, value: calle_value,
                         class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                         id: "inspection_calle",
                         required: true %>
@@ -371,4 +375,40 @@
     document.addEventListener('turbo:render',      setupFacturacionComponents)
 
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') window.closeFacturacionModal() })
+</script>
+
+
+<script>
+    document.addEventListener("turbo:load", () => {
+        const places = <%= communes_by_region.to_json.html_safe %>
+        const regionSelect = document.getElementById("inspection_region")
+        if (!regionSelect) return
+        const comunaSelect = document.getElementById("inspection_comuna")
+        const calleInput = document.getElementById("inspection_calle")
+        const placeHidden = document.getElementById("inspection_place")
+        regionSelect.addEventListener("change", function () {
+            const region = regionSelect.value
+            const comunas = places[region] || []
+            while (comunaSelect.firstChild) comunaSelect.removeChild(comunaSelect.firstChild)
+            const defaultOption = document.createElement("option")
+            defaultOption.value = ""
+            defaultOption.textContent = "Selecciona Comuna"
+            comunaSelect.appendChild(defaultOption)
+            comunas.forEach(comuna => {
+                const option = document.createElement("option")
+                option.value = comuna
+                option.textContent = comuna
+                comunaSelect.appendChild(option)
+            })
+            comunaSelect.value = ""
+            updatePlace()
+        })
+        function updatePlace() {
+            const comuna = comunaSelect.value
+            const calle = calleInput.value
+            placeHidden.value = comuna ? `${calle}, ${comuna}` : calle
+        }
+        comunaSelect.addEventListener("change", updatePlace)
+        calleInput.addEventListener("input", updatePlace)
+    })
 </script>
