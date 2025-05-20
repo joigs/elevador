@@ -22,6 +22,8 @@ class LadderRevisionsController < ApplicationController
     end
 
     @revision_base = LadderRevision.find_by(inspection_id: @inspection.id)
+    @item = @revision_base.item
+
     if @revision_base.nil?
       flash[:alert] = "Checklist no disponible."
       redirect_to(home_path)
@@ -54,7 +56,6 @@ class LadderRevisionsController < ApplicationController
     end
 
     #acceder a los objetos asociados a la revision
-    @item = @revision_base.item
     @revision_nulls = RevisionNull.where(revision_id: @revision_base.id)
     @group = Group.where("name LIKE ?", "%Escala%").first
     @detail = LadderDetail.find_by(item_id: @item.id)
