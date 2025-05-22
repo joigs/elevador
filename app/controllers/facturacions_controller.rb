@@ -40,6 +40,7 @@ class FacturacionsController < ApplicationController
   end
 
   def show
+    @inspections = Inspection.where(facturacion_id: @facturacion.id)
   end
 
   def new
@@ -78,8 +79,39 @@ class FacturacionsController < ApplicationController
 
 
 
+    def destroy
+      @facturacion = Facturacion.find(params[:id])
 
-  def download_solicitud_file
+      @inspections = Inspection.where(facturacion_id: @facturacion.id)
+
+      if @inspections.any?
+        message = "La cotización eliminada estaba asociada a las inspecciones "
+      end
+
+      @inspections.each do |inspection|
+        inspection.update(facturacion_id: nil)
+        message += "N°#{inspection.number}, "
+      end
+      if @inspections.any?
+        message += "por favor volver a registrar la cotización corregida en esas inspecciones."
+      end
+
+      authorize! @facturacion.destroy
+
+      if message
+        flash[:notice] = message
+      else
+        flash[:notice] = "Cotización eliminada"
+      end
+
+      respond_to do |format|
+        format.html { redirect_to home_path }
+        format.turbo_stream { head :no_content }
+      end
+    end
+
+
+    def download_solicitud_file
     download_file(@facturacion.solicitud_file)
   end
 

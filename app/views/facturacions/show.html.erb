@@ -21,15 +21,32 @@
 
       <% if Current.user.solicitar %>
 
-        <div class="flex items-center space-x-2">
-          <%= link_to "Editar Solicitud",
-                      edit_facturacion_path(@facturacion),
-                      class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
-                              hover:bg-green-600 transition duration-200" %>
+        <div class="flex flex-col space-y-1">
+          <div class="flex items-center space-x-2">
+            <%= link_to "Editar Solicitud",
+                        edit_facturacion_path(@facturacion),
+                        class: "px-3 py-2 mr-6 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 transition duration-200" %>
+
+            <% if Current.user.solicitar %>
+              <%= link_to "Eliminar Cotización",
+                          facturacion_path(@facturacion),
+                          class: "px-3 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300",
+                          data: {
+                            controller: "delete-confirmation",
+                            action: "click->delete-confirmation#deleteItem",
+                            delete_confirmation_redirect_url_value: "/cotizaciones"
+                          } %>
+            <% end %>
+          </div>
+
+          <% if Current.user.solicitar && @inspections.present? %>
+            <p class="text-sm text-red-400 ml-[140px] ">La cotización está asociada a al menos una inspección. No se recomienda eliminar.</p>
+          <% end %>
         </div>
 
 
-      <% end %>
+
+    <% end %>
 
 
 

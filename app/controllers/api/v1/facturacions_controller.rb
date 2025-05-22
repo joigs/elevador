@@ -23,7 +23,7 @@ module Api
           years     = Inspection.where.not(ins_date: nil)
                                 .pluck(Arel.sql('DISTINCT YEAR(ins_date)'))
                                 .sort
-          empresas  = Facturacion.distinct.pluck(:empresa).compact.sort
+          empresas  = Facturacion.all.map(&:empresa).compact.uniq.sort
           render json: {   anios: years,
                            meses: (1..12).to_a,
                            empresas: empresas }
