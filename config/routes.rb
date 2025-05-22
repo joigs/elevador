@@ -139,7 +139,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :facturacions, only: [:new, :create, :index, :edit, :update, :show], path: 'cotizaciones' do
+  resources :facturacions, only: [:new, :create, :index, :edit, :update, :show, :destroy], path: 'cotizaciones' do
 
     member do
       get :download_solicitud_file

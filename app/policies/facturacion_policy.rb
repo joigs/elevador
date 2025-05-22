@@ -17,7 +17,9 @@ class FacturacionPolicy < BasePolicy
     Current.user.solicitar || Current.user.mini_solicitar
   end
 
-
+  def destroy
+    Current.user.solicitar
+  end
 
   def upload_cotizacion
     Current.user.cotizar
