@@ -324,10 +324,10 @@ class DocumentGeneratorLadder
 
 
           if control9384 == true
-            doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Faltas leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+            doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Defectos leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
 
           else
-            doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')} no presenta Faltas leves")
+            doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')} no presenta Defectos leves")
 
           end
           doc.replace('{{revision_past_errors_level}}', "")
@@ -504,9 +504,9 @@ class DocumentGeneratorLadder
 
 
     if errors_graves.any?
-      doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Faltas Graves, encontradas en la inspección son las siguientes:')
+      doc.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Defectos Graves, encontradas en la inspección son las siguientes:')
     else
-      doc.replace('{{si_las_hubiera_grave}}', 'No se encontraron faltas graves en la inspección.')
+      doc.replace('{{si_las_hubiera_grave}}', 'No se encontraron defectos graves en la inspección.')
     end
 
     output_path1_1 = Rails.root.join('tmp', "#{inspection.number}_part1.1.docx")
@@ -540,9 +540,9 @@ class DocumentGeneratorLadder
 
 
     if errors_leves.any?
-      doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:')
+      doc.replace('{{si_las_hubiera_leve}}', 'Las no conformidades, Defectos Leves, encontradas en la inspección son las siguientes:')
     else
-      doc.replace('{{si_las_hubiera_leve}}', 'No se encontraron faltas leves en la inspección.')
+      doc.replace('{{si_las_hubiera_leve}}', 'No se encontraron defectos leves en la inspección.')
     end
 
     output_path1_2 = Rails.root.join('tmp', "#{inspection.number}_part1.2.docx")
@@ -613,13 +613,13 @@ class DocumentGeneratorLadder
     end
 
     if !errors_graves.empty?
-      doc.replace('{{if_grave}}', "El equipo inspeccionado, identificado en el ítem II, ubicado en: #{inspection.place} no cumple con los requisitos normativos, encontrándose durante la inspección Faltas Graves de certificación anterior no subsanadas.")
+      doc.replace('{{if_grave}}', "El equipo inspeccionado, identificado en el ítem II, ubicado en: #{inspection.place} no cumple con los requisitos normativos, encontrándose durante la inspección Defectos Graves de certificación anterior no subsanadas.")
       doc.replace('{{cumple/parcial/no_cumple}}', "no cumple")
       doc.replace('{{esta/no_esta}}', "no está")
-      doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Faltas Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
+      doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Defectos Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
       if !errors_leves.empty?
-        doc.replace('{{if_leves}}', "Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:")
-        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+        doc.replace('{{if_leves}}', "Las no conformidades, Defectos Leves, encontradas en la inspección son las siguientes:")
+        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
       else
         doc.replace('{{texto_leve}}', "")
         doc.replace('{{if_leves}}', "")
@@ -632,8 +632,8 @@ class DocumentGeneratorLadder
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple parcialmente")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
-      doc.replace('{{if_leves}}', "Las no conformidades, Faltas Leves, encontradas en la inspección son las siguientes:")
-      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Faltas Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+      doc.replace('{{if_leves}}', "Las no conformidades, Defectos Leves, encontradas en la inspección son las siguientes:")
+      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
     end
 
 
