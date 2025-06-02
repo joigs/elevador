@@ -398,6 +398,61 @@
 </script>
 
 
+
+<script>
+    (function () {
+        function snapshot () {
+            const $ = q => document.querySelector(q);
+
+            return {
+                /* globals creados por tu propio script */
+                __facturacionGlobal__:  window.__facturacionGlobal__,
+                facturacionsPrepared:   window.facturacionsPrepared,
+                facturacionsDtExists:  !!window.facturacionsDt,
+                facturacionClickHandler: !!window.facturacionClickHandler,
+
+
+                inspectionFacturacionId: $('#inspection_facturacion_id')?.value || null,
+                facturacionDisplayText: $('#facturacion_selected_display')?.textContent.trim(),
+                modalHidden:            $('#facturacionModal')?.classList.contains('hidden'),
+                tablePresent:          !!$('#facturacions-table'),
+
+
+                startDate:  $('[data-date-filter-target="startDate"]')?._flatpickr?.selectedDates?.[0] || null,
+                endDate:    $('[data-date-filter-target="endDate"]')?._flatpickr?.selectedDates?.[0]   || null,
+
+
+                location:   location.href,
+                navigationType: performance.getEntriesByType('navigation')[0]?.type,
+                turboInProgress: document.documentElement.hasAttribute('data-turbo-temporary'),
+                historyState: history.state
+            };
+        }
+
+
+        window.facturacionDebug = snapshot;
+
+        console.log('[FacturacionDebug:init]', snapshot());
+
+        ['openFacturacionModal','closeFacturacionModal','onSelectFacturacion'].forEach(fn => {
+            if (typeof window[fn] !== 'function') return;
+            const original = window[fn];
+            window[fn] = function (...args) {
+                console.log(`[FacturacionDebug:${fn}]`, snapshot(), { args });
+                return original.apply(this, args);
+            };
+        });
+
+        document.addEventListener('turbo:render',      () => console.log('[FacturacionDebug:turbo:render]',      snapshot()));
+        document.addEventListener('turbo:frame-load',  e => {
+            if (e.target.id === 'facturacions_frame')
+                console.log('[FacturacionDebug:frame-load]', snapshot());
+        });
+        document.addEventListener('turbo:before-cache',() => console.log('[FacturacionDebug:before-cache]', snapshot()));
+    })();
+</script>
+
+
 <script>
     document.addEventListener("turbo:load", () => {
         const places = <%= communes_by_region.to_json.html_safe %>
