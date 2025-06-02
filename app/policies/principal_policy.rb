@@ -22,15 +22,15 @@ class PrincipalPolicy < BasePolicy
   end
 
   def no_conformidad
-    Current.user.admin || Current.user.empresa != nil || Current.user.crear
+    Current.user.admin || Current.user.empresa != nil || Current.user.crear || Current.user.only_see
   end
 
   def estado_activos
-    Current.user.admin || Current.user.empresa != nil || Current.user.crear
+    Current.user.admin || Current.user.empresa != nil || Current.user.crear || Current.user.only_see
   end
 
   def defectos_activos
-    Current.user.admin || Current.user.empresa != nil || Current.user.crear
+    Current.user.admin || Current.user.empresa != nil || Current.user.crear || Current.user.only_see
   end
 
 

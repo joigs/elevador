@@ -67,6 +67,10 @@ class User < ApplicationRecord
     permisos.exists?(nombre: 'mini_solicitar')
   end
 
+  def only_see
+    permisos.exists?(nombre: 'only_see')
+  end
+
   scope :con_permiso_inspeccionar, -> {
     joins(:permisos).where(permisos: { nombre: 'inspeccionar' })
   }

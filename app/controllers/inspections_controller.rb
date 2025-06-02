@@ -299,7 +299,7 @@ class InspectionsController < ApplicationController
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
 
-    if inspection.inf_date.nil?
+    if inspection.inf_date.nil? && !Current.user.only_see
       inspection.update(inf_date: Time.zone.now.to_date)
     end
 

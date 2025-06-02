@@ -30,7 +30,7 @@
            data-warning-control="<%= @control %>"
            data-warning-last-inspection-url="<%= inspection_path(@last_inspection) %>">
 
-        <% if Current.user.admin || Current.user.certificar %>
+        <% if Current.user.admin || Current.user.certificar || Current.user.only_see %>
           <% if @inspection.informe.attached? %>
             <div class="flex items-center">
               <strong class="mr-2">Informe:</strong>
@@ -104,7 +104,7 @@
       </div>
 
       <div class="mt-6">
-        <% if @inspection.state == "Cerrado" %>
+        <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
           <div class="mb-2">
             <%= form_with model: @inspection, url: update_ending_inspection_path(@inspection), local: true do |f| %>
               <div class="mb-2">
@@ -168,7 +168,7 @@
           <% end %>
         <% end %>
 
-        <% if @inspection.state == "Cerrado" && (Current.user.admin || Current.user.certificar) && @report.ending %>
+        <% if @inspection.state == "Cerrado" && (Current.user.admin || Current.user.certificar || Current.user.only_see) && @report.ending %>
 
             <%= form_with url: download_document_inspection_path(@inspection),
                           method: :get,

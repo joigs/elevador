@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <% if Current.user.admin || Current.user.principal_id == @principal.id || Current.user.crear %>
+  <% if Current.user.admin || Current.user.principal_id == @principal.id || Current.user.crear || Current.user.only_see %>
 
     <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
       <div class="tracking-wide text-2xl font-bold text-gray-300 mb-4">Descarga de reportes</div>

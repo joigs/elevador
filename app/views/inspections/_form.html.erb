@@ -8,7 +8,7 @@
       Swal.fire({
       icon: 'error',
       title: 'Errores encontrados',
-      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      html: '<ul style="text-align: left;">' + '<%= j raw(error_messages) %>' + '</ul>',
       confirmButtonText: 'Entendido'
       })
     <% end %>
@@ -149,7 +149,7 @@
     </div>
   <% end %>
 
-  <%= form.hidden_field :facturacion_id, id: "inspection_facturacion_id" %>
+  <%= form.text_field :facturacion_id, id: "inspection_facturacion_id", readonly: true, required: true, style: "display: none;" %>
 
   <div class="mt-6">
     <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300 text-2xl" %>

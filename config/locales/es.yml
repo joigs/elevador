@@ -1,17 +1,21 @@
 es:
   activerecord:
-
-
     errors:
       models:
         inspection:
           attributes:
             user:
               required: "es necesario"
+            facturacion:
+              required: ""
+              blank: ""
+            facturacion_id:
+              required: ""
+              blank: "no puede estar en blanco"
     models:
       ladder_detail: "detalle de la escalera"
+      facturacion: "Cotización"
     attributes:
-
       principal:
         rut: "Rut de la empresa"
         name: "Nombre de la empresa"
@@ -30,6 +34,7 @@ es:
         real_name: "Nombre real"
         admin: "Rol"
         profesion: "Profesión"
+      facturacion: "Cotización"
       detail:
         rol_n: "Rol N°"
         numero_permiso: "N° de permiso"
@@ -63,6 +68,8 @@ es:
         number: "Nuevo tipo de ascensor"
         name: "Nombre de la clasificación"
       inspection:
+        facturacion: ""
+        facturacion_id: "Cotización"
         item_attributes:
           group_id: "Clasificación del ascensor"
           empresa: "Empresa"
@@ -72,11 +79,25 @@ es:
           validation: "Periocidad"
           user_id: "Inspector asignado"
           number: "Número de inspección"
+          facturacion: ""
+          facturacion_id: "Cotización"
+        errors:
+          models:
+            inspection:
+              attributes:
+                facturacion:
+                  facturacion: ""
+                  required: ""
+                  blank: ""
+                facturacion_id:
+                  facturacion: ""
+                  facturacion_id: ""
+                  required: ""
+                  blank: ""
       item:
         identificador: "Identificador"
         group_id: "Clasificación del ascensor"
         principal_id: "Empresa"
-
       ladder_detail:
         detalle: "Detalle"
         descripcion: "Descripción"
@@ -149,8 +170,6 @@ es:
           group_ids: "Clasificación del ascensor"
           level: "Nivel de importancia"
           ins_type: "Tipo de defecto"
-
-
       ruletype:
         rtype: "Comprobación"
         gygatype: "Conjunto de la comprobación"

@@ -35,6 +35,7 @@ class Inspection < ApplicationRecord
   validate :informe_format
   validates :region, presence: true
   validates :comuna, presence: true
+  validates :facturacion_id, presence: true
 
 
   has_one_attached :informe
@@ -43,7 +44,7 @@ class Inspection < ApplicationRecord
   has_many :users, through: :inspection_users
   belongs_to :item
   belongs_to :principal
-  belongs_to :facturacion, optional: true
+  belongs_to :facturacion
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
   has_one :revision, dependent: :destroy

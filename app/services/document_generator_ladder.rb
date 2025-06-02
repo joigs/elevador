@@ -88,7 +88,7 @@ class DocumentGeneratorLadder
     doc.replace('{{inspector}}', inspector_names)
 
     doc.replace('{{admin}}', admin.real_name)
-    doc.replace('{{inf_date}}', inspection.inf_date.strftime('%d/%m/%Y'))
+    doc.replace('{{inf_date}}', inspection.inf_date.strftime('%d/%m/%Y') || '')
 
     doc.replace('{{inspection_validation}}', report.ending.strftime('%d/%m/%Y'))
 
