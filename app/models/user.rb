@@ -78,12 +78,11 @@ class User < ApplicationRecord
   scope :admin_false_o_inspeccionar, -> {
     left_joins(:permisos)
       .where(admin: false)
-      .or(
-        left_joins(:permisos)
-          .where(permisos: { nombre: 'inspeccionar' })
-      )
+      .or(left_joins(:permisos).where(permisos: { nombre: 'inspeccionar' }))
+      .where.not(
+      id: User.joins(:permisos).where(permisos: { nombre: 'only_see' })
+    )
       .distinct
   }
-
 
 end
