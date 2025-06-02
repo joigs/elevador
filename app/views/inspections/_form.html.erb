@@ -278,48 +278,54 @@
                 noResults:'Sin coincidencias', info:'Mostrando {start} a {end} de {rows}'
             },
             tableRender: (_d, table, type) => {
-                if (type === 'print') return table;
 
-                table.childNodes[0].childNodes.forEach(r => {
-                    r.attributes ||= {};
-                    r.attributes.class = (r.attributes.class || '') + ' bg-gray-800 text-white';
-                    r.childNodes.forEach(th => {
-                        th.attributes ||= {};
-                        th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white';
-                    });
-                });
+                if (type !== 'main') return table
 
-                const head   = table.childNodes[0];
-                const first  = head.childNodes[0];
-                const noF    = [2, 3, 4, 6, 7, 8];
+
+                const head = table?.childNodes?.[0]
+                if (!head || !head.childNodes?.length) return table
+
+                head.childNodes.forEach(row => {
+                    row.attributes ||= {}
+                    row.attributes.class = (row.attributes.class || '') + ' bg-gray-800 text-white'
+
+                    row.childNodes.forEach(th => {
+                        th.attributes ||= {}
+                        th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white'
+                    })
+                })
+
+
+                const first  = head.childNodes[0]
+                const noF    = [2, 3, 4, 6, 7, 8]
                 const filter = {
-                    nodeName: 'TR',
+                    nodeName:   'TR',
                     attributes: { class: 'search-filtering-row bg-gray-800 text-white' },
                     childNodes: []
-                };
+                }
 
                 first.childNodes.forEach((_, i) => {
-                    const disabled = noF.includes(i);
+                    const disabled = noF.includes(i)
 
-                    /* atributos dinámicos */
                     const inputAttrs = {
                         class: `datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full${disabled ? ' cursor-not-allowed opacity-50' : ''}`,
                         type:  'search',
                         placeholder: disabled ? 'Sin filtro' : 'Filtrar'
-                    };
-                    if (!disabled) inputAttrs['data-columns'] = `[${i}]`;
-                    else           inputAttrs.disabled = 'disabled';
+                    }
+                    if (!disabled) inputAttrs['data-columns'] = `[${i}]`
+                    else           inputAttrs.disabled = 'disabled'
 
                     filter.childNodes.push({
-                        nodeName: 'TH',
+                        nodeName:   'TH',
                         attributes: { style: 'padding-top:1rem;' },
                         childNodes: [{ nodeName: 'INPUT', attributes: inputAttrs }]
-                    });
-                });
+                    })
+                })
 
-                head.childNodes.push(filter);
-                return table;
+                head.childNodes.push(filter)
+                return table
             }
+
 
         })
 
