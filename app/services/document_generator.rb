@@ -657,7 +657,7 @@ class DocumentGenerator
         '•7.  Holguras entre cabina y paredes de los accesos, así como entre contrapeso o masa de equilibrado.',
         '•8.  Máquina.',
         '•9.  Ascensor sin sala de máquinas.',
-        '•10. Protección contra  eléctricos, mandos y prioridades.',
+        '•10. Protección contra defectos eléctricos, mandos y prioridades.',
         '•11. Ascensores con excepciones autorizadas, en los que se hayan realizado modificaciones importantes, o que cumplan normativa particular.'
       ]
 
@@ -668,7 +668,6 @@ class DocumentGenerator
     no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                                     "}.join("\n")
 
 
-    # Eliminar el elemento correspondiente en los textos generados
     if detail.sala_maquinas == "Si"
       cumple_text.gsub!('•9.  Ascensor sin sala de máquinas.', '')
       no_cumple_text.gsub!('•9.  Ascensor sin sala de máquinas.', '')
