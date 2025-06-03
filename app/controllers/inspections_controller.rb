@@ -299,7 +299,7 @@ class InspectionsController < ApplicationController
     principal_id = inspection.item.principal_id
     item_id = inspection.item_id
 
-    if inspection.inf_date.nil?
+    if inspection.inf_date.nil? && !Current.user.only_see
       inspection.update(inf_date: Time.zone.now.to_date)
     end
 
@@ -365,7 +365,7 @@ class InspectionsController < ApplicationController
 
 
           detail.attributes.each do |attr_name, value|
-            if  value.is_a?(String) && (value.nil? || value == "") && attr_name != "empresa_instaladora_rut"
+            if value.is_a?(String) && (value.nil? || value == "") && attr_name != "empresa_instaladora_rut"
               detail.update_attribute(attr_name, "S/I")
             end
           end

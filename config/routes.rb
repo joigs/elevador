@@ -83,6 +83,9 @@ Rails.application.routes.draw do
 
   end
 
+  resources :graficos, only: [:index], path: '/graficos' do
+
+  end
 
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups' do
     collection do

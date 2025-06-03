@@ -48,7 +48,7 @@ class InspectionPolicy < BasePolicy
   end
 
   def download_document
-    Current.user.admin || Current.user.certificar
+    Current.user.admin || Current.user.certificar || Current.user.only_see
   end
 
   def force_close_inspection
@@ -64,7 +64,7 @@ class InspectionPolicy < BasePolicy
   end
 
   def download_informe
-    Current.user.admin || Current.user.certificar
+    Current.user.admin || Current.user.certificar || Current.user.only_see
   end
 
 
