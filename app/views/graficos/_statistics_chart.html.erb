@@ -1,16 +1,67 @@
 <div class="p-6">
-  <div class="mb-6">
-    <label for="year-select" class="text-white">Selecciona un año:</label>
+
+  <div class="p-6 mt-10 border-t border-gray-600">
+    <h2 class="text-xl text-white mb-4 font-semibold">
+      Gráficos por Comuna (región + año)
+    </h2>
+
     <%= form_with url: graficos_path, method: :get, local: true do |form| %>
-      <%= form.select :year,
-                      options_for_select([["Mostrar todas","all"]] + @available_years, @selected_year),
-                      { include_blank: false },
-                      class: "form-select bg-gray-700 text-white" %>
-      <%= form.hidden_field :tab, value: 'statistics' %>
-      <%= form.hidden_field :chart_type, value: @chart_type %>
-      <%= form.submit 'Seleccionar', class: "ml-4 px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+      <div class="flex flex-wrap gap-4 items-end">
+        <div>
+          <label class="block mb-1 text-white" for="region-select">Región</label>
+          <%= form.select :region,
+                          options_for_select([['Todas', 'all']] + @available_regions, @selected_region),
+                          {},
+                          id: 'region-select',
+                          class: "form-select bg-gray-700 text-white w-52" %>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-white" for="years-select">Años</label>
+          <%= select_tag 'years[]',
+                         options_for_select(@available_years, @selected_years),
+                         multiple: true,
+                         id: 'years-select',
+                         class: "form-select bg-gray-700 text-white w-60",
+                         data: { controller: 'slim' } %>
+        </div>
+
+        <%= form.hidden_field :chart_type, value: @chart_type %>
+
+        <div>
+          <%= form.submit 'Filtrar',
+                          class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition" %>
+        </div>
+      </div>
     <% end %>
   </div>
+
+    <div class="p-6">
+      <h3 class="text-lg text-white mb-2">
+        Inspecciones por Comuna
+        <% if @selected_region != 'all' %>
+          — Región <%= @selected_region %>
+        <% end %>
+        <% if @selected_years.any? %>
+          — Años: <%= @selected_years.sort.join(', ') %>
+        <% end %>
+      </h3>
+
+      <% if @chart_type == 'pie' %>
+        <%= pie_chart @inspections_by_comuna,
+                      colors: @colors.cycle.take(@inspections_by_comuna.size) %>
+      <% else %>
+        <%= bar_chart @inspections_by_comuna,
+                      colors: @colors.cycle.take(@inspections_by_comuna.size),
+                      label: "Cantidad de Inspecciones",
+                      library: {
+                        hAxis: { textStyle: { color: '#fff', fontSize: 12 } },
+                        vAxis: { textStyle: { color: '#fff', fontSize: 12 } },
+                        backgroundColor: 'transparent'
+                      } %>
+      <% end %>
+    </div>
+
   <% case chart_type %>
   <% when 'bar' %>
     <div class="mb-8">
@@ -58,6 +109,7 @@
                       backgroundColor: "transparent"
                     } %>
     </div>
+
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Estado
         <% if @selected_year == 'all' %>
@@ -116,3 +168,6 @@
     </div>
   <% end %>
 </div>
+
+
+

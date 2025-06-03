@@ -365,7 +365,7 @@ class InspectionsController < ApplicationController
 
 
           detail.attributes.each do |attr_name, value|
-            if  value.is_a?(String) && (value.nil? || value == "") && attr_name != "empresa_instaladora_rut"
+            if value.is_a?(String) && (value.nil? || value == "") && attr_name != "empresa_instaladora_rut"
               detail.update_attribute(attr_name, "S/I")
             end
           end
