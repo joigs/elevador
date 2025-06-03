@@ -36,7 +36,7 @@ class FacturacionsController < ApplicationController
         flash[:alert] = "Fechas no válidas."
       end
     end
-    @facturacions = @facturacions.where.not(number: 0)
+    @facturacions
   end
 
   def show
