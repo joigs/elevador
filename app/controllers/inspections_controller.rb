@@ -66,7 +66,7 @@ class InspectionsController < ApplicationController
     @item = Item.new
     @manual_action_name = "new"
     @back_path = request.referer || inspections_path
-
+    @cot0 = Facturacion.find_by(number: 0)
   end
 
   def create
@@ -186,7 +186,7 @@ class InspectionsController < ApplicationController
     @item = last_inspection.item
     @manual_action_name = "new_with_last"
 
-
+    @cot0 = Facturacion.find_by(number: 0)
     render :new
   end
 
@@ -197,6 +197,7 @@ class InspectionsController < ApplicationController
 
     @items = Item.all
     @item = inspection.item
+    @cot0 = Facturacion.find_by(number: 0)
   end
 
 

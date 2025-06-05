@@ -739,7 +739,7 @@ class DocumentGenerator
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. (No se hizo ningún comentario)"
 
         else
-          errors_graves << "#{revision.codes[index]} #{revision.points[index]}. (#{revision.comment[index]})"
+          errors_graves << "#{revision.codes[index]} #{revision.points[index]} (#{revision.comment[index]})"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto grave. (#{revision.comment[index]})"
 
         end
@@ -749,7 +749,7 @@ class DocumentGenerator
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. (No se hizo ningún comentario)"
 
         else
-          errors_leves << "#{revision.codes[index]} #{revision.points[index]}. (#{revision.comment[index]})"
+          errors_leves << "#{revision.codes[index]} #{revision.points[index]} (#{revision.comment[index]})"
           errors_all << "Defecto: #{revision.codes[index]} #{revision.points[index]} defecto leve. (#{revision.comment[index]})"
 
         end

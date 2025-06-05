@@ -151,9 +151,24 @@
 
   <%= form.text_field :facturacion_id, id: "inspection_facturacion_id", readonly: true, required: true, style: "display: none;" %>
 
-  <div class="mt-6">
-    <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300 text-2xl" %>
-    <div class="flex items-center gap-2 mt-2">
+  <div class="mt-8">
+
+    <div class="flex justify-end gap-2 mt-8">
+
+      <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300 text-2xl mr-4" %>
+      <% if @cot0 %>
+
+        <button type="button"
+                data-fid   ="<%= @cot0.id   %>"
+                data-fname ="<%= j @cot0.name %>"
+                onclick    ="selectCotizacionCero(this)"
+                class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-1 rounded">
+          Sin<br> cotización
+        </button>
+      <% end %>
+    </div>
+    <div class="flex items-center gap-2 mt-6">
+
       <span id="facturacion_selected_display" class="text-gray-200">
         <% if @inspection.facturacion&.number.present? %>
           <%= "Cotización N° #{@inspection.facturacion.number}. #{@inspection.facturacion.name}" %>
@@ -168,6 +183,8 @@
         Buscar Cotización
       </button>
     </div>
+
+
   </div>
 
   <%= form.hidden_field :manual_action_name, value: @manual_action_name %>
@@ -397,6 +414,14 @@
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') window.closeFacturacionModal() })
 </script>
 
+<script>
+
+    window.selectCotizacionCero = function (btn) {
+        const fid   = btn.dataset.fid       // id de la Cotización #0
+        const fname = btn.dataset.fname     // nombre
+        onSelectFacturacion(fid, 0, fname)
+    }
+</script>
 
 
 <script>
