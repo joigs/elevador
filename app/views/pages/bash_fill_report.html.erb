@@ -27,7 +27,7 @@
 
       <!-- Cert_ant (drop‑down) -->
       <tr>
-        <td class="px-4 py-2 font-semibold">Inspección anterior</td>
+        <td class="px-4 py-2 font-semibold">Inspección anterior (Si es NO, entonces dejar vacío hasta antes de Empresa mantenedora)</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= select_tag "reports[#{insp.id}][cert_ant]",

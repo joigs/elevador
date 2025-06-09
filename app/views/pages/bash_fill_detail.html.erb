@@ -8,7 +8,7 @@
     <table class="w-max min-w-full divide-y divide-gray-600 text-gray-200">
       <thead class="sticky top-0 z-40 bg-gray-800 text-xs uppercase tracking-wider">
       <tr>
-        <th class="px-4 py-3 text-left">Preguntas / Nº Inspección</th>
+        <th class="px-4 py-3 text-left">Campos / Nº Inspección</th>
         <% @inspections.each do |insp| %>
           <th class="px-4 py-3 text-center whitespace-nowrap">N° <%= insp.number %></th>
         <% end %>
@@ -87,7 +87,7 @@
 
       <!-- Recepción -->
       <tr>
-        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Recepción</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Fecha Recepción</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= date_field_tag "details[#{insp.id}][recepcion]",
@@ -113,7 +113,7 @@
 
       <!-- Empresa instaladora -->
       <tr>
-        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Empresa instaladora</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Empresa instaladora nombre</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= text_field_tag "details[#{insp.id}][empresa_instaladora]",
@@ -256,7 +256,7 @@
 
       <!-- Personas -->
       <tr>
-        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">Personas</td>
+        <td class="px-4 py-2 font-semibold sticky left-0 z-10 bg-gray-900">N° Personas</td>
         <% @inspections.each do |insp| %>
           <td class="px-4 py-2">
             <%= number_field_tag "details[#{insp.id}][personas]",
@@ -430,7 +430,7 @@
     </table>
 
     <div class="mt-6">
-      <%= submit_tag "Actualizar detalles",
+      <%= submit_tag "Actualizar Información de los activos",
                      class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded" %>
     </div>
   <% end %>

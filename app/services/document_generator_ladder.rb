@@ -302,7 +302,7 @@ class DocumentGeneratorLadder
 
         last_revision.levels.each_with_index do |level, index|
 
-          if level == "L"
+          if level.to_s.strip == "L"
             control9384 = true
 
             if revision.codes.include?(last_revision.codes[index])
@@ -757,7 +757,7 @@ class DocumentGeneratorLadder
       if indice
         doc.replace('{{carpeta_si}}', 'No')
         doc.replace('{{carpeta_no_aplica}}', '')
-        if revision.levels[indice] == 'L'
+        if revision.levels[indice].to_s.strip == 'L'
           doc.replace('{{carpeta_f}}', 'FL')
         else
           doc.replace('{{carpeta_f}}', 'FG')
@@ -790,12 +790,12 @@ class DocumentGeneratorLadder
 
         level121 = revision.levels[index2]
 
-        if level121 == 'L'
+        if level121.to_s.strip == 'L'
           doc.replace('{{tabla_l}}', 'Leve')
         else
           found_in_last_revision = false
           last_revision&.codes&.each_with_index do |last_code, index|
-            if last_code == rule.code && last_revision.points[index] == rule.point && last_revision.levels[index] == 'L'
+            if last_code == rule.code && last_revision.points[index] == rule.point && last_revision.levels[index].to_s.strip == 'L'
               found_in_last_revision = true
               break
             end

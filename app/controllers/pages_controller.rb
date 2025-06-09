@@ -6,9 +6,15 @@ class PagesController < ApplicationController
                  .where(groups: { type_of: "ascensor" })
                  .includes(:detail, inspections: :report)
 
+
       @inspections = @items.map { |item| item.inspections.max_by(&:number) }.compact
 
+      @inspections = @inspections.where(user_id: Current.user.id) unless Current.user.admin
+
       @inspections = @inspections.sort_by(&:number).reverse
+      @inspections.each do |inspection|
+        authorize! inspection
+      end
 
   end
 
@@ -16,6 +22,9 @@ class PagesController < ApplicationController
     if params[:inspection_numbers].present?
       numbers = params[:inspection_numbers].split(',')
       @inspections = Inspection.where(number: numbers)
+      @inspections.each do |inspection|
+        authorize! inspection
+      end
     else
       flash[:alert] = "No se ingresaron inspecciones"
       redirect_to bash_fill_path
@@ -43,6 +52,17 @@ class PagesController < ApplicationController
     render :bash_fill_detail, status: :unprocessable_entity
   end
 
+  def bash_fill_report
+    numbers      = params[:inspection_numbers]&.split(',') || []
+    @inspections = Inspection.includes(:report).where(number: numbers).order(:number)
+
+    @inspections.each do |inspection|
+      authorize! inspection
+    end
+
+    @inspections.each { |i| i.build_report unless i.report }
+    flash.now[:alert] = "No se encontraron inspecciones" if @inspections.empty?
+  end
 
 
   def update_many_reports
@@ -61,13 +81,6 @@ class PagesController < ApplicationController
     render :bash_fill_report, status: :unprocessable_entity
   end
 
-  def bash_fill_report
-    numbers      = params[:inspection_numbers]&.split(',') || []
-    @inspections = Inspection.includes(:report).where(number: numbers).order(:number)
-
-    @inspections.each { |i| i.build_report unless i.report }
-    flash.now[:alert] = "No se encontraron inspecciones" if @inspections.empty?
-  end
 
 
 end

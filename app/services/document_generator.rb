@@ -434,7 +434,7 @@ class DocumentGenerator
 
         last_revision.levels.each_with_index do |level, index|
 
-          if level == "L"
+          if level.to_s.strip == "L"
             control9384 = true
 
 
@@ -585,7 +585,7 @@ class DocumentGenerator
       if indice
         doc.replace('{{carpeta_si}}', 'No')
         doc.replace('{{carpeta_no_aplica}}', '')
-        if revision.levels[indice] == 'L'
+        if revision.levels[indice].to_s.strip == 'L'
           doc.replace('{{carpeta_f}}', 'FL')
         else
           doc.replace('{{carpeta_f}}', 'FG')
@@ -1146,7 +1146,7 @@ class DocumentGenerator
           control42918421 = false
           points.each_with_index do |point, index|
             if last_revision&.points&.include?(point)
-              if last_revision.levels[index] == "L"
+              if last_revision.levels[index].to_s.strip == "L"
                 doc.replace('{{another_l}}', 'Grave (repite)')
                 control42918421 = true
               end

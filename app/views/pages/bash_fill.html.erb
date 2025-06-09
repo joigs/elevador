@@ -1,13 +1,12 @@
 <!-- Contenedor Principal -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-  <h1 class="text-3xl font-bold text-white mb-6 text-center">Seleccionar Inspections para Llenado Múltiple</h1>
+  <h1 class="text-3xl font-bold text-white mb-6 text-center">Seleccionar Inspecciones para Prellenado Múltiple</h1>
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
 
-  <!-- Barra de búsqueda -->
   <div class="mb-4">
-    <label for="search-input" class="block text-white mb-2 font-semibold">Buscar Inspections:</label>
+    <label for="search-input" class="block text-white mb-2 font-semibold">Buscar Inspecciones:</label>
     <input
       type="text"
       id="search-input"
@@ -16,19 +15,16 @@
       />
   </div>
 
-  <!-- Grid: Inspections disponibles vs. Seleccionadas -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-    <!-- Columna 1: Inspections disponibles -->
     <div>
-      <h2 class="text-xl font-semibold text-white mb-2">Inspections Disponibles</h2>
+      <h2 class="text-xl font-semibold text-white mb-2">Inspecciones Disponibles</h2>
       <div
         id="available-inspections"
         class="bg-gray-800 rounded-md shadow p-4 h-[32rem] overflow-y-auto"
       >
         <% @inspections.each do |inspection| %>
           <%
-            # Construir hash con los datos de Inspection
             inspection_data = {
               number: inspection.number,
               name: inspection.name,
@@ -46,7 +42,6 @@
               rerun: inspection.rerun
             }
 
-            # Construir hash con los datos de Detail (si existe)
             detail_data = {}
             if inspection.item&.detail.present?
               detail_data = {
@@ -61,11 +56,9 @@
                 descripcion: inspection.item.detail.descripcion,
                 numero_permiso: inspection.item.detail.numero_permiso,
                 updated_at: inspection.item.detail.updated_at
-                # Agrega los campos extra que requieras
               }
             end
 
-            # Construir hash con los datos de Report (si existe)
             report_data = {}
             if inspection.report.present?
               report_data = {
@@ -79,16 +72,13 @@
                 ending: inspection.report.ending,
                 empresa_anterior: inspection.report.empresa_anterior,
                 updated_at: inspection.report.updated_at
-                # Agrega los campos extra que requieras
               }
             end
 
-            # Convertirlos a JSON para guardarlos en data-attributes
             inspection_data_json = inspection_data.to_json
             detail_data_json = detail_data.to_json
             report_data_json = report_data.to_json
 
-            # Para el filtro en vivo por number, name, place:
             search_str = "#{inspection.number} #{inspection.name} #{inspection.place}".downcase
           %>
 
@@ -101,7 +91,6 @@
             draggable="true"
           >
             <div class="flex items-center justify-between">
-              <!-- Info principal -->
               <div>
                 <p class="text-white font-semibold">
                   N° <%= inspection.number %>
@@ -113,7 +102,6 @@
                   <span class="font-light">Lugar:</span> <%= inspection.place %>
                 </p>
               </div>
-              <!-- Botones -->
               <div class="flex flex-col space-y-2">
                 <button
                   class="btn-show-info bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
@@ -132,14 +120,12 @@
       </div>
     </div>
 
-    <!-- Columna 2: Inspections seleccionadas -->
     <div>
-      <h2 class="text-xl font-semibold text-white mb-2">Inspections Seleccionadas</h2>
+      <h2 class="text-xl font-semibold text-white mb-2">Inspecciones Seleccionadas</h2>
       <div
         id="selected-inspections"
         class="bg-gray-800 rounded-md shadow p-4 h-[32rem] overflow-y-auto"
       >
-        <!-- Aquí se irán agregando (o moviendo) dinámicamente las inspections seleccionadas -->
       </div>
     </div>
 
@@ -149,48 +135,35 @@
 </div>
 
 
-<!-- Botón para continuar a la edición múltiple -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
   <form id="selected-inspections-form" action="<%= bash_fill_detail_path %>" method="get">
-    <!-- Este input oculto contendrá los números de las inspecciones seleccionadas, separados por coma -->
     <input type="hidden" name="inspection_numbers" id="inspection_numbers_input" value="">
     <button type="submit" id="continue-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-      Continuar a Editar Detalles
+      Llenar datos adicionales de los activos
     </button>
   </form>
 </div>
 
-<!-- Modal (ventana emergente) para mostrar Inspection / Detail / Report -->
-<!--
-  Se añaden clases para animación:
-   - "opacity-0" al inicio,
-   - "transition ease-in-out duration-300" para el fade,
-   - Se manejará con JS: .hidden + .flex y .opacity-100 vs .opacity-0.
--->
+
 <div
   id="inspection-modal"
   class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50
          transition-opacity duration-300 opacity-0"
 >
-  <!-- Contenedor interno del modal (cartita) -->
-  <!-- Notar .transition-all .duration-300 .transform .scale-95 => para una leve animación de escala -->
+
   <div
     id="inspection-modal-content"
     class="bg-white w-full max-w-xl mx-4 rounded shadow-lg relative p-6 text-gray-900
            transform transition-all duration-300 scale-95"
   >
-    <!-- Botón para cerrar el modal -->
     <button
       id="close-modal"
       class="absolute top-3 right-3 text-gray-700 hover:text-gray-900 transition-colors text-2xl"
       aria-label="Cerrar modal"
     >
-      &times;
     </button>
 
-    <!-- Contenedor con las "tres pantallas" de info: Inspection, Detail, Report -->
     <div id="modal-panels">
-      <!-- Panel INSPECTION -->
       <div id="panel-inspection" class="hidden">
         <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Inspección</h2>
         <div id="inspection-content" class="space-y-2 text-gray-700"></div>
@@ -205,14 +178,13 @@
             id="btn-go-detail"
             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
           >
-            → Ver Detail
+            → Ver Información del activo
           </button>
         </div>
       </div>
 
-      <!-- Panel DETAIL -->
       <div id="panel-detail" class="hidden">
-        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Detalle</h2>
+        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Información del activo</h2>
         <div id="detail-content" class="space-y-2 text-gray-700"></div>
         <div class="mt-6 flex justify-between">
           <button
@@ -225,21 +197,20 @@
             id="btn-go-report"
             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
           >
-            → Ver Report
+            → Ver Información de la inspección
           </button>
         </div>
       </div>
 
-      <!-- Panel REPORT -->
       <div id="panel-report" class="hidden">
-        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Reporte</h2>
+        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">Información de la inspección</h2>
         <div id="report-content" class="space-y-2 text-gray-700"></div>
         <div class="mt-6 flex justify-between">
           <button
             id="btn-back-detail"
             class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-semibold"
           >
-            ← Detail
+            ← Ver Información del activo
           </button>
           <button
             id="btn-close-report"
@@ -257,6 +228,13 @@
 </div>
 
 <script>
+
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted || performance.getEntriesByType('navigation')[0]?.type === 'back_forward') {
+            window.location.reload();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         const availableContainer = document.getElementById('available-inspections');
         const selectedContainer = document.getElementById('selected-inspections');
