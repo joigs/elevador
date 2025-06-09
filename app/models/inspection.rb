@@ -87,7 +87,14 @@ class Inspection < ApplicationRecord
     end
   end
 
-  scope :con_resultado, -> { where(result: %w[Aprobado Rechazado Vencido]) }
+  scope :con_resultado, -> do
+    aprob_rech = %w[Aprobado Rechazado]
+    vencido    = arel_table[:result].matches('Vencido%')
+    where(result: aprob_rech).or(where(vencido))
+  end
+  scope :vencidos, -> { where("result ILIKE ?", "Vencido%") }
+
+
 
   private
 
