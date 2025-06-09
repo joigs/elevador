@@ -66,10 +66,12 @@
   <% when 'bar' %>
     <div class="mb-8">
       <h2 class="text-xl text-white mb-2">Inspecciones por Mes
-        <% if @selected_year == 'all' %>
+        <% if @selected_years == 'all' %>
           (Todos los años)
-        <% else %>
-          (Año <%= @selected_year %>)
+        <% elsif @selected_years.any? %>
+          (Año <%= @selected_years %>)
+          <% else %>
+        (Todos los años)
         <% end %>
       </h2>
       <%= bar_chart @inspections_by_month,
