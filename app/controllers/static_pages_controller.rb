@@ -9,7 +9,7 @@ class StaticPagesController < ApplicationController
                                     .where(state: 'Cerrado').where(result: 'Aprobado')
                                     .includes(:report)
                         when "vencido"
-                          Inspection.where(result: 'Vencido')
+                          Inspection.vencidos
                         when "again_soon"
                           Inspection.joins(:report)
                                     .where("reports.ending > ?", Date.today)

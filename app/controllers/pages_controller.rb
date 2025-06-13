@@ -39,16 +39,14 @@ class PagesController < ApplicationController
       end
     end
 
-    # → **nuevo**: armar la lista de números de inspección
     inspection_ids = params[:details].keys
     numbers        = Inspection.where(id: inspection_ids).pluck(:number).join(',')
 
-    # → redirigir al form‑matriz de Report
     redirect_to bash_fill_report_path(inspection_numbers: numbers),
                 notice: "Detalles actualizados. Completa los reportes."
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = "Error al guardar: #{e.record.errors.full_messages.to_sentence}"
-    @inspections = Inspection.where(id: params[:details].keys) # mantiene la tabla
+    @inspections = Inspection.where(id: params[:details].keys)
     render :bash_fill_detail, status: :unprocessable_entity
   end
 

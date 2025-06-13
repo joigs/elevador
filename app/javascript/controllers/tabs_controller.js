@@ -1,13 +1,23 @@
+// app/javascript/controllers/tabs_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["originalSection", "reducedSection", "originalTabBtn", "reducedTabBtn"]
+    static targets = [
+        "originalSection",
+        "reducedSection",
+        "originalTabBtn",
+        "reducedTabBtn",
+    ]
 
     connect() {
+        // Comenzar sin reducción
+        window.resizeReduced = false
         this.showOriginal()
     }
 
     showOriginal() {
+        window.resizeReduced = false
+
         this.originalSectionTarget.classList.remove("hidden")
         this.reducedSectionTarget.classList.add("hidden")
 
@@ -16,6 +26,8 @@ export default class extends Controller {
     }
 
     showReduced() {
+        window.resizeReduced = true
+
         this.reducedSectionTarget.classList.remove("hidden")
         this.originalSectionTarget.classList.add("hidden")
 
