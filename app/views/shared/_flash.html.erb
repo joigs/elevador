@@ -1,4 +1,4 @@
-<%= turbo_frame_tag 'flash' do %>
+<%= turbo_frame_tag 'flash', data: { turbo_temporary: "true" } do %>
   <% if alert %>
     <% alert_type = flash[:alert_type] || "error" %>
     <% alert_title = case alert_type

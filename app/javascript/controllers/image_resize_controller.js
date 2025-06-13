@@ -5,7 +5,6 @@ export default class extends Controller {
     static targets = ["file"]
 
     async resizeImage(event) {
-        // Si el usuario eligió “Imagen Original”, salimos inmediatamente
         if (window.resizeReduced === false) return
 
         const fileInput = event.target
@@ -21,7 +20,6 @@ export default class extends Controller {
             console.error("Error al redimensionar la imagen:", error)
         }
     }
-
     resizeFile(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader()
