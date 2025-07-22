@@ -7,7 +7,6 @@ module Api
       before_action :authenticate_api_key!
 
       # GET /api/v1/facturacions
-      # app/controllers/api/v1/facturacions_controller.rb
       def index
         facturacions = Facturacion.where.not(number: 0).where.not(oc: nil).distinct
 
