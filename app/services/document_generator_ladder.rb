@@ -279,7 +279,7 @@ class DocumentGeneratorLadder
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
 
-      if last_revision.nil?
+      if last_revision_base.nil? && report.past_number.nil? && report.past_date.nil?
 
         if report.fecha
           doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
@@ -292,7 +292,7 @@ class DocumentGeneratorLadder
 
       end
 
-      if last_revision&.levels.blank?
+      if last_revision&.levels.blank? && report.past_number.nil? && report.past_date.nil?
         doc.replace('{{informe_anterior}}', "Informe anterior sin defectos registrados")
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
@@ -327,8 +327,21 @@ class DocumentGeneratorLadder
             doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Defectos leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
 
           else
-            doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')} no presenta Defectos leves")
+            if report.empresa_anterior
+              texto_empresa_anterior = "Realizado por #{report.empresa_anterior} "
+            else
+              texto_empresa_anterior = ""
+            end
 
+            if last_inspection.inf_date
+              doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha: #{last_inspection.inf_date&.strftime('%d/%m/%Y')} #{texto_empresa_anterior}no presenta Defectos leves")
+            elsif report.past_date
+              doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha: #{report.past_date&.strftime('%d/%m/%Y')} #{texto_empresa_anterior}no presenta Defectos leves")
+
+            else
+              doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha desconocida #{texto_empresa_anterior}no presenta Defectos leves")
+
+            end
           end
           doc.replace('{{revision_past_errors_level}}', "")
           doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
