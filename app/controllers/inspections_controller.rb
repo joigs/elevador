@@ -315,8 +315,10 @@ class InspectionsController < ApplicationController
       revision_id = Revision.find_by(inspection_id: inspection.id).id
       new_doc_path = DocumentGeneratorLibre.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     end
-
-    send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', disposition: 'attachment', filename: File.basename(new_doc_path)
+    send_file new_doc_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+              disposition: 'attachment',
+              filename: File.basename(new_doc_path)
+    DeleteTempFileJob.set(wait: 5.minutes).perform_later(new_doc_path.to_s)
   rescue StandardError => e
     flash[:alert] = "Error al generar el documento: #{e.message}"
     redirect_to inspection_path(inspection)
@@ -660,8 +662,12 @@ class InspectionsController < ApplicationController
         File.delete(file_path) if File.exist?(file_path) && file_path != pdf_file
       end
 
-      # Descargar el PDF al cliente con un nombre único
-      send_file pdf_file, type: 'application/pdf', filename: "#{inspection.number}_#{random_suffix}.pdf", disposition: 'attachment'
+      send_file pdf_file,
+                type: 'application/pdf',
+                filename: "#{inspection.number}_#{random_suffix}.pdf",
+                disposition: 'attachment'
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(pdf_file.to_s)
 
     rescue StandardError => e
       flash[:alert] = "Error al generar el documento PDF: #{e.message}"

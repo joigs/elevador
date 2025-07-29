@@ -276,7 +276,9 @@ class PrincipalsController < ApplicationController
     send_file temp_file.path,
               filename: "no_conformidad_#{@principal.name}.xlsx",
               type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-              disposition: 'attachment' and return
+              disposition: 'attachment'
+
+    DeleteTempFileJob.set(wait: 5.minutes).perform_later(temp_file.path.to_s)
 
   end
 
@@ -493,8 +495,9 @@ class PrincipalsController < ApplicationController
     send_file temp_file.path,
               filename: "Estado_activos_#{@principal.name}.xlsx",
               type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-              disposition: 'attachment' and return
+              disposition: 'attachment'
 
+    DeleteTempFileJob.set(wait: 5.minutes).perform_later(temp_file.path.to_s)
 
   end
   def col_num_to_letter(col_num)
@@ -627,7 +630,10 @@ class PrincipalsController < ApplicationController
     send_file temp_file.path,
               filename: "defectos_de_activos_#{@principal.name}.xlsx",
               type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-              disposition: 'attachment' and return
+              disposition: 'attachment'
+
+    DeleteTempFileJob.set(wait: 5.minutes).perform_later(temp_file.path.to_s)
+
 
   end
 
