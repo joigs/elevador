@@ -525,7 +525,7 @@ class FacturacionsController < ApplicationController
           next unless facturacion.solicitud_file.attached?
 
           file = facturacion.solicitud_file
-          file_name = "solicitud_#{facturacion.id}_#{file.filename}"
+          file_name = "#{file.filename}"
 
           zipfile.get_output_stream(file_name) { |f| f.write(file.download) }
         end

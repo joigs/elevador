@@ -874,33 +874,54 @@ class DocumentGenerator
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
+    # Asumo que esto vive en un método o job de Rails.
+    # ▸ En config/environments/production.rb asegúrate de tener:
+    #   config.log_level = :debug   # para que salgan los debug en prod
+
+    Rails.logger.info  "↪️  Comienzo de reemplazos en el documento"
+    Rails.logger.debug { "revision.levels: #{revision.levels.inspect}" }
+    Rails.logger.debug { "errors_graves: #{errors_graves.inspect}" }
+    Rails.logger.debug { "errors_leves:  #{errors_leves.inspect}" }
 
     if revision.levels.blank?
+      Rails.logger.info  "Ruta 1: revision.levels.blank? == true"
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
       doc.replace('{{texto_leve}}', "")
     end
 
-
-    if !errors_graves.empty?
+    unless errors_graves.empty?
+      Rails.logger.info  "Ruta 2: Hay errores graves (#{errors_graves.size})"
       doc.replace('{{cumple/parcial/no_cumple}}', "no cumple")
       doc.replace('{{esta/no_esta}}', "no está")
-      doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Defectos Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
-      if !errors_leves.empty?
-        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
-      else
-        doc.replace('{{texto_leve}}', "")
-      end
+      doc.replace('{{texto_grave}}',
+                  "Las No Conformidades evaluadas como Defectos Graves..." \
+                    " resueltas dentro de 90 días desde la fecha del informe de inspección.")
 
+      if errors_leves.empty?
+        Rails.logger.info  " Sub-ruta 2A: No hay errores leves"
+        doc.replace('{{texto_leve}}', "")
+      else
+        Rails.logger.info  " Sub-ruta 2B: Hay errores leves (#{errors_leves.size})"
+        doc.replace('{{texto_leve}}',
+                    "Las No Conformidades evaluadas como Defectos Leves..." \
+                      " antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+      end
     end
 
-    if !errors_leves.empty? && errors_graves.empty?
+    if errors_leves.present? && errors_graves.empty?
+      Rails.logger.info  "Ruta 3: Solo errores leves, sin graves"
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple parcialmente")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
-      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+      doc.replace('{{texto_leve}}',
+                  "Las No Conformidades evaluadas como Defectos Leves..." \
+                    " antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
     end
+
+    Rails.logger.info "✅  Reemplazos finalizados"
+
 
     doc.replace('{{admin}}', admin.real_name)
     doc.replace('{{inspector}}', inspectors.first.real_name)
