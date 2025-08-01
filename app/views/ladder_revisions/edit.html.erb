@@ -321,6 +321,7 @@
                   <% if @inspection.rerun == false || @third_revision&.points&.include?(rule.point) %>
                     <%= hidden_field_tag "ladder_revision[levels][]", revision_level_or_g(rule, @last_revision, @revision.id), data: { rules_form_target: "level" } %>
                   <% else %>
+                    <% rule.level.delete_if(&:blank?) %>
                     <%= hidden_field_tag "ladder_revision[levels][]", rule.level[0], data: { rules_form_target: "level" } %>
                   <% end %>
                 <% end %>
