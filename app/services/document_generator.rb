@@ -874,14 +874,11 @@ class DocumentGenerator
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
-    # Asumo que esto vive en un método o job de Rails.
-    # ▸ En config/environments/production.rb asegúrate de tener:
-    #   config.log_level = :debug   # para que salgan los debug en prod
 
     Rails.logger.info  "↪️  Comienzo de reemplazos en el documento"
-    Rails.logger.debug { "revision.levels: #{revision.levels.inspect}" }
-    Rails.logger.debug { "errors_graves: #{errors_graves.inspect}" }
-    Rails.logger.debug { "errors_leves:  #{errors_leves.inspect}" }
+    Rails.logger.info { "revision.levels: #{revision.levels.inspect}" }
+    Rails.logger.info { "errors_graves: #{errors_graves.inspect}" }
+    Rails.logger.info { "errors_leves:  #{errors_leves.inspect}" }
 
     if revision.levels.blank?
       Rails.logger.info  "Ruta 1: revision.levels.blank? == true"
