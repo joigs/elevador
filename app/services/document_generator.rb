@@ -875,13 +875,8 @@ class DocumentGenerator
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
 
 
-    Rails.logger.info  "↪️  Comienzo de reemplazos en el documento"
-    Rails.logger.info { "revision.levels: #{revision.levels.inspect}" }
-    Rails.logger.info { "errors_graves: #{errors_graves.inspect}" }
-    Rails.logger.info { "errors_leves:  #{errors_leves.inspect}" }
 
-    if revision.levels.blank?
-      Rails.logger.info  "Ruta 1: revision.levels.blank? == true"
+    if revision.levels.all?(&:blank?)
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
@@ -889,7 +884,6 @@ class DocumentGenerator
     end
 
     unless errors_graves.empty?
-      Rails.logger.info  "Ruta 2: Hay errores graves (#{errors_graves.size})"
       doc.replace('{{cumple/parcial/no_cumple}}', "no cumple")
       doc.replace('{{esta/no_esta}}', "no está")
       doc.replace('{{texto_grave}}',
@@ -897,10 +891,8 @@ class DocumentGenerator
                     " resueltas dentro de 90 días desde la fecha del informe de inspección.")
 
       if errors_leves.empty?
-        Rails.logger.info  " Sub-ruta 2A: No hay errores leves"
         doc.replace('{{texto_leve}}', "")
       else
-        Rails.logger.info  " Sub-ruta 2B: Hay errores leves (#{errors_leves.size})"
         doc.replace('{{texto_leve}}',
                     "Las No Conformidades evaluadas como Defectos Leves..." \
                       " antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
@@ -908,7 +900,6 @@ class DocumentGenerator
     end
 
     if errors_leves.present? && errors_graves.empty?
-      Rails.logger.info  "Ruta 3: Solo errores leves, sin graves"
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple parcialmente")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
@@ -917,7 +908,6 @@ class DocumentGenerator
                     " antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
     end
 
-    Rails.logger.info "✅  Reemplazos finalizados"
 
 
     doc.replace('{{admin}}', admin.real_name)

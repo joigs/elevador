@@ -616,7 +616,7 @@ class DocumentGeneratorLadder
 
 
 
-    if revision.levels.blank?
+    if revision.levels.all?(&:blank?)
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
