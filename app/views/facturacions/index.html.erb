@@ -29,6 +29,12 @@
         <% end %>
       </div>
 
+      <div class="ml-auto mb-6">
+        <%= link_to "Descargar Solicitudes en ZIP",
+                    download_all_excel_facturacions_path(format: :zip),
+                    data:  { turbo: false },
+                    class: "inline-flex items-center px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow transition" %>
+      </div>
       <div class="mb-4" data-controller="date-filter">
         <label class="text-lg font-semibold mt-6">Filtrar por fecha de solicitud:</label>
         <%= form_with(url: facturacions_path, method: :get, local: true, class: "flex flex-wrap items-end gap-4", data: { action: "date-filter#onSubmit" }) do %>
@@ -61,6 +67,9 @@
             </button>
           </div>
         <% end %>
+
+
+
       </div>
 
       <div class="overflow-x-auto table-responsive mt-6">

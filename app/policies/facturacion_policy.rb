@@ -73,6 +73,10 @@ class FacturacionPolicy < BasePolicy
     Current.user.cotizar
   end
 
+  def download_all_excel
+    Current.user.solicitar
+  end
+
   def method_missing(m, *args, &block)
     Current.user.gestion
   end
