@@ -512,6 +512,36 @@ class FacturacionsController < ApplicationController
   end
 
 
+  def download_all_excel
+    facturaciones = Facturacion.with_attached_solicitud_file
+
+    temp_file = Tempfile.new("solicitudes-#{Time.now.to_i}.zip")
+
+    begin
+      Zip::OutputStream.open(temp_file) { |zos| }
+
+      Zip::File.open(temp_file.path, Zip::File::CREATE) do |zipfile|
+        facturaciones.each do |facturacion|
+          next unless facturacion.solicitud_file.attached?
+
+          file = facturacion.solicitud_file
+          file_name = "solicitud_#{facturacion.id}_#{file.filename}"
+
+          zipfile.get_output_stream(file_name) { |f| f.write(file.download) }
+        end
+      end
+
+      send_data File.read(temp_file.path),
+                type: 'application/zip',
+                filename: "solicitudes_#{Time.now.strftime('%Y%m%d%H%M%S')}.zip"
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(temp_file.to_s)
+
+    ensure
+      temp_file.close
+      temp_file.unlink
+    end
+  end
+
 
   private
 
