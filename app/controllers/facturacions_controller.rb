@@ -481,7 +481,11 @@ class FacturacionsController < ApplicationController
   def download_solicitud_template
     file_path = Rails.root.join("app", "templates", "solicitud_template.xlsx")
     if File.exist?(file_path)
-      send_file file_path, filename: "Solicitud_Template.xlsx", type: "application/vnd.ms-excel"
+      send_file file_path,
+                filename: "Solicitud_Template.xlsx",
+                type: "application/vnd.ms-excel"
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(file_path.to_s)
     else
       redirect_to facturacion_path(@facturacion), alert: "La plantilla de solicitud no está disponible."
     end
@@ -498,6 +502,9 @@ class FacturacionsController < ApplicationController
                 type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 disposition: 'attachment',
                 filename: File.basename(new_doc_path)
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(new_doc_path.to_s)
+
     rescue StandardError => e
       flash[:alert] = "Error al generar la plantilla de cotización: #{e.message}"
       redirect_to facturacion_path(@facturacion)
