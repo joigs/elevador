@@ -8,7 +8,7 @@ module Api
 
       # GET /api/v1/facturacions
       def index
-        facturacions = Facturacion.where.not(number: 0).where.not(oc: nil).distinct
+        facturacions = Facturacion.where.not(number: 0).distinct
 
         year, month, empresa = params.values_at(:year, :month, :empresa)
         if year.present? || month.present?
