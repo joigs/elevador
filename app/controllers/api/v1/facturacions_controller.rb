@@ -9,18 +9,26 @@ module Api
       # GET /api/v1/facturacions
       def index
         facturacions = Facturacion.where.not(number: 0).distinct
-
+        convenios = Convenio.all
         year, month, empresa = params.values_at(:year, :month, :empresa)
         if year.present? || month.present?
           facturacions = facturacions.joins(:inspections)
-                                     .where.not(inspections: { ins_date: nil })
+                                     .where.not(inspections: { fecha_venta: nil })
+
         end
         facturacions = facturacions.where("YEAR(fecha_venta) = ?", year)   if year.present?
         facturacions = facturacions.where("MONTH(fecha_venta) = ?", month) if month.present?
         facturacions = facturacions.select { |f| f.empresa == empresa } if empresa.present?
+
+
+        convenios = convenios.where("year = ?", year)   if year.present?
+        convenios = convenios.where("month = ?", month) if month.present?
+
+
+
         if params[:meta].present?
-          years     = Inspection.where.not(ins_date: nil)
-                                .pluck(Arel.sql('DISTINCT YEAR(ins_date)'))
+          years     = Inspection.where.not(fecha_venta: nil)
+                                .pluck(Arel.sql('DISTINCT YEAR(fecha_venta)'))
                                 .sort
           empresas  = Facturacion.all.map(&:empresa).compact.uniq.sort
           render json: {   anios: years,
@@ -29,10 +37,20 @@ module Api
           return
         end
 
-        render json: facturacions.as_json(
-          include: { inspections: { include: :principal } },
-          methods: [:fecha_inspeccion, :empresa]
-        )
+
+        render json: {
+          facturacions: facturacions.as_json(
+            include: {
+              inspections: { include: :principal }
+            },
+            methods: [:fecha_inspeccion, :empresa]
+          ),
+          convenios: convenios.as_json(
+            only: [:id, :fecha_venta, :n1, :v1, :empresa_id],
+            methods: [:empresa_nombre]
+          )
+        }
+
       end
 
 
