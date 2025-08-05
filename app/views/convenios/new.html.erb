@@ -1,0 +1,119 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8 bg-gray-900 p-6 rounded-lg shadow-md">
+  <%= form_with(model: @convenio, builder: CustomFormBuilder, local: true, class: "space-y-4") do |form| %>
+    <% if @convenio.errors.any? %>
+      <% error_messages = @convenio.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+      <%= javascript_tag do %>
+        Swal.fire({
+        icon: 'error',
+        title: 'Error: no se pudo guardar el registro',
+        html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+        confirmButtonText: 'Entendido'
+        })
+      <% end %>
+    <% end %>
+
+
+    <div data-controller="empresa-select" class="relative">
+      <%= form.label :empresa_nombre, "Empresa", class: "block text-gray-300 mb-1" %>
+
+      <div class="flex">
+        <%= form.text_field :empresa_nombre,
+                            value: (Empresa.find_by(id: @convenio.empresa_id)&.nombre || ""),
+                            class: "flex-grow px-3 py-2 bg-gray-700 text-white rounded-l-md focus:outline-none",
+                            data: { "empresa-select-target": "input" } %>
+
+        <select data-action="empresa-select#pick"
+                data-empresa-select-target="select"
+                class="px-2 py-2 bg-gray-800 text-white rounded-r-md border-l border-gray-600">
+          <option value="">—</option>
+          <% Empresa.order(:nombre).pluck(:nombre).each do |nombre| %>
+            <option value="<%= nombre %>"><%= nombre %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <%= form.hidden_field :empresa_nombre_hidden,
+                            value: "",
+                            data: { "empresa-select-target": "hidden" } %>
+    </div>
+
+
+    <div class="form-group">
+      <%= form.label :fecha_venta, "Fecha de venta", class: "block text-gray-300" %>
+      <%= form.text_field :fecha_venta,
+                          placeholder: "Selecciona una fecha",
+                          id: "fecha_venta_picker",
+                          class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+
+
+
+
+    <div class="form-group">
+      <%= form.label :n1, "Número de ascensores", class: "block text-gray-300" %>
+      <%= form.number_field :n1,
+                            min: 0,
+                            required: true,
+                            class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+    </div>
+
+    <div data-controller="v1-calc">
+      <div class="form-group">
+        <%= label_tag :v1_bruto, "Valor total de servicio CON IVA (UF)", class: "block text-gray-300" %>
+        <%= number_field_tag :v1_bruto, nil, step: 0.0001, min: 0, required: true,
+                             data: { "v1-calc-target": "bruto", action: "input->v1-calc#update" },
+                             class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :v1, "Valor SIN IVA (UF)", class: "block text-gray-300" %>
+        <%= form.number_field :v1, step: 0.0001, readonly: true,
+                              data: { "v1-calc-target": "neto" },
+                              class: "mt-1 block w-full px-3 py-2 bg-gray-600 text-gray-300 rounded-md" %>
+      </div>
+    </div>
+
+
+
+
+    <div>
+      <%= form.submit "Guardar datos", class: "w-full bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
+
+
+
+<script>
+
+    function initFechaVentaPicker() {
+        const el = document.getElementById("fecha_venta_picker");
+        if (el && !el._flatpickr) {         // Evita inicializar dos veces
+            flatpickr(el, {
+                locale: "es",                   // Locale ya definido por es.js
+                dateFormat: "Y-m-d",            // Valor que llega al servidor
+                altInput: true,
+                altFormat: "d-m-Y",             // Formato para el usuario
+                minDate: "2020-01-01",
+                maxDate: "3000-12-31",
+                static: false
+            });
+        }
+    }
+
+    /* Iniciar en todas las rutas posibles */
+    document.addEventListener("DOMContentLoaded", initFechaVentaPicker);
+    document.addEventListener("turbo:load",     initFechaVentaPicker);
+    document.addEventListener("turbo:render",   initFechaVentaPicker);
+    window.addEventListener( "pageshow",        initFechaVentaPicker);
+
+    /* Destruir antes de que Turbo guarde el snapshot */
+    document.addEventListener("turbo:before-cache", () => {
+        const el = document.getElementById("fecha_venta_picker");
+        if (el && el._flatpickr) {
+            el._flatpickr.destroy();
+            el._flatpickr = null;
+        }
+    });
+</script>

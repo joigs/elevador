@@ -287,6 +287,23 @@ class FacturacionsController < ApplicationController
     end
   end
 
+  def set_fecha_venta
+    @facturacion = Facturacion.find(params[:id])
+
+    if @facturacion.update(fecha_venta: Date.current)
+      respond_to do |format|
+        format.html { redirect_to @facturacion, notice: "Fecha de venta establecida a hoy." }
+        format.json { head :ok }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to @facturacion, alert: "No se pudo actualizar la fecha." }
+        format.json { head :unprocessable_entity }
+      end
+    end
+  end
+
+
   def upload_factura
     @facturacion = Facturacion.find(params[:id])
 

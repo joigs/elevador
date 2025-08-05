@@ -23,6 +23,27 @@ class HomeController < ApplicationController
 
     @notifications = current_notifications
 
+
+
+    #parte de convenios
+
+    @months = %w[Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre Noviembre Diciembre]
+    @years  = (2025..Date.current.year).to_a.reverse
+
+    sel_month = (params[:month] || Date.current.month).to_i
+    sel_year  = (params[:year]  || Date.current.year).to_i
+
+    sel_month = 1  unless (1..12).cover?(sel_month)
+    sel_year  = 2025 if sel_year < 2025
+
+    @selected_month = sel_month
+    @selected_year  = sel_year
+
+    @convenios = Convenio
+                   .includes(:empresa)
+                   .where(month: sel_month, year: sel_year)
+                   .order("empresas.nombre")
+
   end
 
   def check_all_expirations

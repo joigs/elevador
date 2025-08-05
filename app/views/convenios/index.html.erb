@@ -1,0 +1,68 @@
+<% months_es = @months %>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 my-8 text-gray-200">
+
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md mb-6 flex flex-wrap gap-4 items-end">
+    <%= form_with url: convenios_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end grow" do %>
+      <div>
+        <label class="block text-gray-400 mb-1">Mes</label>
+        <%= select_tag :month,
+                       options_for_select(
+                         months_es.each_with_index.map { |m,i| ["#{(i+1).to_s.rjust(2,'0')} – #{m}", i+1] },
+                         @selected_month
+                       ),
+                       class: "px-3 py-2 bg-gray-700 text-white rounded-md cursor-pointer" %>
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">Año</label>
+        <%= select_tag :year,
+                       options_for_select(@years, @selected_year),
+                       class: "px-3 py-2 bg-gray-700 text-white rounded-md cursor-pointer" %>
+      </div>
+
+      <div>
+        <%= submit_tag "Filtrar",
+                       class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold rounded-md cursor-pointer" %>
+      </div>
+    <% end %>
+
+    <div class="flex gap-3 ml-auto">
+      <%= link_to "Nuevo registro",
+                  new_convenio_path(month: @selected_month, year: @selected_year),
+                  class: "px-4 py-2 bg-green-600 hover:bg-green-700 text-gray-900 font-bold rounded-md" %>
+
+      <%= link_to "Inicio",
+                  home_path,
+                  class: "px-4 py-2 bg-gray-700 hover:bg-gray-800 text-blue-400 hover:text-white font-bold rounded-md" %>
+    </div>
+  </div>
+
+  <div class="bg-gray-900 p-4 rounded-lg shadow-md">
+    <h2 class="text-xl font-bold mb-4">
+      Registros de Convenios – <%= "#{months_es[@selected_month - 1]} #{@selected_year}" %>
+    </h2>
+
+    <% if @convenios.empty? %>
+      <p class="text-gray-400">No hay registros para este período.</p>
+    <% else %>
+      <ul class="space-y-4">
+        <% @convenios.each do |convenio| %>
+          <li class="bg-gray-800 rounded-md p-4 flex justify-between items-center">
+            <div>
+              <p class="font-semibold"><%= convenio.empresa&.nombre || "—" %></p>
+              <p class="text-sm text-gray-400">
+                Trámites: <%= convenio.n1 %> &nbsp;|&nbsp;
+                Total (UF): <%= number_with_precision(convenio.v1, precision: 2) %>
+              </p>
+            </div>
+
+            <%= link_to "Ver",
+                        convenio_path(convenio),
+                        class: "px-3 py-1 bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold rounded-md" %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</div>

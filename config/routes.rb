@@ -161,6 +161,8 @@ Rails.application.routes.draw do
       get :download_solicitud_template
       get :download_cotizacion_template
       patch :update_price
+      patch :set_fecha_venta
+
     end
     collection do
       get :new_bulk_upload
@@ -173,6 +175,8 @@ Rails.application.routes.draw do
 
     resources :observacions, only: [:create, :edit, :update, :destroy]
   end
+
+  resources :convenios
 
   resources :permisos
 
