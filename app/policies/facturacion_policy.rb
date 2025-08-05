@@ -77,6 +77,10 @@ class FacturacionPolicy < BasePolicy
     Current.user.solicitar
   end
 
+  def set_fecha_venta
+    Current.user.cotizar
+  end
+
   def method_missing(m, *args, &block)
     Current.user.gestion
   end
