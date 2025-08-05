@@ -13,7 +13,7 @@ module Api
         year, month, empresa = params.values_at(:year, :month, :empresa)
         if year.present? || month.present?
           facturacions = facturacions.joins(:inspections)
-                                     .where.not(inspections: { fecha_venta: nil })
+                                     .where.not(facturacions: { fecha_venta: nil })
 
         end
         facturacions = facturacions.where("YEAR(facturacions.fecha_venta) = ?", year)   if year.present?
