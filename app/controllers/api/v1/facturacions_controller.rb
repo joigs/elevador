@@ -11,13 +11,19 @@ module Api
         facturacions = Facturacion.where.not(number: 0).distinct
         convenios = Convenio.all
         year, month, empresa = params.values_at(:year, :month, :empresa)
-        if year.present? || month.present?
-          facturacions = facturacions.joins(:inspections)
-                                     .where.not(facturacions: { fecha_venta: nil })
+        facturacions = facturacions.where.not(fecha_venta: nil)
 
+        if year.present?
+          facturacions = facturacions.where("EXTRACT(YEAR FROM fecha_venta) = ?", year)
+          convenios = convenios.where("convenios.year = ?", year)
         end
-        facturacions = facturacions.where("YEAR(facturacions.fecha_venta) = ?", year)   if year.present?
-        facturacions = facturacions.where("MONTH(facturacions.fecha_venta) = ?", month) if month.present?
+
+        if month.present?
+          facturacions = facturacions.where("EXTRACT(MONTH FROM fecha_venta) = ?", month)
+          convenios = convenios.where("convenios.month = ?", month)
+        end
+
+
         facturacions = facturacions.select { |f| f.empresa == empresa } if empresa.present?
 
 
