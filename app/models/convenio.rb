@@ -12,5 +12,8 @@ class Convenio < ApplicationRecord
     self.year  = fecha_venta.year
   end
 
+  def empresa_nombre
+    empresa&.nombre
+  end
 
 end
