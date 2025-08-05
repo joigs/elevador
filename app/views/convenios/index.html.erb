@@ -11,19 +11,19 @@
                          months_es.each_with_index.map { |m,i| ["#{(i+1).to_s.rjust(2,'0')} – #{m}", i+1] },
                          @selected_month
                        ),
-                       class: "px-3 py-2 bg-gray-700 text-white rounded-md" %>
+                       class: "px-3 py-2 bg-gray-700 text-white rounded-md cursor-pointer" %>
       </div>
 
       <div>
         <label class="block text-gray-400 mb-1">Año</label>
         <%= select_tag :year,
                        options_for_select(@years, @selected_year),
-                       class: "px-3 py-2 bg-gray-700 text-white rounded-md" %>
+                       class: "px-3 py-2 bg-gray-700 text-white rounded-md cursor-pointer" %>
       </div>
 
       <div>
         <%= submit_tag "Filtrar",
-                       class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold rounded-md" %>
+                       class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-900 font-bold rounded-md cursor-pointer" %>
       </div>
     <% end %>
 

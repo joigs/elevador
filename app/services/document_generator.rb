@@ -886,16 +886,14 @@ class DocumentGenerator
     unless errors_graves.empty?
       doc.replace('{{cumple/parcial/no_cumple}}', "no cumple")
       doc.replace('{{esta/no_esta}}', "no está")
-      doc.replace('{{texto_grave}}',
-                  "Las No Conformidades evaluadas como Defectos Graves..." \
-                    " resueltas dentro de 90 días desde la fecha del informe de inspección.")
+      doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Defectos Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
+
 
       if errors_leves.empty?
         doc.replace('{{texto_leve}}', "")
       else
-        doc.replace('{{texto_leve}}',
-                    "Las No Conformidades evaluadas como Defectos Leves..." \
-                      " antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+        doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+
       end
     end
 
@@ -903,9 +901,8 @@ class DocumentGenerator
       doc.replace('{{cumple/parcial/no_cumple}}', "cumple parcialmente")
       doc.replace('{{esta/no_esta}}', "está")
       doc.replace('{{texto_grave}}', "")
-      doc.replace('{{texto_leve}}',
-                  "Las No Conformidades evaluadas como Defectos Leves..." \
-                    " antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+      doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+
     end
 
 
