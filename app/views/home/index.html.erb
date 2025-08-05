@@ -50,11 +50,14 @@
 
   <nav class="bg-gray-800 p-4 text-white mb-6">
     <ul class="flex space-x-4 justify-center">
-      <li class="<%= params[:tab] == 'cotizaciones' ? '' : 'border-b-2 border-blue-500' %>">
+      <li class="<%= (params[:tab] == 'cotizaciones') || params[:tab] == 'convenios' ? '' : 'border-b-2 border-blue-500' %>">
         <%= link_to "Inspecciones", home_path(tab: 'inspecciones'), class: "hover:underline" %>
       </li>
       <li class="<%= params[:tab] == 'cotizaciones' ? 'border-b-2 border-blue-500' : '' %>">
         <%= link_to "Cotizaciones", home_path(tab: 'cotizaciones'), class: "hover:underline" %>
+      </li>
+      <li class="<%= params[:tab] == 'convenios' ? 'border-b-2 border-blue-500' : '' %>">
+        <%= link_to "Convenios", home_path(tab: 'convenios'), class: "hover:underline" %>
       </li>
     </ul>
   </nav>
@@ -67,6 +70,11 @@
       <%= render template: "facturacions/index" %>
 
     </section>
+    <% elsif params[:tab] == 'convenios' %>
+    <section>
+      <%= render template: "convenios/index" %>
+    </section>
+
   <% else %>
     <section>
       <div class="py-16 bg-gray-800">

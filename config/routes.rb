@@ -176,6 +176,8 @@ Rails.application.routes.draw do
     resources :observacions, only: [:create, :edit, :update, :destroy]
   end
 
+  resources :convenios
+
   resources :permisos
 
 

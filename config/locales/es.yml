@@ -94,6 +94,10 @@ es:
                   facturacion_id: ""
                   required: ""
                   blank: ""
+      convenio:
+        attributes:
+          empresa:
+            required: "debe estar presente"
       item:
         identificador: "Identificador"
         group_id: "Clasificación del ascensor"
@@ -177,6 +181,7 @@ es:
   errors:
     format: "%{attribute} %{message}"
     messages:
+      required: "no puede estar en blanco"
       record_invalid: 'Validación fallida: %{errors}'
       inclusion: "no está incluido en la lista"
       blank: "no puede estar en blanco"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_05_151927) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_05_164723) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -53,6 +53,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_05_151927) do
     t.index ["ruletype_id"], name: "index_anothers_on_ruletype_id"
   end
 
+  create_table "convenios", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.date "fecha_venta", null: false
+    t.decimal "n1", precision: 10
+    t.decimal "v1", precision: 8, scale: 4
+    t.bigint "empresa_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "month"
+    t.integer "year"
+    t.index ["empresa_id"], name: "index_convenios_on_empresa_id"
+  end
+
   create_table "details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "detalle"
     t.string "marca"
@@ -87,6 +99,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_05_151927) do
     t.integer "porcentaje"
     t.float "medidas_cintas_espesor"
     t.index ["item_id"], name: "index_details_on_item_id"
+  end
+
+  create_table "empresas", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "nombre"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "facturacions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -407,6 +425,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_05_151927) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "convenios", "empresas"
   add_foreign_key "details", "items"
   add_foreign_key "inspection_users", "inspections"
   add_foreign_key "inspection_users", "users"
