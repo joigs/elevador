@@ -21,13 +21,14 @@ module Api
         facturacions = facturacions.select { |f| f.empresa == empresa } if empresa.present?
 
 
-        convenios = convenios.where("year = ?", year)   if year.present?
-        convenios = convenios.where("month = ?", month) if month.present?
+        convenios = convenios.where("convenios.year = ?", year)   if year.present?
+        convenios = convenios.where("convenios.month = ?", month) if month.present?
+
 
 
 
         if params[:meta].present?
-          years     = Inspection.where.not(fecha_venta: nil)
+          years     = Facturacion.where.not(fecha_venta: nil)
                                 .pluck(Arel.sql('DISTINCT YEAR(fecha_venta)'))
                                 .sort
           empresas  = Facturacion.all.map(&:empresa).compact.uniq.sort
