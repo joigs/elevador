@@ -723,7 +723,58 @@ class InspectionsController < ApplicationController
   end
 
 
+  def export_xlsx
+    @inspections = Inspection
+                     .where("number > 0")
+                     .includes(:item, :principal, :report, :users)
+                     .order(number: :desc)
 
+    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    puts(@inspections.inspect)
+
+    Tempfile.create(['inspecciones', '.xlsx']) do |tmp|
+      path = tmp.path
+      tmp.close
+
+      workbook  = WriteXLSX.new(path)
+      sheet     = workbook.add_worksheet('Inspecciones')
+
+      headers = [
+        'N° Inspección', 'Nombre', 'Activo', 'Empresa',
+        'Fecha Inspección', 'Resultado', 'Tiempo en resultado actual',
+        'Fecha término', 'Inspector asignado'
+      ]
+      sheet.write_row(0, 0, headers)
+
+      Inspection
+        .where('number > 0')
+        .includes(:item, :principal, :report, :users)
+        .order(number: :desc)
+        .find_each
+        .with_index(1) do |ins, row|
+        sheet.write_row row, 0, [
+          ins.number,
+          ins.name,
+          ins.item&.identificador,
+          ins.item&.principal&.name,
+          ins.ins_date&.strftime('%d-%m-%Y'),
+          ins.result,
+          ins.cambio ? "#{(Date.current - ins.cambio).to_i} días" : nil,
+          ins.report&.ending&.strftime('%d-%m-%Y'),
+          ins.users.present? ? ins.users.map(&:real_name).join(', ') : 'No asignado'
+        ]
+      end
+
+      workbook.close
+
+      send_data File.binread(path),
+                filename: "inspecciones_#{Time.zone.now.strftime('%Y%m%d_%H%M')}.xlsx",
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                disposition: :attachment
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
+    end
+  end
 
 
   def edit_massive_load

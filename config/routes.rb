@@ -79,6 +79,7 @@ Rails.application.routes.draw do
     collection do
       get :edit_massive_load
       patch :update_massive_load
+      get :export_xlsx
     end
 
   end
