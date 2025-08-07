@@ -56,6 +56,10 @@ class Facturacion < ApplicationRecord
     inspections.count 
   end
 
+  def inspecciones_total_no_rerun
+    inspections.where(rerun: false).count
+  end
+
 
   private
 
