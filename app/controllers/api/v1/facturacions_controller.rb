@@ -50,7 +50,7 @@ module Api
             include: {
               inspections: { include: :principal }
             },
-            methods: [:fecha_inspeccion, :empresa]
+            methods: [:fecha_inspeccion, :empresa, :inspecciones_total_no_rerun]
           ),
           convenios: convenios.as_json(
             only: [:id, :fecha_venta, :n1, :v1, :empresa_id],
