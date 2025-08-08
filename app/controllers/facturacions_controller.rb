@@ -357,7 +357,18 @@ class FacturacionsController < ApplicationController
   end
 
 
-  
+
+
+  def update_empresa_provisional
+    @facturacion = Facturacion.find(params[:id])
+
+    if @facturacion.update(empresa_provisional: params.dig(:facturacion, :empresa_provisional))
+      render json: { success: true, empresa_provisional: @facturacion.empresa_provisional }
+    else
+      render json: { success: false, errors: @facturacion.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
 
   def manage_files
     @facturacion = Facturacion.find(params[:id])
