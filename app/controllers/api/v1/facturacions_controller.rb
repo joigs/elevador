@@ -10,7 +10,7 @@ module Api
       def index
         facturacions = Facturacion.where.not(number: 0).distinct
         convenios = Convenio.all
-        year, month, empresa = params.values_at(:year, :month, :empresa)
+        year, month = params.values_at(:year, :month)
         facturacions = facturacions.where.not(fecha_venta: nil)
 
         if year.present?
@@ -24,7 +24,6 @@ module Api
         end
 
 
-        facturacions = facturacions.select { |f| f.empresa == empresa } if empresa.present?
 
 
         convenios = convenios.where("convenios.year = ?", year)   if year.present?
@@ -37,7 +36,14 @@ module Api
           years     = Facturacion.where.not(fecha_venta: nil)
                                 .pluck(Arel.sql('DISTINCT YEAR(fecha_venta)'))
                                 .sort
-          empresas  = Facturacion.all.map(&:empresa).compact.uniq.sort
+          empresas = Facturacion
+                       .where.not(fecha_venta: nil)
+                       .includes(inspections: :principal)
+                       .map(&:empresa)
+                       .compact
+                       .uniq
+                       .sort
+
           render json: {   anios: years,
                            meses: (1..12).to_a,
                            empresas: empresas }
