@@ -163,6 +163,7 @@ Rails.application.routes.draw do
       get :download_cotizacion_template
       patch :update_price
       patch :set_fecha_venta
+      patch :update_empresa_provisional
 
     end
     collection do

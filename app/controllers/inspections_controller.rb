@@ -778,7 +778,6 @@ class InspectionsController < ApplicationController
 
 
   def edit_massive_load
-    # Esta acción renderiza la vista para la carga masiva
   end
 
   def update_massive_load
