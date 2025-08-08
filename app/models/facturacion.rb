@@ -35,18 +35,20 @@ class Facturacion < ApplicationRecord
     end
   end
 
+
+  # app/models/tu_modelo.rb
   def empresa
-    principal_ids = inspections.distinct.pluck(:principal_id).compact
+    # 1) IDs de principal sin duplicados y sin nil
+    ids = inspections.distinct.pluck(:principal_id).compact
 
-
+    # 2) Si no hay inspecciones, devolvemos la provisional (si existe) o nil
     return empresa_provisional.presence if ids.empty?
 
+    # 3) Si hay más de un principal distinto ⇒ error de datos
+    return "Error-empresa" if ids.many?
 
-
-    return "Error-empresa" if principal_ids.size > 1
-
-    principal = Principal.find_by(id: principal_ids.first)
-    principal ? principal.name : "Error-empresa"
+    # 4) Una sola inspección válida ⇒ buscar el nombre
+    Principal.find_by(id: ids.first)&.name || "Error-empresa"
   end
 
 
