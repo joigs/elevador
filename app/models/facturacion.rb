@@ -36,9 +36,12 @@ class Facturacion < ApplicationRecord
   end
 
   def empresa
-    principal_ids = inspections.pluck(:principal_id).uniq
+    principal_ids = inspections.distinct.pluck(:principal_id).compact
 
-    return nil if principal_ids.empty?
+
+    return empresa_provisional.presence if ids.empty?
+
+
 
     return "Error-empresa" if principal_ids.size > 1
 
@@ -59,6 +62,14 @@ class Facturacion < ApplicationRecord
   def inspecciones_total_no_rerun
     inspections.where(rerun: false).count
   end
+
+
+
+
+
+
+
+
 
 
   private
