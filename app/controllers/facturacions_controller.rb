@@ -582,6 +582,7 @@ class FacturacionsController < ApplicationController
       :number,
       :name,
       :precio,
+      :n1,
       :presos,
       :solicitud,
       :emicion,
