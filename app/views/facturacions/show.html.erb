@@ -200,6 +200,57 @@
       </form>
     </div>
 
+    <div
+      data-controller="n1"
+      data-n1-url-value="<%= update_n1_facturacion_path(@facturacion) %>"
+      class="mb-4 text-white"
+    >
+      <strong>Número de ascensores:</strong>
+
+      <span data-n1-target="display">
+    <%= @facturacion.n1.presence || "—" %>
+  </span>
+
+      <% if Current.user.solicitar %>
+        <button
+          type="button"
+          data-action="n1#showForm"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white ml-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4" fill="none">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.232 5.232l3.536 3.536M3 18l4.242-.354L7.596 13.4l9.536-9.536a1.5 1.5 0 012.121 0l.707.707a1.5 1.5 0 010 2.121L10.424 16.23"/>
+          </svg>
+        </button>
+      <% end %>
+
+      <form
+        data-n1-target="form"
+        data-action="submit->n1#submit"
+        class="inline-block hidden"
+      >
+        <input
+          type="number"
+          data-n1-target="input"
+          class="bg-gray-700 text-white border border-gray-600 rounded-md p-1 ml-2 w-24"
+          />
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded ml-2"
+        >
+          Guardar
+        </button>
+        <button
+          type="button"
+          data-action="n1#cancel"
+          class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded ml-1"
+        >
+          Cancelar
+        </button>
+      </form>
+    </div>
+
+
 
     <hr class="my-4 border-gray-700" />
 

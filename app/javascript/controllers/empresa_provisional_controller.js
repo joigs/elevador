@@ -9,7 +9,6 @@ export default class extends Controller {
   }
 
   showForm () {
-    // Copia el texto actual en el input y alterna la visibilidad
     this.inputTarget.value = this.displayTarget.innerText.trim() === "—" ? "" : this.displayTarget.innerText.trim()
     this.displayTarget.classList.add("hidden")
     this.formTarget.classList.remove("hidden")

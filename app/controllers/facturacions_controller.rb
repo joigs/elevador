@@ -369,6 +369,17 @@ class FacturacionsController < ApplicationController
     end
   end
 
+  def update_n1
+    @facturacion = Facturacion.find(params[:id])
+
+    if @facturacion.update(n1: params.dig(:facturacion, :n1))
+      render json: { success: true, n1: @facturacion.n1 }
+    else
+      render json: { success: false, errors: @facturacion.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+
 
   def manage_files
     @facturacion = Facturacion.find(params[:id])
@@ -582,6 +593,7 @@ class FacturacionsController < ApplicationController
       :number,
       :name,
       :precio,
+      :n1,
       :presos,
       :solicitud,
       :emicion,
