@@ -164,6 +164,7 @@ Rails.application.routes.draw do
       patch :update_price
       patch :set_fecha_venta
       patch :update_empresa_provisional
+      patch :update_n1
 
     end
     collection do
