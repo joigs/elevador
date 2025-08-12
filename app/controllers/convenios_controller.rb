@@ -31,7 +31,7 @@ class ConveniosController < ApplicationController
 
     @v1_uf     = @convenio.v1
     @v1_clp    = iva ? (@convenio.v1 * iva.valor).round(0) : nil
-    @total_clp   = iva ? (@convenio.total * iva.valor).round(0) : nil
+    @total_clp   = iva ? (@convenio.v1 * iva.valor).round(0) : nil
     @iva_missing = iva.nil?
 
     @empresa_nombre = @convenio.empresa&.nombre || "—"
