@@ -13,7 +13,7 @@ module Api
         year, month = params.values_at(:year, :month)
 
 
-        full_year   = month.blank? || month.to_s == 'all'
+        full_year   =  month.to_s == 'all'
         if full_year
           facturacions = Facturacion.where.not(number: 0).where.not(fecha_venta: nil).distinct
           convenios    = Convenio.all
