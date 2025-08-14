@@ -11,6 +11,30 @@ module Api
         facturacions = Facturacion.where.not(number: 0).distinct
         convenios = Convenio.all
         year, month = params.values_at(:year, :month)
+
+
+        full_year   = month.blank? || month.to_s == 'all'
+        if full_year
+          facturacions = Facturacion.where.not(number: 0).where.not(fecha_venta: nil).distinct
+          convenios    = Convenio.all
+
+          if year.present?
+            year_i = year.to_i
+            facturacions = facturacions.where("EXTRACT(YEAR FROM fecha_venta) = ?", year_i)
+            convenios    = convenios.where("convenios.year = ?", year_i)
+          end
+
+          render json: {
+            facturacions: facturacions.as_json(
+              include: { inspections: { include: :principal } },
+              methods: [:fecha_inspeccion, :empresa, :inspecciones_total_no_rerun]
+            ),
+            convenios: convenios.as_json(
+              only: [:id, :fecha_venta, :n1, :v1, :empresa_id],
+              methods: [:empresa_nombre]
+            )
+          }
+        else
         facturacions = facturacions.where.not(fecha_venta: nil)
 
         if year.present?
@@ -32,23 +56,6 @@ module Api
 
 
 
-        if params[:meta].present?
-          years     = Facturacion.where.not(fecha_venta: nil)
-                                .pluck(Arel.sql('DISTINCT YEAR(fecha_venta)'))
-                                .sort
-          empresas = Facturacion
-                       .where.not(fecha_venta: nil)
-                       .includes(inspections: :principal)
-                       .map(&:empresa)
-                       .compact
-                       .uniq
-                       .sort
-
-          render json: {   anios: years,
-                           meses: (1..12).to_a,
-                           empresas: empresas }
-          return
-        end
 
 
         render json: {
@@ -63,6 +70,7 @@ module Api
             methods: [:empresa_nombre]
           )
         }
+        end
 
       end
 
