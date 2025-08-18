@@ -1241,8 +1241,8 @@ class DocumentGenerator
       new_filename = "#{counter}#{ext}"
       new_file_path = File.join(dir_path, new_filename)
 
-      File.open(new_file_path, 'wb') do |file|
-        file.write(photo.photo.download)
+      photo.photo.blob.open do |io|
+        IO.copy_stream(io, new_file_path)
       end
 
       text_imagen_comment = nil
