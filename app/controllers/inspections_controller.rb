@@ -742,7 +742,7 @@ class InspectionsController < ApplicationController
       headers = [
         'N° Inspección', 'Nombre', 'Activo', 'Empresa',
         'Fecha Inspección', 'Resultado', 'Tiempo en resultado actual',
-        'Fecha término', 'Inspector asignado'
+        'Fecha término', 'Inspector asignado', 'Nombre contacto', 'email contacto', 'Teléfono contacto'
       ]
       sheet.write_row(0, 0, headers)
 
@@ -761,7 +761,10 @@ class InspectionsController < ApplicationController
           ins.result,
           ins.cambio ? "#{(Date.current - ins.cambio).to_i} días" : nil,
           ins.report&.ending&.strftime('%d-%m-%Y'),
-          ins.users.present? ? ins.users.map(&:real_name).join(', ') : 'No asignado'
+          ins.users.present? ? ins.users.map(&:real_name).join(', ') : 'No asignado',
+          ins.principal&.contact_name,
+          ins.principal&.contact_email,
+          ins.principal&.cellphone
         ]
       end
 
