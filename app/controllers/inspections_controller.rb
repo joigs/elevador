@@ -740,7 +740,7 @@ class InspectionsController < ApplicationController
       sheet     = workbook.add_worksheet('Inspecciones')
 
       headers = [
-        'N° Inspección', 'Nombre', 'Activo', 'Empresa',
+        'N° Inspección', 'Nombre', 'Activo', 'Empresa', 'Rut empresa',
         'Fecha Inspección', 'Resultado', 'Tiempo en resultado actual',
         'Fecha término', 'Inspector asignado', 'Nombre contacto', 'email contacto', 'Teléfono contacto'
       ]
@@ -757,6 +757,7 @@ class InspectionsController < ApplicationController
           ins.name,
           ins.item&.identificador,
           ins.item&.principal&.name,
+          ins.principal&.rut,
           ins.ins_date&.strftime('%d-%m-%Y'),
           ins.result,
           ins.cambio ? "#{(Date.current - ins.cambio).to_i} días" : nil,
