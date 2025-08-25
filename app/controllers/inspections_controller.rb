@@ -54,6 +54,7 @@ class InspectionsController < ApplicationController
     @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
     @report = Report.find_by(inspection: inspection)
+    @inspections = Inspection.where("number > 0").order(number: :desc)
   end
   def new
 
@@ -808,7 +809,91 @@ class InspectionsController < ApplicationController
   end
 
 
+def copy
 
+  @inspection = Inspection.find(params[:id])
+  authorize! @inspection
+  @item = @inspection.item
+  @report = Report.find_by(inspection: @inspection)
+  if @inspection.item.group.type_of == "escala"
+    @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+    @detail = LadderDetail.find_by(item_id: @item.id)
+  elsif @inspection.item.group.type_of == "ascensor"
+    @revision = Revision.find_by(inspection_id: @inspection.id)
+    @detail = Detail.find_by(item_id: @item.id)
+  end
+
+  @revision_colors = @revision.revision_colors.order(:section)
+  @revision_nulls = @revision.revision_nulls
+  @anothers = @item.inspections.where.not(id: @inspection.id).order(number: :desc)
+
+
+
+
+
+  @inspection_og = Inspection.find(params[:selected_inspection_id])
+  @report_og = Report.find_by(inspection: @inspection_og)
+  @item_og = @inspection_og.item
+  if @inspection_og.item.group.type_of == "escala"
+    @revision_og = LadderRevision.find_by(inspection_id: @inspection_og.id)
+    @detail_og = LadderDetail.find_by(item_id: @item_og.id)
+  elsif @inspection_og.item.group.type_of == "ascensor"
+    @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
+    @detail_og = Detail.find_by(item_id: @item_og.id)
+  end
+
+  @revision_colors_og = @revision_og.revision_colors.order(:section)
+  @revision_nulls_og = @revision_og.revision_nulls
+  @anothers_og = @item_og.inspections.where.not(id: @inspection_og.id).order(number: :desc)
+
+  ActiveRecord::Base.transaction do
+    # Copiar atributos de inspección
+
+    # Copiar atributos de reporte
+
+
+    @report.update!(
+      fecha: @report_og.fecha,
+      vi_co_man_ini: @report_og.vi_co_man_ini,
+      vi_co_man_ter: @report_og.vi_co_man_ter,
+      ul_reg_man: @report_og.ul_reg_man,
+      urm_fecha: @report_og.urm_fecha,
+      empresa_anterior: @report_og.empresa_anterior,
+      ea_rol: @report_og.ea_rol,
+      ea_rut: @report_og.ea_rut,
+      empresa_mantenedora: @report_og.empresa_mantenedora,
+      em_rol: @report_og.em_rol,
+      em_rut: @report_og.em_rut,
+      nom_tec_man: @report_og.nom_tec_man,
+      tm_rut: @report_og.tm_rut,
+    )
+
+    # Copiar atributos de detalle
+    @count_inspections = @item.inspections.where("number > 0").count
+    if @detail && @detail_og && @count_inspections == 1
+      detail_attributes = @detail_og.attributes.except("id", "item_id", "created_at", "updated_at")
+      @detail.update!(detail_attributes)
+    end
+
+    # Copiar colores de revisión
+    if @revision && @revision_og
+      @revision_colors.each_with_index do |color, index|
+        color_attributes = @revision_colors_og[index].attributes.except("id", "ladder_revision_id", "revision_id", "created_at", "updated_at")
+        color.update!(color_attributes)
+      end
+
+      # Eliminar y copiar nulos de revisión
+      @revision.revision_nulls.destroy_all
+      @revision_nulls_og.each do |null|
+        @revision.revision_nulls.create!(point: null.point)
+      end
+    end
+  end
+
+
+
+
+end
 
   private
   def inspection_params

@@ -73,6 +73,7 @@ Rails.application.routes.draw do
       get :edit_informe
       patch :update_informe
       get :download_informe
+      patch :copy
     end
 
     #get :download_images
