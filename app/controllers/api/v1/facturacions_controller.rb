@@ -47,6 +47,11 @@ module Api
           convenios = convenios.where("convenios.month = ?", month)
         end
 
+        if (!year.present? && !month.present?)
+          facturacions = facturacions.where("EXTRACT(MONTH FROM fecha_venta) = ?", Date.today.month)
+          convenios = convenios.where("convenios.month = ?", Date.today.month)
+        end
+
 
 
 
