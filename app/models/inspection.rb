@@ -92,8 +92,7 @@ class Inspection < ApplicationRecord
     vencido    = arel_table[:result].matches('Vencido%')
     where(result: aprob_rech).or(where(vencido))
   end
-  scope :vencidos, -> { where("result ILIKE ?", "Vencido%") }
-
+  scope :vencidos, -> { where("result LIKE ?", "Vencido%") }
 
 
   private

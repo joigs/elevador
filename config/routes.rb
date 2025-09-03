@@ -174,6 +174,7 @@ Rails.application.routes.draw do
       get :new_bulk_upload_pdf
       post :bulk_upload_pdf
       get :download_all_excel
+      get :export_xlsx
     end
 
 
