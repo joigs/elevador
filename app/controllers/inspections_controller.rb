@@ -823,8 +823,6 @@ def copy
     @detail = Detail.find_by(item_id: @item.id)
   end
 
-  @revision_colors = @revision.revision_colors.order(:section)
-  @revision_nulls = @revision.revision_nulls
   @anothers = @item.inspections.where.not(id: @inspection.id).order(number: :desc)
 
 
@@ -842,14 +840,25 @@ def copy
     @detail_og = Detail.find_by(item_id: @item_og.id)
   end
 
+  if @item.group.type_of != @item_og.group.type_of
+    flash[:alert] = "No se puede copiar, los tipos de grupo son diferentes."
+    redirect_to inspection_path(@inspection)
+    return
+  end
+
+  if params[:selected_inspection_id].to_s == params[:id].to_s
+    flash[:alert] = "No se puede copiar la misma inspección."
+    redirect_to inspection_path(@inspection)
+    return
+  end
+
   @revision_colors_og = @revision_og.revision_colors.order(:section)
   @revision_nulls_og = @revision_og.revision_nulls
-  @anothers_og = @item_og.inspections.where.not(id: @inspection_og.id).order(number: :desc)
+  @anothers_og = @item_og.anothers
+
+
 
   ActiveRecord::Base.transaction do
-    # Copiar atributos de inspección
-
-    # Copiar atributos de reporte
 
 
     @report.update!(
@@ -875,19 +884,29 @@ def copy
       @detail.update!(detail_attributes)
     end
 
-    # Copiar colores de revisión
-    if @revision && @revision_og
-      @revision_colors.each_with_index do |color, index|
-        color_attributes = @revision_colors_og[index].attributes.except("id", "ladder_revision_id", "revision_id", "created_at", "updated_at")
-        color.update!(color_attributes)
-      end
 
-      # Eliminar y copiar nulos de revisión
-      @revision.revision_nulls.destroy_all
-      @revision_nulls_og.each do |null|
-        @revision.revision_nulls.create!(point: null.point)
-      end
+    @revision.revision_nulls.destroy_all
+    @revision_nulls_og.each do |src|
+      @revision.revision_nulls.create!(point: src.point, comment: src.comment)
     end
+
+
+    @anothers_og.each do |src|
+      @item.anothers.find_or_create_by(point: src.point, ruletype_id: src.ruletype_id, code: src.code, level: src.level, ins_type: src.ins_type, section: src.section)
+    end
+
+
+    @revision.revision_colors.destroy_all
+
+    @revision_og.revision_colors.order(:section).each do |src|
+      @revision.revision_colors.create!(section: src.section, color: false, codes: src.codes, points: src.points, levels: src.levels, comment: src.comment, number: src.number, priority: src.priority)
+
+    end
+
+
+
+
+
   end
 
 
