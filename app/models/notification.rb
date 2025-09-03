@@ -7,7 +7,8 @@ class Notification < ApplicationRecord
     entrega_pendiente: 2,
     factura_pendiente: 3,
     inspeccion_proxima: 4,
-    inspeccion_vencida: 5
+    inspeccion_vencida: 5,
+    inspeccion_rechazada: 6
   }
 
   validates :title, presence: true
@@ -58,6 +59,14 @@ Notification.create!(
   notification_type: :inspeccion_vencida
 )
 
+
+
+
+Notification.create!(
+  title: "Inspecciones rechazadas con reinspección próxima",
+  text: "Existen [[N]] inspecciones rechazadas que vencerán en los próximos 2 meses.",
+  notification_type: :inspeccion_rechazada
+)
 
 
 
