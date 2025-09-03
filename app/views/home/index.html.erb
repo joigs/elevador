@@ -19,15 +19,45 @@
         <h3 class="text-lg font-medium"><%= notification.title %></h3>
       </div>
 
+      <% text = case notification.notification_type
+                 when "inspeccion_proxima"
+                   notification.text.to_s.gsub('[[N]]', @notif_counts[:inspeccion_proxima].to_s)
+                 when "inspeccion_vencida"
+                   notification.text.to_s.gsub('[[N]]', @notif_counts[:inspeccion_vencida].to_s)
+                 when "inspeccion_rechazada"
+                   notification.text.to_s.gsub('[[N]]', @notif_counts[:inspeccion_rechazada].to_s)
+                 else
+                   notification.text
+                 end %>
       <div class="mt-2 mb-4 text-sm">
-        <%= notification.text %>
+        <%= text %>
       </div>
-
       <div>
-        <%= link_to "Ver pendientes",
+        <% if notification.notification_type == "solicitud_pendiente" || notification.notification_type == "entrega_pendiente" || notification.notification_type == "factura_pendiente" %>
+            <%= link_to "Ver pendientes",
                     facturacions_path(notification_id: notification.id),
                     class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+          <% end %>
+
+        <% if notification.notification_type == "inspeccion_proxima" %>
+          <%= link_to "Ver pendientes",
+                      warnings_path(filter: "expiring_soon"),
+                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+        <% end %>
+
+        <% if notification.notification_type == "inspeccion_vencida" %>
+          <%= link_to "Ver pendientes",
+                      warnings_path(filter: "vencido"),
+                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+        <% end %>
+
+        <% if notification.notification_type == "inspeccion_rechazada" %>
+          <%= link_to "Ver pendientes",
+                      warnings_path(filter: "again_soon"),
+                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+        <% end %>
       </div>
+
     </div>
   <% end %>
 </div>

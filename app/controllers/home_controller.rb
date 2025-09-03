@@ -21,7 +21,7 @@ class HomeController < ApplicationController
     @facturacions = Facturacion.order(number: :desc)
     @facturacions = @facturacions.where.not(number: 0)
 
-    @notifications = current_notifications
+    @notifications, @notif_counts = current_notifications
 
 
 
@@ -35,7 +35,6 @@ class HomeController < ApplicationController
 
     sel_month = 1  unless (1..12).cover?(sel_month)
     sel_year  = 2025 if sel_year < 2025
-
     @selected_month = sel_month
     @selected_year  = sel_year
 
@@ -61,13 +60,37 @@ class HomeController < ApplicationController
                                    .where(notification_type: [:solicitud_pendiente, :factura_pendiente])
                                    .distinct
     end
-
     if Current.user.solicitar
       notifications += Notification.joins(:facturacions)
                                    .where(notification_type: :entrega_pendiente)
                                    .distinct
     end
 
-    notifications.uniq
+    counts = { inspeccion_proxima: 0, inspeccion_vencida: 0, inspeccion_rechazada: 0 }
+
+    if Current.user.admin
+      window_from = Date.current
+      window_to   = 2.months.from_now.to_date
+
+      proximas_scope = Inspection.joins(:report)
+                                 .where(state: "Cerrado", result: "Aprobado")
+                                 .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+
+      rechazadas_scope = Inspection.joins(:report)
+                                   .where(state: "Cerrado", result: "Rechazado")
+                                   .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+
+      vencidas_scope = Inspection.vencidos
+
+      counts[:inspeccion_proxima]   = proximas_scope.count
+      counts[:inspeccion_rechazada] = rechazadas_scope.count
+      counts[:inspeccion_vencida]   = vencidas_scope.count
+
+      notifications += Notification.where(notification_type: :inspeccion_proxima)   if counts[:inspeccion_proxima]   > 0
+      notifications += Notification.where(notification_type: :inspeccion_rechazada) if counts[:inspeccion_rechazada] > 0
+      notifications += Notification.where(notification_type: :inspeccion_vencida)   if counts[:inspeccion_vencida]   > 0
+    end
+
+    [notifications.uniq, counts]
   end
 end
