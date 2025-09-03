@@ -582,6 +582,55 @@ class FacturacionsController < ApplicationController
   end
 
 
+  def export_xlsx
+    @facturacions = Facturacion
+                     .order(number: :asc)
+
+
+
+    Tempfile.create(['cotizaciones', '.xlsx']) do |tmp|
+      path = tmp.path
+      tmp.close
+
+      workbook  = WriteXLSX.new(path)
+      sheet     = workbook.add_worksheet('Cotizaciones')
+
+      headers = [
+        'N° Correlativo', 'Nombre', 'Solicitud', 'Emisión', 'Entregado', 'Resultado', 'Orden de Compra', 'Fecha Venta', 'Fecha inspección', 'Inspecciones completadas', 'Factura'
+      ]
+      sheet.write_row(0, 0, headers)
+
+      Facturacion
+        .order(number: :asc)
+        .find_each
+        .with_index(1) do |ins, row|
+        sheet.write_row row, 0, [
+          ins.number,
+          ins.name,
+          format_date(ins.solicitud),
+          format_date(ins.emicion),
+          format_date(ins.entregado),
+          ins.resultado,
+          format_date(ins.oc),
+          format_date(ins.fecha_venta),
+          format_date(ins.fecha_inspeccion),
+          "#{ins.inspecciones_con_resultado_count}/#{ins.inspecciones_total}",
+          format_date(ins.factura)
+        ]
+      end
+
+      workbook.close
+
+      send_data File.binread(path),
+                filename: "cotizaciones_#{Time.zone.now.strftime('%Y%m%d_%H%M')}.xlsx",
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                disposition: :attachment
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
+    end
+  end
+
+
   private
 
   def set_facturacion
@@ -682,5 +731,7 @@ class FacturacionsController < ApplicationController
     [number, name]
   end
 
-
+  def format_date(date)
+    date&.strftime('%d/%m/%Y')
+  end
 end
