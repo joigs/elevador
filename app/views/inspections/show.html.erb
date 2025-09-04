@@ -106,342 +106,28 @@
       <div class="mt-6">
 
         <% if @inspection.state != "Cerrado" && !Current.user.only_see %>
-<%# ====== SHOW DE INSPECTION: MODAL CON ÍNDICE, COLUMNA "COPIAR" Y NUEVOS REQUISITOS ====== %>
-
-          <% inspections_for_modal =
-               (defined?(@inspections) && @inspections.respond_to?(:each) ? @inspections : Inspection.all) %>
-
-          <script>
-              window.SHOW_INSPECTION_ID = <%= @inspection.id %>;
-          </script>
-
-          <div class="mb-6 flex items-center gap-3">
-
-            <button id="openInspectionsModal"
-                    type="button"
-                    class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              Abrir índice para copiar
+          <div
+            data-controller="copy-inspection"
+            data-copy-inspection-search-url-value="<%= search_candidates_inspection_path(@inspection) %>"
+            data-copy-inspection-preview-url-value="<%= copy_preview_inspection_path(@inspection) %>"
+            data-copy-inspection-copy-url-value="<%= copy_inspection_path(@inspection) %>"
+            data-copy-inspection-show-json-url-value="<%= inspection_path(@inspection, format: :json) %>"
+            data-copy-inspection-inspection-id-value="<%= @inspection.id %>"
+          >
+            <button
+              type="button"
+              class="px-3 py-2 rounded bg-indigo-600 text-white font-bold hover:bg-indigo-700 mt-2"
+              data-action="click->copy-inspection#openModal"
+            >
+              Copiar desde otra inspección
             </button>
+
+            <%= render "inspections/copy_modal" %>
           </div>
 
-          <div id="inspectionsModal"
-               class="fixed inset-0 z-50 hidden "
-               aria-hidden="true">
-            <div id="modalOverlay" class="absolute inset-0 bg-black/60"></div>
+        <% end %>
 
-            <div class="relative mx-4 mt-12 rounded-xl bg-gray-900 shadow-xl ring-1 ring-black/10">
-              <div class="flex items-center justify-between px-5 py-4 border-b border-gray-700">
-                <h3 class="text-lg font-semibold text-white">
-                  Selecciona una inspección para copiar
-                </h3>
-                <button id="closeInspectionsModal"
-                        class="rounded-md px-2 py-1 text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        type="button"
-                        aria-label="Cerrar">
-                  ✕
-                </button>
-              </div>
-
-              <div class="p-4 max-h-[calc(100vh-12rem)] overflow-y-auto">
-                <div id="tableContainer" class="relative hidden">
-                  <div id="tableLoadingOverlay"
-                       class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-gray-900/60">
-          <span class="rounded bg-gray-800 px-3 py-1 text-sm text-gray-200 ring-1 ring-gray-700">
-            Cargando tabla…
-          </span>
-                  </div>
-
-                  <div class="overflow-x-auto table-responsive mt-2">
-                    <table id="inspections-table" class="table-auto w-full text-white">
-                      <thead class="bg-gray-800">
-                      <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">N° Inspección</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Nombre</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Activo</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Empresa</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Fecha Inspección</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Resultado</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Tiempo en<br>resultado actual</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Fecha término</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Inspector asignado</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Acciones</p></th>
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"><p>Copiar</p></th>
-                      </tr>
-                      </thead>
-
-                      <tbody class="bg-gray-700 divide-y divide-gray-600">
-                      <% inspections_for_modal.each do |inspection| %>
-                        <tr class="bg-gray-800 border-b border-gray-700">
-                          <td class="px-6 py-4 whitespace-normal break-words">
-                            <strong class="text-white">
-                              <%= link_to inspection.number,
-                                          inspection_path(inspection),
-                                          target: "_blank", rel: "noopener",
-                                          data: { turbo: false },
-                                          class: "text-blue-400 hover:text-blue-600" %>
-                            </strong>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words">
-                            <strong class="text-white">
-                              <%= link_to inspection.name,
-                                          inspection_path(inspection),
-                                          target: "_blank", rel: "noopener",
-                                          data: { turbo: false },
-                                          class: "text-blue-400 hover:text-blue-600" %>
-                            </strong>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words">
-                            <%= link_to inspection.item&.identificador,
-                                        item_path(inspection.item),
-                                        target: "_blank", rel: "noopener",
-                                        data: { turbo: false },
-                                        class: "text-blue-400 hover:text-blue-600" %>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words">
-                            <%= link_to inspection.item&.principal&.name,
-                                        principal_path(inspection.item.principal),
-                                        target: "_blank", rel: "noopener",
-                                        data: { turbo: false },
-                                        class: "text-blue-400 hover:text-blue-600" %>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.ins_date.strftime('%Y%m%d') %>">
-                            <p class="text-white"><%= format_date(inspection.ins_date) %></p>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words">
-                            <p class="text-white"><%= inspection.result %></p>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= (Date.current - inspection.cambio).to_i %>">
-                            <p class="text-white">
-                              <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
-                            </p>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.report&.ending&.strftime('%Y%m%d') %>">
-                            <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
-                          </td>
-
-                          <td class="px-6 py-4 whitespace-normal break-words">
-                            <% if inspection.users.any? %>
-                              <ul>
-                                <% inspection.users.each do |user| %>
-                                  <li class="text-white"><%= user.real_name %></li>
-                                <% end %>
-                              </ul>
-                            <% else %>
-                              <p class="text-gray-400">No asignado</p>
-                            <% end %>
-                          </td>
-
-                          <td class="px-6 py-4">
-                            <%= link_to "Ver inspección",
-                                        inspection_path(inspection),
-                                        target: "_blank", rel: "noopener",
-                                        data: { turbo: false },
-                                        class: "text-blue-400 hover:text-blue-600" %>
-                          </td>
-
-                          <%# ====== BOTÓN "COPIAR" ====== %>
-                          <td class="px-6 py-4">
-                            <button type="button"
-                                    class="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                    onclick="copyInspection(window.SHOW_INSPECTION_ID, <%= inspection.id %>)">
-                              Copiar
-                            </button>
-                          </td>
-                        </tr>
-                      <% end %>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-700">
-                <button id="closeInspectionsModalBottom"
-                        type="button"
-                        class="rounded-md bg-gray-700 px-3 py-2 text-sm text-gray-100 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <script>
-              (function () {
-                  const modal = document.getElementById("inspectionsModal");
-                  const overlay = document.getElementById("modalOverlay");
-                  const openBtn = document.getElementById("openInspectionsModal");
-                  const closeBtns = [
-                      document.getElementById("closeInspectionsModal"),
-                      document.getElementById("closeInspectionsModalBottom")
-                  ];
-
-                  let escHandlerBound = null;
-
-                  function lockBodyScroll() {
-                      document.body.classList.add("overflow-hidden");
-                  }
-                  function unlockBodyScroll() {
-                      document.body.classList.remove("overflow-hidden");
-                  }
-
-                  function openModal() {
-                      modal.classList.remove("hidden");
-                      lockBodyScroll();
-                      initInspectionsTable();
-
-                      escHandlerBound = function (e) {
-                          if (e.key === "Escape") {
-                              e.preventDefault();
-                              closeModal();
-                          }
-                      };
-                      document.addEventListener("keydown", escHandlerBound);
-                  }
-
-                  function closeModal() {
-                      modal.classList.add("hidden");
-                      unlockBodyScroll();
-                      if (escHandlerBound) {
-                          document.removeEventListener("keydown", escHandlerBound);
-                          escHandlerBound = null;
-                      }
-                  }
-
-                  if (openBtn) openBtn.addEventListener("click", openModal);
-                  closeBtns.forEach((b) => b && b.addEventListener("click", closeModal));
-
-                  if (overlay) overlay.addEventListener("click", closeModal);
-
-                  window.copyInspection = function (showInspectionId, selectedInspectionId) {
-                      const params = {
-                          show_inspection_id: showInspectionId,
-                          selected_inspection_id: selectedInspectionId,
-                      };
-                      alert("Parámetros a enviar:\n" + JSON.stringify(params, null, 2));
-                      console.log("copy params:", params);
-                  };
-
-                  document.addEventListener("turbo:before-cache", () => {
-                      const tableEl = document.getElementById("inspections-table");
-                      if (tableEl && tableEl._dataTableInstance) {
-                          tableEl._dataTableInstance.destroy();
-                          delete tableEl._dataTableInstance;
-                      }
-                  });
-
-                  function initInspectionsTable() {
-                      const tableEl = document.getElementById("inspections-table");
-                      if (
-                          tableEl &&
-                          !tableEl._dataTableInstance &&
-                          typeof simpleDatatables !== "undefined" &&
-                          simpleDatatables.DataTable
-                      ) {
-                          const dataTable = new simpleDatatables.DataTable(tableEl, {
-                              labels: {
-                                  placeholder: "Buscar...",
-                                  perPage: "registros por pág.",
-                                  noRows: "No hay datos para mostrar",
-                                  noResults: "No hay resultados que coincidan con tu búsqueda",
-                                  info: "Mostrando {start} a {end} de {rows} entradas"
-                              },
-                              tableRender: (_data, table, type) => {
-                                  if (type === "print") return table;
-
-                                  table.childNodes[0].childNodes.forEach((row) => {
-                                      if (!row.attributes) row.attributes = {};
-                                      row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
-
-                                      row.childNodes.forEach((th) => {
-                                          if (!th.attributes) th.attributes = {};
-                                          th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
-                                      });
-                                  });
-
-                                  const tHead = table.childNodes[0];
-                                  const firstRow = tHead.childNodes[0];
-
-                                  const filterHeaders = {
-                                      nodeName: "TR",
-                                      attributes: { class: "search-filtering-row bg-gray-800 text-white" },
-                                      childNodes: firstRow.childNodes.map((_th, index) => ({
-                                          nodeName: "TH",
-                                          attributes: { style: "padding-top: 1rem;" },
-                                          childNodes: [
-                                              {
-                                                  nodeName: "INPUT",
-                                                  attributes: {
-                                                      class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                                      type: "search",
-                                                      "data-columns": "[" + index + "]",
-                                                      placeholder: "Filtrar"
-                                                  }
-                                              }
-                                          ]
-                                      }))
-                                  };
-                                  tHead.childNodes.push(filterHeaders);
-                                  return table;
-                              }
-                          });
-
-                          dataTable.on("datatable.init", () => {
-                              const overlay = document.getElementById("tableLoadingOverlay");
-                              const container = document.getElementById("tableContainer");
-                              if (overlay) overlay.remove();
-                              if (container) container.classList.remove("hidden");
-                          });
-
-                          tableEl._dataTableInstance = dataTable;
-                      }
-                  }
-
-                  document.addEventListener("turbo:load", initInspectionsTable);
-                  document.addEventListener("turbo:frame-load", initInspectionsTable);
-              })();
-          </script>
-
-<%# ====== ESTILOS ====== %>
-          <style>
-              .dataTable-table tbody td { color: #fff !important; }
-              .datatable-ascending, .datatable-descending { background-color: #539DED !important; color: #fff !important; }
-
-              #inspections-table thead th button.datatable-sorter {
-                  background: transparent !important; border: none !important; color: #fff !important;
-              }
-              #inspections-table thead th button.datatable-sorter:hover {
-                  background: transparent !important; color: #1d4ed8 !important;
-              }
-              #inspections-table thead th button.datatable-sorter:hover::before,
-              #inspections-table thead th button.datatable-sorter:hover::after {
-                  background-color: transparent !important; color: #1d4ed8 !important;
-              }
-              #inspections-table thead th button.datatable-sorter:hover p.hover\:text-blue-700 {
-                  color: #1d4ed8 !important;
-              }
-
-              #inspections-table .datatable-selector {
-                  background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #ccc !important;
-                  border-radius: 4px; padding: 0.25rem 0.5rem;
-              }
-              #inspections-table .datatable-input {
-                  background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #ccc !important;
-                  border-radius: 4px; padding: 0.25rem 0.5rem;
-              }
-              #inspections-table .datatable-input::placeholder { color: #888; }
-          </style>
-
-
-      <% end %>
-
-        <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
+      <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
           <div class="mb-2">
             <%= form_with model: @inspection, url: update_ending_inspection_path(@inspection), local: true do |f| %>
               <div class="mb-2">
@@ -507,26 +193,26 @@
 
         <% if @inspection.state == "Cerrado" && (Current.user.admin || Current.user.certificar || Current.user.only_see) && @report.ending %>
 
-            <%= form_with url: download_document_inspection_path(@inspection),
-                          method: :get,
-                          local: true,
-                          data: { turbo: "false" } do |form| %>
+          <%= form_with url: download_document_inspection_path(@inspection),
+                        method: :get,
+                        local: true,
+                        data: { turbo: "false" } do |form| %>
 
-              <%= form.label :admin_id, "Seleccione un administrador:",
-                             class: "block text-sm font-medium text-gray-300" %>
+            <%= form.label :admin_id, "Seleccione un administrador:",
+                           class: "block text-sm font-medium text-gray-300" %>
 
-              <%= form.collection_select :admin_id, User.where(admin: true, super: false),
-                                         :id, :real_name, {},
-                                         {
-                                           class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
-                                           data: { controller: 'slim' }
-                                         } %>
+            <%= form.collection_select :admin_id, User.where(admin: true, super: false),
+                                       :id, :real_name, {},
+                                       {
+                                         class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                                         data: { controller: 'slim' }
+                                       } %>
 
-              <%= form.submit "Generar informe",
-                              class: "mt-3 px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 cursor-pointer" %>
-            <% end %>
+            <%= form.submit "Generar informe",
+                            class: "mt-3 px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 cursor-pointer" %>
+          <% end %>
 
-      <% end %>
+        <% end %>
 
         <%= link_to 'Modificar inspección',
                     edit_inspection_path(@inspection),
@@ -589,5 +275,3 @@
 
 
 </div>
-
-

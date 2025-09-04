@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_21_150900) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_04_154713) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -166,6 +166,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_21_150900) do
     t.string "region", null: false
     t.string "comuna", null: false
     t.bigint "facturacion_id"
+    t.boolean "copia", default: false, null: false
     t.index ["facturacion_id"], name: "index_inspections_on_facturacion_id"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true

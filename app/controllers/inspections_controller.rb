@@ -55,6 +55,11 @@ class InspectionsController < ApplicationController
     @control3 = @item.identificador.include? "CAMBIAME"
     @report = Report.find_by(inspection: inspection)
     @inspections = Inspection.where("number > 0").order(number: :desc)
+
+
+
+
+
   end
   def new
 
@@ -809,110 +814,307 @@ class InspectionsController < ApplicationController
   end
 
 
-def copy
+  def copy
 
-  @inspection = Inspection.find(params[:id])
-  authorize! @inspection
-  @item = @inspection.item
-  @report = Report.find_by(inspection: @inspection)
-  if @inspection.item.group.type_of == "escala"
-    @revision = LadderRevision.find_by(inspection_id: @inspection.id)
-    @detail = LadderDetail.find_by(item_id: @item.id)
-  elsif @inspection.item.group.type_of == "ascensor"
-    @revision = Revision.find_by(inspection_id: @inspection.id)
-    @detail = Detail.find_by(item_id: @item.id)
-  end
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+    @item = @inspection.item
+    @report = Report.find_by(inspection: @inspection)
+    if @inspection.item.group.type_of == "escala"
+      @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+      @detail = LadderDetail.find_by(item_id: @item.id)
+    elsif @inspection.item.group.type_of == "ascensor"
+      @revision = Revision.find_by(inspection_id: @inspection.id)
+      @detail = Detail.find_by(item_id: @item.id)
+    end
 
-  @anothers = @item.inspections.where.not(id: @inspection.id).order(number: :desc)
-
-
+    @anothers = @item.inspections.where.not(id: @inspection.id).order(number: :desc)
 
 
 
-  @inspection_og = Inspection.find(params[:selected_inspection_id])
-  @report_og = Report.find_by(inspection: @inspection_og)
-  @item_og = @inspection_og.item
-  if @inspection_og.item.group.type_of == "escala"
-    @revision_og = LadderRevision.find_by(inspection_id: @inspection_og.id)
-    @detail_og = LadderDetail.find_by(item_id: @item_og.id)
-  elsif @inspection_og.item.group.type_of == "ascensor"
-    @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
-    @detail_og = Detail.find_by(item_id: @item_og.id)
-  end
-
-  if @item.group.type_of != @item_og.group.type_of
-    flash[:alert] = "No se puede copiar, los tipos de grupo son diferentes."
-    redirect_to inspection_path(@inspection)
-    return
-  end
-
-  if params[:selected_inspection_id].to_s == params[:id].to_s
-    flash[:alert] = "No se puede copiar la misma inspección."
-    redirect_to inspection_path(@inspection)
-    return
-  end
-
-  @revision_colors_og = @revision_og.revision_colors.order(:section)
-  @revision_nulls_og = @revision_og.revision_nulls
-  @anothers_og = @item_og.anothers
 
 
+    @inspection_og = Inspection.find(params[:selected_inspection_id])
+    @report_og = Report.find_by(inspection: @inspection_og)
+    @item_og = @inspection_og.item
+    if @inspection_og.item.group.type_of == "escala"
+      @revision_og = LadderRevision.find_by(inspection_id: @inspection_og.id)
+      @detail_og = LadderDetail.find_by(item_id: @item_og.id)
+    elsif @inspection_og.item.group.type_of == "ascensor"
+      @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
+      @detail_og = Detail.find_by(item_id: @item_og.id)
+    end
 
-  ActiveRecord::Base.transaction do
+    if @item.group.type_of != @item_og.group.type_of
+      flash[:alert] = "No se puede copiar, los tipos de grupo son diferentes."
+      redirect_to inspection_path(@inspection)
+      return
+    end
+
+    if params[:selected_inspection_id].to_s == params[:id].to_s
+      flash[:alert] = "No se puede copiar la misma inspección."
+      redirect_to inspection_path(@inspection)
+      return
+    end
+
+    @revision_colors_og = @revision_og.revision_colors.order(:section)
+    @revision_nulls_og = @revision_og.revision_nulls
+    @anothers_og = @item_og.anothers
 
 
-    @report.update!(
-      fecha: @report_og.fecha,
-      vi_co_man_ini: @report_og.vi_co_man_ini,
-      vi_co_man_ter: @report_og.vi_co_man_ter,
-      ul_reg_man: @report_og.ul_reg_man,
-      urm_fecha: @report_og.urm_fecha,
-      empresa_anterior: @report_og.empresa_anterior,
-      ea_rol: @report_og.ea_rol,
-      ea_rut: @report_og.ea_rut,
-      empresa_mantenedora: @report_og.empresa_mantenedora,
-      em_rol: @report_og.em_rol,
-      em_rut: @report_og.em_rut,
-      nom_tec_man: @report_og.nom_tec_man,
-      tm_rut: @report_og.tm_rut,
-    )
 
-    # Copiar atributos de detalle
-    @count_inspections = @item.inspections.where("number > 0").count
-    if @detail && @detail_og && @count_inspections == 1
-      detail_attributes = @detail_og.attributes.except("id", "item_id", "created_at", "updated_at")
-      @detail.update!(detail_attributes)
+    ActiveRecord::Base.transaction do
+
+
+      @report.update!(
+        fecha: @report_og.fecha,
+        vi_co_man_ini: @report_og.vi_co_man_ini,
+        vi_co_man_ter: @report_og.vi_co_man_ter,
+        ul_reg_man: @report_og.ul_reg_man,
+        urm_fecha: @report_og.urm_fecha,
+        empresa_anterior: @report_og.empresa_anterior,
+        ea_rol: @report_og.ea_rol,
+        ea_rut: @report_og.ea_rut,
+        empresa_mantenedora: @report_og.empresa_mantenedora,
+        em_rol: @report_og.em_rol,
+        em_rut: @report_og.em_rut,
+        nom_tec_man: @report_og.nom_tec_man,
+        tm_rut: @report_og.tm_rut,
+      )
+
+      # Copiar atributos de detalle
+      @count_inspections = @item.inspections.where("number > 0").count
+      if @detail && @detail_og && @count_inspections == 1
+        detail_attributes = @detail_og.attributes.except("id", "item_id", "created_at", "updated_at")
+        @detail.update!(detail_attributes)
+      end
+
+
+      @revision.revision_nulls.destroy_all
+      @revision_nulls_og.each do |src|
+        @revision.revision_nulls.create!(point: src.point, comment: src.comment)
+      end
+
+
+      @anothers_og.each do |src|
+        @item.anothers.find_or_create_by(point: src.point, ruletype_id: src.ruletype_id, code: src.code, level: src.level, ins_type: src.ins_type, section: src.section)
+      end
+
+
+      @revision.revision_colors.destroy_all
+
+      @revision_og.revision_colors.order(:section).each do |src|
+        @revision.revision_colors.create!(section: src.section, color: false, codes: src.codes, points: src.points, levels: src.levels, comment: src.comment, number: src.number, priority: src.priority)
+
+      end
+
+
+
+
+
+
     end
 
 
-    @revision.revision_nulls.destroy_all
-    @revision_nulls_og.each do |src|
-      @revision.revision_nulls.create!(point: src.point, comment: src.comment)
+    @inspection.update(copia: true)
+
+    respond_to do |format|
+      format.html { redirect_to inspection_path(@inspection), notice: "Copiado correctamente." }
+      format.json { render json: { ok: true } }
+    end
+  rescue => e
+    respond_to do |format|
+      format.html do
+        flash[:alert] = "Error al copiar: #{e.message}"
+        redirect_to inspection_path(@inspection)
+      end
+      format.json { render json: { ok: false, error: e.message }, status: :unprocessable_entity }
+    end
+  end
+
+  # app/controllers/inspections_controller.rb
+  def search_candidates
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+
+    q         = params[:q].to_s.strip
+    page      = [params[:page].to_i, 1].max
+    per_page  = params[:per_page].present? ? params[:per_page].to_i.clamp(5, 100) : 20
+
+    type_of = @inspection.item.group.type_of
+
+    scope = Inspection
+              .joins(item: :group)
+              .where(groups: { type_of: type_of })
+              .where.not(id: @inspection.id)
+              .where("inspections.number > 0")
+
+    if q.present?
+      if q =~ /\A\d+\z/            # "1" => 1,10,11,12... (no 21,31,...)
+        scope = scope.where("CAST(inspections.number AS CHAR) LIKE ?", "#{q}%")
+      else
+        scope = scope.where("inspections.name LIKE ?", "%#{q}%")
+      end
     end
 
+    total_count = scope.count
+    results = scope
+                .includes(:item)
+                .order(number: :desc)
+                .offset((page - 1) * per_page)
+                .limit(per_page)
 
-    @anothers_og.each do |src|
-      @item.anothers.find_or_create_by(point: src.point, ruletype_id: src.ruletype_id, code: src.code, level: src.level, ins_type: src.ins_type, section: src.section)
+    payload = results.map do |i|
+      {
+        id: i.id,
+        number: i.number,
+        name: i.name,
+        place: i.place,
+        ins_date: i.ins_date&.strftime("%Y-%m-%d"),
+        state: i.state,
+        item_identificador: i.item&.identificador,
+        group_type: i.item&.group&.type_of
+      }
     end
 
+    render json: {
+      results: payload,
+      meta: {
+        page: page,
+        per_page: per_page,
+        total_count: total_count,
+        total_pages: (total_count.to_f / per_page).ceil
+      }
+    }
+  end
 
-    @revision.revision_colors.destroy_all
 
-    @revision_og.revision_colors.order(:section).each do |src|
-      @revision.revision_colors.create!(section: src.section, color: false, codes: src.codes, points: src.points, levels: src.levels, comment: src.comment, number: src.number, priority: src.priority)
+  # app/controllers/inspections_controller.rb
+  def copy_preview
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+    @item = @inspection.item
+    @report = Report.find_by(inspection: @inspection)
 
+    if @inspection.item.group.type_of == "escala"
+      @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+      @detail   = LadderDetail.find_by(item_id: @item.id)
+    else
+      @revision = Revision.find_by(inspection_id: @inspection.id)
+      @detail   = Detail.find_by(item_id: @item.id)
     end
 
+    @inspection_og = Inspection.find(params[:selected_inspection_id])
+    @report_og     = Report.find_by(inspection: @inspection_og)
+    @item_og       = @inspection_og.item
 
+    if @inspection_og.item.group.type_of == "escala"
+      @revision_og = LadderRevision.find_by(inspection_id: @inspection_og.id)
+      @detail_og   = LadderDetail.find_by(item_id: @item_og.id)
+    else
+      @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
+      @detail_og   = Detail.find_by(item_id: @item_og.id)
+    end
 
+    if @item.group.type_of != @item_og.group.type_of
+      return render json: { error: "Los tipos de grupo son diferentes." }, status: :unprocessable_entity
+    end
 
+    if params[:selected_inspection_id].to_s == params[:id].to_s
+      return render json: { error: "No se puede copiar la misma inspección." }, status: :unprocessable_entity
+    end
 
+    # Campos de reporte a comparar (estructura igual)
+    report_fields = %i[
+    fecha vi_co_man_ini vi_co_man_ter ul_reg_man urm_fecha empresa_anterior ea_rol ea_rut
+    empresa_mantenedora em_rol em_rut nom_tec_man tm_rut
+  ]
+
+    report_changes = []
+    if @report && @report_og
+      report_fields.each do |f|
+        current = @report.send(f)
+        source  = @report_og.send(f)
+        report_changes << { field: f.to_s, current: current, source: source, will_update: (current != source) }
+      end
+    end
+
+    # Detalle: comparar atributo a atributo si aplica la copia (tu regla original)
+    count_inspections = @item.inspections.where("number > 0").count
+    will_copy_detail  = (@detail && @detail_og && count_inspections == 1)
+
+    detail_changes = []
+    if will_copy_detail
+      # mismos campos en ambas clases de detail (estructura "igual"; si algún campo no existe, rescue)
+      src_attrs  = @detail_og.attributes.except("id","item_id","created_at","updated_at")
+      src_attrs.each do |k, src_v|
+        cur_v = @detail.respond_to?(k) ? @detail.send(k) : nil
+        detail_changes << { field: k, current: cur_v, source: src_v, will_update: (cur_v != src_v) }
+      end
+    end
+
+    # Nulls/Colors/Anothers: lista completa de lo que se destruye/crea
+    revision_nulls_current = (@revision&.revision_nulls || [])
+    revision_nulls_source  = (@revision_og&.revision_nulls || [])
+
+    revision_colors_current = (@revision&.revision_colors&.order(:section) || [])
+    revision_colors_source  = (@revision_og&.revision_colors&.order(:section) || [])
+
+    anothers_current = @item.respond_to?(:anothers)   ? @item.anothers : []
+    anothers_source  = @item_og.respond_to?(:anothers)? @item_og.anothers : []
+
+    # Para 'anothers' indicamos cuáles se crearían (clave compuesta)
+    existing_keys = anothers_current.map { |a| [a.point, a.ruletype_id, a.code, a.level, a.ins_type, a.section] }
+    anothers_to_create = anothers_source.map { |s| [s.point, s.ruletype_id, s.code, s.level, s.ins_type, s.section] } - existing_keys
+
+    current_snapshot = {
+      inspection: { id: @inspection.id, number: @inspection.number, name: @inspection.name,
+                    item_id: @inspection.item_id, group_type: @inspection.item&.group&.type_of },
+      report: @report&.slice(*report_fields),
+      detail: will_copy_detail ? @detail&.attributes&.except("id","item_id","created_at","updated_at") : nil,
+      revision_nulls: revision_nulls_current.map { |n| { point: n.point, comment: n.comment } },
+      revision_colors: revision_colors_current.map { |c| { section: c.section, color: c.color, codes: c.codes, points: c.points, levels: c.levels, comment: c.comment, number: c.number, priority: c.priority } },
+      anothers: anothers_current.map { |a| { point: a.point, ruletype_id: a.ruletype_id, code: a.code, level: a.level, ins_type: a.ins_type, section: a.section } }
+    }
+
+    source_snapshot = {
+      inspection: { id: @inspection_og.id, number: @inspection_og.number, name: @inspection_og.name,
+                    item_id: @inspection_og.item_id, group_type: @inspection_og.item&.group&.type_of },
+      report: @report_og&.slice(*report_fields),
+      detail: will_copy_detail ? @detail_og&.attributes&.except("id","item_id","created_at","updated_at") : nil,
+      revision_nulls: revision_nulls_source.map { |n| { point: n.point, comment: n.comment } },
+      revision_colors: revision_colors_source.map { |c| { section: c.section, color: c.color, codes: c.codes, points: c.points, levels: c.levels, comment: c.comment, number: c.number, priority: c.priority } },
+      anothers: anothers_source.map { |a| { point: a.point, ruletype_id: a.ruletype_id, code: a.code, level: a.level, ins_type: a.ins_type, section: a.section } }
+    }
+
+    # Resumen detallado (no “columnas”, sino info completa)
+    summary = {
+      report: report_changes,
+      detail: detail_changes,
+      revision_nulls: {
+        current: current_snapshot[:revision_nulls],
+        source:  source_snapshot[:revision_nulls]
+      },
+      revision_colors: {
+        current: current_snapshot[:revision_colors],
+        source:  source_snapshot[:revision_colors]
+      },
+      anothers: {
+        current: current_snapshot[:anothers],
+        source:  source_snapshot[:anothers],
+        will_create: anothers_to_create.map { |p, rt, code, lvl, it, sec| { point: p, ruletype_id: rt, code: code, level: lvl, ins_type: it, section: sec } }
+      }
+    }
+
+    render json: {
+      summary: summary,
+      current_snapshot: current_snapshot,
+      source_snapshot: source_snapshot
+    }
   end
 
 
 
-
-end
 
   private
   def inspection_params
