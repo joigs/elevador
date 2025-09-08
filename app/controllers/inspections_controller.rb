@@ -845,7 +845,7 @@ class InspectionsController < ApplicationController
       @detail_og = Detail.find_by(item_id: @item_og.id)
     end
 
-    if @item.group.type_of != @item_og.group.type_of
+    if @item.group.id != @item_og.group.id
       flash[:alert] = "No se puede copiar, los tipos de grupo son diferentes."
       redirect_to inspection_path(@inspection)
       return
@@ -918,6 +918,19 @@ class InspectionsController < ApplicationController
 
     @inspection.update(copia: true)
 
+
+    @conexions = Conexion.where(copy_inspection_id: @inspection.id)
+    if @conexions.any?
+      @conexions.destroy_all
+    end
+
+    Conexion.create!(original_inspection: @inspection_og, copy_inspection: @inspection)
+
+
+
+
+
+
     respond_to do |format|
       format.html { redirect_to inspection_path(@inspection), notice: "Copiado correctamente." }
       format.json { render json: { ok: true } }
@@ -932,7 +945,6 @@ class InspectionsController < ApplicationController
     end
   end
 
-  # app/controllers/inspections_controller.rb
   def search_candidates
     @inspection = Inspection.find(params[:id])
     authorize! @inspection
@@ -941,11 +953,12 @@ class InspectionsController < ApplicationController
     page      = [params[:page].to_i, 1].max
     per_page  = params[:per_page].present? ? params[:per_page].to_i.clamp(5, 100) : 20
 
-    type_of = @inspection.item.group.type_of
+
+    group_id = @inspection.item.group_id
 
     scope = Inspection
               .joins(item: :group)
-              .where(groups: { type_of: type_of })
+              .where(groups: { id: group_id })
               .where.not(id: @inspection.id)
               .where("inspections.number > 0")
 
@@ -973,7 +986,7 @@ class InspectionsController < ApplicationController
         ins_date: i.ins_date&.strftime("%Y-%m-%d"),
         state: i.state,
         item_identificador: i.item&.identificador,
-        group_type: i.item&.group&.type_of
+        group_id: i.item&.group&.id
       }
     end
 
@@ -1016,8 +1029,8 @@ class InspectionsController < ApplicationController
       @detail_og   = Detail.find_by(item_id: @item_og.id)
     end
 
-    if @item.group.type_of != @item_og.group.type_of
-      return render json: { error: "Los tipos de grupo son diferentes." }, status: :unprocessable_entity
+    if @item.group.id != @item_og.group.id
+      return render json: { error: "Los grupos son diferentes." }, status: :unprocessable_entity
     end
 
     if params[:selected_inspection_id].to_s == params[:id].to_s
@@ -1069,7 +1082,7 @@ class InspectionsController < ApplicationController
 
     current_snapshot = {
       inspection: { id: @inspection.id, number: @inspection.number, name: @inspection.name,
-                    item_id: @inspection.item_id, group_type: @inspection.item&.group&.type_of },
+                    item_id: @inspection.item_id, group_id: @inspection.item&.group&.id },
       report: @report&.slice(*report_fields),
       detail: will_copy_detail ? @detail&.attributes&.except("id","item_id","created_at","updated_at") : nil,
       revision_nulls: revision_nulls_current.map { |n| { point: n.point, comment: n.comment } },
@@ -1079,7 +1092,7 @@ class InspectionsController < ApplicationController
 
     source_snapshot = {
       inspection: { id: @inspection_og.id, number: @inspection_og.number, name: @inspection_og.name,
-                    item_id: @inspection_og.item_id, group_type: @inspection_og.item&.group&.type_of },
+                    item_id: @inspection_og.item_id, group_id: @inspection_og.item&.group&.id },
       report: @report_og&.slice(*report_fields),
       detail: will_copy_detail ? @detail_og&.attributes&.except("id","item_id","created_at","updated_at") : nil,
       revision_nulls: revision_nulls_source.map { |n| { point: n.point, comment: n.comment } },

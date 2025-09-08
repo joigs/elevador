@@ -86,12 +86,12 @@
     <p class="text-gray-300 font-bold">Vigencia contrato de mantención</p>
     <div>
       <label class="block text-gray-300">Fecha inicio</label>
-      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.vi_co_man_ini %></div>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= format_date(report.vi_co_man_ini) %></div>
     </div>
 
     <div>
       <label class="block text-gray-300">Fecha término</label>
-      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.vi_co_man_ter %></div>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= format_date(report.vi_co_man_ter) %></div>
     </div>
 
 
@@ -108,12 +108,12 @@
 
     <div>
       <label class="block text-gray-300">Último registro de mantención N°</label>
-      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.ul_reg_man %></div>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= format_date(report.ul_reg_man ) %></div>
     </div>
 
     <div>
       <label class="block text-gray-300">Fecha Último registro de mantención</label>
-      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= report.urm_fecha %></div>
+      <div class="block w-full px-3 py-2 bg-gray-700 text-white rounded-md"><%= format_date(report.urm_fecha) %></div>
     </div>
   </div>
 </div>

@@ -117,6 +117,11 @@ class RevisionsController < ApplicationController
 
     elementos.each { |elemento| @nombres.delete(elemento) }
 
+    @copy = Conexion.find_by(copy_inspection_id: @inspection.id)
+    @inspection_og = Inspection.find_by(id: @copy.original_inspection_id) if @copy.present?
+
+
+
 
     if params[:section].present?
       section_code_start = "#{params[:section]}."
@@ -125,6 +130,38 @@ class RevisionsController < ApplicationController
       @section = params[:section]
       @revision = @revision_base.revision_colors.find_by(section: @section)
     end
+
+    @comparison_text = []
+
+    if @inspection_og.present?
+
+      @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
+
+      if @revision_og.present?
+        curr_by_section = @revision_base.revision_colors.index_by(&:section)
+        og_by_section   = @revision_og.revision_colors.index_by(&:section)
+
+        numero_de_secciones = 11
+        sections = [*0..numero_de_secciones]
+
+        sections.each do |sec|
+          rc = curr_by_section[sec]
+          ro = og_by_section[sec]
+          next if rc.nil? || ro.nil?
+
+          pairs_c = Array(rc.codes).zip(Array(rc.points)).uniq.compact
+          pairs_o = Array(ro.codes).zip(Array(ro.points)).uniq.compact
+
+          common = pairs_c & pairs_o
+
+          common.each do |code, point|
+            next if code.blank? && point.blank?
+            @comparison_text << "Sección #{sec} — #{code} #{point}"
+          end
+        end
+      end
+    end
+
 
     @revision_map = {}
 
@@ -192,8 +229,26 @@ class RevisionsController < ApplicationController
       )
     end
 
-    # Combina las reglas existentes con las nuevas
     @rules += additional_rules
+
+
+
+    @copy_match_lookup = {}
+
+    if @inspection_og.present?
+      @revision_og ||= Revision.find_by(inspection_id: @inspection_og.id)
+      if @revision_og
+        og_sec = @revision_og.revision_colors.find_by(section: @section)
+        if og_sec
+          Array(og_sec.codes).zip(Array(og_sec.points)).each do |code, point|
+            next if code.blank? && point.blank?
+            @copy_match_lookup["#{code}||#{point}"] = true
+          end
+        end
+      end
+    end
+
+
 
   rescue ActiveRecord::RecordNotFound
     # This rescue block might be redundant if you are handling the nil cases above

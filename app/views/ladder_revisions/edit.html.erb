@@ -2,7 +2,7 @@
 
   <div style="position: sticky; top: 0; z-index: 10; background-color: #213e4e; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"
        class="relative flex items-center justify-center"
-       data-controller="info-icon emergent-list"
+       data-controller="info-icon emergent-list defect-compare"
        data-info-icon-info-value="<%= ['Si encuentras un defecto, marca la casilla no cumple del defecto.',
                                        'Para subir un comentario o una imagen con respecto a un defecto, debes marcar antes la casilla "No cumple".',
                                        'Si quieres subir una imagen que no esta asociada a un defecto, presiona el botón con la cámara al inicio de la página.',
@@ -15,10 +15,12 @@
                                        'Hay defectos que en el nivel tienen un botón verde, presionalo para cambiar el nivel, el nivel definido será el que se muestra en el botón.',
                                        'Puedes definir un defecto nuevo, presionando el botón "Definir nuevo defecto para esta inspección" abajo de la última tabla, ese nuevo defecto no se marcará automaticamente, por lo que deberás ir al fondo y marcar la casilla "No cumple".',
                                        'Para cerrar la inspección, debes presionar el botón "Ver fallas registradas" y desde ahí terminarla.'].to_json %>"
-       data-emergent-list-emergent-value="<%= @emergent_text.to_json %>">
+       data-emergent-list-emergent-value="<%= @emergent_text.to_json %>"
+       data-defect-compare-list-value="<%= @comparison_text.to_json %>">
 
 
-    <div
+
+  <div
       class="absolute left-4 cursor-pointer"
       data-action="click->info-icon#openInfo">
       <svg class="h-8 w-8 text-red-500"
@@ -37,6 +39,16 @@
       </svg>
     </div>
 
+    <% if @copy %>
+      <div class="absolute left-20">
+        <button
+          type="button"
+          class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1 px-2 rounded"
+          data-action="click->defect-compare#open">
+          Ver defectos copiados
+        </button>
+      </div>
+    <% end %>
 
     <%= button_tag 'Guardar cambios',
                    type: 'button',
@@ -289,10 +301,21 @@
             </td>
 
             <td class="px-6 py-4">
-              <div class="flex justify-center items-center">
-
+              <div class="flex flex-col justify-center items-center">
                 <% is_checked = @revision.codes.include?(rule.code) && @revision.points.include?(rule.point) %>
-                <%= check_box_tag "ladder_revision[fail][]", "1", is_checked, id: "fail_#{index}", data: { action: "change->rules-form#toggle", rules_form_target: "fail" }, class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+                <%= check_box_tag "ladder_revision[fail][]",
+                                  "1",
+                                  is_checked,
+                                  id: "fail_#{index}",
+                                  data: { action: "change->rules-form#toggle", rules_form_target: "fail" },
+                                  class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
+
+                <% if is_checked && @copy_match_lookup && @copy_match_lookup["#{rule.code}||#{rule.point}"] %>
+      <span class="mt-1 text-[13px] px-2 py-0.5 rounded border bg-yellow-200 border-yellow-300 text-yellow-900">
+        Copiado
+      </span>
+                <% end %>
+
               </div>
             </td>
 
