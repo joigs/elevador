@@ -45,7 +45,7 @@
 
     <div>
       <label class="block text-gray-300">Fecha Permiso de edificación</label>
-      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.fecha_permiso %></div>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= format_date(ladder_detail.fecha_permiso) %></div>
     </div>
 
     <div>
@@ -55,7 +55,7 @@
 
     <div>
       <label class="block text-gray-300">Recepción</label>
-      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= ladder_detail.recepcion %></div>
+      <div class="block shadow appearance-none rounded-md border border-gray-300 bg-gray-700 text-white px-3 py-2 mt-2 w-full"><%= format_date(ladder_detail.recepcion) %></div>
     </div>
 
     <hr class="my-4 border-gray-500">

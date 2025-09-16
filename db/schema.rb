@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_21_150900) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_08_150127) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,6 +51,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_21_150900) do
     t.bigint "item_id", null: false
     t.index ["item_id"], name: "index_anothers_on_item_id"
     t.index ["ruletype_id"], name: "index_anothers_on_ruletype_id"
+  end
+
+  create_table "conexions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "original_inspection_id", null: false
+    t.bigint "copy_inspection_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["copy_inspection_id"], name: "index_conexions_on_copy_inspection_id"
+    t.index ["original_inspection_id"], name: "index_conexions_on_original_inspection_id"
   end
 
   create_table "convenios", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -166,6 +175,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_21_150900) do
     t.string "region", null: false
     t.string "comuna", null: false
     t.bigint "facturacion_id"
+    t.boolean "copia", default: false, null: false
     t.index ["facturacion_id"], name: "index_inspections_on_facturacion_id"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
@@ -427,6 +437,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_21_150900) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "conexions", "inspections", column: "copy_inspection_id"
+  add_foreign_key "conexions", "inspections", column: "original_inspection_id"
   add_foreign_key "convenios", "empresas"
   add_foreign_key "details", "items"
   add_foreign_key "inspection_users", "inspections"

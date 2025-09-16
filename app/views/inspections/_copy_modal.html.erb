@@ -1,0 +1,99 @@
+<div class="fixed inset-0 z-50 hidden"
+     data-copy-inspection-target="backdrop"
+     aria-hidden="true">
+  <!-- overlay: ahora sí cierra -->
+  <div class="absolute inset-0 bg-black bg-opacity-50"
+       data-action="click->copy-inspection#closeModal"></div>
+
+  <!-- wrapper: también escucha click fuera -->
+  <div class="absolute inset-0 flex items-center justify-center px-4"
+       data-action="mousedown->copy-inspection#maybeCloseOnOutside">
+    <div class="w-full max-w-5xl max-h-[85vh] overflow-y-auto bg-gray-900 text-white rounded-lg shadow-xl p-4"
+         data-copy-inspection-target="modalPanel">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold">Copiar desde otra inspección</h3>
+        <button class="text-gray-300 hover:text-white"
+                aria-label="Cerrar"
+                data-action="click->copy-inspection#closeModal">✕</button>
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="text"
+          class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+          placeholder="Buscar por número (prefijo) o nombre…"
+          data-copy-inspection-target="searchInput"
+          data-action="input->copy-inspection#debouncedSearch"
+        >
+      </div>
+
+      <!-- Toolbar superior sticky: paginación + botones -->
+      <div class="sticky top-0 z-10 bg-gray-900 py-2 flex items-center justify-between border-b border-gray-800">
+        <div class="flex items-center gap-2 text-sm" data-copy-inspection-target="paginationTop">
+          <!-- render por Stimulus -->
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+          <button class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-sm"
+                  data-action="click->copy-inspection#showPreview"
+                  data-copy-inspection-target="previewBtn"
+                  disabled>Ver resumen</button>
+          <button class="px-3 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm"
+                  data-action="click->copy-inspection#confirmCopy"
+                  data-copy-inspection-target="copyBtn"
+                  disabled>Copiar</button>
+          <span class="hidden sm:block mx-1 md:mx-2 w-px h-6 bg-gray-700"></span>
+          <button class="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-sm"
+                  data-action="click->copy-inspection#closeModal">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="overflow-auto border border-gray-700 rounded mt-2">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-800">
+          <tr>
+            <th class="px-3 py-2 text-left">Sel.</th>
+            <th class="px-3 py-2 text-left">N°</th>
+            <th class="px-3 py-2 text-left">Nombre</th>
+            <th class="px-3 py-2 text-left">Lugar</th>
+            <th class="px-3 py-2 text-left">Fecha</th>
+            <th class="px-3 py-2 text-left">Estado</th>
+            <th class="px-3 py-2 text-left">Activo</th>
+          </tr>
+          </thead>
+          <tbody data-copy-inspection-target="resultsBody">
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Resumen largo -->
+      <div class="mt-4">
+        <h4 class="font-semibold mb-2">Resumen (información completa)</h4>
+        <div class="text-xs text-gray-100 whitespace-pre-wrap"
+             data-copy-inspection-target="summaryBox">
+        </div>
+      </div>
+
+      <div class="sticky bottom-0 z-10 bg-gray-900 py-2 mt-4 flex items-center justify-between border-t border-gray-800">
+        <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+          <button class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-sm"
+                  data-action="click->copy-inspection#showPreview"
+                  data-copy-inspection-target="previewBtn">Ver resumen</button>
+          <button class="px-3 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm"
+                  data-action="click->copy-inspection#confirmCopy"
+                  data-copy-inspection-target="copyBtn">Copiar</button>
+
+          <span class="hidden sm:block mx-1 md:mx-2 w-px h-6 bg-gray-700"></span>
+
+          <button class="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-sm"
+                  data-action="click->copy-inspection#closeModal">Cerrar</button>
+        </div>
+
+        <div class="flex items-center gap-2 text-sm" data-copy-inspection-target="paginationBottom">
+          <!-- render por Stimulus -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

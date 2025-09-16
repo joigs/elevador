@@ -104,7 +104,30 @@
       </div>
 
       <div class="mt-6">
-        <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
+
+        <% if @inspection.state != "Cerrado" && !Current.user.only_see %>
+          <div
+            data-controller="copy-inspection"
+            data-copy-inspection-search-url-value="<%= search_candidates_inspection_path(@inspection) %>"
+            data-copy-inspection-preview-url-value="<%= copy_preview_inspection_path(@inspection) %>"
+            data-copy-inspection-copy-url-value="<%= copy_inspection_path(@inspection) %>"
+            data-copy-inspection-show-json-url-value="<%= inspection_path(@inspection, format: :json) %>"
+            data-copy-inspection-inspection-id-value="<%= @inspection.id %>"
+          >
+            <button
+              type="button"
+              class="px-3 py-2 rounded bg-indigo-600 text-white font-bold hover:bg-indigo-700 mt-2"
+              data-action="click->copy-inspection#openModal"
+            >
+              Copiar desde otra inspección
+            </button>
+
+            <%= render "inspections/copy_modal" %>
+          </div>
+
+        <% end %>
+
+      <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
           <div class="mb-2">
             <%= form_with model: @inspection, url: update_ending_inspection_path(@inspection), local: true do |f| %>
               <div class="mb-2">
@@ -170,26 +193,26 @@
 
         <% if @inspection.state == "Cerrado" && (Current.user.admin || Current.user.certificar || Current.user.only_see) && @report.ending %>
 
-            <%= form_with url: download_document_inspection_path(@inspection),
-                          method: :get,
-                          local: true,
-                          data: { turbo: "false" } do |form| %>
+          <%= form_with url: download_document_inspection_path(@inspection),
+                        method: :get,
+                        local: true,
+                        data: { turbo: "false" } do |form| %>
 
-              <%= form.label :admin_id, "Seleccione un administrador:",
-                             class: "block text-sm font-medium text-gray-300" %>
+            <%= form.label :admin_id, "Seleccione un administrador:",
+                           class: "block text-sm font-medium text-gray-300" %>
 
-              <%= form.collection_select :admin_id, User.where(admin: true, super: false),
-                                         :id, :real_name, {},
-                                         {
-                                           class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
-                                           data: { controller: 'slim' }
-                                         } %>
+            <%= form.collection_select :admin_id, User.where(admin: true, super: false),
+                                       :id, :real_name, {},
+                                       {
+                                         class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                                         data: { controller: 'slim' }
+                                       } %>
 
-              <%= form.submit "Generar informe",
-                              class: "mt-3 px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 cursor-pointer" %>
-            <% end %>
+            <%= form.submit "Generar informe",
+                            class: "mt-3 px-3 py-2 rounded bg-green-500 text-gray-900 font-bold hover:bg-green-600 cursor-pointer" %>
+          <% end %>
 
-      <% end %>
+        <% end %>
 
         <%= link_to 'Modificar inspección',
                     edit_inspection_path(@inspection),
@@ -252,5 +275,3 @@
 
 
 </div>
-
-
