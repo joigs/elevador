@@ -32,7 +32,8 @@
         <div class="flex items-center gap-2 text-sm" data-copy-inspection-target="paginationTop">
           <!-- render por Stimulus -->
         </div>
-        <div class="flex items-center gap-2">
+
+        <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           <button class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-sm"
                   data-action="click->copy-inspection#showPreview"
                   data-copy-inspection-target="previewBtn"
@@ -41,6 +42,7 @@
                   data-action="click->copy-inspection#confirmCopy"
                   data-copy-inspection-target="copyBtn"
                   disabled>Copiar</button>
+          <span class="hidden sm:block mx-1 md:mx-2 w-px h-6 bg-gray-700"></span>
           <button class="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-sm"
                   data-action="click->copy-inspection#closeModal">Cancelar</button>
         </div>
@@ -72,22 +74,26 @@
         </div>
       </div>
 
-      <!-- Toolbar inferior sticky: repetición de botones + paginación -->
       <div class="sticky bottom-0 z-10 bg-gray-900 py-2 mt-4 flex items-center justify-between border-t border-gray-800">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           <button class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-sm"
                   data-action="click->copy-inspection#showPreview"
                   data-copy-inspection-target="previewBtn">Ver resumen</button>
           <button class="px-3 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm"
                   data-action="click->copy-inspection#confirmCopy"
                   data-copy-inspection-target="copyBtn">Copiar</button>
+
+          <span class="hidden sm:block mx-1 md:mx-2 w-px h-6 bg-gray-700"></span>
+
           <button class="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-sm"
                   data-action="click->copy-inspection#closeModal">Cerrar</button>
         </div>
+
         <div class="flex items-center gap-2 text-sm" data-copy-inspection-target="paginationBottom">
           <!-- render por Stimulus -->
         </div>
       </div>
+
     </div>
   </div>
 </div>

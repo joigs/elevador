@@ -26,7 +26,6 @@ export default class extends Controller {
         this._escHandler = (e) => { if (e.key === "Escape") this.closeModal() }
     }
 
-    // === Abrir / cerrar ===
     openModal() {
         this.backdropTarget.classList.remove("hidden")
         document.documentElement.classList.add("overflow-hidden")
@@ -56,7 +55,6 @@ export default class extends Controller {
     }
 
 
-    // === Búsqueda con debounce ===
     debouncedSearch() {
         clearTimeout(this._debounceTimer)
         this._debounceTimer = setTimeout(() => {
@@ -138,7 +136,6 @@ export default class extends Controller {
         }
     }
 
-    // === Preview con información completa ===
     async showPreview() {
         if (!this.selectedId) return
         const url = new URL(this.previewUrlValue, window.location.origin)
@@ -162,51 +159,68 @@ export default class extends Controller {
 
         this._lastPreview = data
 
-        // Construir bloque largo con datos completos
         const s = data.summary
         const j = (o) => JSON.stringify(o, null, 2)
 
+        const maps = this._labelMaps()
+
+        const toNice = (field) =>
+            maps.report[field] ||
+            maps.detail[field] ||
+            maps.ladderDetail[field] ||
+            this._humanizeEs(field)
+
         const reportLines = (s.report || []).map(row =>
-            `- ${row.field}:\n   actual: ${JSON.stringify(row.current)}\n   ref:    ${JSON.stringify(row.source)}\n   ${row.will_update ? "→ se actualizará" : "→ se mantiene"}`
+            `- ${toNice(row.field)}:\n   actual: ${JSON.stringify(row.current)}\n   ref:    ${JSON.stringify(row.source)}\n   ${row.will_update ? "→ se actualizará" : "→ se mantiene"}`
         ).join("\n\n")
 
         const detailLines = (s.detail || []).map(row =>
-            `- ${row.field}:\n   actual: ${JSON.stringify(row.current)}\n   ref:    ${JSON.stringify(row.source)}\n   ${row.will_update ? "→ se actualizará" : "→ se mantiene"}`
+            `- ${toNice(row.field)}:\n   actual: ${JSON.stringify(row.current)}\n   ref:    ${JSON.stringify(row.source)}\n   ${row.will_update ? "→ se actualizará" : "→ se mantiene"}`
         ).join("\n\n")
+        const rnCurrent = this._renameArrayOfObjects(s.revision_nulls?.current, maps.revNulls, { strict: true })
+        const rnSource  = this._renameArrayOfObjects(s.revision_nulls?.source,  maps.revNulls, { strict: true })
+
+        const rcCurrent = this._renameArrayOfObjects(s.revision_colors?.current, maps.revColors, { strict: true, omit: ["color", "revision_type"] })
+        const rcSource  = this._renameArrayOfObjects(s.revision_colors?.source,  maps.revColors, { strict: true, omit: ["color", "revision_type"] })
+
+        const anCurrent = this._renameArrayOfObjects(s.anothers?.current, maps.anothers, { strict: true, omit: ["ruletype_id"] })
+        const anSource  = this._renameArrayOfObjects(s.anothers?.source,  maps.anothers, { strict: true, omit: ["ruletype_id"] })
+        const anCreate  = this._renameArrayOfObjects(s.anothers?.will_create, maps.anothers, { strict: true, omit: ["ruletype_id"] })
+
 
         const text = [
-            "=== REPORTE ===",
+            "=== Detalle de la inspección ===",
             reportLines || "(sin diferencias / se mantienen)",
             "",
-            "=== DETALLE ===",
+            "=== Información adicional del activo ===",
             detailLines || "(no se copiará el detalle o sin diferencias)",
             "",
-            "=== REVISION NULLS (actual) ===",
-            j(s.revision_nulls.current || []),
+            "=== Defectos No Aplican (actual) ===",
+            j(rnCurrent || []),
             "",
-            "=== REVISION NULLS (referencia) ===",
-            j(s.revision_nulls.source || []),
+            "=== Defectos No Aplican (referencia) ===",
+            j(rnSource || []),
             "",
-            "=== REVISION COLORS (actual) ===",
-            j(s.revision_colors.current || []),
+            "=== Defectos (actual) ===",
+            j(rcCurrent || []),
             "",
-            "=== REVISION COLORS (referencia) ===",
-            j(s.revision_colors.source || []),
+            "=== Defectos (referencia) ===",
+            j(rcSource || []),
             "",
-            "=== ANOTHERS (actual) ===",
-            j(s.anothers.current || []),
+            "=== Defectos Adicionales (actual) ===",
+            j(anCurrent || []),
             "",
-            "=== ANOTHERS (referencia) ===",
-            j(s.anothers.source || []),
+            "=== Defectos Adicionales (referencia) ===",
+            j(anSource || []),
             "",
-            "=== ANOTHERS (se crearán) ===",
-            j(s.anothers.will_create || [])
+            "=== Defectos Adicionales (se crearán) ===",
+            j(anCreate || [])
         ].join("\n")
 
         this.summaryBoxTarget.textContent = text
     }
 
-    // === Confirmar copia con swal robusto ===
+
     async confirmCopy() {
         if (!this.selectedId) return
         if (!this._lastPreview) await this.showPreview()
@@ -244,7 +258,6 @@ export default class extends Controller {
                 body: formData
             })
 
-            // Si el backend devolvió HTML (redirect, auth), no intentes parsear JSON aquí.
             if (!copyRes.ok) {
                 const txt = await copyRes.text()
                 Swal.close()
@@ -252,13 +265,11 @@ export default class extends Controller {
                 return
             }
 
-            // Traer estado final sólo si el show responde JSON correctamente
             const finalRes = await fetch(this.showJsonUrlValue, { headers: { "Accept": "application/json" } })
             let finalJson = null
             if (this._isJson(finalRes)) {
                 finalJson = await finalRes.json()
             } else {
-                // si no es JSON, no reventamos: seguimos sin logs finales
                 console.warn("Respuesta de show no es JSON; se omiten logs finales.")
             }
 
@@ -278,7 +289,6 @@ export default class extends Controller {
         }
     }
 
-    // === Utilidades ===
     _setButtonsDisabled(disabled) {
         this.previewBtnTargets.forEach(btn => btn.disabled = disabled)
         this.copyBtnTargets.forEach(btn => btn.disabled = disabled)
@@ -302,7 +312,6 @@ export default class extends Controller {
     }
 
     _shortHtmlError(txt) {
-        // corta DOCTYPE/HTML largos para mostrar en swal
         const clean = txt.replace(/\s+/g, " ").slice(0, 300)
         return clean || "Respuesta no válida del servidor."
     }
@@ -311,4 +320,133 @@ export default class extends Controller {
         const meta = document.querySelector('meta[name="csrf-token"]')
         return meta && meta.getAttribute("content")
     }
+
+
+
+    _labelMaps() {
+        const report = {
+            fecha: "Fecha certificación anterior",
+            vi_co_man_ini: "Vigencia contrato de mantención – Fecha inicio",
+            vi_co_man_ter: "Vigencia contrato de mantención – Fecha término",
+            ul_reg_man: "Último registro de mantención N°",
+            urm_fecha: "Fecha Último registro de mantención",
+            empresa_anterior: "Empresa certificadora anterior",
+            ea_rol: "Rol empresa certificadora anterior",
+            ea_rut: "RUT empresa certificadora anterior",
+            empresa_mantenedora: "Empresa mantenedora",
+            em_rol: "Rol empresa mantenedora",
+            em_rut: "RUT empresa mantenedora",
+            nom_tec_man: "Nombre técnico mantenedor",
+            tm_rut: "RUT técnico mantenedor"
+        }
+
+        const detail = {
+            detalle: "Detalle",
+            marca: "Marca",
+            modelo: "Modelo",
+            n_serie: "N° de serie",
+            mm_marca: "Motor Motriz – Marca",
+            mm_n_serie: "Motor Motriz – N° de serie",
+            potencia: "Potencia kW",
+            capacidad: "Capacidad kg",
+            personas: "Personas",
+            ct_marca: "Cables de tracción – Marca",
+            ct_cantidad: "Cables de tracción – Cantidad",
+            ct_diametro: "Cables de tracción – Diámetro mm",
+            medidas_cintas: "Cintas – Ancho mm",
+            medidas_cintas_espesor: "Cintas – Espesor mm",
+            rv_marca: "Regulador de velocidad – Marca",
+            rv_n_serie: "Regulador de velocidad – N° de serie",
+            paradas: "Paradas",
+            embarques: "Embarques",
+            sala_maquinas: "Sala de máquinas",
+            velocidad: "Velocidad m/s",
+            descripcion: "Descripción",
+            rol_n: "Rol N°",
+            numero_permiso: "N° de permiso de edificación",
+            fecha_permiso: "Fecha de permiso de edificación",
+            destino: "Destino",
+            recepcion: "Recepción",
+            empresa_instaladora: "Empresa instaladora",
+            empresa_instaladora_rut: "RUT empresa instaladora",
+            porcentaje: "% de ocupación"
+        }
+
+        const ladderDetail = {
+            detalle: "Detalle",
+            descripcion: "Descripción",
+            rol_n: "Rol N°",
+            numero_permiso: "N° de permiso de edificación",
+            fecha_permiso: "Fecha de permiso de edificación",
+            destino: "Destino",
+            recepcion: "Recepción",
+            empresa_instaladora: "Empresa instaladora",
+            empresa_instaladora_rut: "RUT empresa instaladora",
+            porcentaje: "% de ocupación",
+            marca: "Marca",
+            modelo: "Modelo",
+            nserie: "N° de serie",
+            mm_marca: "Motor Motriz – Marca",
+            mm_nserie: "Motor Motriz – N° de serie",
+            potencia: "Potencia kW",
+            capacidad: "Capacidad kg",
+            personas: "Personas",
+            peldaños: "Peldaños mm",
+            longitud: "Longitud",
+            inclinacion: "Inclinación °",
+            ancho: "Ancho mm",
+            velocidad: "Velocidad m/s",
+            fabricacion: "Año de fabricación",
+            procedencia: "Procedencia"
+        }
+
+        const revNulls = {
+            point: "Defecto",
+            comment: "Comentario"
+        }
+
+        const revColors = {
+            number: "Número",
+            codes: "Código",
+            points: "Texto defecto",
+            levels: "Nivel",
+            comment: "Comentario",
+            section: "Sección",
+            priority: "Prioridad"
+        }
+
+        const anothers = {
+            point: "Texto defecto",
+            code: "Código",
+            level: "Nivel",
+            ins_type: "Tipo defecto",
+            section: "Sección"
+        }
+
+        return { report, detail, ladderDetail, revNulls, revColors, anothers }
+    }
+
+    _humanizeEs(str) {
+        if (!str) return str
+        const s = str.replace(/_/g, " ").trim()
+        return s.charAt(0).toUpperCase() + s.slice(1)
+    }
+
+    _renameObjectKeys(obj, map, { strict = false, omit = [] } = {}) {
+        if (!obj || typeof obj !== "object" || Array.isArray(obj)) return obj
+        const out = {}
+        for (const [k, v] of Object.entries(obj)) {
+            if (omit.includes(k)) continue
+            const label = (k in map) ? map[k] : (strict ? null : this._humanizeEs(k))
+            if (label) out[label] = v
+        }
+        return out
+    }
+
+    _renameArrayOfObjects(arr, map, opts = {}) {
+        if (!Array.isArray(arr)) return arr
+        return arr.map(o => this._renameObjectKeys(o, map, opts))
+    }
+
+
 }

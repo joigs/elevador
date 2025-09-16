@@ -376,7 +376,6 @@
                     <% rule.level.delete_if(&:blank?) %>
                     <%= hidden_field_tag "revision[levels][]", rule.level[0], data: { rules_form_target: "level" } %>
 
-
                   <% end %>
                 <% end %>
 
