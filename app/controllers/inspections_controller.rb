@@ -76,9 +76,11 @@ class InspectionsController < ApplicationController
   end
 
   def create
+    copy_after   = false
+    copy_from_id = nil
     ActiveRecord::Base.transaction do
       @manual_action_name = inspection_params[:manual_action_name]
-      @inspection = Inspection.new(inspection_params.except(:identificador, :group_id, :principal_id, :manual_action_name))
+      @inspection = Inspection.new(inspection_params.except(:identificador, :calle, :group_id, :principal_id, :manual_action_name))
 
       authorize! @inspection
 
@@ -168,11 +170,28 @@ class InspectionsController < ApplicationController
           @detail = Detail.create!(item: @item)
         end
       end
-      flash[:notice] = "Inspección creada con éxito"
-      redirect_to inspection_path(@inspection)
+
+      if @inspection.rerun == true
+        last_inspection = @item.inspections
+                               .where("number > 0")
+                               .where.not(id: @inspection.id)
+                               .order(number: :desc)
+                               .first
+        if last_inspection
+          copy_after   = true
+          copy_from_id = last_inspection.id
+        end
+      end
     end
+
+    if copy_after
+      params[:id] = @inspection.id
+      params[:selected_inspection_id] = copy_from_id
+      return copy
+    end
+    flash[:notice] = "Inspección creada con éxito"
+    redirect_to inspection_path(@inspection), status: :see_other
   rescue ActiveRecord::RecordInvalid => e
-    # Agregar los errores de validación al modelo
     @inspection.errors.add(:base, e.record.errors.full_messages.uniq.join(', '))
     render :new, status: :unprocessable_entity
   end
@@ -244,7 +263,7 @@ class InspectionsController < ApplicationController
     black_number = inspection.number*-1
 
     # Intenta actualizar la inspección
-    if @inspection.update(inspection_params.except(:manual_action_name))
+    if @inspection.update(inspection_params.except(:manual_action_name, :calle))
 
       @black_inspection = Inspection.find_by(number: black_number)
       if @black_inspection
@@ -1131,7 +1150,7 @@ class InspectionsController < ApplicationController
 
   private
   def inspection_params
-    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :comuna, :region, :principal_name, :name, :number, :rerun, :group_id, :principal_id, :facturacion_id, user_ids: [])
+    params.require(:inspection).permit(:place, :ins_date, :validation, :manual_action_name, :inf_date, :ending, :identificador, :comuna, :region, :calle, :principal_name, :name, :number, :rerun, :group_id, :principal_id, :facturacion_id, user_ids: [])
 
   end
   #indices para ordenar
