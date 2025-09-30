@@ -153,7 +153,7 @@ class ReportsController < ApplicationController
       end
 
 
-      if inspection.ins_date <= Date.today
+      if inspection.ins_date <= Time.zone.today
 
         flash[:notice] = "Información modificada exitosamente"
         if @item.group.type_of == "escala"

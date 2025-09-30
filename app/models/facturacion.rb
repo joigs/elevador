@@ -21,7 +21,7 @@ class Facturacion < ApplicationRecord
 
 
   after_initialize do
-    self.solicitud ||= Date.today
+    self.solicitud ||= Time.zone.today
   end
 
 

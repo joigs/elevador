@@ -68,7 +68,7 @@ class Inspection < ApplicationRecord
 
   def check_and_update_state
     return unless report
-    if report.ending && Date.today > report.ending
+    if report.ending && Time.zone.today > report.ending
       if self.result== 'Aprobado'
         self.result = 'Vencido (Aprobado)'
       elsif self.result == 'Rechazado'
@@ -133,7 +133,7 @@ class Inspection < ApplicationRecord
 
   def update_cambio_if_result_changed
     if result_changed?
-      self.cambio = Date.today
+      self.cambio = Time.zone.today
     end
   end
 

@@ -115,3 +115,5 @@ gem 'chartkick'
 gem 'groupdate'
 
 gem 'write_xlsx'
+gem 'sidekiq'
+gem 'sidekiq-cron'

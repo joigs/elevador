@@ -50,7 +50,7 @@ class DocumentGeneratorCotizacion
     ascensores = xlsx.cell(5, keywords["ascensor"]) || 'S/I'
     pisos = xlsx.cell(5, keywords["piso"]) || 'S/I'
 
-    fecha_actual = Date.today
+    fecha_actual = Time.zone.today
     meses_espanol = {
       "January" => "enero", "February" => "febrero", "March" => "marzo",
       "April" => "abril", "May" => "mayo", "June" => "junio",

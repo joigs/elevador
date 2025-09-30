@@ -314,7 +314,7 @@
                         <!-- Estado de la inspección -->
                         <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date %>">
                           <div class="relative group">
-                            <% if inspection.ins_date < Date.today %>
+                            <% if inspection.ins_date < Time.zone.today %>
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="red" />
@@ -322,7 +322,7 @@
                               <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
               Inspección Atrasada
             </span>
-                            <% elsif inspection.ins_date == Date.today %>
+                            <% elsif inspection.ins_date == Time.zone.today %>
                               <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                                 <circle cx="12" cy="12" r="5" fill="green" />
@@ -479,9 +479,9 @@
                     <% @inspections.each_with_index do |inspection, index| %>
                       <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
                         <% border_class =
-                             if inspection.ins_date < Date.today
+                             if inspection.ins_date < Time.zone.today
                                "border border-red-600"
-                             elsif inspection.ins_date == Date.today
+                             elsif inspection.ins_date == Time.zone.today
                                "border border-green-500"
                              else
                                "border border-yellow-500"
@@ -750,18 +750,18 @@
                           <p class="text-gray-400">No asignado</p>
                         <% end %>
                       </td>
-                      <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date < Date.today ? 'Atrasada' : (inspection.ins_date == Date.today ? 'Hoy' : 'Próxima') %>">
+                      <td class="px-6 py-4 whitespace-normal break-words text-center" data-order="<%= inspection.ins_date < Time.zone.today ? 'Atrasada' : (inspection.ins_date == Time.zone.today ? 'Hoy' : 'Próxima') %>">
                         <span class="sr-only">
-                          <% if inspection.ins_date < Date.today %>
+                          <% if inspection.ins_date < Time.zone.today %>
                             Atrasada
-                          <% elsif inspection.ins_date == Date.today %>
+                          <% elsif inspection.ins_date == Time.zone.today %>
                             Hoy
                           <% else %>
                             Próxima
                           <% end %>
                         </span>
                         <div class="relative group">
-                          <% if inspection.ins_date < Date.today %>
+                          <% if inspection.ins_date < Time.zone.today %>
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                               <circle cx="12" cy="12" r="5" fill="red" />
@@ -769,7 +769,7 @@
                             <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-700 text-white text-sm rounded shadow-md">
                               Inspección Atrasada
                             </span>
-                          <% elsif inspection.ins_date == Date.today %>
+                          <% elsif inspection.ins_date == Time.zone.today %>
                             <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" />
                               <circle cx="12" cy="12" r="5" fill="green" />
@@ -925,9 +925,9 @@
                   <% @inspections.each_with_index do |inspection, index| %>
                     <li class="<%= 'bg-gray-700' if index.even? %> p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-150 ease-in-out">
                       <% border_class =
-                           if inspection.ins_date < Date.today
+                           if inspection.ins_date < Time.zone.today
                              "border border-red-600"
-                           elsif inspection.ins_date == Date.today
+                           elsif inspection.ins_date == Time.zone.today
                              "border border-green-500"
                            else
                              "border border-yellow-500"

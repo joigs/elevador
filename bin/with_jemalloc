@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+
+export MALLOC_CONF="${MALLOC_CONF:-background_thread:true,dirty_decay_ms:5000,muzzy_decay_ms:5000,metadata_thp:auto}"
+export PORT="${PORT:-3000}"
+
+exec "$@"

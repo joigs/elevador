@@ -48,8 +48,8 @@ module Api
         end
 
         if (!year.present? && !month.present?)
-          facturacions = facturacions.where("EXTRACT(MONTH FROM fecha_venta) = ?", Date.today.month)
-          convenios = convenios.where("convenios.month = ?", Date.today.month)
+          facturacions = facturacions.where("EXTRACT(MONTH FROM fecha_venta) = ?", Time.zone.today.month)
+          convenios = convenios.where("convenios.month = ?", Time.zone.today.month)
 
         elsif (!year.present? || !month.present?)
           facturacions = nil
