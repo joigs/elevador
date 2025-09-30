@@ -64,7 +64,7 @@ class Report < ApplicationRecord
   end
 
   def validate_urm_fecha_not_future
-    if urm_fecha.present? && urm_fecha > Date.today
+    if urm_fecha.present? && urm_fecha > Time.zone.today
       errors.add(:urm_fecha, 'no puede ser una fecha futura')
     end
   end

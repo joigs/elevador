@@ -205,7 +205,7 @@ class InspectionsController < ApplicationController
     @inspection = Inspection.new(
       place: last_inspection.place,
       validation: last_inspection.validation,
-      ins_date: Date.today
+      ins_date: Time.zone.today
     )
 
     @item = last_inspection.item
@@ -982,7 +982,7 @@ class InspectionsController < ApplicationController
               .where("inspections.number > 0")
 
     if q.present?
-      if q =~ /\A\d+\z/            # "1" => 1,10,11,12... (no 21,31,...)
+      if q =~ /\A\d+\z/
         scope = scope.where("CAST(inspections.number AS CHAR) LIKE ?", "#{q}%")
       else
         scope = scope.where("inspections.name LIKE ?", "%#{q}%")
@@ -1056,7 +1056,6 @@ class InspectionsController < ApplicationController
       return render json: { error: "No se puede copiar la misma inspección." }, status: :unprocessable_entity
     end
 
-    # Campos de reporte a comparar (estructura igual)
     report_fields = %i[
     fecha vi_co_man_ini vi_co_man_ter ul_reg_man urm_fecha empresa_anterior ea_rol ea_rut
     empresa_mantenedora em_rol em_rut nom_tec_man tm_rut
@@ -1071,13 +1070,11 @@ class InspectionsController < ApplicationController
       end
     end
 
-    # Detalle: comparar atributo a atributo si aplica la copia (tu regla original)
     count_inspections = @item.inspections.where("number > 0").count
     will_copy_detail  = (@detail && @detail_og && count_inspections == 1)
 
     detail_changes = []
     if will_copy_detail
-      # mismos campos en ambas clases de detail (estructura "igual"; si algún campo no existe, rescue)
       src_attrs  = @detail_og.attributes.except("id","item_id","created_at","updated_at")
       src_attrs.each do |k, src_v|
         cur_v = @detail.respond_to?(k) ? @detail.send(k) : nil
@@ -1085,7 +1082,6 @@ class InspectionsController < ApplicationController
       end
     end
 
-    # Nulls/Colors/Anothers: lista completa de lo que se destruye/crea
     revision_nulls_current = (@revision&.revision_nulls || [])
     revision_nulls_source  = (@revision_og&.revision_nulls || [])
 
@@ -1095,7 +1091,6 @@ class InspectionsController < ApplicationController
     anothers_current = @item.respond_to?(:anothers)   ? @item.anothers : []
     anothers_source  = @item_og.respond_to?(:anothers)? @item_og.anothers : []
 
-    # Para 'anothers' indicamos cuáles se crearían (clave compuesta)
     existing_keys = anothers_current.map { |a| [a.point, a.ruletype_id, a.code, a.level, a.ins_type, a.section] }
     anothers_to_create = anothers_source.map { |s| [s.point, s.ruletype_id, s.code, s.level, s.ins_type, s.section] } - existing_keys
 
@@ -1119,7 +1114,6 @@ class InspectionsController < ApplicationController
       anothers: anothers_source.map { |a| { point: a.point, ruletype_id: a.ruletype_id, code: a.code, level: a.level, ins_type: a.ins_type, section: a.section } }
     }
 
-    # Resumen detallado (no “columnas”, sino info completa)
     summary = {
       report: report_changes,
       detail: detail_changes,

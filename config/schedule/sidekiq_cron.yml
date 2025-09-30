@@ -1,0 +1,5 @@
+check_expirations_daily:
+  class: "CheckExpirationsWorker"
+  cron: "0 0 * * * America/Santiago"
+  queue: "default"
+  description: "Marca inspecciones vencidas diariamente"

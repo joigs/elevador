@@ -19,7 +19,7 @@ module Authorization
     end
 
     def inspection_not_modifiable!(inspection)
-      unless Current.user.admin? && inspection.ins_date > Date.today
+      unless Current.user.admin? && inspection.ins_date > Time.zone.today
         flash[:alert] = "No puedes modificar esta inspección."
         redirect_to inspection_path(inspection)
       end

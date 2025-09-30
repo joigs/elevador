@@ -18,8 +18,4 @@
 # end
 
 # Learn more: http://github.com/javan/whenever
-every 1.day, at: '12:00 am' do
-  runner "Inspection.check_all_expirations"
-  command "find #{Rails.root}/tmp/Informe* -type f -mtime +1 -exec rm {} \\;"
 
-end

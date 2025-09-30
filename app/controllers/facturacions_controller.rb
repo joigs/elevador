@@ -49,13 +49,61 @@ class FacturacionsController < ApplicationController
 
   end
 
+  # require 'roo'  # si no está autoload
+
   def create
     @facturacion = Facturacion.new(facturacion_params)
+
+    uploaded = facturacion_params[:solicitud_file]
+    if uploaded
+      xlsx = Roo::Spreadsheet.open(
+        uploaded.tempfile.path,
+        extension: File.extname(uploaded.original_filename).delete('.').presence || 'xlsx'
+      )
+      sheet = xlsx.sheet(0)
+
+      empresa_val = nil
+      n1_val = nil
+      found_cond = false
+      found_asc = false
+
+      (1..11).each do |r|
+        (1..11).each do |c|
+          raw = sheet.cell(r, c)
+          norm = raw.to_s.gsub(/\s+/, '').downcase
+
+          if !found_cond && norm == 'condominio'
+            debajo = sheet.cell(r + 1, c)
+            empresa_val = debajo.to_s.strip if debajo.present?
+            found_cond = true
+          end
+
+          if !found_asc && norm == 'ascensores'
+            debajo = sheet.cell(r + 1, c)
+            if debajo.to_s.strip.match?(/\A\d+\z/)
+              n1_val = debajo.to_i
+            end
+            found_asc = true
+          end
+        end
+      end
+
+      if empresa_val.blank?
+        b5 = sheet.cell(5, 2)
+        empresa_val = b5.to_s.strip if b5.present?
+      end
+      if n1_val.nil?
+        d5 = sheet.cell(5, 4)
+        n1_val = d5.to_i if d5.to_s.strip.match?(/\A\d+\z/)
+      end
+
+      @facturacion.empresa_provisional = empresa_val if empresa_val.present?
+      @facturacion.n1 = n1_val if n1_val.is_a?(Integer)
+    end
 
     if @facturacion.save
       notification = Notification.find_by(notification_type: :solicitud_pendiente)
       notification.facturacions << @facturacion if notification
-
       redirect_to @facturacion, notice: "Facturación creada con éxito."
     else
       render :new, status: :unprocessable_entity

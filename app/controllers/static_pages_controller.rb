@@ -4,16 +4,16 @@ class StaticPagesController < ApplicationController
     inspections_scope = case params[:filter]
                         when "expiring_soon"
                           Inspection.joins(:report)
-                                    .where("reports.ending > ?", Date.today)
-                                    .where("reports.ending <= ?", Date.today + 2.months)
+                                    .where("reports.ending > ?", Time.zone.today)
+                                    .where("reports.ending <= ?", Time.zone.today + 2.months)
                                     .where(state: 'Cerrado').where(result: 'Aprobado')
                                     .includes(:report)
                         when "vencido"
                           Inspection.vencidos
                         when "again_soon"
                           Inspection.joins(:report)
-                                    .where("reports.ending > ?", Date.today)
-                                    .where("reports.ending <= ?", Date.today + 2.months)
+                                    .where("reports.ending > ?", Time.zone.today)
+                                    .where("reports.ending <= ?", Time.zone.today + 2.months)
                                     .where(state: 'Cerrado').where(result: 'Rechazado')
                                     .includes(:report)
                         else

@@ -8,7 +8,7 @@ class LadderDetailsController < ApplicationController
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
     @item_identificador = Item.find(detail.item_id).identificador.split('-').first
-    if @inspection.ins_date <= Date.today && !params[:closed]
+    if @inspection.ins_date <= Time.zone.today && !params[:closed]
       @inspection.update(state: 'Abierto', result: 'En revisión')
     end
 
