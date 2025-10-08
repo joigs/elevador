@@ -70,9 +70,9 @@ class InspectionPolicy < BasePolicy
   def export_xlsx
     Current.user.admin || Current.user.crear || Current.user.certificar
   end
-
+  
   def method_missing(m, *args, &block)
-    Current.user.admin
+    Current.user.admin || Current.user.crear || Current.user.certificar
   end
 
 end
