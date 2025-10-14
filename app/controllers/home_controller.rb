@@ -80,7 +80,7 @@ class HomeController < ApplicationController
                                    .where(state: "Cerrado", result: "Rechazado")
                                    .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
 
-      vencidas_scope = Inspection.vencidos
+      vencidas_scope = Inspection.vencidos.where(ignorar: false)
 
       counts[:inspeccion_proxima]   = proximas_scope.count
       counts[:inspeccion_rechazada] = rechazadas_scope.count

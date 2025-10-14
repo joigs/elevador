@@ -7,12 +7,11 @@ export default class extends Controller {
         const insDate = this.data.get("insDate");
         const isOwner = this.data.get("isOwner") === "true";
         const control = this.data.get("control") === "true";
-        const lastInspectionUrl = this.data.get("lastInspectionUrl"); // Recibir la URL de la última inspección
-        const href = event.currentTarget.href; // Capturar la URL del botón para redirigir después
+        const lastInspectionUrl = this.data.get("lastInspectionUrl");
+        const href = event.currentTarget.href;
 
-        // Si el usuario no es el dueño
         if (!isOwner) {
-            event.preventDefault(); // Evita la navegación
+            event.preventDefault();
             Swal.fire({
                 icon: "warning",
                 title: "Advertencia",
@@ -22,9 +21,8 @@ export default class extends Controller {
             return;
         }
 
-        // Si el activo tiene una inspección más reciente
         if (!control) {
-            event.preventDefault(); // Evita la navegación
+            event.preventDefault();
             Swal.fire({
                 icon: "warning",
                 title: "Advertencia",
@@ -34,16 +32,14 @@ export default class extends Controller {
             return;
         }
 
-        // Si la fecha de la inspección es posterior a hoy
         if (new Date(insDate) > new Date()) {
-            event.preventDefault(); // Evita la navegación inicialmente
+            event.preventDefault();
             Swal.fire({
                 icon: "info",
                 title: "Prellenado",
                 text: "Solo se podrá realizar un prellenado en este momento. Para realizar la inspección, espera a la fecha programada.",
                 confirmButtonText: "Continuar"
             }).then(() => {
-                // Redirigir después de mostrar la alerta
                 window.location.href = href;
             });
         }

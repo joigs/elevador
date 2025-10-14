@@ -83,6 +83,8 @@ Rails.application.routes.draw do
       get :edit_massive_load
       patch :update_massive_load
       get :export_xlsx
+      patch :bulk_ignore
+      patch :bulk_unignore
     end
 
   end
@@ -189,6 +191,8 @@ Rails.application.routes.draw do
 
 
   get 'warnings', to: 'static_pages#warnings'
+  get 'info', to: 'static_pages#info'
+  get 'empresas.xlsx', to: 'static_pages#export_empresas_xlsx', as: :export_empresas
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check

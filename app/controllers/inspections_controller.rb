@@ -754,8 +754,6 @@ class InspectionsController < ApplicationController
                      .includes(:item, :principal, :report, :users)
                      .order(number: :desc)
 
-    puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    puts(@inspections.inspect)
 
     Tempfile.create(['inspecciones', '.xlsx']) do |tmp|
       path = tmp.path
@@ -1139,6 +1137,20 @@ class InspectionsController < ApplicationController
     }
   end
 
+  # InspectionsController (solo redirects)
+  def bulk_ignore
+    ids = Array(params[:ids]).map(&:to_i).uniq
+    Inspection.where(id: ids).update_all(ignorar: true, updated_at: Time.current) if ids.any?
+    redirect_to warnings_path(filter: params[:current_filter].presence || "expiring_soon", format: :html),
+                notice: "#{ids.size} inspección(es) eliminadas de la lista"
+  end
+
+  def bulk_unignore
+    ids = Array(params[:ids]).map(&:to_i).uniq
+    Inspection.where(id: ids).update_all(ignorar: false, updated_at: Time.current) if ids.any?
+    redirect_to warnings_path(filter: "ignored", format: :html),
+                notice: "#{ids.size} inspección(es) restauradas en la lista"
+  end
 
 
 

@@ -1,0 +1,42 @@
+<h1>Empresas mantenedoras</h1>
+<br>
+
+<p class="mb-3">
+  <%= link_to "Descargar Excel", export_empresas_path(format: :xlsx),
+              class: "inline-flex items-center mt-4 px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-green-400 bg-yellow-700 hover:bg-yellow-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out", data: { turbo: false } %>
+</p>
+
+<br>
+
+<table id="empresas-table" class="table-auto w-full border-collapse">
+  <thead>
+  <tr>
+    <th class="border px-3 py-2 text-left">RUT</th>
+    <th class="border px-3 py-2 text-left">Empresa mantenedora</th>
+    <th class="border px-3 py-2 text-left">Rol</th>
+    <th class="border px-3 py-2 text-left">Inspecciones</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @empresas.each do |e| %>
+    <tr>
+      <td class="border px-3 py-2"><%= e[:em_rut] %></td>
+      <td class="border px-3 py-2"><%= e[:empresa_mantenedora] %></td>
+      <td class="border px-3 py-2"><%= e[:em_rol] %></td>
+      <td class="border px-3 py-2 text-blue-500">    <%=
+          e[:inspections_map]
+          .sort_by { |number, _| number.to_i }
+          .map { |number, id| link_to number, inspection_path(id) }
+          .join(" / ")
+          .html_safe
+      %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+
+<style>
+    #empresas-table th { background: #f5f5f5; }
+    #empresas-table tr:nth-child(even) { background: #fafafa; }
+</style>
