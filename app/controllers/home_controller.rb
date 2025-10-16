@@ -68,7 +68,7 @@ class HomeController < ApplicationController
 
     counts = { inspeccion_proxima: 0, inspeccion_vencida: 0, inspeccion_rechazada: 0 }
 
-    if Current.user.admin
+    if Current.user
       window_from = Date.current
       window_to   = 2.months.from_now.to_date
 
