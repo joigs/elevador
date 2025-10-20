@@ -62,13 +62,20 @@ class ConveniosController < ApplicationController
 
 
   # GET /convenios/1/edit
-  def edit; end
+  def edit
+  @convenio = Convenio.find(params[:id])
+
+  end
 
   # POST /convenios
 
 
   # PATCH/PUT /convenios/1
   def update
+    empresa_nombre = params[:convenio].delete(:empresa_nombre_hidden).to_s.strip
+    empresa = empresa_nombre.present? ? Empresa.find_or_create_by(nombre: empresa_nombre) : nil
+    @convenio.empresa = empresa
+
     if @convenio.update(convenio_params)
       redirect_to @convenio, notice: "Convenio actualizado con éxito."
     else
@@ -79,8 +86,14 @@ class ConveniosController < ApplicationController
   # DELETE /convenios/1
   def destroy
     @convenio.destroy
-    redirect_to convenios_path, notice: "Convenio eliminado con éxito."
+    respond_to do |format|
+      format.html { redirect_to root_path(tab: :convenios), notice: "Convenio eliminado." }
+      format.turbo_stream { head :no_content } # 204
+      format.json { head :no_content }
+    end
   end
+
+
 
   private
 
