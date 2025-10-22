@@ -41,9 +41,10 @@
                                    Principal.all,
                                    :id,
                                    :name,
-                                   { prompt: 'Selecciona una empresa', selected: @item&.principal_id },
-                                   { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
-                                     data: { principal_select_target: "principal", action: "change->principal-select#updateItems" } } %>
+                                   { prompt: 'Selecciona una empresa' },
+                                   { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                                     data: { controller: 'slim', principal_select_target: "principal", action: "change->principal-select#updateItems" },
+                                     selected: @item&.principal_id } %>
       </div>
 
       <div class="mt-3">
@@ -90,6 +91,7 @@
                     { prompt: "Selecciona Región" },
                     { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                       id: "inspection_region",
+                      data: { controller: "slim-select" },
                       required: true
                     } %>
   </div>
@@ -101,6 +103,7 @@
                     { prompt: "Selecciona Comuna" },
                     { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md",
                       id: "inspection_comuna",
+                      data: { controller: "slim-select" },
                       required: true
                     } %>
   </div>
@@ -141,7 +144,8 @@
                                  {},
                                  { multiple: true,
                                    size: 2,
-                                   class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
+                                   class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                                   data: { controller: 'slim' } } %>
     </div>
   <% end %>
 
@@ -174,7 +178,7 @@
       </span>
 
       <button type="button"
-              onclick="openFacturacionModal"
+              onclick="openFacturacionModal()"
               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded ml-4">
         Buscar Cotización
       </button>
@@ -294,6 +298,7 @@
 
                 if (type !== 'main') return table
 
+
                 const head = table?.childNodes?.[0]
                 if (!head || !head.childNodes?.length) return table
 
@@ -306,6 +311,7 @@
                         th.attributes.class = (th.attributes.class || '') + ' bg-gray-800 text-white'
                     })
                 })
+
 
                 const first  = head.childNodes[0]
                 const noF    = [2, 3, 4, 6, 7, 8]
@@ -336,6 +342,7 @@
                 head.childNodes.push(filter)
                 return table
             }
+
 
         })
 
@@ -408,12 +415,14 @@
 </script>
 
 <script>
+
     window.selectCotizacionCero = function (btn) {
-        const fid   = btn.dataset.fid
-        const fname = btn.dataset.fname
+        const fid   = btn.dataset.fid       // id de la Cotización #0
+        const fname = btn.dataset.fname     // nombre
         onSelectFacturacion(fid, 0, fname)
     }
 </script>
+
 
 <script>
     (function () {
@@ -426,13 +435,16 @@
                 facturacionsDtExists:  !!window.facturacionsDt,
                 facturacionClickHandler: !!window.facturacionClickHandler,
 
+
                 inspectionFacturacionId: $('#inspection_facturacion_id')?.value || null,
                 facturacionDisplayText: $('#facturacion_selected_display')?.textContent.trim(),
                 modalHidden:            $('#facturacionModal')?.classList.contains('hidden'),
                 tablePresent:          !!$('#facturacions-table'),
 
+
                 startDate:  $('[data-date-filter-target="startDate"]')?._flatpickr?.selectedDates?.[0] || null,
                 endDate:    $('[data-date-filter-target="endDate"]')?._flatpickr?.selectedDates?.[0]   || null,
+
 
                 location:   location.href,
                 navigationType: performance.getEntriesByType('navigation')[0]?.type,
@@ -440,6 +452,7 @@
                 historyState: history.state
             };
         }
+
 
         window.facturacionDebug = snapshot;
 
@@ -462,6 +475,7 @@
         document.addEventListener('turbo:before-cache',() => console.log('[FacturacionDebug:before-cache]', snapshot()));
     })();
 </script>
+
 
 <script>
     document.addEventListener("turbo:load", () => {
