@@ -1,3 +1,34 @@
+
+
+<% years = ((Date.current.year - 5)..(Date.current.year + 1)).to_a.reverse %>
+<% selected_year_experiencia = (Date.current.year).to_i %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+  <h1> Listado certificados </h1>
+  <%= form_with url: certificados_excel_graficos_path,
+                method: :get,
+                local: true,
+                data: { turbo: false },
+                target: "_blank",
+                authenticity_token: false,
+                class: "bg-gray-800/70 border border-gray-700 rounded-xl p-4 sm:p-6 shadow" do %>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-4">
+      <div class="w-full sm:w-56">
+        <label for="year" class="block text-sm font-medium text-black mb-1">Año</label>
+        <%= select_tag :year,
+                       options_for_select(years, selected_year_experiencia),
+                       id: 'year',
+                       class: "block w-full rounded-lg border border-gray-600 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 pl-3 pr-8 cursor-pointer" %>
+      </div>
+      <div class="shrink-0">
+        <%= submit_tag 'Descargar Excel',
+                       class: "inline-flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/30 cursor-pointer" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+
 <% if @inspections.any? %>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
     <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">

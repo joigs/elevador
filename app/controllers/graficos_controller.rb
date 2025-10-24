@@ -1,6 +1,7 @@
 class GraficosController < ApplicationController
   def index
     @inspections = Inspection.where("number > 0").order(number: :desc)
+    @year = params[:year].presence&.to_i || Date.current.year
 
     @available_years = @inspections.map { |i| i.ins_date.year }.uniq.sort
     @selected_year   = if params[:year] == 'all'
@@ -92,6 +93,132 @@ class GraficosController < ApplicationController
     respond_to do |format|
       format.html
       format.turbo_stream
+    end
+  end
+
+
+
+
+  def certificados_excel
+    year  = params[:year]&.to_i || Date.current.year
+    range = Date.new(year, 1, 1)..Date.new(year, 12, 31)
+    months_es = %w[Ene Feb Mar Abr May Jun Jul Ago Sep Oct Nov Dic]
+
+    principals = Principal
+                   .joins(:inspections)
+                   .where(inspections: { ins_date: range })
+                   .where('inspections.number > 0')
+                   .distinct
+                   .includes(inspections: [:item, :report, :users])
+
+    Tempfile.create(['informes', '.xlsx']) do |tmp|
+      path = tmp.path
+      tmp.close
+
+      workbook = WriteXLSX.new(path)
+      sheet    = workbook.add_worksheet("Informes #{year}")
+
+      header = workbook.add_format(
+        bold: 1, align: 'center', valign: 'vcenter', text_wrap: 1,
+        border: 1, color: 'white', bg_color: '#4F81BD', pattern: 1
+      )
+      cell   = workbook.add_format(align: 'left',   valign: 'vcenter', text_wrap: 1, border: 1)
+      cell_c = workbook.add_format(align: 'center', valign: 'vcenter', text_wrap: 1, border: 1)
+
+      titles = [
+        'Nombre Empresa', 'Representante Legal', 'RUT Empresa Legal', 'Dirección',
+        'Personal Certificador', 'RUT', 'Personal Inspector', 'RUT',
+        'Numero de Informe', 'ID', 'Fecha Inspección', 'Folio Certificado',
+        'Fecha Prox Certificación'
+      ]
+      sheet.write_row(0, 0, titles, header)
+      sheet.set_row(0, 24)
+      sheet.set_column(0, 0, 26)
+      sheet.set_column(1, 1, 24)
+      sheet.set_column(2, 2, 18)
+      sheet.set_column(3, 3, 30)
+      sheet.set_column(4, 4, 24)
+      sheet.set_column(5, 5, 10)
+      sheet.set_column(6, 6, 26)
+      sheet.set_column(7, 7, 10)
+      sheet.set_column(8, 8, 30)
+      sheet.set_column(9, 9, 28)
+      sheet.set_column(10,10,18)
+      sheet.set_column(11,11,18)
+      sheet.set_column(12,12,24)
+
+      r = 1
+
+      principals.find_each do |principal|
+        inspections = principal.inspections
+                               .select { |i| i.ins_date.present? && range.cover?(i.ins_date.to_date) && i.number.to_i > 0 }
+                               .sort_by(&:ins_date)
+        next if inspections.empty?
+
+        inspectors = inspections.flat_map(&:users).compact.map(&:real_name).uniq.sort
+        inspectors_multiline = inspectors.join("\n")
+
+        base = [
+          principal.name.to_s,
+          principal.contact_name.to_s,
+          principal.rut.to_s,
+          principal.place.to_s,
+          'Ivan Castro Dolcino',
+          '',
+          inspectors_multiline,
+          ''
+        ]
+
+        r0 = r
+
+        inspections.each do |insp|
+          date  = insp.ins_date.to_date
+          mm    = date.strftime('%m')
+          yyyy  = date.strftime('%Y')
+          ident = insp.item&.identificador.to_s
+          tail4 = ident[-4, 4].to_s
+
+          numero = "N° #{insp.number}-#{mm}-#{yyyy}-#{tail4}"
+          prox = if insp.report&.ending.present?
+                   d = insp.report.ending.to_date
+                   "#{months_es[d.month - 1]}-#{d.strftime('%y')}"
+                 else
+                   ''
+                 end
+
+          row = Array.new(8, '') + [
+            numero,
+            ident,
+            date.strftime('%d/%m/%Y'), # dd/mm/yyyy
+            '',
+            prox
+          ]
+
+          0.upto(12) { |cidx| sheet.write(r, cidx, row[cidx], [2,5,7,10,11,12].include?(cidx) ? cell_c : cell) }
+          sheet.set_row(r, 20)
+          r += 1
+        end
+
+        span_last = r - 1
+        if r0 == span_last
+          sheet.write_row(r0, 0, base, cell)
+          [2,5,7].each { |c| sheet.write(r0, c, base[c], cell_c) }
+        else
+          (0..7).each do |c|
+            fmt = [2,5,7].include?(c) ? cell_c : cell
+            sheet.merge_range(r0, c, span_last, c, base[c], fmt)
+          end
+        end
+      end
+
+      workbook.close
+
+      send_data File.binread(path),
+                filename: "informes_#{year}.xlsx",
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                disposition: :attachment
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
     end
   end
 end

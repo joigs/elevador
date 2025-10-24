@@ -90,7 +90,9 @@ Rails.application.routes.draw do
   end
 
   resources :graficos, only: [:index], path: '/graficos' do
-
+    collection do
+      get :certificados_excel
+    end
   end
 
   resources :groups, only: [:new, :create, :index, :show, :destroy], path: '/groups' do
