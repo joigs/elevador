@@ -1,12 +1,11 @@
-No usar funcion de seleccionar, no esta terminada.
+<%# No usar funcion de seleccionar, no esta terminada. %>
 
 <%= turbo_frame_tag 'inspections' do %>
 
   <div
     data-controller="selection"
     data-selection-confirm-text-value="<%= @filter == 'ignored' ? 'Se restaurarán en la lista.' : 'Se eliminarán de la lista.' %>"
-    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8"
-  >
+    class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 my-8" >
     <turbo-frame id="header">
       <h1 class="text-4xl font-bold text-gray-800 mb-6">
         <% if @filter == "expiring_soon" %>
@@ -34,8 +33,9 @@ No usar funcion de seleccionar, no esta terminada.
 
       <% selection_enabled = (%w[vencido ignored].include?(@filter)) %>
 
+
       <% if selection_enabled %>
-        <div class="flex flex-wrap items-center gap-3 ml-4 mb-4">
+        <div class="flex flex-wrap items-center gap-3 ml-6 mb-4">
           <button type="button"
                   data-selection-target="toggleBtn"
                   data-action="selection#toggle"
@@ -43,7 +43,7 @@ No usar funcion de seleccionar, no esta terminada.
             Modo selección
           </button>
 
-          <span class="text-white" data-selection-target="onlyWhenSelecting">Seleccionadas: <strong data-selection-target="count">0</strong></span>
+          <span class="text-white ml-4" data-selection-target="onlyWhenSelecting">Seleccionadas: <strong data-selection-target="count">0</strong></span>
 
           <%= form_with url: (@filter == 'ignored' ? bulk_unignore_inspections_path : bulk_ignore_inspections_path),
                         method: :patch,
@@ -58,16 +58,13 @@ No usar funcion de seleccionar, no esta terminada.
 
             <% if Current.user.tabla %>
               <div class="overflow-x-auto table-responsive mt-4">
-                <table id="inspections-table" class="table-auto w-full text-white">
+                <table id="inspections-table"
+                       data-selection-enabled="<%= selection_enabled ? 'true' : 'false' %>"
+                       class="table-auto w-full text-white">
                   <thead class="bg-gray-800">
                   <tr>
-                    <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                      <input type="checkbox"
-                             class="h-4 w-4 rounded border-gray-600"
-                             data-selection-target="selectAll onlyWhenSelecting"
-                             data-action="selection#selectAllChanged"
-                             aria-label="Seleccionar todas"
-                        />
+                    <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Sel</p>
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">N° Inspección</p></th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"><p class="hover:text-blue-700">Activo</p></th>
@@ -81,16 +78,15 @@ No usar funcion de seleccionar, no esta terminada.
                   <tbody class="bg-gray-700 divide-y divide-gray-600">
                   <% @inspections.each do |inspection| %>
                     <tr class="bg-gray-800 border-b border-gray-700">
-                      <td class="px-3 py-4 whitespace-nowrap align-middle">
+                      <td class="px-3 py-4 align-middle">
                         <input type="checkbox"
                                name="ids[]"
                                value="<%= inspection.id %>"
-                               class="h-4 w-4 rounded border-gray-600 invisible-slot"
+                               class="h-4 w-4 rounded border-gray-600 invisible-slot cursor-pointer"
                                data-selection-target="checkbox onlyWhenSelecting"
                                data-action="selection#checkboxChanged"
                                aria-label="Seleccionar inspección <%= inspection.number %>">
                       </td>
-
                       <td class="px-6 py-4 whitespace-normal break-words">
                         <%= link_to inspection.number, inspection_path(inspection), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                       </td>
@@ -209,7 +205,10 @@ No usar funcion de seleccionar, no esta terminada.
                   typeof simpleDatatables !== "undefined" &&
                   simpleDatatables.DataTable
               ){
-                  const dt = new simpleDatatables.DataTable(tableEl,{
+                  const selectionEnabled = tableEl.dataset.selectionEnabled === "true";
+                  const columnsWithoutFilter = selectionEnabled ? [0] : [];
+
+                  const options = {
                       labels: {
                           placeholder: "Buscar...",
                           perPage: "registros por pág.",
@@ -235,26 +234,54 @@ No usar funcion de seleccionar, no esta terminada.
                           const filterHeaders = {
                               nodeName: "TR",
                               attributes: { class: "search-filtering-row bg-gray-800 text-white" },
-                              childNodes: firstRow.childNodes.map((_th, index) => ({
-                                  nodeName: "TH",
-                                  attributes: { style: "padding-top: 1rem;" },
-                                  childNodes: [
-                                      {
-                                          nodeName: "INPUT",
-                                          attributes: {
-                                              class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
-                                              type: "search",
-                                              "data-columns": "[" + index + "]"
+                              childNodes: firstRow.childNodes.map((_th, index) => {
+                                  if (columnsWithoutFilter.includes(index)) {
+                                      return {
+                                          nodeName: "TH",
+                                          attributes: { style: "padding-top: 1rem;" },
+                                          childNodes: [
+                                              {
+                                                  nodeName: "INPUT",
+                                                  attributes: {
+                                                      type: "search",
+                                                      disabled: "disabled",
+                                                      placeholder: "Sin filtro",
+                                                      class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full cursor-not-allowed opacity-50",
+                                                      style: "cursor: not-allowed;"
+                                                  }
+                                              }
+                                          ]
+                                      };
+                                  }
+                                  return {
+                                      nodeName: "TH",
+                                      attributes: { style: "padding-top: 1rem;" },
+                                      childNodes: [
+                                          {
+                                              nodeName: "INPUT",
+                                              attributes: {
+                                                  class: "datatable-input text-white placeholder-gray-400 bg-gray-700 border-gray-600 w-full",
+                                                  type: "search",
+                                                  "data-columns": "[" + index + "]",
+                                                  placeholder: "Filtrar"
+                                              }
                                           }
-                                      }
-                                  ]
-                              }))
+                                      ]
+                                  };
+                              })
                           };
 
                           tHead.childNodes.push(filterHeaders);
                           return table;
                       }
-                  });
+                  };
+
+                  // Solo bloquea búsqueda en la col 0 cuando corresponde
+                  if (selectionEnabled) {
+                      options.columns = [{ select: 0, searchable: false }];
+                  }
+
+                  const dt = new simpleDatatables.DataTable(tableEl, options);
 
                   dt.on("datatable.init", () => {
                       const overlay = document.getElementById("tableLoadingOverlay");
@@ -266,6 +293,7 @@ No usar funcion de seleccionar, no esta terminada.
                   tableEl._simpleDt = dt;
               }
           }
+
 
           document.addEventListener("turbo:before-cache", () => {
               const tableEl = document.getElementById("inspections-table");
