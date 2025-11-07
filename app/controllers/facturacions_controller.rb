@@ -341,15 +341,39 @@ class FacturacionsController < ApplicationController
     if @facturacion.update(fecha_venta: Date.current)
       respond_to do |format|
         format.html { redirect_to @facturacion, notice: "Fecha de venta establecida a hoy." }
-        format.json { head :ok }
+        format.json { render json: { success: true, fecha_venta: @facturacion.fecha_venta.strftime('%d-%m-%Y') } }
       end
     else
       respond_to do |format|
         format.html { redirect_to @facturacion, alert: "No se pudo actualizar la fecha." }
-        format.json { head :unprocessable_entity }
+        format.json { render json: { success: false }, status: :unprocessable_entity }
       end
     end
   end
+
+  def update_fecha_venta
+    @facturacion = Facturacion.find(params[:id])
+
+    raw = params.dig(:facturacion, :fecha_venta).to_s
+    # acepta "dd-mm-YYYY" o "dd/mm/YYYY"
+    parsed =
+      begin
+        Date.strptime(raw.tr('/', '-'), '%d-%m-%Y')
+      rescue ArgumentError
+        nil
+      end
+
+    unless parsed
+      render json: { success: false, message: "Fecha inválida" }, status: :unprocessable_entity and return
+    end
+
+    if @facturacion.update(fecha_venta: parsed)
+      render json: { success: true, fecha_venta: @facturacion.fecha_venta.strftime('%d-%m-%Y') }
+    else
+      render json: { success: false, message: @facturacion.errors.full_messages.to_sentence }, status: :unprocessable_entity
+    end
+  end
+
 
 
   def upload_factura
@@ -698,6 +722,7 @@ class FacturacionsController < ApplicationController
       :resultado,
       :oc,      
       :fecha_entrega,
+      :fecha_venta,
       :factura,
       :solicitud_file,
       :cotizacion_doc_file,
