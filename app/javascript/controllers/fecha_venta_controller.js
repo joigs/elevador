@@ -55,7 +55,7 @@ export default class extends Controller {
                 if (!data.success) { alert(data.message || "No se pudo actualizar la fecha."); return }
                 this.updateLabel(data.fecha_venta)
             })
-            .catch(() => alert("Error de red al actualizar la fecha."))
+            .catch(() => alert("Error al actualizar la fecha."))
     }
 
     renderEditor(valorInicial) {
