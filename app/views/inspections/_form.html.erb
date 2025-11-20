@@ -156,6 +156,11 @@
     <div class="flex justify-end gap-2 mt-8">
 
       <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300 text-2xl mr-4" %>
+
+      <% unless @cot0 %>
+      <% @cot0 = Facturacion.find_by(number: 0) %>
+      <% end %>
+
       <% if @cot0 %>
 
         <button type="button"

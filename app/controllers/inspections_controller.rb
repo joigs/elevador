@@ -58,6 +58,7 @@ class InspectionsController < ApplicationController
 
 
 
+    @cot0 = Facturacion.find_by(number: 0)
 
 
   end
@@ -78,6 +79,8 @@ class InspectionsController < ApplicationController
   def create
     copy_after   = false
     copy_from_id = nil
+    @cot0 = Facturacion.find_by(number: 0)
+
     ActiveRecord::Base.transaction do
       @manual_action_name = inspection_params[:manual_action_name]
       @inspection = Inspection.new(inspection_params.except(:identificador, :calle, :group_id, :principal_id, :manual_action_name))
@@ -259,6 +262,7 @@ class InspectionsController < ApplicationController
   def update
     authorize! inspection
     @manual_action_name = inspection_params[:manual_action_name]
+    @cot0 = Facturacion.find_by(number: 0)
 
     black_number = inspection.number*-1
 
