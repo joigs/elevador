@@ -606,7 +606,6 @@ class FacturacionsController < ApplicationController
     @facturacion = Facturacion.find(params[:id])
 
     begin
-      # Llamar al servicio para generar el documento
       new_doc_path = DocumentGeneratorCotizacion.generate_document(@facturacion.id)
 
       send_file new_doc_path,

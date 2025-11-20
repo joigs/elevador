@@ -84,6 +84,13 @@ class DocumentGeneratorCotizacion
     doc.replace('{{paradas2}}', pisos)
     doc.replace('{{direccion4}}', "#{condominio} #{direccion_2}")
 
+
+    doc.replace('{{excel_fecha_cotizacion}}', fecha)
+    doc.replace('{{excel_cliente}}',        condominio)
+    doc.replace('{{excel_contacto}}',       contacto_nombre)
+    doc.replace('{{excel_lugar}}',          direccion)
+    doc.replace('{{XXX}}',          facturacion.number)
+
     output_path = Rails.root.join('tmp', "Cotizacion_N°#{facturacion.number}_#{Time.zone.today.strftime('%d-%m-%Y')}.docx")
     doc.commit(output_path)
 

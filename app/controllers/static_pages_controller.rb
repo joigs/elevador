@@ -28,34 +28,36 @@ class StaticPagesController < ApplicationController
       @pagy, @inspections = pagy_countless(@inspections, items: 10)
     end
     @filter = params[:filter]
-    # renderiza warnings.html.erb por defecto
   end
-
 
   def info
-    @inspections = Inspection.where("number > ?", 0)
+    # tab activo: por ahora solo "empresas", default
+    @active_tab = params[:tab].presence || "empresas"
 
-    grouped = Hash.new { |h, k| h[k] = { nombres: {}, roles: {}, insps: {} } }
+    if @active_tab == "empresas"
+      grouped = Hash.new { |h, k| h[k] = { nombres: {}, roles: {}, insps: {} } }
 
-    Report.joins(:inspection)
-          .where.not(em_rut: [nil, ""])
-          .pluck(:em_rut, :empresa_mantenedora, :em_rol, 'inspections.number', 'inspections.id')
-          .each do |rut, nombre, rol, ins_number, ins_id|
-      rut = rut.to_s.strip
-      grouped[rut][:nombres][normalize_for_dedup(nombre)] ||= nombre.strip if nombre.present?
-      grouped[rut][:roles][normalize_for_dedup(rol)]       ||= rol.strip    if rol.present?
-      grouped[rut][:insps][ins_number] = ins_id if ins_number.present? && ins_id.present?
+      Report.joins(:inspection)
+            .where.not(em_rut: [nil, ""])
+            .pluck(:em_rut, :empresa_mantenedora, :em_rol, 'inspections.number', 'inspections.id')
+            .each do |rut, nombre, rol, ins_number, ins_id|
+        rut = rut.to_s.strip
+        grouped[rut][:nombres][normalize_for_dedup(nombre)] ||= nombre.strip if nombre.present?
+        grouped[rut][:roles][normalize_for_dedup(rol)]       ||= rol.strip    if rol.present?
+        grouped[rut][:insps][ins_number] = ins_id if ins_number.present? && ins_id.present?
+      end
+
+      @empresas = grouped.map { |rut, h|
+        {
+          em_rut: rut,
+          empresa_mantenedora: h[:nombres].values.join(" / "),
+          em_rol: h[:roles].values.join(" / "),
+          inspections_map: h[:insps]
+        }
+      }.sort_by { |e| [e[:empresa_mantenedora].to_s, e[:em_rut].to_s] }
     end
-
-    @empresas = grouped.map { |rut, h|
-      {
-        em_rut: rut,
-        empresa_mantenedora: h[:nombres].values.join(" / "),
-        em_rol: h[:roles].values.join(" / "),
-        inspections_map: h[:insps] # { number => id }
-      }
-    }.sort_by { |e| [e[:empresa_mantenedora].to_s, e[:em_rut].to_s] }
   end
+
   def export_empresas_xlsx
     grouped = Hash.new { |h, k| h[k] = { nombres: {}, roles: {}, insps: {} } }
 
@@ -85,7 +87,6 @@ class StaticPagesController < ApplicationController
       workbook = WriteXLSX.new(path)
       sheet    = workbook.add_worksheet('Empresas Mantenedoras')
       bold     = workbook.add_format(bold: 1)
-      datefmt  = workbook.add_format(num_format: 'dd-mm-yyyy')
 
       headers = ['RUT', 'Empresa mantenedora', 'Rol', 'Inspecciónes (número)']
       sheet.write_row(0, 0, headers, bold)
@@ -125,5 +126,4 @@ class StaticPagesController < ApplicationController
                             .gsub(/\s+/, " ")
                             .strip
   end
-
 end

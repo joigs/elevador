@@ -31,16 +31,17 @@
                    class="table-auto w-full text-white">
               <thead class="bg-gray-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Inspección</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Ins</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Nombre</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Activo</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Empresa</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha<br>Inspección</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Ubicación</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha término</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en<br>resultado<br>actual</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha<br>término</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
-                  <p class="hover:text-blue-700">Inspector asignado</p>
+                  <p class="hover:text-blue-700">Inspector<br>asignado</p>
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Acciones</p> </th>
               </tr>
@@ -82,6 +83,9 @@
                   <!-- Fecha de inspección con data-order -->
                   <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.ins_date.strftime('%Y%m%d') %>">
                     <p class="text-white"><%= format_date(inspection.ins_date) %></p>
+                  </td>
+                  <td class="px-6 py-4 whitespace-normal break-words">
+                    <p class="text-white"><%= inspection.place %></p>
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <p class="text-white"><%= inspection.result %></p>
