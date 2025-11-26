@@ -168,6 +168,7 @@ Rails.application.routes.draw do
       patch :replace_file
       get :download_solicitud_template
       get :download_cotizacion_template
+      get :download_cotizacion_template_og
       patch :update_price
       patch :set_fecha_venta
       patch :update_fecha_venta

@@ -621,6 +621,24 @@ class FacturacionsController < ApplicationController
     end
   end
 
+  def download_cotizacion_template_og
+    @facturacion = Facturacion.find(params[:id])
+
+    begin
+      new_doc_path = DocumentGeneratorCotizacionOg.generate_document(@facturacion.id)
+
+      send_file new_doc_path,
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                disposition: 'attachment',
+                filename: File.basename(new_doc_path)
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(new_doc_path.to_s)
+
+    rescue StandardError => e
+      flash[:alert] = "Error al generar la plantilla de cotización: #{e.message}"
+      redirect_to facturacion_path(@facturacion)
+    end
+  end
 
   def download_all_excel
     facturaciones = Facturacion.with_attached_solicitud_file

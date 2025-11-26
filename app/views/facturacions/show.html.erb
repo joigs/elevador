@@ -103,15 +103,29 @@
 
           <% if Current.user.cotizar %>
             <div class="flex flex-col items-start">
-              <%= link_to "Plantilla de Cotización",
-                          download_cotizacion_template_facturacion_path(@facturacion),
-                          class: "px-3 py-2 rounded bg-teal-600 text-gray-900 font-bold hover:bg-teal-700 mt-2" %>
-              <span class="text-sm text-gray-600">Advertencia: Revisar que los datos sean correctos.</span>
+              <div class="flex space-x-2 mt-2">
+                <%= link_to "Plantilla de Cotización",
+                            download_cotizacion_template_og_facturacion_path(@facturacion),
+                            class: "flex items-center px-3 py-2 rounded bg-teal-600 text-gray-900 font-bold hover:bg-teal-700" %>
 
+                <%= link_to download_cotizacion_template_facturacion_path(@facturacion),
+                            class: "flex items-center px-3 py-2 rounded bg-indigo-600 text-gray-900 font-bold hover:bg-indigo-700 leading-tight" do %>
+        <span class="text-left">
+          Plantilla de Cotización<br>(con tabla)
+        </span>
+                <% end %>
+              </div>
+
+              <span class="text-sm text-gray-600 mt-2">
+      Advertencia: Revisar que los datos sean correctos.
+    </span>
             </div>
           <% end %>
 
-            <div class="mt-6">
+
+
+
+          <div class="mt-6">
 
               <%= link_to "Ver inspecciones asociadas",
                           "#",
