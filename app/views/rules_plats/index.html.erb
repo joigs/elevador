@@ -1,19 +1,19 @@
 <div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg mt-6">
 
-  <h3 class="text-lg font-semibold text-gray-200 mt-2 px-4 py-5 bg-gray-700 border-b border-gray-600">Defectos de escalas mecánicas:</h3>
+  <h3 class="text-lg font-semibold text-gray-200 mt-2 px-4 py-5 bg-gray-700 border-b border-gray-600">Defectos de Plataformas/Salvaescalas:</h3>
 
   <div class="flex flex-col sm:flex-row sm:space-x-4 mt-4 px-4">
     <%= link_to 'Volver a clasificación de ascensores', groups_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
-    <%= link_to 'Importar defectos desde excel', new_import_ladders_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+    <%= link_to 'Importar defectos desde excel', new_import_rules_plats_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
     <%= link_to 'Ver defectos de ascensores', rules_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
-    <%= link_to 'Ver defectos de Plataforma/Salvaescala', rules_plats_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
+    <%= link_to 'Ver defectos de Escala mecánica', ladders_path, class: "inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-blue-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150" %>
 
   </div>
 
   <ul class="divide-y divide-gray-700 mt-4">
-    <%= render 'shared/search_form', form_url: ladders_path, search_keys: 'point_or_code_or_number_cont', frame_id: 'ladders', placeholder_text: 'número, texto o código' %>
+    <%= render 'shared/search_form', form_url: rules_plats_path, search_keys: 'point_or_code_cont', frame_id: 'rules_plats', placeholder_text: 'texto o código' %>
 
-    <% @ladders.each do |rule| %>
+    <% @rules_plats.each do |rule| %>
       <li class="px-4 py-4 bg-gray-800 text-gray-400 hover:bg-gray-700">
         <%= link_to "#{rule.code} #{rule.point}", rule, 'data-turbo-frame': "_top", class: "text-gray-300 hover:text-white" %>
       </li>

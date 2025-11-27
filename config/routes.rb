@@ -123,6 +123,14 @@ Rails.application.routes.draw do
       post :import
     end
   end
+
+  resources :rules_plats, path: '/rules_plats' do
+    collection do
+      get :new_import
+      post :import
+    end
+  end
+
   resources :items, path: '/items'
   resources :principals, path: '/principals' do
     get :items, on: :member

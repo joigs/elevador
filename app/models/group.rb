@@ -2,7 +2,7 @@
 class Group < ApplicationRecord
   validates :number, presence: true, uniqueness: true, non_negative: true
   validates :name, presence: true, uniqueness: true
-  validates :type_of, inclusion: { in: %w[ascensor escala libre], message: "%{value} no es un tipo válido" }
+  validates :type_of, inclusion: { in: %w[ascensor escala libre plat], message: "%{value} no es un tipo válido" }
 
 
   attribute :number, :integer, default: -> { calculate_new_number }
