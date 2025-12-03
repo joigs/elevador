@@ -51,7 +51,6 @@ class HomeController < ApplicationController
   end
 
   private
-
   def current_notifications
     notifications = []
 
@@ -60,6 +59,7 @@ class HomeController < ApplicationController
                                    .where(notification_type: [:solicitud_pendiente, :factura_pendiente])
                                    .distinct
     end
+
     if Current.user.solicitar
       notifications += Notification.joins(:facturacions)
                                    .where(notification_type: :entrega_pendiente)
@@ -69,18 +69,34 @@ class HomeController < ApplicationController
     counts = { inspeccion_proxima: 0, inspeccion_vencida: 0, inspeccion_rechazada: 0 }
 
     if Current.user
+      latest_inspection_ids =
+        Inspection.where("number > 0")
+                  .select(:id, :item_id, :number)
+                  .order(:item_id, number: :desc)
+                  .group_by(&:item_id)
+                  .values
+                  .map { |inspections| inspections.first.id }
+
+      latest_inspections_scope = Inspection.where(id: latest_inspection_ids)
+
       window_from = Date.current
       window_to   = 2.months.from_now.to_date
 
-      proximas_scope = Inspection.joins(:report)
-                                 .where(state: "Cerrado", result: "Aprobado")
-                                 .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+      proximas_scope = latest_inspections_scope
+                         .joins(:report)
+                         .where(state: "Cerrado", result: "Aprobado")
+                         .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+                         .where(ignorar: false)
 
-      rechazadas_scope = Inspection.joins(:report)
-                                   .where(state: "Cerrado", result: "Rechazado")
-                                   .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+      rechazadas_scope = latest_inspections_scope
+                           .joins(:report)
+                           .where(state: "Cerrado", result: "Rechazado")
+                           .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+                           .where(ignorar: false)
 
-      vencidas_scope = Inspection.vencidos.where(ignorar: false)
+      vencidas_scope = latest_inspections_scope
+                         .vencidos
+                         .where(ignorar: false)
 
       counts[:inspeccion_proxima]   = proximas_scope.count
       counts[:inspeccion_rechazada] = rechazadas_scope.count
@@ -93,4 +109,5 @@ class HomeController < ApplicationController
 
     [notifications.uniq, counts]
   end
+
 end
