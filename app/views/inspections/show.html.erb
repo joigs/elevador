@@ -51,19 +51,29 @@
         <% end %>
 
         <% if Current.user.empresa.nil? && (Current.user.inspeccionar || @inspection.users.exists?(id: Current.user&.id)) %>
-          <% if @control2 %>
+          <% if @control2 == "escala" %>
             <%= link_to 'Realizar inspección',
                         edit_ladder_detail_path(@detail),
                         class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
                                 hover:bg-green-600 transition duration-200",
                         data: { action: "click->warning#handleClick" } %>
-          <% else %>
+
+          <% elsif @control2 == "ascensor" %>
             <%= link_to 'Realizar inspección',
                         edit_detail_path(@detail),
                         class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
                                 hover:bg-green-600 transition duration-200",
                         data: { action: "click->warning#handleClick" } %>
+
+          <% elsif @control2 == "plat" %>
+            <%= link_to 'Realizar inspección',
+                        edit_detail_path(@detail),
+                        class: "px-3 py-2 rounded bg-green-500 text-gray-900 font-bold \
+                                hover:bg-green-600 transition duration-200",
+                        data: { action: "click->warning#handleClick" } %>
+
           <% end %>
+
         <% end %>
       </div>
 

@@ -1,37 +1,62 @@
 class StaticPagesController < ApplicationController
   def warnings
     params[:filter] ||= "expiring_soon"
-    inspections_scope = case params[:filter]
-                        when "expiring_soon"
-                          Inspection.joins(:report)
-                                    .where("reports.ending > ?", Time.zone.today)
-                                    .where("reports.ending <= ?", Time.zone.today + 2.months)
-                                    .where(state: 'Cerrado', result: 'Aprobado', ignorar: false)
-                                    .includes(:report)
-                        when "vencido"
-                          Inspection.where(ignorar: false).merge(Inspection.vencidos)
-                        when "again_soon"
-                          Inspection.joins(:report)
-                                    .where("reports.ending > ?", Time.zone.today)
-                                    .where("reports.ending <= ?", Time.zone.today + 2.months)
-                                    .where(state: 'Cerrado', result: 'Rechazado', ignorar: false)
-                                    .includes(:report)
-                        when "ignored"
-                          Inspection.where(ignorar: true)
-                        else
-                          Inspection.none
-                        end
+
+    latest_inspection_ids =
+      Inspection.where("number > 0")
+                .select(:id, :item_id, :number)
+                .order(:item_id, number: :desc)
+                .group_by(&:item_id)
+                .values
+                .map { |inspections| inspections.first.id }
+
+    latest_inspections_scope = Inspection.where(id: latest_inspection_ids)
+
+    inspections_scope =
+      case params[:filter]
+      when "expiring_soon"
+        latest_inspections_scope
+          .joins(:report)
+          .where("reports.ending > ?", Time.zone.today)
+          .where("reports.ending <= ?", Time.zone.today + 2.months)
+          .where(state: "Cerrado", result: "Aprobado", ignorar: false)
+          .includes(:report)
+
+      when "vencido"
+        latest_inspections_scope
+          .vencidos
+          .where(ignorar: false)
+
+
+      when "again_soon"
+        latest_inspections_scope
+          .joins(:report)
+          .where("reports.ending > ?", Time.zone.today)
+          .where("reports.ending <= ?", Time.zone.today + 2.months)
+          .where(state: "Cerrado", result: "Rechazado", ignorar: false)
+          .includes(:report)
+
+      when "ignored"
+        latest_inspections_scope
+          .where(ignorar: true)
+
+      else
+        Inspection.none
+      end
 
     @q = inspections_scope.ransack(params[:q])
     @inspections = @q.result(distinct: true)
+
     unless Current.user.tabla
       @pagy, @inspections = pagy_countless(@inspections, items: 10)
     end
+
     @filter = params[:filter]
   end
 
+
+
   def info
-    # tab activo: por ahora solo "empresas", default
     @active_tab = params[:tab].presence || "empresas"
 
     if @active_tab == "empresas"

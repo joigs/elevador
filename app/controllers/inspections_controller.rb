@@ -40,13 +40,16 @@ class InspectionsController < ApplicationController
     end
 
     @last_inspection = Inspection.where(item: @item).order(number: :desc).first
-    @control2 = @item.group.type_of == "escala"
-    if @control2
+    @control2 = @item.group.type_of
+    if @control2 == "escala"
       @detail = LadderDetail.find_by(item_id: @item.id)
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
-    else
+    elsif @control2 == "ascensor"
       @detail = Detail.find_by(item_id: @item.id)
       @revision = Revision.find_by(inspection_id: @inspection.id)
+    elsif @control2 == "plat"
+      @detail = Detail.find_by(item_id: @item.id)
+      @revision = PlatRevision.find_by(inspection_id: @inspection.id)
     end
 
     @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
@@ -162,6 +165,15 @@ class InspectionsController < ApplicationController
           @revision.revision_colors.create!(section: index, color: false)
         end
         @detail = Detail.find_or_create_by(item: @item)
+
+      elsif @item.group.type_of == "plat"
+        @revision = PlatRevision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
+
+        @detail = Detail.find_or_create_by(item: @item)
+
+
+
+
 
       elsif @item.group.type_of == "libre"
         @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
@@ -339,6 +351,9 @@ class InspectionsController < ApplicationController
     elsif inspection.item.group.type_of == "ascensor"
       revision_id = Revision.find_by(inspection_id: inspection.id).id
       new_doc_path = DocumentGenerator.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
+    elsif inspection.item.group.type_of == "plat"
+      revision_id = PlatRevision.find_by(inspection_id: inspection.id).id
+      new_doc_path = DocumentGeneratorPlat.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
 
       elsif inspection.item.group.type_of == "libre"
       revision_id = Revision.find_by(inspection_id: inspection.id).id
@@ -361,12 +376,20 @@ class InspectionsController < ApplicationController
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
       detail = @inspection.item.ladder_detail
-    else
+    elsif @inspection.item.group.type_of == "ascensor"
+
       @revision = Revision.find(params[:revision_id])
       isladder = false
       detail = @inspection.item.detail
 
+    elsif @inspection.item.group.type_of == "plat"
+      @revision = PlatRevision.find(params[:revision_id])
+      isladder = false
+      detail = @inspection.item.detail
+
     end
+
+
 
     report = inspection.report
     revision_nulls = @revision.revision_nulls
@@ -433,8 +456,13 @@ class InspectionsController < ApplicationController
     if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       detail = @inspection.item.ladder_detail
-    else
+
+    elsif @inspection.item.group.type_of == "ascensor"
       @revision = Revision.find_by(inspection_id: @inspection.id)
+      detail = @inspection.item.detail
+
+    elsif @inspection.item.group.type_of == "plat"
+      @revision = PlatRevision.find_by(inspection_id: @inspection.id)
       detail = @inspection.item.detail
 
     end
@@ -480,8 +508,10 @@ class InspectionsController < ApplicationController
 
     if @inspection.item.group.type_of == "escala"
       @revision_base = LadderRevision.find_by(inspection_id: @inspection.id)
-    else
+    elsif @inspection.item.group.type_of == "ascensor"
       @revision_base = Revision.find_by(inspection_id: @inspection.id)
+    elsif @inspection.item.group.type_of == "plat"
+      @revision_base = PlatRevision.find_by(inspection_id: @inspection.id)
     end
 
 
@@ -616,11 +646,13 @@ class InspectionsController < ApplicationController
     # Determinar si es escala o ascensor
     if inspection.item.group.type_of == "escala"
       revision_base = LadderRevision.find_by(inspection_id: inspection.id)
-    else
+    elsif inspection.item.group.type_of == "ascensor"
       revision_base = Revision.find_by(inspection_id: inspection.id)
+    elsif inspection.item.group.type_of == "plat"
+      revision_base = PlatRevision.find_by(inspection_id: inspection.id)
+
     end
 
-    # Obtener las fotos ordenadas por `revision_photo.code`
     revision_photos = revision_base.revision_photos.ordered_by_code
     item = inspection.item
     item_rol = item.identificador.chars.last(4).join
@@ -847,6 +879,9 @@ class InspectionsController < ApplicationController
     elsif @inspection.item.group.type_of == "ascensor"
       @revision = Revision.find_by(inspection_id: @inspection.id)
       @detail = Detail.find_by(item_id: @item.id)
+    elsif @inspection.item.group.type_of == "plat"
+      @revision = PlatRevision.find_by(inspection_id: @inspection.id)
+      @detail = Detail.find_by(item_id: @item.id)
     end
 
     @anothers = @item.inspections.where.not(id: @inspection.id).order(number: :desc)
@@ -863,6 +898,9 @@ class InspectionsController < ApplicationController
       @detail_og = LadderDetail.find_by(item_id: @item_og.id)
     elsif @inspection_og.item.group.type_of == "ascensor"
       @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
+      @detail_og = Detail.find_by(item_id: @item_og.id)
+    elsif @inspection_og.item.group.type_of == "plat"
+      @revision_og = PlatRevision.find_by(inspection_id: @inspection_og.id)
       @detail_og = Detail.find_by(item_id: @item_og.id)
     end
 
@@ -1033,8 +1071,11 @@ class InspectionsController < ApplicationController
     if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       @detail   = LadderDetail.find_by(item_id: @item.id)
-    else
+    elsif @inspection.item.group.type_of == "ascensor"
       @revision = Revision.find_by(inspection_id: @inspection.id)
+      @detail   = Detail.find_by(item_id: @item.id)
+    elsif @inspection.item.group.type_of == "plat"
+      @revision = PlatRevision.find_by(inspection_id: @inspection.id)
       @detail   = Detail.find_by(item_id: @item.id)
     end
 
@@ -1045,8 +1086,11 @@ class InspectionsController < ApplicationController
     if @inspection_og.item.group.type_of == "escala"
       @revision_og = LadderRevision.find_by(inspection_id: @inspection_og.id)
       @detail_og   = LadderDetail.find_by(item_id: @item_og.id)
-    else
+    elsif @inspection_og.item.group.type_of == "ascensor"
       @revision_og = Revision.find_by(inspection_id: @inspection_og.id)
+      @detail_og   = Detail.find_by(item_id: @item_og.id)
+    elsif @inspection_og.item.group.type_of == "plat"
+      @revision_og = PlatRevision.find_by(inspection_id: @inspection_og.id)
       @detail_og   = Detail.find_by(item_id: @item_og.id)
     end
 
