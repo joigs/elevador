@@ -8,7 +8,7 @@ export default class extends Controller {
         csrf: String,
         labelSelector: String
     }
-    static targets = ["editor"]
+    static targets = ["editor", "message"]
 
     connect() {
         this.beforeCacheHandler = () => this.teardown()
@@ -33,9 +33,13 @@ export default class extends Controller {
         })
             .then(r => r.json())
             .then(data => {
-                if (!data.success) { alert("No se pudo establecer la fecha."); return }
+                if (!data.success) {
+                    alert("No se pudo establecer la fecha.")
+                    return
+                }
                 this.renderEditor(data.fecha_venta)
                 this.updateLabel(data.fecha_venta)
+                this.showMessage(data.fecha_venta)
             })
             .catch(() => alert("Error de red al marcar la fecha."))
     }
@@ -52,8 +56,12 @@ export default class extends Controller {
         })
             .then(r => r.json())
             .then(data => {
-                if (!data.success) { alert(data.message || "No se pudo actualizar la fecha."); return }
+                if (!data.success) {
+                    alert(data.message || "No se pudo actualizar la fecha.")
+                    return
+                }
                 this.updateLabel(data.fecha_venta)
+                this.showMessage(data.fecha_venta)
             })
             .catch(() => alert("Error al actualizar la fecha."))
     }
@@ -71,6 +79,8 @@ export default class extends Controller {
           Guardar
         </button>
       </div>
+      <p data-fecha-venta-target="message"
+         class="mt-2 text-sm text-emerald-400"></p>
     `
         this.initPicker(valorInicial)
     }
@@ -102,6 +112,10 @@ export default class extends Controller {
             try { this.fp.destroy() } catch (_) {}
             this.fp = null
         }
+        if (this._messageTimeout) {
+            clearTimeout(this._messageTimeout)
+            this._messageTimeout = null
+        }
     }
 
     reinitIfNeeded() {
@@ -111,10 +125,24 @@ export default class extends Controller {
         }
     }
 
-    inputEl() { return this.element.querySelector('[data-fecha-venta-target="input"]') }
+    inputEl() {
+        return this.element.querySelector('[data-fecha-venta-target="input"]')
+    }
 
     updateLabel(dmy) {
         const el = document.querySelector(this.labelSelectorValue)
         if (el) el.textContent = dmy
+    }
+
+    showMessage(dmy) {
+        if (this.hasMessageTarget) {
+            this.messageTarget.textContent = `Fecha de venta actualizada al ${dmy}.`
+            clearTimeout(this._messageTimeout)
+            this._messageTimeout = setTimeout(() => {
+                if (this.hasMessageTarget) this.messageTarget.textContent = ""
+            }, 4000)
+        } else {
+            alert(`Fecha de venta actualizada al ${dmy}.`)
+        }
     }
 }
