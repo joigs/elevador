@@ -96,15 +96,12 @@ class Inspection < ApplicationRecord
 
   private
 
-#para calcular automaticamente el numero de inspeccion
   def self.calculate_new_number
-    # Get the newest record
     newest_record = Inspection.order(number: :desc).first
 
     newest_record ? newest_record.number.to_i + 1 : 1
   end
 
-  #valida que no se puedan agendar revisiones los fines de semana
   def weekend_error
     if ins_date.present? && (ins_date.saturday? || ins_date.sunday?)
       errors.add(:ins_date, "No se pueden programar inspecciones los fines de semana.")

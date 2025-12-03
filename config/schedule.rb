@@ -19,3 +19,13 @@
 
 # Learn more: http://github.com/javan/whenever
 
+
+  set :environment, :production
+  set :path, "/home/vertical/elevador"
+  set :output, "/home/vertical/elevador/log/cron.log"
+
+  env :PATH, "/home/vertical/.rbenv/shims:/home/vertical/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+  every 1.day, at: '0:00 am' do
+    rake "inspections:check_and_update_state"
+  end
