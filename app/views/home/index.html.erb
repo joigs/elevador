@@ -44,12 +44,6 @@
                       facturacions_path(notification_id: notification.id),
                       class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
 
-        <% elsif notification.notification_type == "inspeccion_proxima" %>
-          <%= link_to "Ver pendientes",
-                      warnings_path(filter: "expiring_soon"),
-                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
-
-
 
         <% elsif notification.notification_type == "inspeccion_vencida_aprobada" %>
           <%= link_to "Ver pendientes",
@@ -62,6 +56,12 @@
           <%= link_to "Ver pendientes",
                       warnings_path(filter: "vencido_rechazado"),
                       class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+
+        <% elsif notification.notification_type == "inspeccion_proxima" %>
+          <%= link_to "Ver pendientes",
+                      warnings_path(filter: "expiring_soon"),
+                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+
 
 
 

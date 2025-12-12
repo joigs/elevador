@@ -17,6 +17,9 @@ class Notification < ApplicationRecord
   validates :notification_type, presence: true
 end
 
+
+
+
 =begin
 
 
