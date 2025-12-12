@@ -136,20 +136,21 @@
           </div>
 
         <% end %>
-
-      <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
+        <% if @inspection.state == "Cerrado" && !Current.user.only_see %>
           <div class="mb-2">
             <%= form_with model: @inspection, url: update_ending_inspection_path(@inspection), local: true do |f| %>
               <div class="mb-2">
                 <%= f.label :ending, "Fecha límite próxima inspección", class: "block mb-1" %>
-                <%= f.date_field :ending,
+                <%= f.text_field :ending,
                                  value: @report.ending&.strftime('%Y-%m-%d'),
+                                 id: "inspection_ending",
+                                 data: { inspection_flatpickr: true },
                                  class: "w-full p-2 rounded bg-gray-800 border border-gray-600 \
-                                         focus:outline-none focus:ring focus:ring-blue-500" %>
+                                 focus:outline-none focus:ring focus:ring-blue-500" %>
               </div>
               <%= f.submit "Actualizar fecha",
                            class: "w-full px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold \
-                                   hover:bg-blue-600 transition duration-200 cursor-pointer" %>
+                           hover:bg-blue-600 transition duración-200 cursor-pointer" %>
             <% end %>
           </div>
 
@@ -157,17 +158,20 @@
             <%= form_with model: @inspection, url: update_inf_date_inspection_path(@inspection), local: true do |f| %>
               <div class="mb-2">
                 <%= f.label :inf_date, "Fecha de emisión del informe", class: "block mb-1" %>
-                <%= f.date_field :inf_date,
+                <%= f.text_field :inf_date,
                                  value: @inspection.inf_date&.strftime('%Y-%m-%d'),
+                                 id: "inspection_inf_date",
+                                 data: { inspection_flatpickr: true },
                                  class: "w-full p-2 rounded bg-gray-800 border border-gray-600 \
-                                         focus:outline-none focus:ring focus:ring-blue-500" %>
+                                 focus:outline-none focus:ring focus:ring-blue-500" %>
               </div>
               <%= f.submit "Actualizar fecha de emisión",
                            class: "w-full px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold \
-                                   hover:bg-blue-600 transition duration-200 cursor-pointer" %>
+                           hover:bg-blue-600 transition duración-200 cursor-pointer" %>
             <% end %>
           <% end %>
         <% end %>
+
       </div>
 
 
@@ -285,3 +289,55 @@
 
 
 </div>
+<script>
+    (() => {
+        // Evitar registrar los listeners más de una vez
+        if (window.__inspectionDatesSetup__) return;
+        window.__inspectionDatesSetup__ = true;
+
+        function initInspectionFlatpickr() {
+            if (typeof flatpickr === "undefined") return;
+
+            const options = {
+                dateFormat: "Y-m-d",   // lo que se envía al servidor
+                altInput:  true,
+                altFormat: "d-m-Y",    // lo que ve el usuario
+                locale:    "es",
+                static:    false,
+                minDate:   "2020-01-01",
+                maxDate:   "3000-12-31"
+            };
+
+            document.querySelectorAll('input[data-inspection-flatpickr]').forEach((input) => {
+                // No volver a inicializar si ya lo hicimos en este DOM
+                if (input.dataset.fpInitialized === "true") return;
+
+                flatpickr(input, options);
+                input.dataset.fpInitialized = "true";
+            });
+        }
+
+        function destroyInspectionFlatpickr() {
+            // Dejar el DOM limpio antes de que Turbo lo guarde en caché
+            document.querySelectorAll('input[data-inspection-flatpickr]').forEach((input) => {
+                if (input._flatpickr) {
+                    input._flatpickr.destroy();
+                }
+                delete input.dataset.fpInitialized;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded",   initInspectionFlatpickr);
+        document.addEventListener("turbo:load",         initInspectionFlatpickr);
+        document.addEventListener("turbo:render",       initInspectionFlatpickr);
+        document.addEventListener("turbo:before-cache", destroyInspectionFlatpickr);
+
+        // Misma configuración que usas en cotizaciones
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted || performance.getEntriesByType('navigation')[0]?.type === 'back_forward') {
+                window.location.reload();
+            }
+        });
+    })();
+</script>
+

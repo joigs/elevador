@@ -250,13 +250,41 @@ class InspectionsController < ApplicationController
     authorize! inspection
     ending = inspection_params[:ending]
     @report = Report.find_by(inspection: inspection)
+
     if @report.update(ending: ending)
+      ending_date = ending&.to_date
+      if ending_date.present?
+        today = Time.zone.today
+        current_result = inspection.result.to_s
+        new_result = nil
+
+        if ending_date < today
+          case current_result
+          when 'Aprobado'
+            new_result = 'Vencido (Aprobado)'
+          when 'Rechazado'
+            new_result = 'Vencido (Rechazado)'
+          end
+        else
+          case current_result
+          when 'Vencido (Aprobado)'
+            new_result = 'Aprobado'
+          when 'Vencido (Rechazado)'
+            new_result = 'Rechazado'
+          end
+        end
+
+        inspection.update(result: new_result) if new_result.present?
+      end
+      # --------------------------------------------------------------------------------------
+
       flash[:notice] = "Fecha de término de certificación actualizada"
       redirect_to @inspection
     else
       render @inspection, status: :unprocessable_entity
     end
   end
+
 
   def update_inf_date
     authorize! inspection

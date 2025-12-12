@@ -102,7 +102,7 @@ class HomeController < ApplicationController
       latest_inspections_scope = Inspection.where(id: latest_inspection_ids)
 
       window_from = Date.current
-      window_to   = 2.months.from_now.to_date
+      window_to = (Date.current + 2.months).end_of_month
 
       proximas_scope =
         latest_inspections_scope
