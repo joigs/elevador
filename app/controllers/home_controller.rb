@@ -47,6 +47,23 @@ class HomeController < ApplicationController
 
   def check_all_expirations
     Inspection.check_all_expirations
+    @inspections = Inspection.where(result: "Vencido")
+    @inspections.each do |inspection|
+      if inspection.item.group.type_of == "escala"
+        revision = inspection.ladder_revision
+      elsif inspection.item.group.type_of == "ascensor"
+        revision = inspection.revision
+      elsif inspection.item.group.type_of == "plat"
+        revision = inspection.plat_revision
+      end
+
+      if revision&.revision_colors&.any? { |rc| rc.levels.include?("G") }
+        inspection.update(result: "Vencido (Rechazado)")
+      else
+        inspection.update(result: "Vencido (Aprobado)")
+      end
+
+  end
     redirect_to home_path, notice: 'Se han revisado los vencimientos.'
   end
 
@@ -66,7 +83,12 @@ class HomeController < ApplicationController
                                    .distinct
     end
 
-    counts = { inspeccion_proxima: 0, inspeccion_vencida: 0, inspeccion_rechazada: 0 }
+    counts = {
+      inspeccion_proxima:           0,
+      inspeccion_rechazada:         0,
+      inspeccion_vencida_aprobada:  0,
+      inspeccion_vencida_rechazada: 0
+    }
 
     if Current.user
       latest_inspection_ids =
@@ -82,29 +104,40 @@ class HomeController < ApplicationController
       window_from = Date.current
       window_to   = 2.months.from_now.to_date
 
-      proximas_scope = latest_inspections_scope
-                         .joins(:report)
-                         .where(state: "Cerrado", result: "Aprobado")
-                         .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
-                         .where(ignorar: false)
+      proximas_scope =
+        latest_inspections_scope
+          .joins(:report)
+          .where(state: "Cerrado", result: "Aprobado")
+          .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+          .where(ignorar: false)
 
-      rechazadas_scope = latest_inspections_scope
-                           .joins(:report)
-                           .where(state: "Cerrado", result: "Rechazado")
-                           .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
-                           .where(ignorar: false)
+      rechazadas_scope =
+        latest_inspections_scope
+          .joins(:report)
+          .where(state: "Cerrado", result: "Rechazado")
+          .where("reports.ending > ? AND reports.ending <= ?", window_from, window_to)
+          .where(ignorar: false)
 
-      vencidas_scope = latest_inspections_scope
-                         .vencidos
-                         .where(ignorar: false)
+      vencidas_scope =
+        latest_inspections_scope
+          .vencidos
+          .where(ignorar: false)
 
-      counts[:inspeccion_proxima]   = proximas_scope.count
-      counts[:inspeccion_rechazada] = rechazadas_scope.count
-      counts[:inspeccion_vencida]   = vencidas_scope.count
+      vencidas_aprobadas_scope =
+        vencidas_scope.where(result: "Vencido (Aprobado)")
 
-      notifications += Notification.where(notification_type: :inspeccion_proxima)   if counts[:inspeccion_proxima]   > 0
-      notifications += Notification.where(notification_type: :inspeccion_rechazada) if counts[:inspeccion_rechazada] > 0
-      notifications += Notification.where(notification_type: :inspeccion_vencida)   if counts[:inspeccion_vencida]   > 0
+      vencidas_rechazadas_scope =
+        vencidas_scope.where(result: "Vencido (Rechazado)")
+
+      counts[:inspeccion_proxima]           = proximas_scope.count
+      counts[:inspeccion_rechazada]         = rechazadas_scope.count
+      counts[:inspeccion_vencida_aprobada]  = vencidas_aprobadas_scope.count
+      counts[:inspeccion_vencida_rechazada] = vencidas_rechazadas_scope.count
+
+      notifications += Notification.where(notification_type: :inspeccion_proxima)           if counts[:inspeccion_proxima]           > 0
+      notifications += Notification.where(notification_type: :inspeccion_rechazada)         if counts[:inspeccion_rechazada]         > 0
+      notifications += Notification.where(notification_type: :inspeccion_vencida_aprobada)  if counts[:inspeccion_vencida_aprobada]  > 0
+      notifications += Notification.where(notification_type: :inspeccion_vencida_rechazada) if counts[:inspeccion_vencida_rechazada] > 0
     end
 
     [notifications.uniq, counts]

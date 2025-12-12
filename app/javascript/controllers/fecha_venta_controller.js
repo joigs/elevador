@@ -8,21 +8,19 @@ export default class extends Controller {
         csrf: String,
         labelSelector: String
     }
-    static targets = ["editor", "message"]
+
+    static targets = ["editor", "input", "message"]
 
     connect() {
-        this.beforeCacheHandler = () => this.teardown()
-        this.pageShowHandler    = (e) => { if (e.persisted) this.reinitIfNeeded() }
 
-        document.addEventListener("turbo:before-cache", this.beforeCacheHandler)
-        window.addEventListener("pageshow", this.pageShowHandler)
+        const existingValue = this.inputEl()?.value || this.initialValue || ""
 
-        if (this.initialValue) this.renderEditor(this.initialValue)
+        if (this.hasEditorTarget && (existingValue || this.inputEl())) {
+            this.renderEditor(existingValue)
+        }
     }
 
     disconnect() {
-        document.removeEventListener("turbo:before-cache", this.beforeCacheHandler)
-        window.removeEventListener("pageshow", this.pageShowHandler)
         this.teardown()
     }
 
@@ -67,8 +65,10 @@ export default class extends Controller {
     }
 
     renderEditor(valorInicial) {
-        this.element.innerHTML = `
-      <div data-fecha-venta-target="editor" class="flex items-center gap-3">
+        this._initialized = true
+
+        this.editorTarget.innerHTML = `
+      <div class="flex items-center gap-3">
         <input type="text"
                data-fecha-venta-target="input"
                class="w-64 px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -82,29 +82,27 @@ export default class extends Controller {
       <p data-fecha-venta-target="message"
          class="mt-2 text-sm text-emerald-400"></p>
     `
+
         this.initPicker(valorInicial)
     }
 
     initPicker(valorInicial) {
-        const el = this.inputEl()
-        if (!el) return
-
         this.teardown()
 
-        if (window.flatpickr) {
-            this.fp = window.flatpickr(el, {
-                dateFormat: "d-m-Y",
-                defaultDate: valorInicial || null,
-                minDate: "01-01-2020",
-                maxDate: "31-12-3000",
-                locale: "es",
-                static: false,
-                altInput: false
-            })
-            if (valorInicial) el.value = valorInicial
-        } else {
-            el.value = valorInicial || ""
-        }
+        const el = this.inputEl()
+        if (!el || !window.flatpickr) return
+
+        this.fp = window.flatpickr(el, {
+            dateFormat: "d-m-Y",
+            defaultDate: valorInicial || null,
+            minDate: "01-01-2020",
+            maxDate: "31-12-3000",
+            locale: "es",
+            static: false,
+            altInput: false
+        })
+
+        if (valorInicial) el.value = valorInicial
     }
 
     teardown() {
@@ -118,14 +116,8 @@ export default class extends Controller {
         }
     }
 
-    reinitIfNeeded() {
-        if (this.inputEl() && !this.fp) {
-            const current = this.inputEl().value || this.initialValue || ""
-            this.initPicker(current)
-        }
-    }
-
     inputEl() {
+        if (this.hasInputTarget) return this.inputTarget
         return this.element.querySelector('[data-fecha-venta-target="input"]')
     }
 

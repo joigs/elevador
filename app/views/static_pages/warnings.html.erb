@@ -10,8 +10,10 @@
       <h1 class="text-4xl font-bold text-gray-800 mb-6">
         <% if @filter == "expiring_soon" %>
           Certificaciones por vencer
-        <% elsif @filter == "vencido" %>
-          Certificaciones vencidas
+        <% elsif @filter == "vencido_aprobado" %>
+          Certificaciones vencidas (aprobadas)
+        <% elsif @filter == "vencido_rechazado" %>
+          Certificaciones vencidas (rechazadas)
         <% elsif @filter == "again_soon" %>
           Rechazadas con fecha cercana
         <% elsif @filter == "ignored" %>
@@ -20,18 +22,40 @@
           Certificaciones
         <% end %>
       </h1>
+
     </turbo-frame>
 
     <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
       <!-- Tabs -->
       <div class="mb-4 flex flex-wrap items-center gap-4 ml-4 pt-4">
-        <%= link_to 'Certificaciones por vencer', warnings_path(filter: 'expiring_soon', format: :html), class: 'px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
-        <%= link_to 'Rechazadas con fecha cercana', warnings_path(filter: 'again_soon', format: :html), class: 'px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
-        <%= link_to 'Certificaciones vencidas', warnings_path(filter: 'vencido', format: :html), class: 'px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
-        <%= link_to 'Inspecciones ignoradas', warnings_path(filter: 'ignored', format: :html), class: 'px-4 py-2 rounded bg-gray-500 text-white hover:bg-gray-600 transition duration-300', data: { turbo_frame: 'inspections' } %>
+        <%= link_to 'Certificaciones por vencer',
+                    warnings_path(filter: 'expiring_soon', format: :html),
+                    class: 'px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300',
+                    data: { turbo_frame: 'inspections' } %>
+
+        <%= link_to 'Rechazadas con fecha cercana',
+                    warnings_path(filter: 'again_soon', format: :html),
+                    class: 'px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition duration-300',
+                    data: { turbo_frame: 'inspections' } %>
+
+        <%= link_to 'Certificaciones vencidas (aprobadas)',
+                    warnings_path(filter: 'vencido_aprobado', format: :html),
+                    class: 'px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300',
+                    data: { turbo_frame: 'inspections' } %>
+
+        <%= link_to 'Certificaciones vencidas (rechazadas)',
+                    warnings_path(filter: 'vencido_rechazado', format: :html),
+                    class: 'px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition duration-300',
+                    data: { turbo_frame: 'inspections' } %>
+
+        <%= link_to 'Inspecciones ignoradas',
+                    warnings_path(filter: 'ignored', format: :html),
+                    class: 'px-4 py-2 rounded bg-gray-500 text-white hover:bg-gray-600 transition duration-300',
+                    data: { turbo_frame: 'inspections' } %>
       </div>
 
-      <% selection_enabled = (%w[vencido ignored].include?(@filter)) %>
+
+      <% selection_enabled = (%w[vencido_aprobado vencido_rechazado ignored].include?(@filter)) %>
 
 
       <% if selection_enabled %>
@@ -276,7 +300,6 @@
                       }
                   };
 
-                  // Solo bloquea búsqueda en la col 0 cuando corresponde
                   if (selectionEnabled) {
                       options.columns = [{ select: 0, searchable: false }];
                   }
