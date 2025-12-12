@@ -13,7 +13,8 @@ class StaticPagesController < ApplicationController
     latest_inspections_scope = Inspection.where(id: latest_inspection_ids)
 
     today          = Time.zone.today
-    two_months_later = today + 2.months
+
+    two_months_later = (today + 2.months).end_of_month
 
     inspections_scope =
       case params[:filter]
