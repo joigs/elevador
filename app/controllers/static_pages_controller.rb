@@ -12,29 +12,34 @@ class StaticPagesController < ApplicationController
 
     latest_inspections_scope = Inspection.where(id: latest_inspection_ids)
 
+    today          = Time.zone.today
+    two_months_later = today + 2.months
+
     inspections_scope =
       case params[:filter]
       when "expiring_soon"
         latest_inspections_scope
           .joins(:report)
-          .where("reports.ending > ?", Time.zone.today)
-          .where("reports.ending <= ?", Time.zone.today + 2.months)
+          .where("reports.ending > ? AND reports.ending <= ?", today, two_months_later)
           .where(state: "Cerrado", result: "Aprobado", ignorar: false)
           .includes(:report)
-
-      when "vencido"
-        latest_inspections_scope
-          .vencidos
-          .where(ignorar: false)
-
 
       when "again_soon"
         latest_inspections_scope
           .joins(:report)
-          .where("reports.ending > ?", Time.zone.today)
-          .where("reports.ending <= ?", Time.zone.today + 2.months)
+          .where("reports.ending > ? AND reports.ending <= ?", today, two_months_later)
           .where(state: "Cerrado", result: "Rechazado", ignorar: false)
           .includes(:report)
+
+      when "vencido_aprobado"
+        latest_inspections_scope
+          .vencidos
+          .where(result: "Vencido (Aprobado)", ignorar: false)
+
+      when "vencido_rechazado"
+        latest_inspections_scope
+          .vencidos
+          .where(result: "Vencido (Rechazado)", ignorar: false)
 
       when "ignored"
         latest_inspections_scope
@@ -53,7 +58,6 @@ class StaticPagesController < ApplicationController
 
     @filter = params[:filter]
   end
-
 
 
   def info

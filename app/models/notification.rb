@@ -3,19 +3,19 @@ class Notification < ApplicationRecord
   has_many :facturacions, through: :notifications_facturacions
 
   enum notification_type: {
-    solicitud_pendiente: 1,
-    entrega_pendiente: 2,
-    factura_pendiente: 3,
-    inspeccion_proxima: 4,
-    inspeccion_vencida: 5,
-    inspeccion_rechazada: 6
+    solicitud_pendiente:           1,
+    entrega_pendiente:             2,
+    factura_pendiente:             3,
+    inspeccion_proxima:            4,
+    inspeccion_vencida_aprobada:   5,
+    inspeccion_vencida_rechazada:  6,
+    inspeccion_rechazada:          7
   }
 
   validates :title, presence: true
-  validates :text, presence: true
+  validates :text,  presence: true
   validates :notification_type, presence: true
 end
-
 
 =begin
 
@@ -55,11 +55,17 @@ Notification.create!(
 
 Notification.create!(
   title: "Inspecciones vencidas",
-  text: "Existen [[N]] inspecciones que ya vencieron.",
+  text: "Existen [[N]] inspecciones rechazadas que ya vencieron.",
   notification_type: :inspeccion_vencida
 )
 
 
+
+Notification.create!(
+  title: "Inspecciones vencidas",
+  text: "Existen [[N]] inspecciones aprobadas que ya vencieron.",
+  notification_type: :inspeccion_vencida
+)
 
 
 Notification.create!(
@@ -69,6 +75,17 @@ Notification.create!(
 )
 
 
+Notification.create!(
+  title: "Inspecciones vencidas (aprobadas)",
+  text:  "Existen [[N]] inspecciones aprobadas que ya vencieron.",
+  notification_type: :inspeccion_vencida_aprobada
+)
+
+Notification.create!(
+  title: "Inspecciones vencidas (rechazadas)",
+  text:  "Existen [[N]] inspecciones rechazadas que ya vencieron.",
+  notification_type: :inspeccion_vencida_rechazada
+)
 
 
 =end

@@ -157,6 +157,7 @@ Rails.application.routes.draw do
       patch :rotate
     end
   end
+  resource :demo_email, only: :show
 
   resources :facturacions, only: [:new, :create, :index, :edit, :update, :show, :destroy], path: 'cotizaciones' do
 
