@@ -3,6 +3,9 @@ require "write_xlsx"
 
 class DemoEmailsController < ApplicationController
   def show
+    Rails.logger.info "GMAIL_USERNAME visible en producción: #{ENV['GMAIL_USERNAME'].inspect}"
+    Rails.logger.info "GMAIL_PASSWORD length: #{ENV['GMAIL_PASSWORD']&.length}"
+
     latest_inspection_ids =
       Inspection.where("number > 0")
                 .select(:id, :item_id, :number)
