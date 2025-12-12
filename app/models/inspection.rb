@@ -68,6 +68,8 @@ class Inspection < ApplicationRecord
 
   def check_and_update_state
     return unless report
+    return if result.to_s.start_with?('Vencido')
+
     hoy = Time.zone.today
     fin = report.ending&.to_date
     return unless fin && hoy > fin
