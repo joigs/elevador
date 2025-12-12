@@ -49,12 +49,23 @@
                       warnings_path(filter: "expiring_soon"),
                       class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
 
-        <% elsif ["inspeccion_vencida_aprobada", "inspeccion_vencida_rechazada"].include?(notification.notification_type) %>
-          <%= link_to "Ver pendientes",
-                      warnings_path(filter: "vencido"),
-          class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
 
-        <% elsif notification.notification_type == "inspeccion_rechazada" %>
+
+        <% elsif notification.notification_type == "inspeccion_vencida_aprobada" %>
+          <%= link_to "Ver pendientes",
+                      warnings_path(filter: "vencido_aprobado"),
+                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+
+
+
+        <% elsif notification.notification_type == "inspeccion_vencida_rechazada" %>
+          <%= link_to "Ver pendientes",
+                      warnings_path(filter: "vencido_rechazado"),
+                      class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
+
+
+
+      <% elsif notification.notification_type == "inspeccion_rechazada" %>
           <%= link_to "Ver pendientes",
                       warnings_path(filter: "again_soon"),
                       class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200" %>
