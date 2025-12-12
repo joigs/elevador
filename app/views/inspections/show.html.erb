@@ -291,7 +291,6 @@
 </div>
 <script>
     (() => {
-        // Evitar registrar los listeners más de una vez
         if (window.__inspectionDatesSetup__) return;
         window.__inspectionDatesSetup__ = true;
 
@@ -299,9 +298,9 @@
             if (typeof flatpickr === "undefined") return;
 
             const options = {
-                dateFormat: "Y-m-d",   // lo que se envía al servidor
+                dateFormat: "Y-m-d",
                 altInput:  true,
-                altFormat: "d-m-Y",    // lo que ve el usuario
+                altFormat: "d-m-Y",
                 locale:    "es",
                 static:    false,
                 minDate:   "2020-01-01",
@@ -309,7 +308,6 @@
             };
 
             document.querySelectorAll('input[data-inspection-flatpickr]').forEach((input) => {
-                // No volver a inicializar si ya lo hicimos en este DOM
                 if (input.dataset.fpInitialized === "true") return;
 
                 flatpickr(input, options);
@@ -318,7 +316,6 @@
         }
 
         function destroyInspectionFlatpickr() {
-            // Dejar el DOM limpio antes de que Turbo lo guarde en caché
             document.querySelectorAll('input[data-inspection-flatpickr]').forEach((input) => {
                 if (input._flatpickr) {
                     input._flatpickr.destroy();
@@ -332,7 +329,6 @@
         document.addEventListener("turbo:render",       initInspectionFlatpickr);
         document.addEventListener("turbo:before-cache", destroyInspectionFlatpickr);
 
-        // Misma configuración que usas en cotizaciones
         window.addEventListener('pageshow', (event) => {
             if (event.persisted || performance.getEntriesByType('navigation')[0]?.type === 'back_forward') {
                 window.location.reload();
