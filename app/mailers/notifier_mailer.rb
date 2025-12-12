@@ -1,6 +1,6 @@
 # app/mailers/notifier_mailer.rb
 class NotifierMailer < ApplicationMailer
-  default from: ENV.fetch("GMAIL_USERNAME")
+  default from: ENV["GMAIL_USERNAME"]
 
   def inspections_warnings(
     to:,
