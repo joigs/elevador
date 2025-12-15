@@ -1,4 +1,4 @@
-  # Use this file to easily define all of your cron jobs.
+# Use this file to easily define all of your cron jobs.
 #
 # It's helpful, but not entirely necessary to understand cron before proceeding.
 # http://en.wikipedia.org/wiki/Cron
@@ -27,7 +27,7 @@
   env :PATH, "/home/vertical/.rbenv/shims:/home/vertical/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
   every 1.day, at: '0:00 am' do
-    rake "inspections:check_and_update_state"
+    runner "Inspection.check_all_expirations"
   end
 
   every 1.day, at: '12:00 pm' do
