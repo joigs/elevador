@@ -5,7 +5,8 @@ class NotifierMailer < ApplicationMailer
   def inspections_warnings(
     to:,
     subject:,
-    expired_this_month:,
+    expired_this_month_approved:,
+    expired_this_month_rejected:,
     next_month_approved:,
     next_month_rejected:,
     two_months_approved:,
@@ -16,7 +17,9 @@ class NotifierMailer < ApplicationMailer
     excel_path:,
     excel_filename:
   )
-    @expired_this_month   = expired_this_month
+    @expired_this_month_approved = expired_this_month_approved
+    @expired_this_month_rejected = expired_this_month_rejected
+
     @next_month_approved  = next_month_approved
     @next_month_rejected  = next_month_rejected
     @two_months_approved  = two_months_approved

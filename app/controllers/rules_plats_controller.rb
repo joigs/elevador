@@ -65,16 +65,25 @@ class RulesPlatsController < ApplicationController
       return
     end
 
-    RulesPlatsImporter.import(params[:file].path)
+    group = Group.find_by(id: params[:group_id])
+    unless group
+      flash[:alert] = "Debes seleccionar un grupo válido"
+      redirect_to new_import_rules_plats_path
+      return
+    end
+
+    RulesPlatsImporter.import(params[:file].path, group_id: group.id)
+
     flash[:notice] = "Se importaron las reglas con éxito"
     redirect_to rules_plats_path
   end
+
 
   private
 
   def rules_plat_params
 
-    params.require(:rules_plat).permit(:code, :point, :ref, :level)
+    params.require(:rules_plat).permit(:code, :point, :ref, :level, :group_id)
   end
 
   def rules_plat

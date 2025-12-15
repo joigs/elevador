@@ -1,22 +1,19 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
-  <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= @ladder.point %></h1>
+  <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= @rules_plat.point %></h1>
 
   <div class="bg-gray-900 p-6 rounded-lg shadow-md">
     <p class="text-gray-400">
-      <strong class="text-white">Número:</strong>
-      <%= @ladder.number %>
-    </p>
-    <p class="text-gray-400">
       <strong class="text-white">Código:</strong>
-      <%= @ladder.code %>
+      <%= @rules_plat.code %>
     </p>
     <p class="text-gray-400">
-      <strong class="text-white">Prioridad:</strong>
-      <%= @ladder.priority %>
+      <strong class="text-white">referencia:</strong>
+      <%= @rules_plat.ref %>
     </p>
+
     <p class="text-gray-400">
       <strong class="text-white">Nivel:</strong>
-      <%= @ladder.level %>
+      <%= @rules_plat.level %>
     </p>
 
 
@@ -25,11 +22,11 @@
       <div class="lg:w-auto flex flex-col space-y-2">
 
         <% if Current.user&.admin %>
-          <%= link_to 'Modificar defecto', edit_ladder_path(@ladder), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+          <%= link_to 'Modificar defecto', edit_rules_plat_path(@rules_plat), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
 
-          <%= link_to 'Eliminar defecto', ladder_path(@ladder), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/ladders" } %>
+          <%= link_to 'Eliminar defecto', rules_plat_path(@rules_plat), class: "px-4 py-2 rounded bg-red-600 text-gray-900 font-bold hover:bg-red-700 transition duration-300 mt-4", data: { controller: "delete-confirmation", action: "click->delete-confirmation#deleteItem", delete_confirmation_redirect_url_value: "/rules_plats" } %>
         <% end %>
-        <%= link_to 'Volver a defectos de escala', ladders_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
+        <%= link_to 'Volver a defectos de plataforma/salvaescala', rules_plats_path, class: "px-4 py-2 rounded bg-gray-500 text-gray-900 font-bold hover:bg-gray-600 transition duration-300 mt-4" %>
 
       </div>
     </div>

@@ -31,14 +31,16 @@
   <%= value.present? ? value.strftime("%d-%m-%Y") : "" %>
 <% end %>
 
-<%# 1) Vencidos en el mes actual (no renovados) %>
-<% if @expired_this_month.any? %>
+<%# 1) Vencidos en el mes actual, separados por aprobado / rechazado %>
+<% if @expired_this_month_approved.any? %>
   <h2>
-    Equipos que vencieron en <%= @expired_month_name.capitalize %> (no fueron renovados)
+    Equipos que vencieron en <%= @expired_month_name.capitalize %> (aprobados, no fueron renovados)
   </h2>
   <p class="section-note">
-    Estos equipos tienen certificaciones con fecha de término dentro de <%= @expired_month_name.downcase %>
-    y, a la fecha del envío de este correo, no han sido renovadas.
+    Estos equipos tenían certificaciones aprobadas con fecha de término en
+    <%= @expired_month_name.downcase %> y, a la fecha del envío de este correo,
+    no han sido renovadas. Se incluyen también los equipos cuya certificación vence
+    el último día del mes.
   </p>
   <table>
     <thead>
@@ -51,7 +53,40 @@
     </tr>
     </thead>
     <tbody>
-    <% @expired_this_month.each do |inspection| %>
+    <% @expired_this_month_approved.each do |inspection| %>
+      <tr>
+        <td><%= inspection.number %></td>
+        <td><%= inspection.item&.identificador %></td>
+        <td><%= inspection.item&.principal&.name %></td>
+        <td><%= fecha(inspection.ins_date) %></td>
+        <td><%= fecha(inspection.report&.ending) %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<% if @expired_this_month_rejected.any? %>
+  <h2>
+    Equipos que vencieron en <%= @expired_month_name.capitalize %> (rechazados)
+  </h2>
+  <p class="section-note">
+    Equipos con resultado rechazado cuya reinspección debía realizarse en
+    <%= @expired_month_name.downcase %> y no se ha renovado a la fecha del envío de este correo.
+    Se incluyen también los equipos cuya certificación vence el último día del mes.
+  </p>
+  <table>
+    <thead>
+    <tr>
+      <th>N° Inspección</th>
+      <th>Activo</th>
+      <th>Empresa</th>
+      <th>Fecha inspección</th>
+      <th>Fecha término</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @expired_this_month_rejected.each do |inspection| %>
       <tr>
         <td><%= inspection.number %></td>
         <td><%= inspection.item&.identificador %></td>
@@ -102,7 +137,7 @@
     Equipos que vencen en <%= @next_month_name.capitalize %> (rechazados)
   </h2>
   <p class="section-note">
-    Equipos con resultado rechazado cuya nueva certificación vence dentro de <%= @next_month_name.downcase %>.
+    Equipos con resultado rechazado cuya certificación vence en <%= @next_month_name.downcase %>.
   </p>
   <table>
     <thead>
@@ -134,7 +169,7 @@
     Equipos que vencen en <%= @two_months_name.capitalize %> (aprobados)
   </h2>
   <p class="section-note">
-    Certificaciones aprobadas que tendrán su fecha de término durante <%= @two_months_name.downcase %>.
+    Certificaciones aprobadas cuya certificación vence en <%= @two_months_name.downcase %>.
   </p>
   <table>
     <thead>
@@ -166,7 +201,7 @@
     Equipos que vencen en <%= @two_months_name.capitalize %> (rechazados)
   </h2>
   <p class="section-note">
-    Equipos con resultado rechazado cuya reinspección vence durante <%= @two_months_name.downcase %>.
+    Equipos con resultado rechazado con inspección en <%= @two_months_name.downcase %>.
   </p>
   <table>
     <thead>

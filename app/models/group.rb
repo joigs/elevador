@@ -15,6 +15,7 @@ class Group < ApplicationRecord
   has_many :rulesets, dependent: :destroy
   has_many :revisions
   has_many :rules, through: :rulesets
+  has_many :rules_plats
   accepts_nested_attributes_for :rules
 
 

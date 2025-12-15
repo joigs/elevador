@@ -17,6 +17,10 @@ class GroupsController < ApplicationController
     else
       @rules = group.rules.ordered_by_code
     end
+    if group.type_of == "plat"
+      @rules = group.rules_plats.ordered_by_code
+    end
+
     if group.type_of == "libre"
       rules1 = @rules.limit(11)
       rules2 = @rules.offset(11)
@@ -31,24 +35,20 @@ class GroupsController < ApplicationController
   def create
     @group = Group.new(group_params)
 
-    if @group.type_of == 'escala' && Group.exists?(type_of: 'escala')
+    if @group.secondary_type == 'escala' && Group.exists?(type_of: 'escala')
       flash[:alert] = "Ya existe un grupo con el tipo escala."
       redirect_to new_group_url
     else
-        if @group.save
-          if @group.type_of == 'libre'
-            grupo1 = Group.joins(:rules)
-                          .group('groups.id')
-                          .having('COUNT(rules.id) >= 11')
-                          .find_by(type_of: 'ascensor')
-            if grupo1
-              rules = grupo1.rules.ordered_by_code.limit(11)
-              rules.each do |rule|
-                Ruleset.create(group: @group, rule: rule)
-              end
-            end
+      if @group.secondary_type == 'plataforma' || @group.secondary_type == 'salvaescala'
+        @group.type_of = 'plat'
+      else
+        @group.type_of = @group.secondary_type
+      end
 
-          end
+        if @group.save
+
+
+
           flash[:notice] = "Se creó la clasificación con éxito."
           redirect_to groups_url
         else
@@ -108,6 +108,6 @@ class GroupsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def group_params
-    params.require(:group).permit(:number, :name, :type_of, rules_attributes: [:point])
+    params.require(:group).permit(:number, :name, :type_of, :secondary_type, rules_attributes: [:point])
   end
 end

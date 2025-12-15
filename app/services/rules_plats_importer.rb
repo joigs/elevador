@@ -1,7 +1,7 @@
 require 'roo'
 
 class RulesPlatsImporter
-  def self.import(file_path)
+  def self.import(file_path, group_id:)
     xlsx = Roo::Spreadsheet.open(file_path)
     rules_data = []
 
@@ -23,6 +23,7 @@ class RulesPlatsImporter
         code: code,
         ref: ref,
         level: level,
+        group_id: group_id
       )
 
 

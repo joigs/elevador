@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_03_180345) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_15_152750) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -142,6 +142,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_03_180345) do
     t.datetime "deleted_at"
     t.string "name", null: false
     t.string "type_of"
+    t.string "secondary_type"
     t.index ["deleted_at"], name: "index_groups_on_deleted_at"
     t.index ["name"], name: "index_groups_on_name", unique: true
     t.index ["number"], name: "index_groups_on_number", unique: true
@@ -418,6 +419,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_03_180345) do
     t.string "level"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "group_id"
+    t.index ["group_id"], name: "index_rules_plats_on_group_id"
   end
 
   create_table "rulesets", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -496,6 +499,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_03_180345) do
   add_foreign_key "revisions", "inspections"
   add_foreign_key "revisions", "items"
   add_foreign_key "rules", "ruletypes"
+  add_foreign_key "rules_plats", "groups"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"
   add_foreign_key "user_permisos", "permisos"

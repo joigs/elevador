@@ -3,9 +3,6 @@ require "write_xlsx"
 
 class DemoEmailsController < ApplicationController
   def show
-    Rails.logger.info "GMAIL_USERNAME visible en producción: #{ENV['GMAIL_USERNAME'].inspect}"
-    Rails.logger.info "GMAIL_PASSWORD length: #{ENV['GMAIL_PASSWORD']&.length}"
-
     latest_inspection_ids =
       Inspection.where("number > 0")
                 .select(:id, :item_id, :number)
@@ -48,18 +45,36 @@ class DemoEmailsController < ApplicationController
 
     # ====== SCOPES PARA CORREO Y EXCEL ======
 
-    # Vencidos en el mes actual (no renovados, ya con resultado "Vencido (...)")
-    expired_this_month_scope =
+    vencido_results   = ["Vencido (Aprobado)", "Vencido (Rechazado)"]
+    vigente_results   = ["Aprobado", "Rechazado"]
+
+    # 1) Vencidos en el mes actual:
+    #    - Ya marcados como "Vencido (...)" y con ending dentro del mes
+    #    - O bien "Aprobado"/"Rechazado" cuyo ending es el último día del mes
+    expired_by_status_scope =
       base_scope
-        .where(result: ["Vencido (Aprobado)", "Vencido (Rechazado)"])
+        .where(result: vencido_results)
         .where("reports.ending >= ? AND reports.ending <= ?",
                current_month_start, current_month_end)
 
-    expired_this_month      = expired_this_month_scope
-    expired_this_month_appr = expired_this_month_scope.where(result: "Vencido (Aprobado)")
-    expired_this_month_rej  = expired_this_month_scope.where(result: "Vencido (Rechazado)")
+    ending_last_day_scope =
+      base_scope
+        .where(result: vigente_results)
+        .where("reports.ending = ?", current_month_end)
 
-    # Vencen el próximo mes
+    expired_this_month_scope =
+      expired_by_status_scope.or(ending_last_day_scope)
+
+    expired_this_month_scope = expired_this_month_scope.distinct
+
+    # Separar vencidos en aprobados / rechazados
+    expired_this_month_approved =
+      expired_this_month_scope.where(result: ["Vencido (Aprobado)", "Aprobado"])
+
+    expired_this_month_rejected =
+      expired_this_month_scope.where(result: ["Vencido (Rechazado)", "Rechazado"])
+
+    # 2) Vencen el próximo mes
     next_month_approved =
       base_scope
         .where(result: "Aprobado")
@@ -72,7 +87,7 @@ class DemoEmailsController < ApplicationController
         .where("reports.ending >= ? AND reports.ending <= ?",
                next_month_start, next_month_end)
 
-    # Vencen en dos meses
+    # 3) Vencen en dos meses
     two_months_approved =
       base_scope
         .where(result: "Aprobado")
@@ -158,8 +173,8 @@ class DemoEmailsController < ApplicationController
       write_month_sheet.call(
         sheet_expired,
         expired_month_name,
-        expired_this_month_appr,
-        expired_this_month_rej,
+        expired_this_month_approved,
+        expired_this_month_rejected,
         mode: :expired
       )
 
@@ -187,12 +202,13 @@ class DemoEmailsController < ApplicationController
     # ====== ENVIAR CORREO CON ADJUNTO ======
 
     to      = "joigsabra@hotmail.com"  # ajusta
-    subject = "Alertas de certificaciones vencidas y por vencer"
+    subject = "[No responder] #{expired_month_name}: Alertas de certificaciones vencidas y por vencer"
 
     NotifierMailer.inspections_warnings(
       to:,
       subject:,
-      expired_this_month:,
+      expired_this_month_approved:,
+      expired_this_month_rejected:,
       next_month_approved:,
       next_month_rejected:,
       two_months_approved:,

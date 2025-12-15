@@ -12,7 +12,7 @@ class RulesPlat < ApplicationRecord
 
   validates :point, presence: true
   validate :level_array_presence
-
+  belongs_to :group, optional: true
   before_save :set_code
 
   scope :ordered_by_code, lambda {
