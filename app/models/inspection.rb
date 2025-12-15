@@ -88,6 +88,13 @@ class Inspection < ApplicationRecord
     end
   end
 
+
+
+
+
+
+
+
   scope :con_resultado, -> do
     aprob_rech = %w[Aprobado Rechazado]
     vencido    = arel_table[:result].matches('Vencido%')

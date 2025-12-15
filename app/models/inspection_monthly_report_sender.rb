@@ -1,8 +1,23 @@
-# app/controllers/demo_emails_controller.rb
+# app/models/inspection_monthly_report_sender.rb
 require "write_xlsx"
 
-class DemoEmailsController < ApplicationController
-  def show
+class InspectionMonthlyReportSender
+  def self.run!(to:)
+    new.run!(to: to)
+  end
+
+  def self.run_daily_test
+    run!(to: "joigsabra@hotmail.com")
+  end
+
+  def self.run_if_end_of_month(to: "joigsabra@hotmail.com")
+    today = Time.zone.today
+    return unless today == today.end_of_month
+
+    run!(to: to)
+  end
+
+  def run!(to:)
     latest_inspection_ids =
       Inspection.where("number > 0")
                 .select(:id, :item_id, :number)
@@ -39,9 +54,8 @@ class DemoEmailsController < ApplicationController
         .includes(:report, item: :principal)
         .where(state: "Cerrado", ignorar: false)
 
-
-    vencido_results   = ["Vencido (Aprobado)", "Vencido (Rechazado)"]
-    vigente_results   = ["Aprobado", "Rechazado"]
+    vencido_results = ["Vencido (Aprobado)", "Vencido (Rechazado)"]
+    vigente_results = ["Aprobado", "Rechazado"]
 
     expired_by_status_scope =
       base_scope
@@ -55,9 +69,7 @@ class DemoEmailsController < ApplicationController
         .where("reports.ending = ?", current_month_end)
 
     expired_this_month_scope =
-      expired_by_status_scope.or(ending_last_day_scope)
-
-    expired_this_month_scope = expired_this_month_scope.distinct
+      expired_by_status_scope.or(ending_last_day_scope).distinct
 
     expired_this_month_approved =
       expired_this_month_scope.where(result: ["Vencido (Aprobado)", "Aprobado"])
@@ -179,8 +191,7 @@ class DemoEmailsController < ApplicationController
     end
 
 
-    to      = "joigsabra@hotmail.com"
-    subject = "[No responder] #{expired_month_name}: Alertas de certificaciones vencidas y por vencer"
+    subject = "Alertas de certificaciones vencidas y por vencer"
 
     NotifierMailer.inspections_warnings(
       to:,
@@ -198,11 +209,10 @@ class DemoEmailsController < ApplicationController
       excel_filename:
     ).deliver_now
 
-
     if excel_path.present? && defined?(DeleteTempFileJob)
       DeleteTempFileJob.set(wait: 5.minutes).perform_later(excel_path.to_s)
     end
 
-    render plain: "Correo enviado a #{to} con adjunto #{excel_filename}"
+    { to: to, excel_filename: excel_filename }
   end
 end

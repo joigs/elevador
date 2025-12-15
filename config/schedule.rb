@@ -29,3 +29,7 @@
   every 1.day, at: '0:00 am' do
     rake "inspections:check_and_update_state"
   end
+
+  every 1.day, at: '12:00 pm' do
+    runner "InspectionMonthlyReportSender.run_daily_test"
+  end
