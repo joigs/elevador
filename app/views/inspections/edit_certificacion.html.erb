@@ -1,0 +1,41 @@
+<div class="max-w-xl mx-auto px-4 py-6 ">
+  <div class="flex items-center justify-start">
+    <%= link_to "Volver a la inspección",
+                inspection_path(@inspection),
+                class: "inline-flex items-center px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-blue-400 bg-gray-800 hover:bg-blue-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" %>
+  </div>
+</div>
+
+<div class="max-w-xl mx-auto my-4 px-4 py-6 bg-gray-900 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-center text-gray-200 mb-6">Subir Certificación</h1>
+
+  <p class="text-gray-300 mb-4">
+    <strong>Última actualización:</strong>
+    <%= @inspection.certificacion.attached? ? @inspection.certificacion.created_at.strftime("%d/%m/%Y %H:%M") : "No se ha subido una certificación aún." %>
+  </p>
+
+  <%= form_with(model: @inspection, url: update_certificacion_inspection_path(@inspection), method: :patch, multipart: true, class: "space-y-4") do |form| %>
+    <div>
+      <%= form.label :certificacion, "Subir certificación (.pdf):", class: "block text-gray-300 font-bold mb-2" %>
+      <%= form.file_field :certificacion, accept: ".pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+    </div>
+
+    <%= form.hidden_field :dummy_field, value: "1" %>
+
+    <div>
+      <%= form.submit "Subir", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+    </div>
+  <% end %>
+
+  <% if @inspection.certificacion.attached? %>
+    <div class="mt-6 text-center">
+      <%= link_to "Descargar certificación actual",
+                  download_certificacion_inspection_path(@inspection),
+                  class: "inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="text-center mt-4">
+  <%= link_to "Volver", inspection_path(@inspection), class: "inline-block text-gray-300 hover:text-white font-bold py-2 px-4" %>
+</div>

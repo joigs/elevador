@@ -39,6 +39,7 @@ class Inspection < ApplicationRecord
 
 
   has_one_attached :informe
+  has_one_attached :certificacion
 
   has_many :inspection_users, dependent: :destroy
   has_many :users, through: :inspection_users

@@ -76,6 +76,9 @@ Rails.application.routes.draw do
       get :search_candidates
       get :copy_preview
       patch :copy
+      get   :edit_certificacion
+      patch :update_certificacion
+      get   :download_certificacion
     end
 
     #get :download_images

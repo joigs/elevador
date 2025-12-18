@@ -811,6 +811,52 @@ class InspectionsController < ApplicationController
     end
   end
 
+  def edit_certificacion
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+  end
+
+  def update_certificacion
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+
+    if params[:inspection].nil? || params[:inspection][:certificacion].blank?
+      flash.now[:alert] = "Debes seleccionar un archivo para subir."
+
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.append('flash', partial: 'shared/flash') }
+        format.html { render :edit_certificacion }
+      end
+      return
+    end
+
+    @inspection.certificacion.purge if @inspection.certificacion.attached?
+
+    if @inspection.update(certificacion: params[:inspection][:certificacion])
+      redirect_to @inspection,
+                  notice: "Certificación actualizada exitosamente. Subida el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
+    else
+      flash.now[:alert] = "Error al subir la certificación."
+
+      respond_to do |format|
+        format.turbo_stream { render turbo_stream: turbo_stream.append('flash', partial: 'shared/flash') }
+        format.html { render :edit_certificacion }
+      end
+    end
+  end
+
+  def download_certificacion
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
+
+    if @inspection.certificacion.attached?
+      redirect_to rails_blob_path(@inspection.certificacion, disposition: "attachment")
+    else
+      redirect_to @inspection, alert: "No hay certificación disponible para descargar."
+    end
+  end
+
+
 
   def export_xlsx
     @inspections = Inspection
