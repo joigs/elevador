@@ -221,10 +221,7 @@ class InspectionMonthlyReportSender
       two_months_name:
     ).deliver_now
 
-    if excel_path.present? && defined?(DeleteTempFileJob)
-      DeleteTempFileJob.set(wait: 5.minutes).perform_later(excel_path.to_s)
-    end
 
-    { to: to, excel_filename: excel_filename }
+    { to: to }
   end
 end
