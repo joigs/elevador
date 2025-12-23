@@ -12,7 +12,8 @@ class InspectionMonthlyReportSender
 
   def self.run_if_end_of_month(to: nil)
     today = Time.zone.today
-    return unless today == today.end_of_month
+    #TODO descomentar luego de comprobar que funciona
+    #return unless today == today.end_of_month
 
     run!(to: to)
   end
