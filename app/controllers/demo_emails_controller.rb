@@ -90,94 +90,6 @@ class DemoEmailsController < ApplicationController
                two_months_start, two_months_end)
 
 
-    excel_path     = nil
-    excel_filename = "resumen_inspecciones_#{today.strftime('%Y_%m_%d')}.xlsx"
-
-    Tempfile.create(['resumen_inspecciones', '.xlsx']) do |tmp|
-      excel_path = tmp.path
-      tmp.close
-
-      workbook = WriteXLSX.new(excel_path)
-      bold     = workbook.add_format(bold: 1)
-
-      sheet_expired = workbook.add_worksheet(expired_month_name.capitalize[0, 31])
-      sheet_next    = workbook.add_worksheet(next_month_name.capitalize[0, 31])
-      sheet_two     = workbook.add_worksheet(two_months_name.capitalize[0, 31])
-
-      [sheet_expired, sheet_next, sheet_two].each do |sh|
-        sh.set_column(0, 0, 15)
-        sh.set_column(1, 1, 25)
-        sh.set_column(2, 2, 30)
-        sh.set_column(3, 4, 16)
-      end
-
-      write_section = lambda do |sheet, start_row, title, inspections|
-        row = start_row
-        sheet.write(row, 0, title, bold)
-        row += 2
-
-        headers = ['N° Inspección', 'Activo', 'Empresa', 'Fecha inspección', 'Fecha término']
-        headers.each_with_index do |h, col|
-          sheet.write(row, col, h, bold)
-        end
-
-        row += 1
-
-        inspections.each do |inspection|
-          sheet.write(row, 0, inspection.number)
-          sheet.write(row, 1, inspection.item&.identificador)
-          sheet.write(row, 2, inspection.item&.principal&.name)
-          sheet.write(row, 3, inspection.ins_date&.strftime('%d-%m-%Y'))
-          sheet.write(row, 4, inspection.report&.ending&.strftime('%d-%m-%Y'))
-          row += 1
-        end
-
-        row
-      end
-
-      write_month_sheet = lambda do |sheet, month_name, approved_collection, rejected_collection, mode:|
-        base_verb = mode == :expired ? "vencieron" : "vencen"
-
-        row = 0
-
-        title_approved = "Equipos que #{base_verb} en #{month_name.capitalize} (aprobados)"
-        row = write_section.call(sheet, row, title_approved, approved_collection)
-
-        row += 6
-
-        title_rejected = "Equipos que #{base_verb} en #{month_name.capitalize} (rechazados)"
-        row = write_section.call(sheet, row, title_rejected, rejected_collection)
-
-        row
-      end
-
-      write_month_sheet.call(
-        sheet_expired,
-        expired_month_name,
-        expired_this_month_approved,
-        expired_this_month_rejected,
-        mode: :expired
-      )
-
-      write_month_sheet.call(
-        sheet_next,
-        next_month_name,
-        next_month_approved,
-        next_month_rejected,
-        mode: :future
-      )
-
-      write_month_sheet.call(
-        sheet_two,
-        two_months_name,
-        two_months_approved,
-        two_months_rejected,
-        mode: :future
-      )
-
-      workbook.close
-    end
-
 
     to      = "joigsabra@hotmail.com"
     subject = "[No responder] #{expired_month_name}: Alertas de certificaciones vencidas y por vencer"
@@ -193,16 +105,11 @@ class DemoEmailsController < ApplicationController
       two_months_rejected:,
       expired_month_name:,
       next_month_name:,
-      two_months_name:,
-      excel_path:,
-      excel_filename:
+      two_months_name:
     ).deliver_now
 
 
-    if excel_path.present? && defined?(DeleteTempFileJob)
-      DeleteTempFileJob.set(wait: 5.minutes).perform_later(excel_path.to_s)
-    end
 
-    render plain: "Correo enviado a #{to} con adjunto #{excel_filename}"
+    render plain: "Correo enviado a #{to}"
   end
 end

@@ -13,9 +13,7 @@ class NotifierMailer < ApplicationMailer
     two_months_rejected:,
     expired_month_name:,
     next_month_name:,
-    two_months_name:,
-    excel_path:,
-    excel_filename:
+    two_months_name:
   )
     @expired_this_month_approved = expired_this_month_approved
     @expired_this_month_rejected = expired_this_month_rejected
@@ -29,9 +27,6 @@ class NotifierMailer < ApplicationMailer
     @next_month_name      = next_month_name
     @two_months_name      = two_months_name
 
-    if excel_path.present? && File.exist?(excel_path)
-      attachments[excel_filename] = File.binread(excel_path)
-    end
 
     mail(to: to, subject: subject)
   end

@@ -10,7 +10,7 @@ class InspectionMonthlyReportSender
     run!(to: "joigsabra@hotmail.com")
   end
 
-  def self.run_if_end_of_month(to: "joigsabra@hotmail.com")
+  def self.run_if_end_of_month(to: nil)
     today = Time.zone.today
     return unless today == today.end_of_month
 
@@ -18,6 +18,19 @@ class InspectionMonthlyReportSender
   end
 
   def run!(to:)
+
+    recipients =
+      if to.present?
+        if to.is_a?(String)
+          to.split(/[,\s;]+/).reject(&:blank?)
+        else
+          Array(to).map(&:to_s).flat_map { |s| s.split(/[,\s;]+/) }.reject(&:blank?)
+        end
+      else
+        raw = ENV["INSPECTION_REPORT_TO"].to_s
+        raw.split(/[,\s;]+/).reject(&:blank?)
+      end
+
     latest_inspection_ids =
       Inspection.where("number > 0")
                 .select(:id, :item_id, :number)
@@ -194,7 +207,7 @@ class InspectionMonthlyReportSender
     subject = "Alertas de certificaciones vencidas y por vencer"
 
     NotifierMailer.inspections_warnings(
-      to:,
+      to: recipients,
       subject:,
       expired_this_month_approved:,
       expired_this_month_rejected:,
@@ -204,9 +217,7 @@ class InspectionMonthlyReportSender
       two_months_rejected:,
       expired_month_name:,
       next_month_name:,
-      two_months_name:,
-      excel_path:,
-      excel_filename:
+      two_months_name:
     ).deliver_now
 
     if excel_path.present? && defined?(DeleteTempFileJob)
