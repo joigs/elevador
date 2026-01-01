@@ -11,7 +11,8 @@ class InspectionMonthlyReportSender
   end
 
   def self.run_if_end_of_month(to: nil)
-    today = Time.zone.today
+    #today = Time.zone.today
+    today = Date.new(2025, 12, 31)
     return unless today == today.end_of_month
 
     run!(to: to)
@@ -41,8 +42,8 @@ class InspectionMonthlyReportSender
 
     latest_inspections_scope = Inspection.where(id: latest_inspection_ids)
 
-    today = Time.zone.today
-
+    #today = Time.zone.today
+    today = Date.new(2025, 12, 31)
     current_month_start = today.beginning_of_month
     current_month_end   = today.end_of_month
 
