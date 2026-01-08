@@ -202,12 +202,13 @@
       <%= form.number_field :embarques, max: 1000000, min:0, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white rounded-md" %>
     </div>
 
+    <% unless @item.group.type_of == "plat" %>
+        <div class="form-group">
+            <%= form.label :sala_maquinas, "Sala de maquinas", class: "block text-gray-300" %>
+            <%= form.select :sala_maquinas, ["Responder más tarde", "Si", "No. Máquina en la parte superior", "No. Máquina en foso", "No. Maquinaria fuera de la caja de elevadores"], {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+        </div>
+    <% end %>
 
-    <div class="form-group">
-      <%= form.label :sala_maquinas, "Sala de maquinas", class: "block text-gray-300" %>
-      <%= form.select :sala_maquinas, ["Responder más tarde", "Si", "No. Máquina en la parte superior", "No. Máquina en foso", "No. Maquinaria fuera de la caja de elevadores"], {}, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
-
-    </div>
     <%= hidden_field_tag :closed, params[:closed] || false %>
     <%= hidden_field_tag :inspection_origin, params[:inspection_origin] || @inspection %>
 

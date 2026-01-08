@@ -44,15 +44,19 @@ class InspectionsController < ApplicationController
     if @control2 == "escala"
       @detail = LadderDetail.find_by(item_id: @item.id)
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+      @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
+
     elsif @control2 == "ascensor"
       @detail = Detail.find_by(item_id: @item.id)
       @revision = Revision.find_by(inspection_id: @inspection.id)
+      @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
+
     elsif @control2 == "plat"
       @detail = Detail.find_by(item_id: @item.id)
       @revision = PlatRevision.find_by(inspection_id: @inspection.id)
+      @has_incomplete_revision_colors = @revision.plat_revision_sections.exists?(color: false)
     end
 
-    @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
 
     @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
@@ -168,22 +172,20 @@ class InspectionsController < ApplicationController
 
       elsif @item.group.type_of == "plat"
         @revision = PlatRevision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
+        if @item.group.secondary_type == "plataforma"
+          (0..9).each do |index|
+            @revision.plat_revision_sections.create!(section: index, color: false)
+          end
+        elsif @item.group.secondary_type == "salvaescala"
+          (0..7).each do |index|
+            @revision.plat_revision_sections.create!(section: index, color: false)
+          end
+        end
+
 
         @detail = Detail.find_or_create_by(item: @item)
 
 
-
-
-
-      elsif @item.group.type_of == "libre"
-        @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
-        numbers = [0, 100]
-        numbers.each do |number|
-          @revision.revision_colors.create!(section: number, color: false)
-        end
-        if is_new_item
-          @detail = Detail.create!(item: @item)
-        end
       end
 
       if @inspection.rerun == true
