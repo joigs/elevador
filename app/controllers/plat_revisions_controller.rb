@@ -60,6 +60,7 @@ class PlatRevisionsController < ApplicationController
 
     if @group.secondary_type == "plataforma"
       @nombres = [
+        '. Carpeta 0',
         '. Caja del elevador y cerramiento',
         '. Plataforma',
         '. Carga y velocidad',
@@ -72,6 +73,7 @@ class PlatRevisionsController < ApplicationController
       ]
     elsif @group.secondary_type == "salvaescala"
       @nombres = [
+        '. Carpeta 0',
         '. Diseño general y construcción',
         '. Rieles guía y topes mecánicos',
         '. Paracaídas y detección de exceso de velocidad',
