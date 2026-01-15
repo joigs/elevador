@@ -110,7 +110,7 @@
                   </strong>
                 </td>
                 <td class="px-6 py-4 whitespace-normal break-words">
-                  <%= link_to inspection.principal, principal_path(inspection.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
+                  <%= link_to inspection.principal.name, principal_path(inspection.principal), data: { turbo_frame: "_top" }, class: "text-blue-400 hover:text-blue-600" %>
                 </td>
 
                 <!-- Fecha de inspección con data-order -->

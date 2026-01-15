@@ -53,6 +53,12 @@
                   <p class="hover:text-blue-700">Estado de inspección</p>
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                  <p class="hover:text-blue-700">Fecha<br>término</p>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                  <p class="hover:text-blue-700">Fecha<br>Certificación</p>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                   <p class="hover:text-blue-700">Acciones</p>
                 </th>
               </tr>
@@ -77,12 +83,28 @@
                     <td class="px-6 py-4 whitespace-normal break-words">
                       <%= link_to inspection.result, inspection_path(inspection), class: "text-blue-400 hover:text-blue-600", data: { turbo_frame: "_top" } %>
                     </td>
+                    <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.report&.ending&.strftime('%Y%m%d') %>">
+                      <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
+                    </td>
+                    <% prox = proxima_inspeccion_info(inspection) %>
+                    <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= prox[:order] %>">
+                      <p class="text-white"><%= prox[:text] %></p>
+                    </td>
+
+
                   <% else %>
                     <td class="px-6 py-4 whitespace-normal break-words">
                       <p class="text-white">Aun no hay inspecciones</p>
                     </td>
                     <td class="px-6 py-4 whitespace-normal break-words">
                       <p class="text-white">N/A</p>
+
+                    </td>
+                    <td class="px-6 py-4 whitespace-normal break-words">
+                      <p class="text-white">Aun no hay inspecciones</p>
+                    </td>
+                    <td class="px-6 py-4 whitespace-normal break-words">
+                      <p class="text-white">Aun no hay inspecciones</p>
                     </td>
                   <% end %>
                   <td class="px-6 py-4 whitespace-nowrap">

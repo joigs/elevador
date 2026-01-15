@@ -12,6 +12,8 @@
     <% if inspection %>
       <p>Última inspección: <%= format_date(inspection.ins_date) %></p>
       <p>Estado: <%= inspection.result %></p>
+      <p>Fecha vencimiento: <%= format_date(inspection.report&.ending) %></p>
+      <p>Fecha certificación: <%= proxima_inspeccion_info(inspection)[:text] %></p>
     <% else %>
       <p>Aun no hay inspecciones.</p>
     <% end %>
