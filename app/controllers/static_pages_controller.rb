@@ -15,22 +15,56 @@ class StaticPagesController < ApplicationController
     today          = Time.zone.today
 
     two_months_later = (today + 2.months).end_of_month
+    # --- Selector de mes (solo UI + filtro opcional) ---
+    @ending_month = params[:ending_month].presence # "YYYY-MM" o nil
 
+    @ending_month_options =
+      (0..2).map do |i|
+        d = (today.beginning_of_month + i.months)
+        # label: "enero 2026" (depende del locale)
+        label = I18n.l(d, format: "%B %Y").to_s
+        [label, d.strftime("%Y-%m")]
+      end
+
+    month_start = nil
+    month_end   = nil
+
+    if @ending_month
+      begin
+        month_date  = Date.strptime(@ending_month, "%Y-%m")
+        month_start = month_date.beginning_of_month
+        month_end   = month_date.end_of_month
+      rescue ArgumentError
+        @ending_month = nil
+      end
+    end
     inspections_scope =
       case params[:filter]
       when "expiring_soon"
-        latest_inspections_scope
-          .joins(:report)
-          .where("reports.ending > ? AND reports.ending <= ?", today, two_months_later)
-          .where(state: "Cerrado", result: "Aprobado", ignorar: false)
-          .includes(:report)
+        scope = latest_inspections_scope
+                  .joins(:report)
+                  .where(state: "Cerrado", result: "Aprobado", ignorar: false)
+                  .includes(:report)
+
+        if @ending_month && month_start && month_end
+          start_date = [month_start, today + 1.day].max # respeta "ending > today"
+          scope.where("reports.ending >= ? AND reports.ending <= ?", start_date, month_end)
+        else
+          scope.where("reports.ending > ? AND reports.ending <= ?", today, two_months_later)
+        end
 
       when "again_soon"
-        latest_inspections_scope
-          .joins(:report)
-          .where("reports.ending > ? AND reports.ending <= ?", today, two_months_later)
-          .where(state: "Cerrado", result: "Rechazado", ignorar: false)
-          .includes(:report)
+        scope = latest_inspections_scope
+                  .joins(:report)
+                  .where(state: "Cerrado", result: "Rechazado", ignorar: false)
+                  .includes(:report)
+
+        if @ending_month && month_start && month_end
+          start_date = [month_start, today + 1.day].max
+          scope.where("reports.ending >= ? AND reports.ending <= ?", start_date, month_end)
+        else
+          scope.where("reports.ending > ? AND reports.ending <= ?", today, two_months_later)
+        end
 
       when "vencido_aprobado"
         latest_inspections_scope

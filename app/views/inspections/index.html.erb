@@ -38,8 +38,9 @@
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha<br>Inspección</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Ubicación</p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en<br>resultado<br>actual</p> </th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha<br>término</p> </th>
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha<br>próxima<br>inspección</p> </th>
+
+                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha<br>Certificación </p> </th>
                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                   <p class="hover:text-blue-700">Inspector<br>asignado</p>
                 </th>
@@ -90,12 +91,8 @@
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <p class="text-white"><%= inspection.result %></p>
                   </td>
-                  <!-- Días transcurridos con data-order -->
-                  <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= (Date.current - inspection.cambio).to_i %>">
-                    <p class="text-white">
-                      <%= (Date.current - inspection.cambio).to_i == 1 ? "1 día" : "#{(Date.current - inspection.cambio).to_i} días" %>
-                    </p>
-                  </td>
+
+
                   <!-- Fecha de reporte con data-order -->
                   <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.report&.ending&.strftime('%Y%m%d') %>">
                     <p class="text-white"><%= format_date(inspection.report&.ending) %></p>

@@ -28,15 +28,18 @@
     <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
       <!-- Tabs -->
       <div class="mb-4 flex flex-wrap items-center gap-4 ml-4 pt-4">
+        <% ending_month_param = params[:ending_month].presence %>
+
         <%= link_to 'Certificaciones por vencer',
-                    warnings_path(filter: 'expiring_soon', format: :html),
+                    warnings_path(filter: 'expiring_soon', ending_month: ending_month_param, format: :html),
                     class: 'px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300',
                     data: { turbo_frame: 'inspections' } %>
 
         <%= link_to 'Rechazadas con fecha cercana',
-                    warnings_path(filter: 'again_soon', format: :html),
+                    warnings_path(filter: 'again_soon', ending_month: ending_month_param, format: :html),
                     class: 'px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition duration-300',
                     data: { turbo_frame: 'inspections' } %>
+
 
         <%= link_to 'Certificaciones vencidas (aprobadas)',
                     warnings_path(filter: 'vencido_aprobado', format: :html),
@@ -53,6 +56,35 @@
                     class: 'px-4 py-2 rounded bg-gray-500 text-white hover:bg-gray-600 transition duration-300',
                     data: { turbo_frame: 'inspections' } %>
       </div>
+      <% show_month_selector = %w[expiring_soon again_soon].include?(@filter) %>
+
+      <% if show_month_selector %>
+        <div class="ml-4 pb-4">
+          <div class="inline-flex flex-wrap items-center gap-3 bg-gray-900/40 border border-gray-700 rounded-md px-4 py-3">
+            <%= form_with url: warnings_path(format: :html),
+                          method: :get,
+                          data: { turbo_frame: 'inspections' },
+                          class: "flex flex-wrap items-center gap-3" do %>
+
+              <%= hidden_field_tag :filter, @filter %>
+
+              <% (params[:q] || {}).each do |k, v| %>
+                <%= hidden_field_tag "q[#{k}]", v %>
+              <% end %>
+
+              <label class="text-gray-200 text-sm font-medium whitespace-nowrap">
+                Mes (fecha término)
+              </label>
+
+              <%= select_tag :ending_month,
+                             options_for_select([["Próximos 3 meses", ""]] + @ending_month_options, @ending_month.to_s),
+                             class: "bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 text-sm min-w-[260px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                             onchange: "this.form.requestSubmit()" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
 
 
       <% selection_enabled = (%w[vencido_aprobado vencido_rechazado ignored].include?(@filter)) %>
@@ -73,6 +105,8 @@
                         method: :patch,
                         data: { selection_target: "form", turbo_frame: "inspections" } do %>
             <%= hidden_field_tag :current_filter, @filter %>
+            <%= hidden_field_tag :ending_month, params[:ending_month] %>
+
             <button type="submit"
                     data-selection-target="bulkBtn onlyWhenSelecting"
                     data-action="selection#submitBulk"
