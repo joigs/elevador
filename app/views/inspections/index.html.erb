@@ -91,9 +91,8 @@
                   <td class="px-6 py-4 whitespace-normal break-words">
                     <p class="text-white"><%= inspection.result %></p>
                   </td>
-                  <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.report&.ending&.strftime('%Y%m%d') %>">
-                    <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
-                  </td>
+
+
                   <!-- Fecha de reporte con data-order -->
                   <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.report&.ending&.strftime('%Y%m%d') %>">
                     <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
