@@ -7,7 +7,7 @@ class Another < ApplicationRecord
   validate :ins_type_array_presence
   validate :level_array_presence
 
-  belongs_to :ruletype
+  belongs_to :ruletype, optional: true
   belongs_to :item
 
   private

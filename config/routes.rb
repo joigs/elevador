@@ -134,6 +134,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :plat_revisions, path: '/plat_revisions'
+
   resources :items, path: '/items'
   resources :principals, path: '/principals' do
     get :items, on: :member

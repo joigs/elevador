@@ -14,11 +14,7 @@ class ReportsController < ApplicationController
     end
 
 
-    if @item.group.type_of == "escala"
-      @detail = LadderDetail.find_by(item_id: @item.id)
-    else
-      @detail = Detail.find_by(item_id: @item.id)
-    end
+    @detail = @item.group.revision_for(@report.inspection)
   end
 
 
@@ -114,7 +110,7 @@ class ReportsController < ApplicationController
 
 
 
-        else
+        elsif @item.group.type_of == "ascensor"
           if was_created
             current_revision = Revision.find_by(inspection_id: inspection.id)
 
@@ -141,6 +137,34 @@ class ReportsController < ApplicationController
 
 
           end
+
+        elsif @item.group.type_of == "plat"
+
+          if was_created
+            current_revision = PlatRevision.find_by(inspection_id: inspection.id)
+
+            @revision = PlatRevision.create!(inspection_id: black_inspection.id, item_id: @item.id, group_id: @item.group_id)
+            @revision.created_at = Time.current - 1.minute
+            @revision.save
+
+            current_revision.created_at = Time.current
+            current_revision.save
+
+            if @item.group.secondary_type == 'plataforma'
+              (0..9).each do |index|
+                @revision.plat_revision_sections.create!(section: index, color: false)
+              end
+
+            elsif @item.group.secondary_type == 'salvaescala'
+              (0..7).each do |index|
+                @revision.plat_revision_sections.create!(section: index, color: false)
+              end
+
+            end
+
+
+          end
+
         end
       end
 
@@ -162,8 +186,8 @@ class ReportsController < ApplicationController
           else
             redirect_to inspection_path(inspection)
           end
-        elsif @item.group.type_of == "libre"
-          redirect_to edit_libre_revision_path(inspection_id: inspection.id)
+        elsif @item.group.type_of == "plat"
+          redirect_to edit_plat_revision_path(inspection_id: inspection.id)
         elsif @item.group.type_of == "ascensor"
           if params[:closed].nil? || params[:closed] == "false"
             redirect_to edit_revision_path(inspection_id: inspection.id)

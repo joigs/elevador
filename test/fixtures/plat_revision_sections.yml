@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  plat_revision: one
+  section: 1
+  color: false
+
+two:
+  plat_revision: two
+  section: 1
+  color: false

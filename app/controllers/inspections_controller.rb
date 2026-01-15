@@ -44,15 +44,19 @@ class InspectionsController < ApplicationController
     if @control2 == "escala"
       @detail = LadderDetail.find_by(item_id: @item.id)
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
+      @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
+
     elsif @control2 == "ascensor"
       @detail = Detail.find_by(item_id: @item.id)
       @revision = Revision.find_by(inspection_id: @inspection.id)
+      @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
+
     elsif @control2 == "plat"
       @detail = Detail.find_by(item_id: @item.id)
       @revision = PlatRevision.find_by(inspection_id: @inspection.id)
+      @has_incomplete_revision_colors = @revision.plat_revision_sections.exists?(color: false)
     end
 
-    @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)
 
     @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
@@ -168,22 +172,20 @@ class InspectionsController < ApplicationController
 
       elsif @item.group.type_of == "plat"
         @revision = PlatRevision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
+        if @item.group.secondary_type == "plataforma"
+          (0..9).each do |index|
+            @revision.plat_revision_sections.create!(section: index, color: false)
+          end
+        elsif @item.group.secondary_type == "salvaescala"
+          (0..7).each do |index|
+            @revision.plat_revision_sections.create!(section: index, color: false)
+          end
+        end
+
 
         @detail = Detail.find_or_create_by(item: @item)
 
 
-
-
-
-      elsif @item.group.type_of == "libre"
-        @revision = Revision.create!(inspection: @inspection, item: @inspection.item, group: @inspection.item.group)
-        numbers = [0, 100]
-        numbers.each do |number|
-          @revision.revision_colors.create!(section: number, color: false)
-        end
-        if is_new_item
-          @detail = Detail.create!(item: @item)
-        end
       end
 
       if @inspection.rerun == true
@@ -412,7 +414,7 @@ class InspectionsController < ApplicationController
 
     elsif @inspection.item.group.type_of == "plat"
       @revision = PlatRevision.find(params[:revision_id])
-      isladder = false
+      isladder = true
       detail = @inspection.item.detail
 
     end
@@ -427,15 +429,24 @@ class InspectionsController < ApplicationController
     else
       control1 = true
       control2 = true
-      @revision.revision_colors.select(:section, :color).each do |color|
+
+      sections_scope =
+        if group_type == "plat"
+          @revision.plat_revision_sections.select(:section, :color)
+        else
+          @revision.revision_colors.select(:section, :color)
+        end
+
+      sections_scope.each do |color|
         if color.color == false
-          if control1 == true
+          if control1
             control1 = false
           else
             control2 = false
           end
         end
       end
+
       if control2 == false
         flash[:alert] = "No se puede cerrar la inspección, No se han completado todos los controles de calidad"
         redirect_to inspection_path(@inspection)
@@ -507,7 +518,17 @@ class InspectionsController < ApplicationController
         report.update_attribute(attr_name, "S/I")
       end
     end
-    if @revision.revision_colors.any? { |rc| rc.levels.include?("G") }
+
+    group_type = @inspection.item.group.type_of
+
+    has_grave =
+      if group_type == "plat"
+        @revision.plat_revision_rules_plats.where(level: "G").exists?
+      else
+        @revision.revision_colors.any? { |rc| rc.levels.to_a.include?("G") }
+      end
+
+    if has_grave
       @inspection.update(result: "Rechazado")
     else
       @inspection.update(result: "Aprobado")

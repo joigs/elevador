@@ -5,7 +5,8 @@ class DetailsController < ApplicationController
   def edit
     authorize! detail
     @inspection = Inspection.where(item_id: detail.item_id).where.not(result: 'black').order(created_at: :desc).first
-    @item_identificador = Item.find(detail.item_id).identificador.split('-').first
+    @item = Item.find(detail.item_id)
+    @item_identificador = @item.identificador.split('-').first
     if @inspection.ins_date <= Time.zone.today && !params[:closed]
       @inspection.update(state: 'Abierto', result: 'En revisión')
     end
@@ -23,36 +24,44 @@ class DetailsController < ApplicationController
     authorize! detail
     @report = Report.where(item_id: detail.item_id).last
     @inspection = Inspection.find(@report.inspection_id)
-    @revision = @inspection.revision
-    revision_2 = @revision.revision_colors.find_by(section: 2)
-    revision_9 = @revision.revision_colors.find_by(section: 9)
+
+    @revision = @inspection.item.group.revision_for(@inspection)
+
+    if @inspection.item.group.type_of == "ascensor"
+
+      revision_2 = @revision.revision_colors.find_by(section: 2)
+      revision_9 = @revision.revision_colors.find_by(section: 9)
+    end
+
     if detail.update(detail_params)
 
 
 
+      if @inspection.item.group.type_of == "ascensor"
 
-      if @detail.sala_maquinas == "Responder más tarde"
-        # Eliminar defectos que comienzan con 2 o 9
-        remove_unwanted_rules([revision_2, revision_9], ['2', '9'])
+        if @detail.sala_maquinas == "Responder más tarde"
+          # Eliminar defectos que comienzan con 2 o 9
+          remove_unwanted_rules([revision_2, revision_9], ['2', '9'])
 
-      elsif @detail.sala_maquinas == "Si"
-        # Eliminar defectos que comienzan con 9
-        remove_unwanted_rules([revision_9], ['9'])
+        elsif @detail.sala_maquinas == "Si"
+          # Eliminar defectos que comienzan con 9
+          remove_unwanted_rules([revision_9], ['9'])
 
-      elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
-        # Eliminar defectos que comienzan con 2, 9.3 y 9.4
-        remove_unwanted_rules([revision_2, revision_9], ['2', '9.3', '9.4'])
+        elsif @detail.sala_maquinas == "No. Máquina en la parte superior"
+          # Eliminar defectos que comienzan con 2, 9.3 y 9.4
+          remove_unwanted_rules([revision_2, revision_9], ['2', '9.3', '9.4'])
 
-      elsif @detail.sala_maquinas == "No. Máquina en foso"
-        # Eliminar defectos que comienzan con 2, 9.2 y 9.4
-        remove_unwanted_rules([revision_2, revision_9], ['2', '9.2', '9.4'])
+        elsif @detail.sala_maquinas == "No. Máquina en foso"
+          # Eliminar defectos que comienzan con 2, 9.2 y 9.4
+          remove_unwanted_rules([revision_2, revision_9], ['2', '9.2', '9.4'])
 
-      elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
-        # Eliminar defectos que comienzan con 2, 9.2 y 9.3
-        remove_unwanted_rules([revision_2, revision_9], ['2', '9.2', '9.3'])
+        elsif @detail.sala_maquinas == "No. Maquinaria fuera de la caja de elevadores"
+          # Eliminar defectos que comienzan con 2, 9.2 y 9.3
+          remove_unwanted_rules([revision_2, revision_9], ['2', '9.2', '9.3'])
 
+        end
       end
-
+      
       flash[:notice] = "Detalle modificado exitosamente"
 
       if params[:closed].nil? || params[:closed] == "false"

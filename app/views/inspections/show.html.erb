@@ -275,6 +275,11 @@
                       revision_path(inspection_id: @inspection),
                       class: "px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 mt-2" \
                 if Current.user.admin || @inspection.owner? || Current.user.certificar %>
+        <% elsif @control2 == "plat" %>
+          <%= link_to 'Ver fallas encontradas',
+                      plat_revision_path(inspection_id: @inspection),
+                      class: "px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 mt-2" \
+                if Current.user.admin || @inspection.owner? || Current.user.certificar %>
         <% end %>
 
         <% if (Current.user.admin || Current.user.crear || Current.user.certificar) && @inspection.state != "Cerrado" %>
@@ -364,9 +369,9 @@
     </div>
 
     <div data-inspection-tabs-target="detail" class="tabs-content hidden">
-      <% if @item.group.type_of == "ascensor" %>
+      <% if @item.group.type_of == "ascensor" || @item.group.type_of == "plat" %>
         <%= render 'detailform', detail: @detail, inspection: @inspection %>
-      <% else %>
+      <% elsif @item.group.type_of == "escala" %>
         <%= render 'ladderdetailform', ladder_detail: @detail, inspection: @inspection %>
       <% end %>
     </div>
@@ -375,7 +380,6 @@
       <%= render 'reportform', report: @report, inspection: @inspection %>
     </div>
   </div>
-
 </div>
 
 <script>

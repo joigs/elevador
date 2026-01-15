@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_15_152750) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_06_184744) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -43,7 +43,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_15_152750) do
     t.text "point", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "ruletype_id", null: false
+    t.bigint "ruletype_id"
     t.string "code"
     t.string "level"
     t.string "ins_type"
@@ -297,9 +297,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_15_152750) do
     t.string "level", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "comment"
     t.index ["plat_revision_id", "rules_plat_id"], name: "index_plat_revision_rules_plats_on_revision_and_rule", unique: true
     t.index ["plat_revision_id"], name: "index_plat_revision_rules_plats_on_plat_revision_id"
     t.index ["rules_plat_id"], name: "index_plat_revision_rules_plats_on_rules_plat_id"
+  end
+
+  create_table "plat_revision_sections", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "plat_revision_id", null: false
+    t.integer "section"
+    t.boolean "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plat_revision_id"], name: "index_plat_revision_sections_on_plat_revision_id"
   end
 
   create_table "plat_revisions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -307,6 +317,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_15_152750) do
     t.bigint "inspection_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "group_id", null: false
+    t.index ["group_id"], name: "index_plat_revisions_on_group_id"
     t.index ["inspection_id"], name: "index_plat_revisions_on_inspection_id"
     t.index ["item_id"], name: "index_plat_revisions_on_item_id"
   end
@@ -491,6 +503,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_15_152750) do
   add_foreign_key "observacions", "users"
   add_foreign_key "plat_revision_rules_plats", "plat_revisions"
   add_foreign_key "plat_revision_rules_plats", "rules_plats"
+  add_foreign_key "plat_revision_sections", "plat_revisions"
+  add_foreign_key "plat_revisions", "groups"
   add_foreign_key "plat_revisions", "inspections"
   add_foreign_key "plat_revisions", "items"
   add_foreign_key "reports", "inspections"
