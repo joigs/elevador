@@ -880,11 +880,13 @@ class InspectionsController < ApplicationController
 
 
   def export_xlsx
-    @inspections = Inspection
-                     .where("number > 0")
-                     .includes(:item, :principal, :report, :users)
-                     .order(number: :desc)
-
+    scope = Inspection
+              .where("number > 0")
+              .includes(
+                :principal, :report, :users,
+                item: [:principal, :detail, :ladder_detail]
+              )
+              .order(number: :desc)
 
     Tempfile.create(['inspecciones', '.xlsx']) do |tmp|
       path = tmp.path
@@ -896,21 +898,23 @@ class InspectionsController < ApplicationController
       headers = [
         'N° Inspección', 'Nombre', 'Activo', 'Empresa', 'Rut empresa',
         'Fecha Inspección', 'Resultado', 'Tiempo en resultado actual',
-        'Fecha término', 'Inspector asignado', 'Nombre contacto', 'email contacto', 'Teléfono contacto'
+        'Fecha término', 'Inspector asignado', 'Nombre contacto', 'email contacto',
+        'Teléfono contacto', 'Destino edificio'
       ]
       sheet.write_row(0, 0, headers)
 
-      Inspection
-        .where('number > 0')
-        .includes(:item, :principal, :report, :users)
-        .order(number: :desc)
-        .find_each
-        .with_index(1) do |ins, row|
+      scope.find_each.with_index(1) do |ins, row|
+        item = ins.item
+
+        destino_edificio =
+          item&.detail&.destino.presence ||
+            item&.ladder_detail&.destino
+
         sheet.write_row row, 0, [
           ins.number,
           ins.name,
-          ins.item&.identificador,
-          ins.item&.principal&.name,
+          item&.identificador,
+          item&.principal&.name,
           ins.principal&.rut,
           ins.ins_date&.strftime('%d-%m-%Y'),
           ins.result,
@@ -919,7 +923,8 @@ class InspectionsController < ApplicationController
           ins.users.present? ? ins.users.map(&:real_name).join(', ') : 'No asignado',
           ins.principal&.contact_name,
           ins.principal&.contact_email,
-          ins.principal&.cellphone
+          ins.principal&.cellphone,
+          destino_edificio
         ]
       end
 
