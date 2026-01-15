@@ -38,7 +38,7 @@ module ItemsHelper
 
   # Retorna { text: "...", order: "YYYYMMDD/YYYMM01" }
   def proxima_inspeccion_info(inspection)
-    ending = inspection.report&.ins_date
+    ending = inspection.ins_date
     return { text: "N/A", order: nil } if ending.blank?
 
     # Normaliza el texto del estado (quita espacios extra)
