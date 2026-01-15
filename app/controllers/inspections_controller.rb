@@ -414,7 +414,7 @@ class InspectionsController < ApplicationController
 
     elsif @inspection.item.group.type_of == "plat"
       @revision = PlatRevision.find(params[:revision_id])
-      isladder = false
+      isladder = true
       detail = @inspection.item.detail
 
     end
@@ -429,15 +429,24 @@ class InspectionsController < ApplicationController
     else
       control1 = true
       control2 = true
-      @revision.revision_colors.select(:section, :color).each do |color|
+
+      sections_scope =
+        if group_type == "plat"
+          @revision.plat_revision_sections.select(:section, :color)
+        else
+          @revision.revision_colors.select(:section, :color)
+        end
+
+      sections_scope.each do |color|
         if color.color == false
-          if control1 == true
+          if control1
             control1 = false
           else
             control2 = false
           end
         end
       end
+
       if control2 == false
         flash[:alert] = "No se puede cerrar la inspección, No se han completado todos los controles de calidad"
         redirect_to inspection_path(@inspection)
@@ -509,7 +518,17 @@ class InspectionsController < ApplicationController
         report.update_attribute(attr_name, "S/I")
       end
     end
-    if @revision.revision_colors.any? { |rc| rc.levels.include?("G") }
+
+    group_type = @inspection.item.group.type_of
+
+    has_grave =
+      if group_type == "plat"
+        @revision.plat_revision_rules_plats.where(level: "G").exists?
+      else
+        @revision.revision_colors.any? { |rc| rc.levels.to_a.include?("G") }
+      end
+
+    if has_grave
       @inspection.update(result: "Rechazado")
     else
       @inspection.update(result: "Aprobado")
