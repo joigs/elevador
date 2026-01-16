@@ -17,6 +17,9 @@
       <% if inspection.state =="Cerrado" %>
         <p>Fecha vencimiento: <%= format_date(inspection.report&.ending) %></p>
         <p>Fecha certificación: <%= proxima_inspeccion_info(inspection)[:text] %></p>
+      <% else %>
+        <p>Inspección en progreso %></p>
+
       <% end %>
     <% else %>
       <p>Aun no hay inspecciones.</p>
