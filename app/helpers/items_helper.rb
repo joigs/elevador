@@ -43,14 +43,7 @@ module ItemsHelper
     aprobados  = ["aprobado", "vencido (aprobado)"]
     rechazados = ["rechazado", "vencido (rechazado)"]
 
-    if aprobados.include?(estado)
-      return {
-        text:  mes_anio_es(ending),
-        order: ending.strftime("%Y%m01")
-      }
-    end
 
-    if rechazados.include?(estado)
       identificador = inspection.item&.identificador.to_s
 
       despues = identificador.split("-", 2)[1].to_s
@@ -72,9 +65,7 @@ module ItemsHelper
         text:  "#{periodo} #{anio}",
         order: format("%04d%02d01", anio, mes_inicio)
       }
-    end
 
     # Fallback general
-    { text: mes_anio_es(ending), order: ending.strftime("%Y%m01") }
   end
 end
