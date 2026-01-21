@@ -35,7 +35,7 @@ module ItemsHelper
   end
 
   def proxima_inspeccion_info(inspection)
-    ending = inspection.ins_date
+    ending = inspection.inspection.report&.ending
     return { text: "N/A", order: nil } if ending.blank?
 
     estado = inspection.result.to_s.strip.downcase.gsub(/\s+/, " ")
