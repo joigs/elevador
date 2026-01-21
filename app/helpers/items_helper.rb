@@ -64,7 +64,7 @@ module ItemsHelper
 
       anio = ending.year
 
-      anio += 1 if mes_inicio < ending.month
+      anio += 1 if mes_inicio <= ending.month
 
       anio += 1 if inspection.validation.to_i == 2
 
