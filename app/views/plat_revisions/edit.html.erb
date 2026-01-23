@@ -366,7 +366,8 @@
                     <% end %>
                   <% end %>
                 </td>
-
+                <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
+                <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
                 <!-- Imagen por defecto -->
                 <td class="px-4 py-4 justify-center items-center overflow-hidden">
                   <div data-controller="file-upload image-resize preview">
@@ -383,7 +384,7 @@
                                          action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->preview#showImage",
                                        },
                                        accept: "image/*" %>
-
+                    <%= hidden_field_tag "revision_photos[code][]", "#{rule.code} #{rule.point}", id: nil, data: { rules_form_target: "photoCode" } %>
                     <label for="photo_#{index}" class="cursor-pointer">
                         <span data-file-upload-target="filename" class="text-gray-500">
                           No hay archivo seleccionado
@@ -420,6 +421,8 @@
                                         revision_null&.comment,
                                         rows: 6,
                                         cols: 25,
+                                        # AGREGAR ESTA LÍNEA:
+                                        data: { rules_form_target: "comment" },
                                         maxlength: 1000,
                                         class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
                     <% else %>
@@ -427,6 +430,7 @@
                                         base_comment,
                                         rows: 6,
                                         cols: 25,
+                                        data: { rules_form_target: "comment" },
                                         maxlength: 1000,
                                         class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
                     <% end %>

@@ -51,7 +51,7 @@ class PlatRevisionsController < ApplicationController
     end
 
     @revision_nulls = RevisionNull
-                        .where(revision_type: "plat", revision_id: @revision_base.id)
+                        .where(revision_type: "PlatRevision", revision_id: @revision_base.id)
                         .to_a
     @group          = @item.group
     @detail         = Detail.find_by(item_id: @item.id)
@@ -274,8 +274,6 @@ class PlatRevisionsController < ApplicationController
       hash[photo.code] << photo
     end
   end
-
-
   def update
     @inspection    = Inspection.find(params[:inspection_id])
     @revision_base = PlatRevision.find_by!(inspection_id: @inspection.id)
@@ -289,7 +287,6 @@ class PlatRevisionsController < ApplicationController
     @group = @item.group
 
     @revision_section = @revision_base.plat_revision_sections.find_or_initialize_by(section: section_num)
-
 
     @report             = Report.find_by(inspection: @inspection)
     @black_inspection   = nil
@@ -313,19 +310,22 @@ class PlatRevisionsController < ApplicationController
       sorted_inspections = @item.inspections.sort_by do |insp|
         [-insp.number.abs, insp.number < 0 ? 1 : 0]
       end
-
       @third_inspection = sorted_inspections[2]
       @third_revision_base = PlatRevision.find_by(inspection_id: @third_inspection.id) if @third_inspection
     end
 
-
-
     plat_rules      = plat_rules_params
-    null_conditions = plat_revision_null_params
+    null_conditions = plat_revision_null_params # Esto trae un array ej: ["1.1_1", "1.2_3"]
     past_params     = plat_past_revision_params
 
+    # 1. PRECARGAR REGLAS DE LA DB PARA EVITAR USAR PARAMS VACIOS
+    # Recolectamos todos los IDs que vienen del formulario
+    rule_ids = plat_rules.values.map { |r| r[:rules_plat_id] }.compact
+    # Creamos un hash para buscar rápido: { 120 => #<RulesPlat id:120...>, ... }
+    rules_lookup = RulesPlat.where(id: rule_ids).index_by(&:id)
 
 
+    # --- LOGICA DEFECTOS ANTERIORES (BLACK PAIRS) ---
     black_pairs = Set.new
     if @black_revision_base && past_params.present?
       fails  = past_params[:fail]  || []
@@ -337,11 +337,9 @@ class PlatRevisionsController < ApplicationController
 
       fails.each_with_index do |flag, idx|
         next unless flag == "1"
-
         code  = codes[idx].to_s
         point = points[idx].to_s
         level = levels[idx].presence || "L"
-
         next unless code.start_with?(section_code)
 
         key = [code, point]
@@ -349,11 +347,7 @@ class PlatRevisionsController < ApplicationController
         black_pairs << key
       end
 
-      existing_rels = @black_revision_base
-                        .plat_revision_rules_plats
-                        .includes(:rules_plat)
-                        .select { |rel| rel.rules_plat.code.to_s.start_with?(section_code) }
-
+      existing_rels = @black_revision_base.plat_revision_rules_plats.includes(:rules_plat).select { |rel| rel.rules_plat.code.to_s.start_with?(section_code) }
       existing_by_pair = existing_rels.index_by { |rel| [rel.rules_plat.code, rel.rules_plat.point] }
 
       target_map.each do |(code, point), level|
@@ -373,76 +367,64 @@ class PlatRevisionsController < ApplicationController
         rel.destroy unless target_map.key?(pair)
       end
 
+      # Actualizar color si corresponde
       black_section = @black_revision_base.plat_revision_sections.find_by(section: section_num)
-      if black_section
-        @black_revision_section = black_section
-      end
+      @black_revision_section = black_section if black_section
     end
 
 
+    # --- LOGICA 3RA INSPECCION ---
     third_points = Set.new
     if @third_revision_base
-      @third_revision_base
-        .plat_revision_rules_plats
-        .includes(:rules_plat)
-        .each do |rel|
+      @third_revision_base.plat_revision_rules_plats.includes(:rules_plat).each do |rel|
         code = rel.rules_plat.code.to_s
         next unless code.start_with?(section_code)
-
         third_points << rel.rules_plat.point.to_s
       end
     end
 
-    current_rels = @revision_base
-                     .plat_revision_rules_plats
-                     .includes(:rules_plat)
-                     .select { |rel| rel.rules_plat.code.to_s.start_with?(section_code) }
-
+    # --- LOGICA REVISIÓN ACTUAL (NO CUMPLE) ---
+    current_rels = @revision_base.plat_revision_rules_plats.includes(:rules_plat).select { |rel| rel.rules_plat.code.to_s.start_with?(section_code) }
     current_by_rule_id = current_rels.index_by(&:rules_plat_id)
 
-    existing_photos = @revision_base
-                        .revision_photos
-                        .reject { |p| p.code.to_s.start_with?("GENERALCODE") }
-
+    existing_photos = @revision_base.revision_photos.reject { |p| p.code.to_s.start_with?("GENERALCODE") }
     existing_photos_by_code = existing_photos.index_by(&:code)
 
     keep_rule_ids   = Set.new
     keep_photo_code = Set.new
 
     plat_rules.each_value do |row|
-      code   = row[:code].to_s
-      point  = row[:point].to_s
-      fail   = ActiveModel::Type::Boolean.new.cast(row[:fail])
-      level  = row[:level].presence || "L"
-      comment = row[:comment].presence
-      photo_file = row[:photo]
+      # Buscamos la regla real usando el ID
+      rules_plat_id = row[:rules_plat_id].to_i
+      rules_plat = rules_lookup[rules_plat_id]
 
-      next unless code.start_with?(section_code)
-
-      rules_plat_id = row[:rules_plat_id].presence&.to_i
-      rules_plat =
-        if rules_plat_id
-          RulesPlat.find_by(id: rules_plat_id)
-        else
-          RulesPlat.find_by(code: code, point: point, group_id: @group.id)
-        end
-
+      # Si no hay ID (ej: defect new), intentamos fallback (poco probable en este flujo)
+      unless rules_plat
+        rules_plat = RulesPlat.find_by(code: row[:code], point: row[:point], group_id: @group.id)
+      end
       next unless rules_plat
 
-      if fail && @black_inspection && black_pairs.include?([code, point]) &&
-        (@inspection.rerun == false || third_points.include?(point))
+      code = rules_plat.code
+      point = rules_plat.point
+      next unless code.start_with?(section_code)
+
+      fail_val = ActiveModel::Type::Boolean.new.cast(row[:fail])
+      level    = row[:level].presence || "L"
+      comment  = row[:comment].presence
+      photo_file = row[:photo]
+
+      # Lógica de gravedad automática por repetición
+      if fail_val && @black_inspection && black_pairs.include?([code, point]) && (@inspection.rerun == false || third_points.include?(point))
         level = "G"
       end
 
-      if fail
+      if fail_val
         rel = current_by_rule_id[rules_plat.id] || @revision_base.plat_revision_rules_plats.build(rules_plat: rules_plat)
-
         rel.level   = level
         rel.comment = comment
         rel.save!
 
         keep_rule_ids << rules_plat.id
-
         photo_code = "#{code} #{point}"
         keep_photo_code << photo_code
 
@@ -456,60 +438,82 @@ class PlatRevisionsController < ApplicationController
       end
     end
 
+    # Borrar defectos que se desmarcaron
     current_rels.each do |rel|
       rel.destroy unless keep_rule_ids.include?(rel.rules_plat_id)
     end
 
 
-    nulls_scope = RevisionNull.where(revision_type: "plat", revision_id: @revision_base.id)
+    # =========================================================
+    # LOGICA REVISION NULLS (CORREGIDA)
+    # =========================================================
+    # 1. Mapear checkbox "code_point" -> Comentario ingresado en la fila correspondiente
 
-    null_point_to_comment = {}
+    nulls_scope = RevisionNull.where(revision_type: "PlatRevision", revision_id: @revision_base.id)
 
-    null_conditions.each do |point_str|
-      plat_rules.each_value do |row|
-        cp = "#{row[:code]}_#{row[:point]}"
-        next unless cp == point_str
+    # Hash temporal: { "1.1_1" => "Comentario escrito por el usuario", ... }
+    null_data_to_save = {}
 
-        null_point_to_comment[point_str] = row[:comment].to_s
-        break
+    plat_rules.each_value do |row|
+      # Usamos el ID para reconstruir la clave "code_point" de forma segura
+      r_id = row[:rules_plat_id].to_i
+      rule_db = rules_lookup[r_id]
+      next unless rule_db
+
+      # Construimos la llave tal cual la genera el check_box_tag en la vista
+      generated_key = "#{rule_db.code}_#{rule_db.point}"
+
+      # Si esta llave está presente en el array de checkboxes marcados (null_conditions)
+      if null_conditions.include?(generated_key)
+        # Guardamos la llave y el comentario asociado a esa fila
+        null_data_to_save[generated_key] = row[:comment].to_s
       end
     end
 
-    existing_nulls_for_section =
-      nulls_scope.select do |rn|
-        code_part = rn.point.to_s.split('_').first
-        code_part.present? && code_part.split('.').first.to_i == section_num
-      end
+    # 2. Actualizar o Eliminar existentes
+    # Filtramos solo los nulls que pertenecen a ESTA sección para no borrar los de otras secciones
+    existing_nulls_for_section = nulls_scope.select do |rn|
+      c_part = rn.point.to_s.split('_').first
+      c_part.present? && c_part.split('.').first.to_i == section_num
+    end
 
     existing_nulls_for_section.each do |rn|
-      if null_point_to_comment.key?(rn.point)
-        new_comment = null_point_to_comment[rn.point]
+      if null_data_to_save.key?(rn.point)
+        # Existe y sigue marcado: Actualizamos comentario si cambió
+        new_comment = null_data_to_save[rn.point]
         rn.update(comment: new_comment) if rn.comment != new_comment
+        # Lo sacamos del hash para no volver a crearlo
+        null_data_to_save.delete(rn.point)
       else
+        # Ya no está marcado en el formulario: Borrar
         rn.destroy
       end
     end
 
-    null_point_to_comment.each do |point_str, comment|
+    # 3. Crear nuevos (los que quedaron en el hash)
+    null_data_to_save.each do |point_str, comment|
+      # Doble check para no duplicar (aunque el paso 2 debió limpiar)
       next if nulls_scope.exists?(point: point_str)
 
       nulls_scope.create!(
         point:         point_str,
         comment:       comment,
-        revision_type: "plat",
+        revision_type: "PlatRevision",
         revision_id:   @revision_base.id
       )
     end
+    # =========================================================
 
+
+    # Limpiar fotos huerfanas de esta sección
     existing_photos.each do |photo|
       code_part  = photo.code.to_s.split(' ').first
       section_of = code_part.to_s.split('.').first.to_i
-
       next unless section_of == section_num
-
       photo.destroy unless keep_photo_code.include?(photo.code)
     end
 
+    # Imagen general
     if params[:imagen_general].present?
       @revision_base.revision_photos.create!(
         photo: params[:imagen_general],
@@ -517,8 +521,7 @@ class PlatRevisionsController < ApplicationController
       )
     end
 
-
-
+    # Guardar color (marcar como revisado)
     color_flag = params[:color].present? && params[:color] == "1"
     @revision_section.color = color_flag
     @revision_section.save!
@@ -530,12 +533,11 @@ class PlatRevisionsController < ApplicationController
     flash[:notice] = "Checklist actualizada"
     redirect_to plat_revision_path(inspection_id: @inspection.id)
 
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+    puts "ERROR SAVING: #{e.message}" # Debug en consola
     flash[:alert] = "Error al guardar la inspección"
     redirect_to(home_path)
   end
-
-
 
 
   def new_rule
