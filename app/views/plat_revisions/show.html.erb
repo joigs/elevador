@@ -4,7 +4,6 @@
       Inspección N° <%= @inspection.number %>
     </h1>
 
-    <!-- Imágenes generales -->
     <h2 class="text-2xl font-semibold mb-3">Imágenes Generales</h2>
     <% @general_revision_photos.each do |photo| %>
       <div class="relative inline-block" data-controller="rotate" data-photo-id="<%= photo.id %>">
@@ -43,7 +42,6 @@
       </div>
     <% end %>
 
-    <!-- Defectos encontrados -->
     <h2 class="text-2xl font-semibold mb-3 mt-10">Defectos Encontrados</h2>
 
     <% @defects.each do |defect| %>
@@ -94,7 +92,6 @@
     <% end %>
   </div>
 
-  <!-- Navegación inferior -->
   <div class="container mx-auto px-4 py-6">
     <div class="flex flex-wrap justify-between items-center space-y-4 md:space-y-0">
       <% if Current.user.admin && @inspection.result != 'En revisión' %>

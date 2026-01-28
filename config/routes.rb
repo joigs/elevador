@@ -134,7 +134,14 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :plat_revisions, path: '/plat_revisions'
+  resources :plat_revisions, path: '/plat_revisions' do
+    member do
+      get 'new_rule', to: 'plat_revisions#new_rule'
+      post 'create_rule', to: 'plat_revisions#create_rule'
+      get   :edit_rule
+      patch :update_rule
+    end
+  end
 
   resources :items, path: '/items'
   resources :principals, path: '/principals' do

@@ -77,7 +77,6 @@
     Realizando Inspección N° <%= "#{@inspection.number} #{@inspection.name}" %>
   </h1>
 
-  <!-- Selector de secciones superior -->
   <div data-controller="dropdown section-submit" class="px-8">
     <div class="flex justify-center w-full my-4">
       <% current_section = "#{@color.section}- #{@nombres[@color.section]}" %>
@@ -110,7 +109,6 @@
   <br>
   <br>
 
-  <!-- Tabs de imagen general -->
   <div data-controller="tabs">
     <div class="flex justify-center space-x-4 mb-4">
       <button
@@ -209,7 +207,6 @@
 
   <br>
 
-  <!-- Tabla principal de reglas -->
   <div data-controller="na-toggle">
     <div class="flex justify-start items-center ml-4 my-4">
       <input type="checkbox" id="toggle-all-na" class="cursor-pointer w-6 h-6 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" data-action="change->na-toggle#confirmToggleAll">
@@ -276,7 +273,6 @@
                     <%= hidden_field_tag "plat_rules[#{row_key}][another_id]", another_id %>
                   </td>
                 <% else %>
-                  <!-- Rule normal -->
                   <td>
                     <div class="flex justify-center items-center">
                       <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
@@ -304,7 +300,6 @@
                   <%= label_tag "", "#{rule.code} #{rule.point}" %>
                 </td>
 
-                <!-- No cumple / documento -->
                 <td class="px-6 py-4">
                   <div class="flex flex-col items-center justify-center">
                     <%= check_box_tag "plat_rules[#{row_key}][fail]",
@@ -322,19 +317,16 @@
                   </div>
                 </td>
 
-                <!-- Identificación de la regla para el update y para Stimulus -->
                 <%= hidden_field_tag "plat_rules[#{row_key}][rules_plat_id]", rule.id, value: rule.id, id: nil %>
                 <%= hidden_field_tag "plat_rules[#{row_key}][code]",  rule.code,  data: { rules_form_target: "code" } %>
                 <%= hidden_field_tag "plat_rules[#{row_key}][point]", rule.point, data: { rules_form_target: "point" } %>
 
-                <!-- Nivel defecto -->
                 <td class="px-6 py-4 text-white justify-center items-center">
                   <% if @last_revision.present? && @last_revision.points.include?(rule.point) && @last_revision.id != @revision&.id && (@inspection.rerun == false || @third_revision&.points&.include?(rule.point)) %>
                     <%= label_tag "level_#{index}", "Grave (inspección anterior)" %>
                     <%= hidden_field_tag "plat_rules[#{row_key}][level]", "G", data: { rules_form_target: "level" } %>
                   <% else %>
                     <% if rule.level.to_s.include?('G') && rule.level.to_s.include?('L') %>
-                      <!-- Regla que puede ser G o L -->
                       <div data-controller="level" class="inline-element" data-action="click->level#toggleValue">
                         <% level_value =
                              if comment_index
@@ -368,7 +360,6 @@
                 </td>
                 <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
                 <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
-                <!-- Imagen por defecto -->
                 <td class="px-4 py-4 justify-center items-center overflow-hidden">
                   <div data-controller="file-upload image-resize preview">
                     <%= file_field_tag "plat_rules[#{row_key}][photo]",
@@ -421,7 +412,6 @@
                                         revision_null&.comment,
                                         rows: 6,
                                         cols: 25,
-                                        # AGREGAR ESTA LÍNEA:
                                         data: { rules_form_target: "comment" },
                                         maxlength: 1000,
                                         class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
@@ -444,19 +434,17 @@
       </div>
     </div>
 
-    <!-- Botón para crear nuevo defecto (Another) -->
     <div class="my-4 flex justify-center">
       <% if @section != '0' %>
         <%= link_to 'Definir nuevo defecto para esta inspección',
-                    new_rule_revision_path(inspection_id: @inspection.id, section: @section),
+                    new_rule_plat_revision_path(inspection_id: @inspection.id, section: @section),
                     class: "px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-600 transition duración-300",
                     data: { controller: "submit-redirect",
                             action: "click->submit-redirect#submitAndRedirect",
-                            submit_redirect_redirect_url: new_rule_revision_path(inspection_id: @inspection.id, section: @section) } %>
+                            submit_redirect_redirect_url: new_rule_plat_revision_path(inspection_id: @inspection.id, section: @section) } %>
       <% end %>
     </div>
 
-    <!-- Selector de secciones inferior -->
     <div data-controller="dropdown section-submit" class="px-8 my-6">
       <% current_section_number = @color.section %>
       <% total_sections = 12 %>

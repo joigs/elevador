@@ -215,7 +215,6 @@ class PlatRevisionsController < ApplicationController
         point:    another.point,
         level:    another.level,
         code:     another.code,
-        ref:      another.ref,
         group_id: @group.id
       )
     end
@@ -570,51 +569,72 @@ class PlatRevisionsController < ApplicationController
   end
 
   def create_rule
-    @revision = PlatRevision.find_by(inspection_id: params[:inspection_id])
+    @inspection = Inspection.find(params[:inspection_id])
+    @revision   = PlatRevision.find_by(inspection_id: @inspection.id)
 
     authorize! @revision
-    @another = Another.new(another_params)
-    @inspection = Inspection.find(params[:inspection_id])
 
+    # Parametros del formulario
+    @section = params[:another][:section]
+    point    = params[:another][:point]
+    level    = Array(params[:another][:level])
 
-    @section = another_params[:section]
-    point = another_params[:point]
-    level = Array(params[:another][:level])
+    item  = @inspection.item
+    group = item.group
 
-    item = @inspection.item
-    detail = Detail.find_by(item_id: item.id)
+    # --- LÓGICA DE CÓDIGO ÚNICO POR SECCIÓN ---
 
-    if @section == '9'
-      case detail.sala_maquinas
-      when "No. Máquina en la parte superior"
-        code_prefix = "9.2"
-      when "No. Máquina en foso"
-        code_prefix = "9.3"
-      when "No. Maquinaria fuera de la caja de elevadores"
-        code_prefix = "9.4"
-      else
-        code_prefix = nil
-      end
+    # 1. Buscamos si YA existe un Another en esta sección para este activo
+    existing_another = Another.where(item_id: item.id, section: @section).first
 
-      if code_prefix
-        ruletype_candidates = Ruletype.where('gygatype_number LIKE ?', "#{code_prefix}%")
-        ruletype = ruletype_candidates.max_by do |rt|
-          rt.gygatype_number.split('.')[2].to_i
+    if existing_another
+      # CASO A: Ya existen defectos personalizados en esta sección.
+      # Usamos EL MISMO código que ya tienen (ej: 1.8)
+      new_code = existing_another.code
+    else
+      # CASO B: Es el primer defecto personalizado en esta sección.
+      # Calculamos el siguiente disponible basado SOLO en las reglas base (RulesPlat)
+
+      prefix_str = "#{@section}."
+      base_codes = RulesPlat.where(group_id: group.id)
+                            .where("code LIKE ?", "#{prefix_str}%")
+                            .pluck(:code)
+
+      max_y = 0
+      base_codes.each do |c|
+        parts = c.to_s.split('.')
+        # Validamos formato X.Y
+        if parts[0] == @section.to_s && parts[1].present?
+          y_val = parts[1].to_i
+          max_y = y_val if y_val > max_y
         end
       end
-    else
-      ruletype_candidates = Ruletype.where('gygatype_number LIKE ?', "#{@section}%")
-      ruletype = ruletype_candidates.max_by do |rt|
-        rt.gygatype_number.split('.')[1].to_i
-      end
+
+      # El nuevo código será el máximo de las reglas base + 1
+      new_y = max_y + 1
+      new_code = "#{@section}.#{new_y}"
     end
-    code = "#{ruletype.gygatype_number}.1"
 
+    # --- CREACIÓN DEL REGISTRO ---
 
-    if Another.create(point: point,  level: level, item: item, code: code, section: @section)
-      flash[:notice] = "Defecto definido"
-      redirect_to edit_revision_path(inspection_id: @revision.inspection_id, section: @section)
+    @another = Another.new(
+      point: point,
+      level: level,
+      item_id: item.id,
+      code: new_code, # Aquí irá el código repetido o el nuevo calculado
+      section: @section
+    )
+
+    # IMPORTANTE: Esto requiere que hayas modificado el modelo Another
+    # agregando 'attr_accessor :plat_context' como vimos en el paso anterior
+    # para saltar la validación de 'ruletype'.
+    @another.plat_context = true
+
+    if @another.save
+      flash[:notice] = "Defecto definido: #{new_code}"
+      redirect_to edit_plat_revision_path(inspection_id: @inspection.id, section: @section)
     else
+      flash[:alert] = "Error al crear defecto: #{@another.errors.full_messages.join(', ')}"
       render :new_rule
     end
   end

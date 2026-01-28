@@ -2,7 +2,7 @@
   <h1 class="text-3xl font-bold text-gray-800 mb-8">Definir nuevo defecto</h1>
 
   <div class="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
-    <%= form_with(model: @another, builder: CustomFormBuilder, local: true, url: create_rule_revision_path(@inspection.id)) do |form| %>
+    <%= form_with(model: @another, builder: CustomFormBuilder, local: true, url: create_rule_plat_revision_path(@inspection.id)) do |form| %>
 
 
 
@@ -56,7 +56,7 @@
   </div>
 
   <div class="text-center mt-4">
-    <%= link_to 'Volver a inspección', edit_revision_path(inspection_id: @inspection.id, section: @section), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
+    <%= link_to 'Volver a inspección', edit_plat_revision_path(inspection_id: @inspection.id, section: @section), class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
 
   </div>
 </div>

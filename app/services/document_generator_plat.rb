@@ -20,23 +20,20 @@ class DocumentGeneratorPlat
     admin           = User.find(admin_id)
     inspectors      = inspection.users
 
-    # ===============================
-    # REGLAS BASE + ANOTHERS (PLAT)
-    # ===============================
+
 
     base_rules = RulesPlat.where(group_id: group.id).to_a
 
     anothers = Another.where(item_id: item.id)
+
     additional_rules = anothers.map do |another|
       RulesPlat.new(
         point:    another.point,
         level:    another.level,
         code:     another.code,
-        ref:      another.ref,
         group_id: group.id
       )
     end
-
     rules = (base_rules + additional_rules)
 
     rules.sort_by! do |rule|
@@ -59,9 +56,6 @@ class DocumentGeneratorPlat
       ]
     end
 
-    # ===============================
-    # REVISION ACTUAL (PLAT)
-    # ===============================
 
     rels = revision_base.plat_revision_rules_plats.includes(:rules_plat).to_a
     rels.sort_by! do |rel|
@@ -87,10 +81,6 @@ class DocumentGeneratorPlat
 
     revision_pairs_set = revision_entries.map { |e| [e.code, e.point] }.to_set
 
-    # ===============================
-    # CÁLCULO PREVIO DE DEFECTOS (MOVIDO AL INICIO)
-    # ===============================
-    # Calculamos esto AQUÍ para que esté disponible para el template 1.1
 
     errors_graves = []
     errors_leves  = []
@@ -130,9 +120,6 @@ class DocumentGeneratorPlat
       errors_all << text_full
     end
 
-    # ===============================
-    # HEADERS Y DATOS GENERALES (TEMPLATE 1)
-    # ===============================
 
     item_rol = item.identificador.to_s.chars.last(4).join
 
@@ -310,34 +297,30 @@ class DocumentGeneratorPlat
     doc.replace('{{detail_embarques}}', detail.embarques.presence || 'S/I')
     doc.replace('Sala de máquinas:', "")
     doc.replace("{{detail_sala_maquinas}}","")
-    doc.replace('{{grupo_en_titulo}}', group.number.to_s)
+    doc.replace('{{grupo_en_titulo}}', group.name)
 
-    case group.number
-    when 1
+
+
+
+    if group.secondary_type == 'plataforma'
+
       doc.replace('{{normas_de_referencia}}',        'NCh.3395/1:2016 y NCh.440/2:2001')
       doc.replace('{{normas_de_referencia_titulo}}', 'NCh.3395/1:2016 y NCh.440/2:2001')
-    when 2
-      doc.replace('{{normas_de_referencia}}',        'NCh 440/1 :2000 y NCh440/2 :2001.')
-      doc.replace('{{normas_de_referencia_titulo}}', 'NCh 440/1 :2000 y NCh440/2 :2001.')
-    when 3
-      doc.replace('{{normas_de_referencia}}',        'NCh 440/1 :2014 y NCh 440/2 :2001 y NCh 3362.')
-      doc.replace('{{normas_de_referencia_titulo}}', 'NCh 440/1 :2014 y NCh 440/2 :2001 y NCh 3362.')
-    else
-      doc.replace('{{normas_de_referencia}}',        'S/I')
-      doc.replace('{{normas_de_referencia_titulo}}', 'S/I')
+    elsif group.secondary_type == "salvaescala"
+
+      doc.replace('{{normas_de_referencia}}',        'NCh.3395/1:2016 y NCh.440/2:2001')
+      doc.replace('{{normas_de_referencia_titulo}}', 'NCh.3395/1:2016 y NCh.440/2:2001')
     end
 
-    if group.number <= 3
-      doc.replace('{{item_group}}', group.number.to_s)
-    else
+
+
+
+
       doc.replace('{{item_group}}', group.name.to_s)
-    end
+
 
     doc.commit(output_path)
 
-    # ===============================
-    # REVISION ANTERIOR (PLAT)
-    # ===============================
 
     sorted_inspections = item.inspections.sort_by do |ins|
       [-ins.number.abs, ins.number < 0 ? 1 : 0]
@@ -375,9 +358,6 @@ class DocumentGeneratorPlat
       last_by_code_point[[e.code, e.point]] = e
     end
 
-    # ===============================
-    # INFORME ANTERIOR (TEXTO)
-    # ===============================
 
     last_errors       = []
     last_errors_lift  = []
@@ -502,9 +482,7 @@ class DocumentGeneratorPlat
       doc2.commit(output_path)
     end
 
-    # ===============================
-    # CARPETAS (sección 0) Y NULLS
-    # ===============================
+
 
     carpetas = rules.map(&:code).select { |c| c.to_s.start_with?('0.') }.uniq.sort
 
@@ -557,9 +535,6 @@ class DocumentGeneratorPlat
       doc3.commit(output_path)
     end
 
-    # ===============================
-    # TEMPLATE 1.1 – SECCIONES (CUMPLE / NO CUMPLE) + ENCABEZADOS GRAVES/LEVES
-    # ===============================
 
     section_labels =
       case group.secondary_type
@@ -656,11 +631,6 @@ class DocumentGeneratorPlat
       doc_1_1.replace('{{texto_comprobacion_no_cumple}}', 'No se encontraron no conformidades en la inspección.')
     end
 
-    # ===============================
-    # CORRECCIÓN: REEMPLAZO DE ENCABEZADOS EN 1.1
-    # ===============================
-    # Aquí es donde se llenan los placeholders {{si_las_hubiera_...}} dentro de 1.1
-
     if errors_graves.any?
       doc_1_1.replace('{{si_las_hubiera_grave}}', 'Las no conformidades, Defectos Graves, encontradas en la inspección son las siguientes:')
     else
@@ -678,10 +648,6 @@ class DocumentGeneratorPlat
 
     Omnidocx::Docx.merge_documents([output_path, output_path_1_1], output_path, false)
 
-    # ===============================
-    # LISTADO DE ERRORES GRAVES (TEMPLATE 2)
-    # ===============================
-
     if errors_graves.any?
       template_2_path = Rails.root.join('app', 'templates', 'template_2.docx')
       errors_graves.each_with_index do |error, index|
@@ -693,10 +659,6 @@ class DocumentGeneratorPlat
         File.delete(out_g) if File.exist?(out_g)
       end
     end
-
-    # ===============================
-    # LISTADO DE ERRORES LEVES (TEMPLATE 2)
-    # ===============================
 
     if errors_leves.any?
       template_2_path = Rails.root.join('app', 'templates', 'template_2.docx')
@@ -710,9 +672,7 @@ class DocumentGeneratorPlat
       end
     end
 
-    # ===============================
-    # TEMPLATE 3 – CONCLUSIÓN
-    # ===============================
+
 
     month_number = report.ending&.month
     months = {
@@ -788,9 +748,6 @@ class DocumentGeneratorPlat
     Omnidocx::Docx.merge_documents([output_path, output_path_3], output_path, false)
     File.delete(output_path_3) if File.exist?(output_path_3)
 
-    # ===============================
-    # TABLA (SI / NO / N-A)
-    # ===============================
 
 
 
@@ -849,33 +806,57 @@ class DocumentGeneratorPlat
     doc_table.replace('{{tabla_aplica2}}', '')
     doc_table.replace('{{tabla_aplica3}}', '')
 
-    # ===============================
-    # ANOTHERS (Final de la tabla)
-    # ===============================
 
-    additional_rules.each do |rule|
-      entry = revision_by_code_point[[rule.code, rule.point]]
-      last_entry = last_by_code_point[[rule.code, rule.point]]
+    sections_present = rules_for_table.map { |r| r.code.to_s.split('.').first.to_i }.uniq.sort - [0]
 
-      if entry
+    sections_present.each do |section_number|
+
+      matching_rules = additional_rules.select do |rule|
+        rule.code.to_s.split('.').first.to_i == section_number
+      end
+
+      if matching_rules.any?
         doc_table.replace('{{another_si}}', 'No')
 
-        if entry.level.to_s.strip == 'L'
-          doc_table.replace('{{another_l}}', 'Leve')
-        else
-          if last_entry && last_entry.level.to_s.strip != 'L'
-            doc_table.replace('{{another_l}}', 'Grave (repite)')
-          else
-            doc_table.replace('{{another_l}}', 'Grave')
+        final_level_text = 'Leve'
+        has_grave = false
+        has_repite = false
+
+        matching_rules.each do |rule|
+          entry = revision_by_code_point[[rule.code, rule.point]]
+          last_entry = last_by_code_point[[rule.code, rule.point]]
+
+          if entry
+            if entry.level.to_s.strip != 'L'
+              has_grave = true
+              if last_entry && last_entry.level.to_s.strip != 'L'
+                has_repite = true
+              end
+            end
           end
         end
 
-        if entry.comment.present?
-          doc_table.replace('{{another_comentario}}', "(#{entry.comment})")
-        else
-          doc_table.replace('{{another_comentario}}', '(Sin comentario)')
+        if has_repite
+          final_level_text = 'Grave (repite)'
+        elsif has_grave
+          final_level_text = 'Grave'
         end
+
+        doc_table.replace('{{another_l}}', final_level_text)
+
+        comentarios_concatenados = matching_rules.map do |rule|
+          entry = revision_by_code_point[[rule.code, rule.point]]
+          if entry && entry.comment.present?
+            "(#{rule.point}: #{entry.comment})"
+          else
+            "(#{rule.point}: Sin comentario)"
+          end
+        end.join(" ")
+
+        doc_table.replace('{{another_comentario}}', comentarios_concatenados)
+
       else
+
         doc_table.replace('{{another_si}}', 'Si')
         doc_table.replace('{{another_l}}', '')
         doc_table.replace('{{another_comentario}}', '')
@@ -887,10 +868,6 @@ class DocumentGeneratorPlat
     Dir.glob("#{Rails.root}/tmp/#{inspection.number}_part*").each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
-
-    # ===============================
-    # FOTOS (GENERAL + DEFECTOS)
-    # ===============================
 
     general_photos    = revision_base.revision_photos.ordered_by_code.select { |photo| photo.code.to_s.start_with?('GENERALCODE') }
     non_general_photos = revision_base.revision_photos.ordered_by_code.reject { |photo| photo.code.to_s.start_with?('GENERALCODE') }

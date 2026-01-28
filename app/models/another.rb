@@ -2,9 +2,12 @@ class Another < ApplicationRecord
   serialize :level, type: Array, coder: JSON
   serialize :ins_type, type: Array, coder: JSON
 
+  attr_accessor :plat_context
+
   validates :point, presence: true
 
-  validate :ins_type_array_presence
+  validate :ins_type_array_presence, unless: :plat_context
+
   validate :level_array_presence
 
   belongs_to :ruletype, optional: true

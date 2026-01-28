@@ -1042,7 +1042,6 @@ class InspectionsController < ApplicationController
         tm_rut: @report_og.tm_rut,
         )
 
-      # Copiar atributos de detalle
       @count_inspections = @item.inspections.where("number > 0").count
       if @detail && @detail_og && @count_inspections == 1
         detail_attributes = @detail_og.attributes.except("id", "item_id", "created_at", "updated_at")
@@ -1286,7 +1285,6 @@ class InspectionsController < ApplicationController
     }
   end
 
-  # InspectionsController (solo redirects)
   def bulk_ignore
     ids = Array(params[:ids]).map(&:to_i).uniq
     Inspection.where(id: ids).update_all(ignorar: true, updated_at: Time.current) if ids.any?
