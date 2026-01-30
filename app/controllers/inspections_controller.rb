@@ -345,6 +345,28 @@ class InspectionsController < ApplicationController
       return
     end
 
+    conexion = Conexion.find_by(copy_inspection_id: inspection.id)
+    if conexion
+      conexion.destroy
+    end
+    og_conexions = Conexion.where(original_inspection_id: inspection.id)
+    ogc_text = ""
+
+    if og_conexions.any?
+      og_conexions.each do |ogc|
+        ogc_text << "Inspección N°#{ogc.copy_inspection.number}, "
+      end
+      message = "No se puede eliminar ya que las siguientes inspecciones se copian de esta: #{ogc_text}"
+      respond_to do |format|
+        format.html do
+          flash[:alert] = message
+          redirect_to inspection_path(inspection)
+        end
+        format.json { render json: { error: message }, status: :unprocessable_entity }
+      end
+      return
+
+    end
     black_inspection&.destroy
     inspection.destroy
 
