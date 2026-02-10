@@ -517,10 +517,8 @@ class RevisionsController < ApplicationController
 
     if params[:revision].present?
       if params[:revision][:fail].present?
-        # Revisar la información de cada campo donde hubo una falla
         params[:revision][:fail].each do |fail_status|
-          if fail_status == "1"  # Verefica si ocurre la falla
-            # pasa la informacion de los campos a los arreglos
+          if fail_status == "1"
             codes << params[:revision][:codes][counter]
             points << params[:revision][:points][counter]
             levels << params[:revision][:levels][counter]
@@ -543,7 +541,6 @@ class RevisionsController < ApplicationController
           [-inspection.number.abs, inspection.number < 0 ? 1 : 0]
         end
 
-        # Selecciona la tercera inspección en el orden deseado
         @third_inspection = sorted_inspections[2]
 
         if @third_inspection
@@ -576,26 +573,20 @@ class RevisionsController < ApplicationController
 
       if params[:revision][:null_condition].present?
         params[:revision][:null_condition].each_with_index do |null_condition, index|
-          # Extraer el código numérico (antes del "_") para comparar con real_codes_null
           numeric_code = null_condition.split('_').first
 
-          # Extraer el código numérico del valor en real_codes_null
           real_code_numeric = real_codes_null[index]
 
           if real_code_numeric == numeric_code
-            # Obtener el comentario correspondiente (puede ser vacío)
             comment_null = real_comment_null&.fetch(index, "") || ""
 
-            # Verificar si el point ya existe
             existing_revision_null = @revision_base.revision_nulls.find_by(point: null_condition)
 
             if existing_revision_null
-              # Si el comentario es diferente, actualizarlo
               if existing_revision_null.comment != comment_null
                 existing_revision_null.update(comment: comment_null)
               end
             else
-              # Si no existe, crear uno nuevo con point y comment
               @revision_base.revision_nulls.create(point: null_condition, comment: comment_null)
             end
 
@@ -621,8 +612,7 @@ class RevisionsController < ApplicationController
     if black_params.present?
 
       black_params[:fail].each do |fail_status|
-        if fail_status == "1"  # Verefica si ocurre la falla
-          # pasa la informacion de los campos a los arreglos
+        if fail_status == "1" 
           black_codes << black_params[:codes][counter]
           black_points << black_params[:points][counter]
           black_levels << black_params[:levels][counter]

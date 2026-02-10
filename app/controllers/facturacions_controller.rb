@@ -7,7 +7,9 @@ class FacturacionsController < ApplicationController
   ]
 
   before_action :authorize_user
-
+  require 'csv'
+  require 'roo'
+  require 'write_xlsx'
   def index
     if params[:notification_id].present?
       @notification = Notification.find(params[:notification_id])
@@ -718,9 +720,104 @@ class FacturacionsController < ApplicationController
       DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
     end
   end
+  def export_report_region_month
+    load_location_data
 
+    @data = {}
+    @errors = {}
+
+    years = [2024, 2025, 2026]
+    regions_list = @regions_map.values.uniq.sort
+
+    years.each do |y|
+      @data[y] = {}
+      @errors[y] = []
+      (1..12).each do |m|
+        next if y == 2026 && m > 1
+
+        @data[y][m] = {}
+        regions_list.each do |r|
+          @data[y][m][r] = { cotizaciones: 0, ventas: 0, equipos_cot: 0, equipos_ven: 0 }
+        end
+      end
+    end
+
+    facturaciones = Facturacion.includes(solicitud_file_attachment: :blob)
+                               .where("emicion >= ? OR factura >= ?", Date.new(2024, 1, 1), Date.new(2024, 1, 1))
+
+    facturaciones.find_each do |facturacion|
+      process_facturacion_for_report(facturacion, years)
+    end
+
+    Tempfile.create(['reporte_regional', '.xlsx']) do |tmp|
+      path = tmp.path
+      tmp.close
+
+      workbook = WriteXLSX.new(path)
+
+      header_format = workbook.add_format(bold: 1, border: 1, bg_color: '#DDDDDD', align: 'center')
+      bold_format = workbook.add_format(bold: 1)
+      error_header_format = workbook.add_format(bold: 1, color: 'white', bg_color: 'red')
+
+      years.each do |year|
+        sheet = workbook.add_worksheet(year.to_s)
+        current_row = 0
+
+        (1..12).each do |month|
+          next if @data[year][month].nil?
+
+          month_name = Date.new(year, month, 1).strftime("%B").capitalize
+          sheet.write(current_row, 0, "Mes: #{month_name}", bold_format)
+          current_row += 1
+
+          headers = ['Región', 'N° Cotizaciones', 'N° Ventas', 'N° Equipos Cot.', 'N° Equipos Ven.']
+          sheet.write_row(current_row, 0, headers, header_format)
+          current_row += 1
+
+          regions_list.each do |region|
+            stats = @data[year][month][region]
+            row_data = [
+              region,
+              stats[:cotizaciones],
+              stats[:ventas],
+              stats[:equipos_cot],
+              stats[:equipos_ven]
+            ]
+            sheet.write_row(current_row, 0, row_data)
+            current_row += 1
+          end
+          current_row += 2
+        end
+
+        if @errors[year].any?
+          sheet.write(0, 7, "Errores de Procesamiento", error_header_format)
+          sheet.write_row(1, 7, ['ID', 'Número', 'Descripción del Error'], header_format)
+
+          error_row = 2
+          @errors[year].each do |err|
+            sheet.write(error_row, 7, err[:id])
+            sheet.write(error_row, 8, err[:number])
+            sheet.write(error_row, 9, err[:error])
+            error_row += 1
+          end
+          sheet.set_column(9, 9, 50)
+        end
+      end
+
+      workbook.close
+
+      send_data File.binread(path),
+                filename: "Reporte_Regional_#{Time.now.strftime('%Y%m%d')}.xlsx",
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                disposition: 'attachment'
+
+      DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
+    end
+  end
 
   private
+
+
 
   def set_facturacion
     @facturacion = Facturacion.find(params[:id])
@@ -782,11 +879,9 @@ class FacturacionsController < ApplicationController
 
 
   def parse_filename(filename)
-    # Separar en partes usando "_" o "-" como delimitador
     parts = filename.split(/[_-]/, 2)
     number = parts[0].to_i
 
-    # Extraer el nombre ignorando números y guiones al inicio
     name_part = parts[1]&.strip || ""
     name = name_part.sub(/^[\d_\-]+/, '').strip
 
@@ -823,5 +918,217 @@ class FacturacionsController < ApplicationController
 
   def format_date(date)
     date&.strftime('%d/%m/%Y')
+  end
+
+  def load_location_data
+    csv_path = Rails.root.join('app', 'templates', 'comunas.csv')
+    @commune_map = {} # "comuna_normalizada" => "Nombre Region"
+    @regions_map = {} # "region_normalizada" => "Nombre Region"
+
+    CSV.foreach(csv_path, headers: false) do |row|
+      commune_name = row[0]
+      region_name = row[4]
+
+      norm_commune = normalize_text(commune_name)
+      norm_region = normalize_text(region_name)
+
+      @commune_map[norm_commune] = region_name
+      @regions_map[norm_region] = region_name
+    end
+  end
+
+  def process_facturacion_for_report(facturacion, valid_years)
+    # Verificar si tiene fechas relevantes para los años solicitados
+    has_emicion = facturacion.emicion && valid_years.include?(facturacion.emicion.year)
+    has_factura = facturacion.factura && valid_years.include?(facturacion.factura.year)
+
+    return unless has_emicion || has_factura
+    return unless facturacion.solicitud_file.attached?
+
+    # --- Paso 1 y 2: Abrir Excel y Buscar Dirección ---
+    begin
+      info = extract_info_from_excel(facturacion)
+    rescue StandardError => e
+      register_error(facturacion, "Error al leer archivo Excel: #{e.message}")
+      return
+    end
+
+    if info[:error]
+      register_error(facturacion, info[:error])
+      return
+    end
+
+    # Si llegamos aquí, tenemos región y cantidad de equipos válidos
+    region = info[:region]
+    equipos = info[:equipos]
+
+    # --- Agregar data a Cotizaciones (Emisión) ---
+    if has_emicion
+      y = facturacion.emicion.year
+      m = facturacion.emicion.month
+      if @data[y] && @data[y][m]
+        @data[y][m][region][:cotizaciones] += 1
+        @data[y][m][region][:equipos_cot] += equipos
+      end
+    end
+
+    # --- Agregar data a Ventas (Factura) ---
+    if has_factura
+      y = facturacion.factura.year
+      m = facturacion.factura.month
+      if @data[y] && @data[y][m]
+        @data[y][m][region][:ventas] += 1
+        @data[y][m][region][:equipos_ven] += equipos
+      end
+    end
+  end
+
+  def extract_info_from_excel(facturacion)
+    # Descargar a Tempfile para Roo
+    result = { region: nil, equipos: 0, error: nil }
+
+    facturacion.solicitud_file.open do |file|
+      xlsx = Roo::Spreadsheet.open(file.path, extension: :xlsx)
+      sheet = xlsx.sheet(0)
+
+      # --- Lógica Dirección / Región ---
+      lugar_raw = nil
+      found_direccion = false
+
+      # Buscamos "Dirección" en las primeras 20 filas/columnas
+      (1..20).each do |r|
+        (1..10).each do |c|
+          cell_val = sheet.cell(r, c).to_s
+          if normalize_text(cell_val).include?("direccion")
+            # Leemos la celda de abajo
+            lugar_raw = sheet.cell(r + 1, c).to_s
+            found_direccion = true
+            break
+          end
+        end
+        break if found_direccion
+      end
+
+      # Si no se encontró, usar C4 -> leer C5 (fila 5, columna 3)
+      unless found_direccion
+        lugar_raw = sheet.cell(5, 3).to_s # C5
+      end
+
+      if lugar_raw.blank?
+        return { error: "No se encontró texto de dirección (LUGAR vacío)." }
+      end
+
+      # Identificar Región basado en LUGAR
+      region_detected = identify_region(lugar_raw)
+
+      if region_detected == :ambiguous
+        return { error: "Ambigüedad: Se detectaron múltiples comunas/regiones en '#{lugar_raw}'." }
+      elsif region_detected.nil?
+        return { error: "No se encontró comuna/región válida en '#{lugar_raw}'." }
+      else
+        result[:region] = region_detected
+      end
+
+      # --- Lógica Equipos (Ascensores) ---
+      found_asc = false
+      start_row = nil
+      start_col = nil
+
+      (1..20).each do |r|
+        (1..10).each do |c|
+          cell_val = sheet.cell(r, c).to_s
+          if normalize_text(cell_val).include?("ascensores")
+            start_row = r + 1
+            start_col = c
+            found_asc = true
+            break
+          end
+        end
+        break if found_asc
+      end
+
+      # Si no encuentra, usar D4 -> leer desde D5 (fila 5, columna 4)
+      unless found_asc
+        start_row = 5
+        start_col = 4
+      end
+
+      # Sumar hacia abajo
+      total_equipos = 0
+      current_r = start_row
+
+      # Iterar hacia abajo hasta encontrar vacío (limite de seguridad 50 filas)
+      loop do
+        val = sheet.cell(current_r, start_col)
+        break if val.nil? || val.to_s.strip.empty? || current_r > (start_row + 50)
+
+        # Intentar convertir a numero
+        num = val.to_s.gsub(',', '.').to_f # Manejo básico de decimales si hubiera
+        total_equipos += num.to_i # Asumimos equipos enteros
+
+        current_r += 1
+      end
+
+      if total_equipos == 0
+        return { error: "Cantidad de equipos detectada es 0 o no se pudo leer." }
+      end
+
+      result[:equipos] = total_equipos
+      result
+    end
+
+    result # Return final
+  end
+
+  def identify_region(lugar_text)
+    norm_lugar = normalize_text(lugar_text)
+    matches = Set.new
+
+    # 1. Buscar coincidencia exacta al final del string para Comunas
+    @commune_map.each do |commune_norm, region_name|
+      # Verificamos si la dirección termina con la comuna o contiene la comuna
+      # El prompt dice "ver cual aparece al final", pero a veces hay CP u otros datos.
+      # Usaremos include? para ser flexibles, pero priorizando el final.
+      if norm_lugar.end_with?(commune_norm) || norm_lugar.include?(" #{commune_norm} ") || norm_lugar.include?(" #{commune_norm}")
+        matches << region_name
+      end
+    end
+
+    # 2. Buscar coincidencias con Nombres de Regiones directamente
+    @regions_map.each do |region_norm, region_name|
+      if norm_lugar.include?(region_norm)
+        matches << region_name
+      end
+    end
+
+    return nil if matches.empty?
+    return :ambiguous if matches.size > 1
+
+    matches.first
+  end
+
+  def normalize_text(text)
+    return "" if text.nil?
+    # Transliterate quita acentos (á -> a), downcase minusculas, gsub quita puntuación
+    I18n.transliterate(text).downcase.gsub(/[^a-z0-9\s]/, '').strip
+  end
+
+  def register_error(facturacion, msg)
+    y_emicion = facturacion.emicion&.year
+    y_factura = facturacion.factura&.year
+
+    # Registramos el error en el año correspondiente (o en ambos si aplica)
+    years_to_log = [y_emicion, y_factura].compact.select { |y| @errors.key?(y) }.uniq
+
+    # Si no tiene fecha válida pero falló el proceso, lo metemos en el primer año disponible o 2024 por defecto para que se vea
+    years_to_log = [2024] if years_to_log.empty?
+
+    years_to_log.each do |y|
+      @errors[y] << {
+        id: facturacion.id,
+        number: facturacion.number,
+        error: msg
+      }
+    end
   end
 end
