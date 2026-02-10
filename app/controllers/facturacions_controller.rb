@@ -905,11 +905,9 @@ class FacturacionsController < ApplicationController
   def parse_excel_filename(filename)
     base_name = File.basename(filename, File.extname(filename))
 
-    # Separar en partes usando "_" o "-" como delimitador
     parts = base_name.split(/[_-]/, 2)
     number = parts[0].to_i
 
-    # Extraer el nombre ignorando números y guiones al inicio
     name_part = parts[1]&.strip || ""
     name = name_part.sub(/^[\d_\-]+/, '').strip
 
@@ -922,8 +920,8 @@ class FacturacionsController < ApplicationController
 
   def load_location_data
     csv_path = Rails.root.join('app', 'templates', 'comunas.csv')
-    @commune_map = {} # "comuna_normalizada" => "Nombre Region"
-    @regions_map = {} # "region_normalizada" => "Nombre Region"
+    @commune_map = {}
+    @regions_map = {}
 
     CSV.foreach(csv_path, headers: false) do |row|
       commune_name = row[0]
@@ -938,14 +936,12 @@ class FacturacionsController < ApplicationController
   end
 
   def process_facturacion_for_report(facturacion, valid_years)
-    # Verificar si tiene fechas relevantes para los años solicitados
     has_emicion = facturacion.emicion && valid_years.include?(facturacion.emicion.year)
     has_factura = facturacion.factura && valid_years.include?(facturacion.factura.year)
 
     return unless has_emicion || has_factura
     return unless facturacion.solicitud_file.attached?
 
-    # --- Paso 1 y 2: Abrir Excel y Buscar Dirección ---
     begin
       info = extract_info_from_excel(facturacion)
     rescue StandardError => e
@@ -958,11 +954,9 @@ class FacturacionsController < ApplicationController
       return
     end
 
-    # Si llegamos aquí, tenemos región y cantidad de equipos válidos
     region = info[:region]
     equipos = info[:equipos]
 
-    # --- Agregar data a Cotizaciones (Emisión) ---
     if has_emicion
       y = facturacion.emicion.year
       m = facturacion.emicion.month
@@ -972,7 +966,6 @@ class FacturacionsController < ApplicationController
       end
     end
 
-    # --- Agregar data a Ventas (Factura) ---
     if has_factura
       y = facturacion.factura.year
       m = facturacion.factura.month
@@ -984,18 +977,15 @@ class FacturacionsController < ApplicationController
   end
 
   def extract_info_from_excel(facturacion)
-    # Descargar a Tempfile para Roo
     result = { region: nil, equipos: 0, error: nil }
 
     facturacion.solicitud_file.open do |file|
       xlsx = Roo::Spreadsheet.open(file.path, extension: :xlsx)
       sheet = xlsx.sheet(0)
 
-      # --- Lógica Dirección / Región ---
       lugar_raw = nil
       found_direccion = false
 
-      # Buscamos "Dirección" en las primeras 20 filas/columnas
       (1..20).each do |r|
         (1..10).each do |c|
           cell_val = sheet.cell(r, c).to_s
@@ -1009,7 +999,6 @@ class FacturacionsController < ApplicationController
         break if found_direccion
       end
 
-      # Si no se encontró, usar C4 -> leer C5 (fila 5, columna 3)
       unless found_direccion
         lugar_raw = sheet.cell(5, 3).to_s # C5
       end
@@ -1018,7 +1007,6 @@ class FacturacionsController < ApplicationController
         return { error: "No se encontró texto de dirección (LUGAR vacío)." }
       end
 
-      # Identificar Región basado en LUGAR
       region_detected = identify_region(lugar_raw)
 
       if region_detected == :ambiguous
@@ -1029,7 +1017,6 @@ class FacturacionsController < ApplicationController
         result[:region] = region_detected
       end
 
-      # --- Lógica Equipos (Ascensores) ---
       found_asc = false
       start_row = nil
       start_col = nil
@@ -1047,24 +1034,20 @@ class FacturacionsController < ApplicationController
         break if found_asc
       end
 
-      # Si no encuentra, usar D4 -> leer desde D5 (fila 5, columna 4)
       unless found_asc
         start_row = 5
         start_col = 4
       end
 
-      # Sumar hacia abajo
       total_equipos = 0
       current_r = start_row
 
-      # Iterar hacia abajo hasta encontrar vacío (limite de seguridad 50 filas)
       loop do
         val = sheet.cell(current_r, start_col)
         break if val.nil? || val.to_s.strip.empty? || current_r > (start_row + 50)
 
-        # Intentar convertir a numero
-        num = val.to_s.gsub(',', '.').to_f # Manejo básico de decimales si hubiera
-        total_equipos += num.to_i # Asumimos equipos enteros
+        num = val.to_s.gsub(',', '.').to_f
+        total_equipos += num.to_i
 
         current_r += 1
       end
@@ -1077,24 +1060,20 @@ class FacturacionsController < ApplicationController
       result
     end
 
-    result # Return final
+    result
   end
 
   def identify_region(lugar_text)
     norm_lugar = normalize_text(lugar_text)
     matches = Set.new
 
-    # 1. Buscar coincidencia exacta al final del string para Comunas
     @commune_map.each do |commune_norm, region_name|
-      # Verificamos si la dirección termina con la comuna o contiene la comuna
-      # El prompt dice "ver cual aparece al final", pero a veces hay CP u otros datos.
-      # Usaremos include? para ser flexibles, pero priorizando el final.
+
       if norm_lugar.end_with?(commune_norm) || norm_lugar.include?(" #{commune_norm} ") || norm_lugar.include?(" #{commune_norm}")
         matches << region_name
       end
     end
 
-    # 2. Buscar coincidencias con Nombres de Regiones directamente
     @regions_map.each do |region_norm, region_name|
       if norm_lugar.include?(region_norm)
         matches << region_name
@@ -1109,7 +1088,6 @@ class FacturacionsController < ApplicationController
 
   def normalize_text(text)
     return "" if text.nil?
-    # Transliterate quita acentos (á -> a), downcase minusculas, gsub quita puntuación
     I18n.transliterate(text).downcase.gsub(/[^a-z0-9\s]/, '').strip
   end
 
@@ -1117,10 +1095,8 @@ class FacturacionsController < ApplicationController
     y_emicion = facturacion.emicion&.year
     y_factura = facturacion.factura&.year
 
-    # Registramos el error en el año correspondiente (o en ambos si aplica)
     years_to_log = [y_emicion, y_factura].compact.select { |y| @errors.key?(y) }.uniq
 
-    # Si no tiene fecha válida pero falló el proceso, lo metemos en el primer año disponible o 2024 por defecto para que se vea
     years_to_log = [2024] if years_to_log.empty?
 
     years_to_log.each do |y|
