@@ -28,6 +28,10 @@ class DocumentGeneratorLadder
       revision.priority.concat(revision_color.priority || [])
     end
 
+    if inspection.rerun == true
+      item_rol << "-RI"
+    end
+
     template_path = Rails.root.join('app', 'templates', 'template_ladder1.docx')
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
@@ -324,7 +328,20 @@ class DocumentGeneratorLadder
 
 
           if control9384 == true
-            doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Defectos leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
+            if last_inspection.number.to_i > 0
+              texto_nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+
+              fecha_ref = last_inspection.inf_date
+            else
+              numero_manual = report.past_number.present? ? report.past_number : "S/I"
+              texto_nombre_archivo = "informe anterior N°#{numero_manual}"
+
+              fecha_ref = report.past_date ? report.past_date : last_inspection.inf_date
+            end
+
+            texto_fecha = fecha_ref ? " de fecha:#{fecha_ref.strftime('%d/%m/%Y')}" : " de fecha desconocida"
+
+            doc.replace('{{informe_anterior}}', "Se levantan todas las conformidades Defectos leves, indicadas en #{texto_nombre_archivo}#{texto_fecha}, las cuales se detallan a continuación:")
 
           else
             if report.empresa_anterior
@@ -334,7 +351,7 @@ class DocumentGeneratorLadder
             end
 
             if last_inspection.number.to_i > 0
-              texto_numero = last_inspection.number.to_s
+              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
             else
               texto_numero = report.past_number.present? ? report.past_number : "S/I"
             end

@@ -123,6 +123,9 @@ class DocumentGeneratorPlat
 
     item_rol = item.identificador.to_s.chars.last(4).join
 
+    if inspection.rerun == true
+      item_rol << "-RI"
+    end
     template_path = Rails.root.join('app', 'templates', 'template_1.docx')
     output_path   = Rails.root.join('tmp', "Informe N°#{inspection.number}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}-#{item_rol}.docx")
 
