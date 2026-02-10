@@ -788,9 +788,11 @@ class FacturacionsController < ApplicationController
       next unless fact.solicitud_file.attached?
 
       year_em = fact.emicion&.year
-      year_fac = fact.factura&.year
 
-      next unless (year_em && years.include?(year_em)) || (year_fac && years.include?(year_fac))
+      sale_date = fact.fecha_inspeccion || fact.fecha_venta
+      year_sale = sale_date&.year
+
+      next unless (year_em && years.include?(year_em)) || (year_sale && years.include?(year_sale))
 
       error_msg = nil
       region_found = nil
@@ -925,7 +927,7 @@ class FacturacionsController < ApplicationController
         error_msg = "Error leyendo archivo: #{e.message}"
       end
 
-      target_year_log = year_em && years.include?(year_em) ? year_em : (year_fac && years.include?(year_fac) ? year_fac : years.first)
+      target_year_log = year_em && years.include?(year_em) ? year_em : (year_sale && years.include?(year_sale) ? year_sale : years.first)
 
       if error_msg
         errors_log[target_year_log] << [fact.number, error_msg]
@@ -937,9 +939,9 @@ class FacturacionsController < ApplicationController
           data_store[y][m][region_found][:eq_cots] += equipos_count
         end
 
-        if fact.factura && years.include?(fact.factura.year)
-          m = fact.factura.month
-          y = fact.factura.year
+        if sale_date && years.include?(sale_date.year)
+          m = sale_date.month
+          y = sale_date.year
           data_store[y][m][region_found][:vens] += 1
           data_store[y][m][region_found][:eq_vens] += equipos_count
         end
