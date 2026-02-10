@@ -470,15 +470,27 @@ class DocumentGenerator
               texto_empresa_anterior = ""
             end
 
-            if last_inspection.inf_date
-            doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha: #{last_inspection.inf_date&.strftime('%d/%m/%Y')} #{texto_empresa_anterior}no presenta Defectos leves")
-            elsif report.past_date
-              doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha: #{report.past_date&.strftime('%d/%m/%Y')} #{texto_empresa_anterior}no presenta Defectos leves")
-
+            if last_inspection.number.to_i > 0
+              texto_numero = last_inspection.number.to_s
             else
-              doc.replace('{{informe_anterior}}', "Informe anterior N°#{last_inspection.number} de fecha desconocida #{texto_empresa_anterior}no presenta Defectos leves")
-
+              texto_numero = report.past_number.present? ? report.past_number : "S/I"
             end
+
+            fecha_base = (last_inspection.number.to_i > 0 && last_inspection.inf_date) ? last_inspection.inf_date : report.past_date
+
+            if fecha_base
+              texto_fecha = "de fecha: #{fecha_base.strftime('%d/%m/%Y')}"
+            else
+              texto_fecha = "de fecha desconocida"
+            end
+
+            if report.empresa_anterior.present?
+              texto_empresa = "Realizado por #{report.empresa_anterior} "
+            else
+              texto_empresa = ""
+            end
+
+            doc.replace('{{informe_anterior}}', "Informe anterior N°#{texto_numero} #{texto_fecha} #{texto_empresa}no presenta Defectos leves")
 
             end
 

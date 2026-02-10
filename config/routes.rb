@@ -204,7 +204,7 @@ Rails.application.routes.draw do
       post :bulk_upload_pdf
       get :download_all_excel
       get :export_xlsx
-      get :export_report_region_month
+      get :export_monthly_report
     end
 
 
