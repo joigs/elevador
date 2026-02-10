@@ -329,7 +329,11 @@ class DocumentGeneratorLadder
 
           if control9384 == true
             if last_inspection.number.to_i > 0
-              texto_nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+              item_rol_past = item.identificador.chars.last(4).join
+              if last_inspection.rerun == true
+                item_rol_past << "-RI"
+              end
+              texto_nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
 
               fecha_ref = last_inspection.inf_date
             else
@@ -351,7 +355,11 @@ class DocumentGeneratorLadder
             end
 
             if last_inspection.number.to_i > 0
-              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+              item_rol_past = item.identificador.chars.last(4).join
+              if last_inspection.rerun == true
+                item_rol_past << "-RI"
+              end
+              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
             else
               texto_numero = report.past_number.present? ? report.past_number : "S/I"
             end

@@ -408,7 +408,8 @@ class DocumentGeneratorPlat
         if last_errors.blank?
           if control_leves
             if last_inspection
-              text = "Se levantan todas las conformidades Defectos leves, indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
+              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+              text = "Se levantan todas las conformidades Defectos leves, indicadas en informe anterior N°#{texto_numero} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
             else
               text = 'Informe anterior: defectos leves levantados.'
             end
@@ -441,7 +442,8 @@ class DocumentGeneratorPlat
           last_inspection_obj = last_inspection || (last_revision_base && Inspection.find(last_revision_base.inspection_id))
 
           if last_inspection_obj&.number.to_i > 0
-            text = "Se mantienen las no conformidades indicadas en informe anterior N°#{last_inspection_obj.number} de fecha:#{last_inspection_obj.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
+            texto_numero = "#{last_inspection_obj.number.to_s}-#{last_inspection_obj.ins_date&.strftime('%m')}-#{last_inspection_obj.ins_date&.strftime('%Y')}-#{item_rol}"
+            text = "Se mantienen las no conformidades indicadas en informe anterior N°#{texto_numero} de fecha:#{last_inspection_obj.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
             doc2.replace('{{informe_anterior}}', text)
             doc2.replace('{{revision_past_errors_level}}',     formatted_errors)
             doc2.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)

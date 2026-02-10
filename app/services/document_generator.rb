@@ -464,7 +464,11 @@ class DocumentGenerator
 
           if control9384 == true
             if last_inspection.number.to_i > 0
-              texto_nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+              item_rol_past = item.identificador.chars.last(4).join
+              if last_inspection.rerun == true
+                item_rol_past << "-RI"
+              end
+              texto_nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
 
               fecha_ref = last_inspection.inf_date
             else
@@ -486,7 +490,11 @@ class DocumentGenerator
             end
 
             if last_inspection.number.to_i > 0
-              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+              item_rol_past = item.identificador.chars.last(4).join
+              if last_inspection.rerun == true
+                item_rol_past << "-RI"
+              end
+              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
 
             else
               texto_numero = report.past_number.present? ? report.past_number : "S/I"
@@ -520,7 +528,11 @@ class DocumentGenerator
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
-            nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
+            item_rol_past = item.identificador.chars.last(4).join
+            if last_inspection.rerun == true
+              item_rol_past << "-RI"
+            end
+            nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
 
             doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en #{nombre_archivo} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
