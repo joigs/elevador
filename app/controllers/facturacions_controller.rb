@@ -796,7 +796,6 @@ class FacturacionsController < ApplicationController
       error_msg = nil
       region_found = nil
       equipos_count = 0
-      commune_found_name = nil
 
       begin
         Tempfile.create(['solicitud', fact.solicitud_file.filename.extension_with_delimiter]) do |temp_file|
@@ -835,46 +834,46 @@ class FacturacionsController < ApplicationController
             lugar_clean = ActiveSupport::Inflector.transliterate(lugar_raw).downcase.gsub(/[^a-z0-9\s]/, ' ').strip.squeeze(' ')
             lugar_words = lugar_clean.split
 
-            match_found = false
+            unique_matches = []
 
             commune_list.each do |commune_obj|
               target = commune_obj[:clean]
               target_words_count = commune_obj[:word_count]
+              is_match = false
 
               if lugar_clean.include?(target)
-                region_found = commune_obj[:region]
-                commune_found_name = commune_obj[:original_commune]
-                match_found = true
-                break
-              end
-
-
-              if lugar_words.size >= target_words_count
+                is_match = true
+              elsif lugar_words.size >= target_words_count
                 (0..(lugar_words.size - target_words_count)).each do |i|
                   snippet = lugar_words[i, target_words_count].join(' ')
-
                   dist = levenshtein.call(target, snippet)
                   threshold = (target.length * 0.25).ceil
                   threshold = 1 if threshold < 1
 
                   if dist <= threshold
-                    region_found = commune_obj[:region]
-                    commune_found_name = commune_obj[:original_commune]
-                    match_found = true
+                    is_match = true
                     break
                   end
                 end
               end
-              break if match_found
+
+              if is_match
+                is_substring = unique_matches.any? { |m| m[:clean].include?(target) }
+                unless is_substring
+                  unique_matches << commune_obj
+                end
+              end
             end
 
-            unless match_found
+            if unique_matches.empty?
               error_msg = "No se identificó comuna válida en: '#{lugar_raw}'"
-            end
-
-            if match_found
+            elsif unique_matches.size > 1
+              names = unique_matches.map { |u| u[:original_commune] }.join(', ')
+              error_msg = "Error duplicidad: Se encontraron múltiples comunas distintas (#{names})"
+            else
+              region_found = unique_matches.first[:region]
               if region_found.nil?
-                error_msg = "Comuna encontrada '#{commune_found_name}' pero sin región asociada."
+                error_msg = "Comuna encontrada '#{unique_matches.first[:original_commune]}' sin región asociada"
               end
             end
           end
@@ -950,6 +949,8 @@ class FacturacionsController < ApplicationController
       end
     end
 
+    spanish_months = %w[N/A Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre Noviembre Diciembre]
+
     Tempfile.create(['reporte_mensual_fuzzy', '.xlsx']) do |tmp|
       path = tmp.path
       tmp.close
@@ -969,7 +970,7 @@ class FacturacionsController < ApplicationController
 
         col_idx = 1
         (1..12).each do |month|
-          month_name = Date::MONTHNAMES[month]
+          month_name = spanish_months[month]
           sheet.merge_range(0, col_idx, 0, col_idx + 3, month_name, header_format)
           sheet.write(1, col_idx, "Cot", sub_header_format)
           sheet.write(1, col_idx + 1, "Ventas", sub_header_format)
