@@ -785,10 +785,15 @@ class FacturacionsController < ApplicationController
     years.each { |y| errors_log[y] = [] }
 
     Facturacion.includes(solicitud_file_attachment: :blob).find_each do |fact|
+      # Ignorar si no tiene archivo
       next unless fact.solicitud_file.attached?
+
+      # CORRECCIÓN: Ignorar placeholder del sistema (número 0)
+      next if fact.number == 0
 
       year_em = fact.emicion&.year
 
+      # Prioridad: Fecha Venta -> Fecha Inspección
       sale_date = fact.fecha_venta || fact.fecha_inspeccion
       year_sale = sale_date&.year
 
