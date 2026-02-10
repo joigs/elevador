@@ -744,7 +744,6 @@ class FacturacionsController < ApplicationController
     end
 
     csv_path = Rails.root.join('app', 'templates', 'comunas.csv')
-
     commune_list = []
 
     if File.exist?(csv_path)
@@ -830,7 +829,7 @@ class FacturacionsController < ApplicationController
           end
 
           if lugar_raw.blank?
-            error_msg = "Celda de dirección vacía (Buscado en etiqueta o C4)"
+            error_msg = "Celda de dirección vacía"
           else
             lugar_clean = ActiveSupport::Inflector.transliterate(lugar_raw).downcase.gsub(/[^a-z0-9\s]/, ' ').strip.squeeze(' ')
             lugar_words = lugar_clean.split
@@ -847,7 +846,6 @@ class FacturacionsController < ApplicationController
                 match_found = true
                 break
               end
-
 
               if lugar_words.size >= target_words_count
                 (0..(lugar_words.size - target_words_count)).each do |i|
@@ -872,10 +870,8 @@ class FacturacionsController < ApplicationController
               error_msg = "No se identificó comuna válida en: '#{lugar_raw}'"
             end
 
-            if match_found
-              if region_found.nil?
-                error_msg = "Comuna encontrada '#{commune_found_name}' pero sin región asociada."
-              end
+            if match_found && region_found.nil?
+              error_msg = "Comuna '#{commune_found_name}' encontrada pero sin región asociada."
             end
           end
 
@@ -911,7 +907,6 @@ class FacturacionsController < ApplicationController
                 sum_equipos += cell_val.to_f
                 found_number = true
               end
-
               current_r += 1
               break if current_r > equip_row + 50
             end
@@ -919,20 +914,21 @@ class FacturacionsController < ApplicationController
             if !found_number && sum_equipos == 0
               val_check = sheet.cell(equip_row, equip_col).to_s
               unless val_check.match?(/\d+/)
-                error_msg = "No se encontraron equipos numéricos desde fila #{equip_row}, col #{equip_col}"
+                error_msg = "No se encontraron equipos numéricos"
               end
             end
             equipos_count = sum_equipos.to_i
           end
+
         end
       rescue StandardError => e
-        error_msg = "Error leyendo archivo Excel: #{e.message}"
+        error_msg = "Error leyendo archivo: #{e.message}"
       end
 
       target_year_log = year_em && years.include?(year_em) ? year_em : (year_fac && years.include?(year_fac) ? year_fac : years.first)
 
       if error_msg
-        errors_log[target_year_log] << [fact.id, fact.number, error_msg]
+        errors_log[target_year_log] << [fact.number, error_msg]
       else
         if fact.emicion && years.include?(fact.emicion.year)
           m = fact.emicion.month
@@ -950,7 +946,7 @@ class FacturacionsController < ApplicationController
       end
     end
 
-    Tempfile.create(['reporte_mensual_fuzzy', '.xlsx']) do |tmp|
+    Tempfile.create(['reporte_mensual', '.xlsx']) do |tmp|
       path = tmp.path
       tmp.close
 
@@ -996,16 +992,14 @@ class FacturacionsController < ApplicationController
         end
 
         err_start_col = (12 * 4) + 2
-        sheet.write(0, err_start_col, "ID Facturación", error_header_format)
-        sheet.write(0, err_start_col + 1, "Número", error_header_format)
-        sheet.write(0, err_start_col + 2, "Detalle Error", error_header_format)
-        sheet.set_column(err_start_col + 2, err_start_col + 2, 50)
+        sheet.write(0, err_start_col, "Número", error_header_format)
+        sheet.write(0, err_start_col + 1, "Detalle Error", error_header_format)
+        sheet.set_column(err_start_col + 1, err_start_col + 1, 50)
 
         err_row = 1
         errors_log[year].each do |err_data|
           sheet.write(err_row, err_start_col, err_data[0])
           sheet.write(err_row, err_start_col + 1, err_data[1])
-          sheet.write(err_row, err_start_col + 2, err_data[2])
           err_row += 1
         end
       end
