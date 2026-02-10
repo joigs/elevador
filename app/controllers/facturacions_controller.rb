@@ -724,27 +724,54 @@ class FacturacionsController < ApplicationController
   def export_monthly_report
     require 'csv'
     require 'roo'
+    require 'write_xlsx'
+
+    levenshtein = lambda do |s, t|
+      return t.length if s.empty?
+      return s.length if t.empty?
+
+      d = Array.new(s.length + 1) { Array.new(t.length + 1) }
+      (0..s.length).each { |i| d[i][0] = i }
+      (0..t.length).each { |j| d[0][j] = j }
+
+      (1..t.length).each do |j|
+        (1..s.length).each do |i|
+          cost = (s[i - 1] == t[j - 1]) ? 0 : 1
+          d[i][j] = [d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost].min
+        end
+      end
+      d[s.length][t.length]
+    end
 
     csv_path = Rails.root.join('app', 'templates', 'comunas.csv')
-    geo_mapping = {}
+
+    commune_list = []
 
     if File.exist?(csv_path)
       CSV.foreach(csv_path, headers: false) do |row|
         next unless row[0].present? && row[4].present?
 
-        commune_norm = ActiveSupport::Inflector.transliterate(row[0]).downcase.gsub(/[^a-z0-9\s]/, '').strip
-        region_name = row[4].strip
-        region_norm = ActiveSupport::Inflector.transliterate(region_name).downcase.gsub(/[^a-z0-9\s]/, '').strip
+        raw_commune = row[0].strip
+        raw_region = row[4].strip
 
-        geo_mapping[commune_norm] = region_name
-        geo_mapping[region_norm] = region_name
+        clean_commune = ActiveSupport::Inflector.transliterate(raw_commune).downcase.gsub(/[^a-z0-9\s]/, ' ').strip.squeeze(' ')
+
+        commune_list << {
+          clean: clean_commune,
+          original_commune: raw_commune,
+          region: raw_region,
+          word_count: clean_commune.split.size
+        }
       end
     end
 
-    ordered_regions = geo_mapping.values.uniq.sort
-    years = [2024, 2025, 2026]
+    commune_list.sort_by! { |c| -c[:clean].length }
 
+    ordered_regions = commune_list.map { |c| c[:region] }.uniq.sort
+
+    years = [2024, 2025, 2026]
     data_store = {}
+
     years.each do |y|
       data_store[y] = {}
       (1..12).each do |m|
@@ -769,6 +796,7 @@ class FacturacionsController < ApplicationController
       error_msg = nil
       region_found = nil
       equipos_count = 0
+      commune_found_name = nil
 
       begin
         Tempfile.create(['solicitud', fact.solicitud_file.filename.extension_with_delimiter]) do |temp_file|
@@ -785,7 +813,9 @@ class FacturacionsController < ApplicationController
           (1..30).each do |r|
             (1..20).each do |c|
               val = sheet.cell(r, c).to_s
-              if ActiveSupport::Inflector.transliterate(val).downcase.include?('direccion')
+              clean_val = ActiveSupport::Inflector.transliterate(val).downcase
+
+              if clean_val.include?('direccion') || levenshtein.call('direccion', clean_val) <= 2
                 addr_row, addr_col = r + 1, c
                 break
               end
@@ -800,25 +830,51 @@ class FacturacionsController < ApplicationController
           end
 
           if lugar_raw.blank?
-            error_msg = "No se encontro direccion ni en busqueda ni en C4"
+            error_msg = "Celda de dirección vacía (Buscado en etiqueta o C4)"
           else
-            lugar_norm = ActiveSupport::Inflector.transliterate(lugar_raw).downcase.gsub(/[^a-z0-9\s]/, '').strip
-            matches = []
+            lugar_clean = ActiveSupport::Inflector.transliterate(lugar_raw).downcase.gsub(/[^a-z0-9\s]/, ' ').strip.squeeze(' ')
+            lugar_words = lugar_clean.split
 
-            geo_mapping.keys.each do |key|
-              if lugar_norm.end_with?(key)
-                matches << key
+            match_found = false
+
+            commune_list.each do |commune_obj|
+              target = commune_obj[:clean]
+              target_words_count = commune_obj[:word_count]
+
+              if lugar_clean.include?(target)
+                region_found = commune_obj[:region]
+                commune_found_name = commune_obj[:original_commune]
+                match_found = true
+                break
               end
+
+
+              if lugar_words.size >= target_words_count
+                (0..(lugar_words.size - target_words_count)).each do |i|
+                  snippet = lugar_words[i, target_words_count].join(' ')
+
+                  dist = levenshtein.call(target, snippet)
+                  threshold = (target.length * 0.25).ceil
+                  threshold = 1 if threshold < 1
+
+                  if dist <= threshold
+                    region_found = commune_obj[:region]
+                    commune_found_name = commune_obj[:original_commune]
+                    match_found = true
+                    break
+                  end
+                end
+              end
+              break if match_found
             end
 
-            if matches.empty?
-              error_msg = "No se encontro comuna/region en el texto: #{lugar_raw}"
-            else
-              longest_match = matches.max_by(&:length)
-              region_found = geo_mapping[longest_match]
+            unless match_found
+              error_msg = "No se identificó comuna válida en: '#{lugar_raw}'"
+            end
 
+            if match_found
               if region_found.nil?
-                error_msg = "Error de mapeo interno para: #{longest_match}"
+                error_msg = "Comuna encontrada '#{commune_found_name}' pero sin región asociada."
               end
             end
           end
@@ -829,7 +885,9 @@ class FacturacionsController < ApplicationController
             (1..30).each do |r|
               (1..20).each do |c|
                 val = sheet.cell(r, c).to_s
-                if ActiveSupport::Inflector.transliterate(val).downcase.include?('ascensores')
+                clean_val = ActiveSupport::Inflector.transliterate(val).downcase
+
+                if clean_val.include?('ascensores') || clean_val.include?('equipos') || levenshtein.call('ascensores', clean_val) <= 3
                   equip_row, equip_col = r + 1, c
                   break
                 end
@@ -843,34 +901,38 @@ class FacturacionsController < ApplicationController
 
             sum_equipos = 0
             current_r = equip_row
+            found_number = false
+
             loop do
               cell_val = sheet.cell(current_r, equip_col)
               break if cell_val.nil? || cell_val.to_s.strip.empty?
 
               if cell_val.to_s.match?(/\d+/)
                 sum_equipos += cell_val.to_f
+                found_number = true
               end
+
               current_r += 1
               break if current_r > equip_row + 50
             end
 
-            if sum_equipos == 0
+            if !found_number && sum_equipos == 0
               val_check = sheet.cell(equip_row, equip_col).to_s
               unless val_check.match?(/\d+/)
-                error_msg = "No se encontraron equipos validos iniciando en fila #{equip_row}, col #{equip_col}"
+                error_msg = "No se encontraron equipos numéricos desde fila #{equip_row}, col #{equip_col}"
               end
             end
             equipos_count = sum_equipos.to_i
           end
-
         end
       rescue StandardError => e
-        error_msg = "Excepcion leyendo archivo: #{e.message}"
+        error_msg = "Error leyendo archivo Excel: #{e.message}"
       end
 
+      target_year_log = year_em && years.include?(year_em) ? year_em : (year_fac && years.include?(year_fac) ? year_fac : years.first)
+
       if error_msg
-        target_year = year_em || year_fac || years.first
-        errors_log[target_year] << [fact.id, fact.number, error_msg] if years.include?(target_year)
+        errors_log[target_year_log] << [fact.id, fact.number, error_msg]
       else
         if fact.emicion && years.include?(fact.emicion.year)
           m = fact.emicion.month
@@ -888,7 +950,7 @@ class FacturacionsController < ApplicationController
       end
     end
 
-    Tempfile.create(['reporte_mensual', '.xlsx']) do |tmp|
+    Tempfile.create(['reporte_mensual_fuzzy', '.xlsx']) do |tmp|
       path = tmp.path
       tmp.close
 
@@ -903,7 +965,7 @@ class FacturacionsController < ApplicationController
       years.each do |year|
         sheet = workbook.add_worksheet(year.to_s)
 
-        sheet.write(0, 0, "Region", header_format)
+        sheet.write(0, 0, "Región", header_format)
 
         col_idx = 1
         (1..12).each do |month|
@@ -932,9 +994,10 @@ class FacturacionsController < ApplicationController
         end
 
         err_start_col = (12 * 4) + 2
-        sheet.write(0, err_start_col, "ID", error_header_format)
-        sheet.write(0, err_start_col + 1, "Numero", error_header_format)
-        sheet.write(0, err_start_col + 2, "Error", error_header_format)
+        sheet.write(0, err_start_col, "ID Facturación", error_header_format)
+        sheet.write(0, err_start_col + 1, "Número", error_header_format)
+        sheet.write(0, err_start_col + 2, "Detalle Error", error_header_format)
+        sheet.set_column(err_start_col + 2, err_start_col + 2, 50)
 
         err_row = 1
         errors_log[year].each do |err_data|
