@@ -789,7 +789,7 @@ class FacturacionsController < ApplicationController
 
       year_em = fact.emicion&.year
 
-      sale_date = fact.fecha_inspeccion || fact.fecha_venta
+      sale_date = fact.fecha_venta || fact.fecha_inspeccion
       year_sale = sale_date&.year
 
       next unless (year_em && years.include?(year_em)) || (year_sale && years.include?(year_sale))
