@@ -117,3 +117,6 @@ gem 'groupdate'
 gem 'write_xlsx'
 gem 'sidekiq'
 gem 'sidekiq-cron'
+
+
+gem 'pdf-reader'
