@@ -721,7 +721,8 @@ class FacturacionsController < ApplicationController
     end
   end
 
- def export_monthly_report
+
+  def export_monthly_report
     require 'csv'
     require 'roo'
     require 'write_xlsx'
@@ -946,16 +947,29 @@ class FacturacionsController < ApplicationController
                 table.rows.each do |row|
                   row.cells.each_with_index do |cell, i|
                     cell_text = cell.text.to_s.strip
+                    
                     if cell_text =~ /\bu\.?f\.?\b/i
-                      val = nil
-                      if i + 1 < row.cells.size
-                        val = row.cells[i+1].text.strip
-                      else
-                        val = cell_text
-                      end
+                      candidates = []
                       
-                      unless val.empty?
-                        unique_matches << val unless unique_matches.include?(val)
+                      if i + 1 < row.cells.size
+                        next_cell_text = row.cells[i+1].text.strip
+                        candidates = next_cell_text.scan(/[\d.,]+/)
+                      end
+
+                      if candidates.empty?
+                        candidates = cell_text.scan(/(\d[\d.,]*)\s*u\.?f\.?/i).flatten
+                      end
+
+                      candidates.each do |raw_num|
+                         clean = raw_num.gsub(/[^0-9.,]/, '')
+                         clean = clean.gsub(/\.$/, '').gsub(/,$/, '') 
+                         
+                         parsed_num_str = clean.delete('.').tr(',', '.')
+                         
+                         if parsed_num_str.match?(/\A\d+(\.\d+)?\z/) && parsed_num_str.to_f > 0
+                           val = parsed_num_str.to_f
+                           unique_matches << val unless unique_matches.include?(val)
+                         end
                       end
                     end
                   end
@@ -963,18 +977,11 @@ class FacturacionsController < ApplicationController
               end
 
               if unique_matches.empty?
-                error_precio = "No se encontró donde esta la uf"
+                error_precio = "No se encontró valor numérico junto a UF"
               elsif unique_matches.size > 1
                 error_precio = "Encontró varios valores de uf: #{unique_matches.join(', ')}"
               else
-                raw_num = unique_matches.first
-                parsed_num = raw_num.delete('.').tr(',', '.')
-                
-                if parsed_num.match?(/\A\d+(\.\d+)?\z/) && parsed_num.to_f > 0
-                  uf_value = parsed_num.to_f
-                else
-                  error_precio = "Lo que esta con uf no es un numero: #{raw_num}"
-                end
+                uf_value = unique_matches.first
               end
             end
           rescue StandardError => e
