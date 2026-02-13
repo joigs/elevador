@@ -988,7 +988,7 @@ class FacturacionsController < ApplicationController
             error_precio = "Error procesando DOCX: #{e.message}"
           end
         else
-          error_precio = "Facturación no tiene el docx"
+          error_precio = "Cotización no tiene el docx"
         end
       end
 
