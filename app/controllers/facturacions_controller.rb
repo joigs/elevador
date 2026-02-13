@@ -721,10 +721,11 @@ class FacturacionsController < ApplicationController
     end
   end
 
-  def export_monthly_report
+ def export_monthly_report
     require 'csv'
     require 'roo'
     require 'write_xlsx'
+    require 'docx'
 
     levenshtein = lambda do |s, t|
       return t.length if s.empty?
@@ -765,7 +766,6 @@ class FacturacionsController < ApplicationController
     end
 
     commune_list.sort_by! { |c| -c[:clean].length }
-
     ordered_regions = commune_list.map { |c| c[:region] }.uniq.sort
 
     years = [2024, 2025, 2026]
@@ -776,7 +776,7 @@ class FacturacionsController < ApplicationController
       (1..12).each do |m|
         data_store[y][m] = {}
         ordered_regions.each do |reg|
-          data_store[y][m][reg] = { cots: 0, vens: 0, eq_cots: 0, eq_vens: 0 }
+          data_store[y][m][reg] = { cots: 0, vens: 0, eq_cots: 0, eq_vens: 0, uf_cots: 0.0, uf_vens: 0.0 }
         end
       end
     end
@@ -784,25 +784,22 @@ class FacturacionsController < ApplicationController
     errors_log = {}
     years.each { |y| errors_log[y] = [] }
 
-    Facturacion.includes(solicitud_file_attachment: :blob).find_each do |fact|
-      # Ignorar si no tiene archivo
+    Facturacion.includes(solicitud_file_attachment: :blob, cotizacion_doc_file_attachment: :blob).find_each do |fact|
       next unless fact.solicitud_file.attached?
-
-      # CORRECCIÓN: Ignorar placeholder del sistema (número 0)
       next if fact.number == 0
 
       year_em = fact.emicion&.year
-
-      # Prioridad: Fecha Venta -> Fecha Inspección
       sale_date = fact.fecha_venta || fact.fecha_inspeccion
       year_sale = sale_date&.year
 
       next unless (year_em && years.include?(year_em)) || (year_sale && years.include?(year_sale))
 
-      error_msg = nil
+      error_general = nil
+      error_precio = nil
       region_found = nil
       equipos_count = 0
       commune_found_name = nil
+      uf_value = 0.0
 
       begin
         Tempfile.create(['solicitud', fact.solicitud_file.filename.extension_with_delimiter]) do |temp_file|
@@ -836,7 +833,7 @@ class FacturacionsController < ApplicationController
           end
 
           if lugar_raw.blank?
-            error_msg = "Celda de dirección vacía"
+            error_general = "Celda de dirección vacía"
           else
             lugar_clean = ActiveSupport::Inflector.transliterate(lugar_raw).downcase.gsub(/[^a-z0-9\s]/, ' ').strip.squeeze(' ')
             lugar_words = lugar_clean.split
@@ -874,15 +871,15 @@ class FacturacionsController < ApplicationController
             end
 
             unless match_found
-              error_msg = "No se identificó comuna válida en: '#{lugar_raw}'"
+              error_general = "No se identificó comuna válida en: '#{lugar_raw}'"
             end
 
             if match_found && region_found.nil?
-              error_msg = "Comuna '#{commune_found_name}' encontrada pero sin región asociada."
+              error_general = "Comuna '#{commune_found_name}' encontrada pero sin región asociada."
             end
           end
 
-          if error_msg.nil?
+          if error_general.nil?
             equip_row, equip_col = nil, nil
 
             (1..30).each do |r|
@@ -921,7 +918,7 @@ class FacturacionsController < ApplicationController
             if !found_number && sum_equipos == 0
               val_check = sheet.cell(equip_row, equip_col).to_s
               unless val_check.match?(/\d+/)
-                error_msg = "No se encontraron equipos numéricos"
+                error_general = "No se encontraron equipos numéricos"
               end
             end
             equipos_count = sum_equipos.to_i
@@ -929,19 +926,82 @@ class FacturacionsController < ApplicationController
 
         end
       rescue StandardError => e
-        error_msg = "Error leyendo archivo: #{e.message}"
+        error_general = "Error leyendo archivo: #{e.message}"
+      end
+
+      if error_general.nil?
+        if fact.precio.present? && fact.precio > 0
+          uf_value = fact.precio.to_f
+        elsif fact.cotizacion_doc_file.attached?
+          begin
+            Tempfile.create(['cotizacion', '.docx']) do |doc_temp|
+              doc_temp.binmode
+              doc_temp.write(fact.cotizacion_doc_file.download)
+              doc_temp.rewind
+
+              doc = Docx::Document.open(doc_temp.path)
+              unique_matches = []
+              
+              doc.tables.each do |table|
+                table.rows.each do |row|
+                  row.cells.each_with_index do |cell, i|
+                    cell_text = cell.text.to_s.strip
+                    if cell_text =~ /\bu\.?f\.?\b/i
+                      val = nil
+                      if i + 1 < row.cells.size
+                        val = row.cells[i+1].text.strip
+                      else
+                        val = cell_text
+                      end
+                      
+                      unless val.empty?
+                        unique_matches << val unless unique_matches.include?(val)
+                      end
+                    end
+                  end
+                end
+              end
+
+              if unique_matches.empty?
+                error_precio = "No se encontró donde esta la uf"
+              elsif unique_matches.size > 1
+                error_precio = "Encontró varios valores de uf: #{unique_matches.join(', ')}"
+              else
+                raw_num = unique_matches.first
+                parsed_num = raw_num.delete('.').tr(',', '.')
+                
+                if parsed_num.match?(/\A\d+(\.\d+)?\z/) && parsed_num.to_f > 0
+                  uf_value = parsed_num.to_f
+                else
+                  error_precio = "Lo que esta con uf no es un numero: #{raw_num}"
+                end
+              end
+            end
+          rescue StandardError => e
+            error_precio = "Error procesando DOCX: #{e.message}"
+          end
+        else
+          error_precio = "Facturación no tiene el docx"
+        end
       end
 
       target_year_log = year_em && years.include?(year_em) ? year_em : (year_sale && years.include?(year_sale) ? year_sale : years.first)
 
-      if error_msg
-        errors_log[target_year_log] << [fact.number, error_msg]
-      else
+      if error_general || error_precio
+        errors_log[target_year_log] << {
+          number: fact.number,
+          general: error_general,
+          price: error_precio
+        }
+      end
+
+      if error_general.nil?
         if fact.emicion && years.include?(fact.emicion.year)
           m = fact.emicion.month
           y = fact.emicion.year
           data_store[y][m][region_found][:cots] += 1
           data_store[y][m][region_found][:eq_cots] += equipos_count
+          data_store[y][m][region_found][:uf_cots] += uf_value if error_precio.nil?
         end
 
         if sale_date && years.include?(sale_date.year)
@@ -949,6 +1009,7 @@ class FacturacionsController < ApplicationController
           y = sale_date.year
           data_store[y][m][region_found][:vens] += 1
           data_store[y][m][region_found][:eq_vens] += equipos_count
+          data_store[y][m][region_found][:uf_vens] += uf_value if error_precio.nil?
         end
       end
     end
@@ -962,6 +1023,7 @@ class FacturacionsController < ApplicationController
       header_format = workbook.add_format(bold: 1, align: 'center', border: 1, bg_color: '#D3D3D3')
       sub_header_format = workbook.add_format(bold: 1, align: 'center', border: 1, font_size: 9)
       cell_format = workbook.add_format(border: 1, align: 'center')
+      uf_format = workbook.add_format(border: 1, align: 'center', num_format: '#,##0.00')
       region_format = workbook.add_format(bold: 1, border: 1)
       error_header_format = workbook.add_format(bold: 1, color: 'white', bg_color: 'red', align: 'center')
 
@@ -975,12 +1037,14 @@ class FacturacionsController < ApplicationController
         col_idx = 1
         (1..12).each do |month|
           month_name = months_es[month]
-          sheet.merge_range(0, col_idx, 0, col_idx + 3, month_name, header_format)
+          sheet.merge_range(0, col_idx, 0, col_idx + 5, month_name, header_format)
           sheet.write(1, col_idx, "Cot", sub_header_format)
           sheet.write(1, col_idx + 1, "Ventas", sub_header_format)
           sheet.write(1, col_idx + 2, "Eq.Cot", sub_header_format)
           sheet.write(1, col_idx + 3, "Eq.Ven", sub_header_format)
-          col_idx += 4
+          sheet.write(1, col_idx + 4, "UF Cot", sub_header_format)
+          sheet.write(1, col_idx + 5, "UF Ven", sub_header_format)
+          col_idx += 6
         end
 
         row_idx = 2
@@ -993,20 +1057,24 @@ class FacturacionsController < ApplicationController
             sheet.write(row_idx, curr_col + 1, d[:vens], cell_format)
             sheet.write(row_idx, curr_col + 2, d[:eq_cots], cell_format)
             sheet.write(row_idx, curr_col + 3, d[:eq_vens], cell_format)
-            curr_col += 4
+            sheet.write(row_idx, curr_col + 4, d[:uf_cots], uf_format)
+            sheet.write(row_idx, curr_col + 5, d[:uf_vens], uf_format)
+            curr_col += 6
           end
           row_idx += 1
         end
 
-        err_start_col = (12 * 4) + 2
+        err_start_col = (12 * 6) + 2
         sheet.write(0, err_start_col, "Número", error_header_format)
-        sheet.write(0, err_start_col + 1, "Detalle Error", error_header_format)
-        sheet.set_column(err_start_col + 1, err_start_col + 1, 50)
+        sheet.write(0, err_start_col + 1, "Error Dirección/Equipos", error_header_format)
+        sheet.write(0, err_start_col + 2, "Error Precio/UF", error_header_format)
+        sheet.set_column(err_start_col + 1, err_start_col + 2, 50)
 
         err_row = 1
         errors_log[year].each do |err_data|
-          sheet.write(err_row, err_start_col, err_data[0])
-          sheet.write(err_row, err_start_col + 1, err_data[1])
+          sheet.write(err_row, err_start_col, err_data[:number])
+          sheet.write(err_row, err_start_col + 1, err_data[:general])
+          sheet.write(err_row, err_start_col + 2, err_data[:price])
           err_row += 1
         end
       end
