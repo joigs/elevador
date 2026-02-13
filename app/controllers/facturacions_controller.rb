@@ -1074,7 +1074,7 @@ class FacturacionsController < ApplicationController
         err_start_col = (12 * 6) + 2
         sheet.write(0, err_start_col, "Número", error_header_format)
         sheet.write(0, err_start_col + 1, "Error Dirección/Equipos", error_header_format)
-        sheet.write(0, err_start_col + 2, "Error Precio/UF", error_header_format)
+        sheet.write(0, err_start_col + 2, "Error UF", error_header_format)
         sheet.set_column(err_start_col + 1, err_start_col + 2, 50)
 
         err_row = 1
