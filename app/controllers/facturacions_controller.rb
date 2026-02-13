@@ -720,7 +720,7 @@ class FacturacionsController < ApplicationController
       DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
     end
   end
-  def export_monthly_report
+ def export_monthly_report
     require 'csv'
     require 'roo'
     require 'write_xlsx'
@@ -795,12 +795,11 @@ class FacturacionsController < ApplicationController
 
       error_general = nil
       error_precio = nil
-
+      
       region_found = nil
       equipos_count = 0
       commune_found_name = nil
       uf_value = 0.0
-
 
       begin
         Tempfile.create(['solicitud', fact.solicitud_file.filename.extension_with_delimiter]) do |temp_file|
@@ -921,7 +920,6 @@ class FacturacionsController < ApplicationController
         error_general = "Error leyendo Excel solicitud: #{e.message}"
       end
 
-
       if error_general.nil?
         if fact.precio.present? && fact.precio > 0
           uf_value = fact.precio.to_f
@@ -933,26 +931,39 @@ class FacturacionsController < ApplicationController
               pdf_temp.rewind
 
               reader = PDF::Reader.new(pdf_temp.path)
-              full_text = reader.pages.map(&:text).join(" ")
+              unique_matches = []
+              text_found = false
 
-              if full_text.strip.empty?
+              reader.pages.each do |page|
+                page_text = page.text
+                next if page_text.nil? || page_text.strip.empty?
+                
+                text_found = true
+                page_matches = page_text.scan(/\b(\d[\d.,]*)\s*(?:u\.?f\.?)\b/i)
+                
+                page_matches.flatten.each do |m|
+                  clean_m = m.strip
+                  unique_matches << clean_m unless unique_matches.include?(clean_m)
+                end
+
+                if unique_matches.size > 1
+                  break
+                end
+              end
+
+              if !text_found
                 error_precio = "PDF formado por imágenes (no leíble)"
+              elsif unique_matches.empty?
+                error_precio = "No se encontró valor UF"
+              elsif unique_matches.size > 1
+                error_precio = "Varios valores UF encontrados: #{unique_matches.join(', ')}"
               else
-                matches = full_text.scan(/\b(\d[\d.,]*)\s*(?:u\.?f\.?)\b/i)
-                clean_matches = matches.flatten.map(&:strip).uniq
-
-                if clean_matches.empty?
-                  error_precio = "No se encontró valor UF"
-                elsif clean_matches.size > 1
-                  error_precio = "Varios valores UF encontrados: #{clean_matches.join(', ')}"
+                raw_num = unique_matches.first
+                parsed_num = raw_num.delete('.').tr(',', '.')
+                if parsed_num.to_f > 0
+                  uf_value = parsed_num.to_f
                 else
-                  raw_num = clean_matches.first
-                  parsed_num = raw_num.delete('.').tr(',', '.')
-                  if parsed_num.to_f > 0
-                    uf_value = parsed_num.to_f
-                  else
-                    error_precio = "Formato UF inválido: #{raw_num}"
-                  end
+                  error_precio = "Formato UF inválido: #{raw_num}"
                 end
               end
             end
@@ -998,7 +1009,7 @@ class FacturacionsController < ApplicationController
       tmp.close
 
       workbook = WriteXLSX.new(path)
-
+      
       header_format = workbook.add_format(bold: 1, align: 'center', border: 1, bg_color: '#D3D3D3')
       sub_header_format = workbook.add_format(bold: 1, align: 'center', border: 1, font_size: 9)
       cell_format = workbook.add_format(border: 1, align: 'center')
@@ -1010,9 +1021,9 @@ class FacturacionsController < ApplicationController
 
       years.each do |year|
         sheet = workbook.add_worksheet(year.to_s)
-
+        
         sheet.write(0, 0, "Región", header_format)
-
+        
         col_idx = 1
         (1..12).each do |month|
           month_name = months_es[month]
@@ -1046,9 +1057,9 @@ class FacturacionsController < ApplicationController
         err_start_col = (12 * 6) + 2
         sheet.write(0, err_start_col, "Número", error_header_format)
         sheet.write(0, err_start_col + 1, "Error Dirección/Equipos", error_header_format)
-        sheet.write(0, err_start_col + 2, "Error Precio", error_header_format)
-
-        sheet.set_column(err_start_col + 1, err_start_col + 2, 50) # Ancho para columnas de error
+        sheet.write(0, err_start_col + 2, "Error Precio/UF", error_header_format)
+        
+        sheet.set_column(err_start_col + 1, err_start_col + 2, 50)
 
         err_row = 1
         errors_log[year].each do |err_data|
@@ -1067,7 +1078,6 @@ class FacturacionsController < ApplicationController
       DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
     end
   end
-
   private
 
 
