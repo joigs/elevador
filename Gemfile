@@ -119,4 +119,3 @@ gem 'sidekiq'
 gem 'sidekiq-cron'
 
 
-gem 'pdf-reader'

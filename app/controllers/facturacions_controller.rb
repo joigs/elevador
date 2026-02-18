@@ -720,11 +720,13 @@ class FacturacionsController < ApplicationController
       DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
     end
   end
+
+
   def export_monthly_report
     require 'csv'
     require 'roo'
     require 'write_xlsx'
-    require 'pdf-reader'
+    require 'docx'
 
     levenshtein = lambda do |s, t|
       return t.length if s.empty?
@@ -783,7 +785,7 @@ class FacturacionsController < ApplicationController
     errors_log = {}
     years.each { |y| errors_log[y] = [] }
 
-    Facturacion.includes(solicitud_file_attachment: :blob, cotizacion_pdf_file_attachment: :blob).find_each do |fact|
+    Facturacion.includes(solicitud_file_attachment: :blob, cotizacion_doc_file_attachment: :blob).find_each do |fact|
       next unless fact.solicitud_file.attached?
       next if fact.number == 0
 
@@ -795,12 +797,10 @@ class FacturacionsController < ApplicationController
 
       error_general = nil
       error_precio = nil
-
       region_found = nil
       equipos_count = 0
       commune_found_name = nil
       uf_value = 0.0
-
 
       begin
         Tempfile.create(['solicitud', fact.solicitud_file.filename.extension_with_delimiter]) do |temp_file|
@@ -818,6 +818,7 @@ class FacturacionsController < ApplicationController
             (1..20).each do |c|
               val = sheet.cell(r, c).to_s
               clean_val = ActiveSupport::Inflector.transliterate(val).downcase
+
               if clean_val.include?('direccion') || levenshtein.call('direccion', clean_val) <= 2
                 addr_row, addr_col = r + 1, c
                 break
@@ -837,6 +838,7 @@ class FacturacionsController < ApplicationController
           else
             lugar_clean = ActiveSupport::Inflector.transliterate(lugar_raw).downcase.gsub(/[^a-z0-9\s]/, ' ').strip.squeeze(' ')
             lugar_words = lugar_clean.split
+
             match_found = false
 
             commune_list.each do |commune_obj|
@@ -853,9 +855,11 @@ class FacturacionsController < ApplicationController
               if lugar_words.size >= target_words_count
                 (0..(lugar_words.size - target_words_count)).each do |i|
                   snippet = lugar_words[i, target_words_count].join(' ')
+
                   dist = levenshtein.call(target, snippet)
                   threshold = (target.length * 0.25).ceil
                   threshold = 1 if threshold < 1
+
                   if dist <= threshold
                     region_found = commune_obj[:region]
                     commune_found_name = commune_obj[:original_commune]
@@ -870,6 +874,7 @@ class FacturacionsController < ApplicationController
             unless match_found
               error_general = "No se identificó comuna válida en: '#{lugar_raw}'"
             end
+
             if match_found && region_found.nil?
               error_general = "Comuna '#{commune_found_name}' encontrada pero sin región asociada."
             end
@@ -877,10 +882,12 @@ class FacturacionsController < ApplicationController
 
           if error_general.nil?
             equip_row, equip_col = nil, nil
+
             (1..30).each do |r|
               (1..20).each do |c|
                 val = sheet.cell(r, c).to_s
                 clean_val = ActiveSupport::Inflector.transliterate(val).downcase
+
                 if clean_val.include?('ascensores') || clean_val.include?('equipos') || levenshtein.call('ascensores', clean_val) <= 3
                   equip_row, equip_col = r + 1, c
                   break
@@ -900,6 +907,7 @@ class FacturacionsController < ApplicationController
             loop do
               cell_val = sheet.cell(current_r, equip_col)
               break if cell_val.nil? || cell_val.to_s.strip.empty?
+
               if cell_val.to_s.match?(/\d+/)
                 sum_equipos += cell_val.to_f
                 found_number = true
@@ -916,51 +924,71 @@ class FacturacionsController < ApplicationController
             end
             equipos_count = sum_equipos.to_i
           end
+
         end
       rescue StandardError => e
-        error_general = "Error leyendo Excel solicitud: #{e.message}"
+        error_general = "Error leyendo archivo: #{e.message}"
       end
-
 
       if error_general.nil?
         if fact.precio.present? && fact.precio > 0
           uf_value = fact.precio.to_f
-        elsif fact.cotizacion_pdf_file.attached?
+        elsif fact.cotizacion_doc_file.attached?
           begin
-            Tempfile.create(['cotizacion', '.pdf']) do |pdf_temp|
-              pdf_temp.binmode
-              pdf_temp.write(fact.cotizacion_pdf_file.download)
-              pdf_temp.rewind
+            Tempfile.create(['cotizacion', '.docx']) do |doc_temp|
+              doc_temp.binmode
+              doc_temp.write(fact.cotizacion_doc_file.download)
+              doc_temp.rewind
 
-              reader = PDF::Reader.new(pdf_temp.path)
-              full_text = reader.pages.map(&:text).join(" ")
+              doc = Docx::Document.open(doc_temp.path)
+              unique_matches = []
+              
+              doc.tables.each do |table|
+                table.rows.each do |row|
+                  row.cells.each_with_index do |cell, i|
+                    cell_text = cell.text.to_s.strip
+                    
+                    if cell_text =~ /\bu\.?f\.?\b/i
+                      candidates = []
+                      
+                      if i + 1 < row.cells.size
+                        next_cell_text = row.cells[i+1].text.strip
+                        candidates = next_cell_text.scan(/[\d.,]+/)
+                      end
 
-              if full_text.strip.empty?
-                error_precio = "PDF formado por imágenes (no leíble)"
-              else
-                matches = full_text.scan(/\b(\d[\d.,]*)\s*(?:u\.?f\.?)\b/i)
-                clean_matches = matches.flatten.map(&:strip).uniq
+                      if candidates.empty?
+                        candidates = cell_text.scan(/(\d[\d.,]*)\s*u\.?f\.?/i).flatten
+                      end
 
-                if clean_matches.empty?
-                  error_precio = "No se encontró valor UF"
-                elsif clean_matches.size > 1
-                  error_precio = "Varios valores UF encontrados: #{clean_matches.join(', ')}"
-                else
-                  raw_num = clean_matches.first
-                  parsed_num = raw_num.delete('.').tr(',', '.')
-                  if parsed_num.to_f > 0
-                    uf_value = parsed_num.to_f
-                  else
-                    error_precio = "Formato UF inválido: #{raw_num}"
+                      candidates.each do |raw_num|
+                         clean = raw_num.gsub(/[^0-9.,]/, '')
+                         clean = clean.gsub(/\.$/, '').gsub(/,$/, '') 
+                         
+                         parsed_num_str = clean.delete('.').tr(',', '.')
+                         
+                         if parsed_num_str.match?(/\A\d+(\.\d+)?\z/) && parsed_num_str.to_f > 0
+                           val = parsed_num_str.to_f
+                           unique_matches << val unless unique_matches.include?(val)
+                         end
+                      end
+                    end
                   end
                 end
               end
+
+              if unique_matches.empty?
+                error_precio = "No se encontró valor numérico junto a UF"
+              elsif unique_matches.size > 1
+                error_precio = "Encontró varios valores de uf: #{unique_matches.join(', ')}"
+              else
+                uf_value = unique_matches.first
+              end
             end
           rescue StandardError => e
-            error_precio = "Error procesando PDF: #{e.message}"
+            error_precio = "Error procesando DOCX: #{e.message}"
           end
         else
-          error_precio = "Sin precio en BD ni PDF adjunto"
+          error_precio = "Cotización no tiene el docx"
         end
       end
 
@@ -1046,9 +1074,8 @@ class FacturacionsController < ApplicationController
         err_start_col = (12 * 6) + 2
         sheet.write(0, err_start_col, "Número", error_header_format)
         sheet.write(0, err_start_col + 1, "Error Dirección/Equipos", error_header_format)
-        sheet.write(0, err_start_col + 2, "Error Precio", error_header_format)
-
-        sheet.set_column(err_start_col + 1, err_start_col + 2, 50) # Ancho para columnas de error
+        sheet.write(0, err_start_col + 2, "Error UF", error_header_format)
+        sheet.set_column(err_start_col + 1, err_start_col + 2, 50)
 
         err_row = 1
         errors_log[year].each do |err_data|
@@ -1060,13 +1087,16 @@ class FacturacionsController < ApplicationController
       end
 
       workbook.close
+
       send_data File.binread(path),
                 filename: "reporte_mensual_#{Time.zone.now.strftime('%Y%m%d_%H%M')}.xlsx",
                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 disposition: :attachment
+
       DeleteTempFileJob.set(wait: 5.minutes).perform_later(path)
     end
   end
+
 
   private
 
