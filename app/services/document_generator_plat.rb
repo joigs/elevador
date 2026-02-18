@@ -368,12 +368,14 @@ class DocumentGeneratorPlat
         doc2.replace('{{revision_past_errors_level}}',     '')
         doc2.replace('{{revision_past_errors_level_lift}}', '')
         doc2.commit(output_path)
+
       elsif !exists_last_levels && report.past_number.nil? && report.past_date.nil?
         doc2 = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
         doc2.replace('{{informe_anterior}}',                'Informe anterior sin defectos registrados')
         doc2.replace('{{revision_past_errors_level}}',     '')
         doc2.replace('{{revision_past_errors_level_lift}}','')
         doc2.commit(output_path)
+
       else
         control_leves = false
 
@@ -395,34 +397,63 @@ class DocumentGeneratorPlat
         doc2 = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
         if last_errors.blank?
-          if control_leves
-            if last_inspection
-              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol}"
-              text = "Se levantan todas las conformidades Defectos leves, indicadas en informe anterior N°#{texto_numero} de fecha:#{last_inspection.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
+
+          if control_leves == true
+            if last_inspection && last_inspection.number.to_i > 0
+              item_rol_past = item.identificador.chars.last(4).join
+              if last_inspection.rerun == true
+                item_rol_past << "-RI"
+              end
+              texto_nombre_archivo = "informe anterior N°#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
+              fecha_ref = last_inspection.inf_date
             else
-              text = 'Informe anterior: defectos leves levantados.'
+              numero_manual = report.past_number.present? ? report.past_number : "S/I"
+              texto_nombre_archivo = "informe anterior N°#{numero_manual}"
+              fecha_ref = report.past_date ? report.past_date : last_inspection&.inf_date
             end
+
+            texto_fecha = fecha_ref ? " de fecha:#{fecha_ref.strftime('%d/%m/%Y')}" : " de fecha desconocida"
+
+            text = "Se levantan todas las conformidades Defectos leves, indicadas en #{texto_nombre_archivo}#{texto_fecha}, las cuales se detallan a continuación:"
             doc2.replace('{{informe_anterior}}', text)
           else
-            texto_empresa_anterior =
-              if report.empresa_anterior
-                "Realizado por #{report.empresa_anterior} "
-              else
-                ''
-              end
-
-            if last_inspection&.inf_date
-              text = "Informe anterior N°#{last_inspection.number} de fecha: #{last_inspection.inf_date&.strftime('%d/%m/%Y')} #{texto_empresa_anterior}no presenta Defectos leves"
-            elsif report.past_date
-              text = "Informe anterior N°#{last_inspection&.number} de fecha: #{report.past_date&.strftime('%d/%m/%Y')} #{texto_empresa_anterior}no presenta Defectos leves"
+            if report.empresa_anterior
+              texto_empresa_anterior = "Realizado por #{report.empresa_anterior} "
             else
-              text = "Informe anterior N°#{last_inspection&.number} de fecha desconocida #{texto_empresa_anterior}no presenta Defectos leves"
+              texto_empresa_anterior = ""
             end
+
+            if last_inspection && last_inspection.number.to_i > 0
+              item_rol_past = item.identificador.chars.last(4).join
+              if last_inspection.rerun == true
+                item_rol_past << "-RI"
+              end
+              texto_numero = "#{last_inspection.number.to_s}-#{last_inspection.ins_date&.strftime('%m')}-#{last_inspection.ins_date&.strftime('%Y')}-#{item_rol_past}"
+            else
+              texto_numero = report.past_number.present? ? report.past_number : "S/I"
+            end
+
+            fecha_base = (last_inspection && last_inspection.number.to_i > 0 && last_inspection.inf_date) ? last_inspection.inf_date : report.past_date
+
+            if fecha_base
+              texto_fecha = "de fecha: #{fecha_base.strftime('%d/%m/%Y')}"
+            else
+              texto_fecha = "de fecha desconocida"
+            end
+
+            if report.empresa_anterior.present?
+              texto_empresa = "Realizado por #{report.empresa_anterior} "
+            else
+              texto_empresa = ""
+            end
+
+            text = "Informe anterior N°#{texto_numero} #{texto_fecha} #{texto_empresa}no presenta Defectos leves"
             doc2.replace('{{informe_anterior}}', text)
           end
 
           doc2.replace('{{revision_past_errors_level}}',      '')
           doc2.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+
         else
           formatted_errors = last_errors.map do |le|
             "• #{le}\n                                                                                        "
@@ -431,8 +462,16 @@ class DocumentGeneratorPlat
           last_inspection_obj = last_inspection || (last_revision_base && Inspection.find(last_revision_base.inspection_id))
 
           if last_inspection_obj&.number.to_i > 0
-            texto_numero = "#{last_inspection_obj.number.to_s}-#{last_inspection_obj.ins_date&.strftime('%m')}-#{last_inspection_obj.ins_date&.strftime('%Y')}-#{item_rol}"
-            text = "Se mantienen las no conformidades indicadas en informe anterior N°#{texto_numero} de fecha:#{last_inspection_obj.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
+
+            item_rol_past = item.identificador.chars.last(4).join
+            if last_inspection_obj.rerun == true
+              item_rol_past << "-RI"
+            end
+
+            texto_numero = "#{last_inspection_obj.number.to_s}-#{last_inspection_obj.ins_date&.strftime('%m')}-#{last_inspection_obj.ins_date&.strftime('%Y')}-#{item_rol_past}"
+
+            text = "Se mantienen las no conformidades indicadas en #{texto_numero} de fecha:#{last_inspection_obj.inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:"
+
             doc2.replace('{{informe_anterior}}', text)
             doc2.replace('{{revision_past_errors_level}}',     formatted_errors)
             doc2.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
@@ -475,7 +514,6 @@ class DocumentGeneratorPlat
       doc2.replace('{{revision_past_errors_level_lift}}','')
       doc2.commit(output_path)
     end
-
 
 
     carpetas = rules.map(&:code).select { |c| c.to_s.start_with?('0.') }.uniq.sort
