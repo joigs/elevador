@@ -126,7 +126,7 @@ class DocumentGeneratorPlat
     if inspection.rerun == true
       item_rol << "-RI"
     end
-    template_path = Rails.root.join('app', 'templates', 'template_1.docx')
+    template_path = Rails.root.join('app', 'templates', 'template_1_plat.docx')
     output_path   = Rails.root.join('tmp', "Informe N°#{inspection.number}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}-#{item_rol}.docx")
 
     doc = DocxReplace::Doc.new(template_path, "#{Rails.root}/tmp")
@@ -303,17 +303,6 @@ class DocumentGeneratorPlat
     doc.replace('{{grupo_en_titulo}}', group.name)
 
 
-
-
-    if group.secondary_type == 'plataforma'
-
-      doc.replace('{{normas_de_referencia}}',        'NCh.3395/1:2016 y NCh.440/2:2001')
-      doc.replace('{{normas_de_referencia_titulo}}', 'NCh.3395/1:2016 y NCh.440/2:2001')
-    elsif group.secondary_type == "salvaescala"
-
-      doc.replace('{{normas_de_referencia}}',        'NCh.3395/1:2016 y NCh.440/2:2001')
-      doc.replace('{{normas_de_referencia_titulo}}', 'NCh.3395/1:2016 y NCh.440/2:2001')
-    end
 
 
 
