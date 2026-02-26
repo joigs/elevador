@@ -2,6 +2,8 @@ class User < ApplicationRecord
   has_secure_password
 
   acts_as_paranoid
+  has_one_attached :signature
+
 
   def self.ransackable_attributes(auth_object = nil)
     [
@@ -15,9 +17,8 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # List of associations you want to be searchable
     [
-      "inspections",  # Assuming inspections are related records that could be relevant for searches
+      "inspections",
     ]
   end
 
