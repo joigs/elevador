@@ -1,5 +1,6 @@
 class Authentication::UsersController < ApplicationController
 
+  before_action :convert_signature_to_png, only: [:create, :update]
   def new
     @user = User.new
   end
@@ -265,4 +266,28 @@ class Authentication::UsersController < ApplicationController
     params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion, :empresa, :signature, :gestion, :principal_id)
   end
 
+  def convert_signature_to_png
+    file = params.dig(:user, :signature)
+
+    if file.is_a?(ActionDispatch::Http::UploadedFile)
+      begin
+        require "image_processing/mini_magick"
+
+        processed_file = ImageProcessing::MiniMagick
+                           .source(file.tempfile.path)
+                           .convert("png")
+                           .call
+
+        original_basename = File.basename(file.original_filename, '.*')
+
+        params[:user][:signature] = ActionDispatch::Http::UploadedFile.new(
+          tempfile: processed_file,
+          filename: "#{original_basename}.png",
+          type: 'image/png'
+        )
+      rescue => e
+        Rails.logger.error "Error al convertir la firma a PNG: #{e.message}"
+      end
+    end
+  end
 end

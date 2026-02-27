@@ -1314,12 +1314,57 @@ class DocumentGenerator
 
       counter += 1
     end
+    doc.replace('{{admin}}', admin.real_name)
+    doc.replace('{{inspector}}', inspectors.first.real_name)
+
+    doc.replace('{{inspector_profesion}}', inspectors.first.profesion)
+
+    if inspectors.second
+      doc.replace('{{inspector}}', inspectors.second.real_name)
+      doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
+    end
+
+    if condicion
+      doc.replace('{{y_inspector}}', 'Inspector y ')
+    else
+      doc.replace('{{y_inspector}}', '')
+    end
+
+
+    doc.replace('{{admin_profesion}}', admin.profesion)
+
+    signatures_data = { '{{firma_inspector}}' => [] }
+
+    if admin.signature.attached?
+      admin_sig_path = File.join(dir_path, 'admin_sig.png')
+      File.binwrite(admin_sig_path, admin.signature.download)
+      signatures_data['{{firma_admin}}'] = 'admin_sig.png'
+    end
+
+    if inspectors.first&.signature&.attached?
+      insp1_sig_path = File.join(dir_path, 'insp1_sig.png')
+      File.binwrite(insp1_sig_path, inspectors.first.signature.download)
+      signatures_data['{{firma_inspector}}'] << 'insp1_sig.png'
+    else
+      signatures_data['{{firma_inspector}}'] << nil
+    end
+
+    if inspectors.second
+      if inspectors.second.signature.attached?
+        insp2_sig_path = File.join(dir_path, 'insp2_sig.png')
+        File.binwrite(insp2_sig_path, inspectors.second.signature.download)
+        signatures_data['{{firma_inspector}}'] << 'insp2_sig.png'
+      else
+        signatures_data['{{firma_inspector}}'] << nil
+      end
+    end
+
+    File.write(File.join(dir_path, 'signatures.json'), signatures_data.to_json)
 
     mapping_json_path = File.join(dir_path, 'mapping.json')
     File.write(mapping_json_path, photos_mapping.to_json)
 
     venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
-
     script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
     token       = "CODIGO IMAGEN 24123123"
 
@@ -1327,7 +1372,6 @@ class DocumentGenerator
     system(cmd)
 
     FileUtils.mv(docx_new_path, output_path)
-
     FileUtils.rm_rf(dir_path)
 
 

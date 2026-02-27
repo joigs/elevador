@@ -3,13 +3,13 @@ import os
 import sys
 import json
 import argparse
+import re
 from docx import Document
 from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.table import Table
 from docx.text.paragraph import Paragraph
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 def add_paragraph_after(paragraph):
     new_p = OxmlElement('w:p')
@@ -28,7 +28,7 @@ def remove_table_header_formatting(table):
         for cell in row.cells:
             tcPr = cell._element.get_or_add_tcPr()
             shading = OxmlElement('w:shd')
-            shading.set(qn('w:fill'), "FFFFFF")  
+            shading.set(qn('w:fill'), "FFFFFF")
             tcPr.append(shading)
 
 def main():
@@ -44,8 +44,66 @@ def main():
 
     docx_path = os.path.join(folder_path, docx_name)
     mapping_path = os.path.join(folder_path, "mapping.json")
+    signatures_path = os.path.join(folder_path, "signatures.json")
 
     doc = Document(docx_path)
+
+    signatures_data = {}
+    if os.path.exists(signatures_path):
+        with open(signatures_path, "r", encoding="utf-8") as f:
+            signatures_data = json.load(f)
+
+    def process_signatures(paragraphs):
+        pattern = r'(\{\{firma_admin\}\}|\{\{firma_inspector\}\})'
+        for paragraph in paragraphs:
+            text = paragraph.text
+            if "{{firma_admin}}" not in text and "{{firma_inspector}}" not in text:
+                continue
+
+            alignment = paragraph.alignment
+            parts = re.split(pattern, text)
+            paragraph.clear()
+
+            for part in parts:
+                if part == "{{firma_admin}}":
+                    img_filename = signatures_data.get("{{firma_admin}}")
+                    if img_filename:
+                        img_path = os.path.join(folder_path, img_filename)
+                        if os.path.exists(img_path):
+                            try:
+                                run = paragraph.add_run()
+                                run.add_picture(img_path, width=Inches(1.8))
+                            except Exception as e:
+                                print(f"Error cargando firma admin: {e}")
+
+                elif part == "{{firma_inspector}}":
+                    sigs = signatures_data.get("{{firma_inspector}}", [])
+                    img_filename = None
+                    if len(sigs) > 0:
+                        img_filename = sigs.pop(0)
+
+                    if img_filename:
+                        img_path = os.path.join(folder_path, img_filename)
+                        if os.path.exists(img_path):
+                            try:
+                                run = paragraph.add_run()
+                                run.add_picture(img_path, width=Inches(1.8))
+                            except Exception as e:
+                                print(f"Error cargando firma inspector: {e}")
+                else:
+                    if part:
+                        paragraph.add_run(part)
+
+            # Restauramos la alineación original
+            if alignment is not None:
+                paragraph.alignment = alignment
+
+    process_signatures(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                process_signatures(cell.paragraphs)
+    # -------------------------------------
 
     if not os.path.exists(mapping_path):
         for paragraph in doc.paragraphs:
@@ -71,7 +129,7 @@ def main():
 
             new_paragraph = add_paragraph_after(paragraph)
             table = add_table_after(new_paragraph, doc, rows=0, cols=2)
-            remove_table_header_formatting(table) 
+            remove_table_header_formatting(table)
 
             for i in range(0, len(photos_mapping), 2):
                 row_img  = table.add_row()
