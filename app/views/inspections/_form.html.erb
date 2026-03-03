@@ -209,7 +209,7 @@
             class="absolute top-4 right-4 text-white text-2xl font-bold"
             onclick="closeFacturacionModal()">&times;</button>
 
-    <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
+    <turbo-frame id="facturacions_picker_frame" src="<%= picker_facturacions_path %>">
       Cargando Cotizaciones...
     </turbo-frame>
   </div>
@@ -331,19 +331,27 @@
             toRemove.forEach(idx => cells[idx]?.remove());
         });
     }
-
     function getFacturacionFromRow(row) {
-        const cells = row?.querySelectorAll("td") || [];
-        const link = cells[0]?.querySelector("a");
+        if (!row) return { fid: null, fnum: "", fname: "" };
 
-        const href = link?.getAttribute("href") || "";
-        // soporta ambas rutas por si cambia el path
-        const fid = (href.match(/(?:cotizaciones|facturacions)\/(\d+)/))?.[1] || null;
+        // ✅ Nuevo picker: viene en data-* del <tr>
+        const fid   = row.dataset.fid   || null;
+        const fnum  = (row.dataset.fnum  || "").toString().trim();
+        const fname = (row.dataset.fname || "").toString().trim();
 
-        const fnum = (link?.textContent || "").trim();
-        const fname = (cells[1]?.textContent || "").trim();
+        if (fid) return { fid, fnum, fname };
 
-        return { fid, fnum, fname };
+        // 🔁 Fallback antiguo (si alguna vez cargas el index viejo con links)
+        const cells = row.querySelectorAll("td");
+        const link  = cells[0]?.querySelector("a");
+        const href  = link?.getAttribute("href") || "";
+        const legacyId = (href.match(/(?:cotizaciones|facturacions)\/(\d+)/))?.[1] || null;
+
+        return {
+            fid: legacyId,
+            fnum: (link?.textContent || "").trim(),
+            fname: (cells[1]?.textContent || "").trim()
+        };
     }
 
     function addSelectColumn(tableEl) {
@@ -466,7 +474,7 @@
     }
 
     document.addEventListener('turbo:before-frame-render', e=>{
-        if (e.target.id !== 'facturacions_frame') return
+        if (e.target.id !== 'facturacions_picker_frame') return
 
         const oldTable = e.target.querySelector('#facturacions-table')
         if (oldTable && window.facturacionClickHandler)
@@ -496,7 +504,7 @@
         }
         initFlatpickrFilters()
     }
-    document.addEventListener('turbo:frame-load',e=>{ if(e.target.id==='facturacions_frame') setupFacturacionComponents() })
+    document.addEventListener('turbo:frame-load',e=>{ if(e.target.id==='facturacions_picker_frame') setupFacturacionComponents() })
     document.addEventListener('turbo:render',      setupFacturacionComponents)
 
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') window.closeFacturacionModal() })
@@ -557,7 +565,7 @@
 
         document.addEventListener('turbo:render',      () => console.log('[FacturacionDebug:turbo:render]',      snapshot()));
         document.addEventListener('turbo:frame-load',  e => {
-            if (e.target.id === 'facturacions_frame')
+            if (e.target.id === 'facturacions_picker_frame')
                 console.log('[FacturacionDebug:frame-load]', snapshot());
         });
         document.addEventListener('turbo:before-cache',() => console.log('[FacturacionDebug:before-cache]', snapshot()));

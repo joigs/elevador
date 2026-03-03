@@ -1097,6 +1097,55 @@ class FacturacionsController < ApplicationController
     end
   end
 
+  def picker
+    @facturacions =
+      if params[:notification_id].present?
+        @notification = Notification.find(params[:notification_id])
+        @notification.facturacions.where.not(number: 0).order(number: :desc)
+      else
+        Facturacion.where.not(number: 0).order(number: :desc)
+      end
+
+    if params[:fecha_inicio].present? || params[:fecha_fin].present?
+      begin
+        fi = Date.strptime(params[:fecha_inicio], '%d-%m-%Y') if params[:fecha_inicio].present?
+        ff = Date.strptime(params[:fecha_fin],   '%d-%m-%Y') if params[:fecha_fin].present?
+
+        if fi && ff
+          if fi > ff
+            flash.now[:alert] = "La fecha inicial no puede ser posterior a la fecha final."
+          else
+            @facturacions = @facturacions.where("solicitud >= ? AND solicitud <= ?", fi, ff)
+          end
+        elsif fi
+          @facturacions = @facturacions.where("solicitud >= ?", fi)
+        elsif ff
+          @facturacions = @facturacions.where("solicitud <= ?", ff)
+        end
+      rescue ArgumentError
+        flash.now[:alert] = "Fechas no válidas."
+      end
+    end
+
+    ids = @facturacions.load.map(&:id)
+
+    rows = Inspection
+             .where(facturacion_id: ids)
+             .group(:facturacion_id)
+             .pluck(
+               :facturacion_id,
+               Arel.sql("COUNT(*)"),
+               Arel.sql("SUM(CASE WHEN (result IN ('Aprobado','Rechazado') OR result LIKE 'Vencido%') THEN 1 ELSE 0 END)"),
+               Arel.sql("MAX(CASE WHEN rerun = FALSE THEN ins_date ELSE NULL END)")
+             )
+
+    @facturacion_inspection_stats = rows.to_h do |fid, total, done, last_date|
+      [fid, { total: total.to_i, done: done.to_i, last_ins_date: last_date }]
+    end
+
+    render layout: false
+  end
+
 
   private
 

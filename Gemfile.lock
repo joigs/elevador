@@ -110,9 +110,6 @@ GEM
     debug (1.9.1)
       irb (~> 1.10)
       reline (>= 0.3.8)
-    debugbar (0.4.3)
-      actioncable
-      rails
     docx (0.3.0)
       nokogiri (~> 1.8, >= 1.8.1)
       rubyzip (~> 1.2, >= 1.2.1)
@@ -350,7 +347,6 @@ DEPENDENCIES
   capybara
   chartkick
   debug
-  debugbar
   docx
   docx_replace
   fastimage

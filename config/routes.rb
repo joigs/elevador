@@ -205,6 +205,7 @@ Rails.application.routes.draw do
       get :download_all_excel
       get :export_xlsx
       get :export_monthly_report
+      get :picker
     end
 
 

@@ -917,19 +917,38 @@ class DocumentGeneratorPlat
       { '{{XXX}}' => inspection.number.to_s },
       output_path, output_path
     )
+    doc_names = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
+    doc_names.replace('{{admin}}', admin.real_name)
+    doc_names.replace('{{inspector}}', inspectors.first.real_name)
+    doc_names.replace('{{inspector_profesion}}', inspectors.first.profesion)
+
+    if inspectors.second
+      doc_names.replace('{{inspector}}', inspectors.second.real_name)
+      doc_names.replace('{{inspector_profesion}}', inspectors.second.profesion)
+    end
+
+    if condicion
+      doc_names.replace('{{y_inspector}}', 'Inspector y ')
+    else
+      doc_names.replace('{{y_inspector}}', '')
+    end
+
+    doc_names.replace('{{admin_profesion}}', admin.profesion)
+
+    doc_names.commit(output_path)
+
+    dir_name = "imagenes_#{inspection.number}"
+    dir_path = File.join(Rails.root, 'tmp', dir_name)
+    FileUtils.mkdir_p(dir_path)
+
+    docx_basename = File.basename(output_path)
+    docx_new_path = File.join(dir_path, docx_basename)
+    FileUtils.mv(output_path, docx_new_path)
+
+    photos_mapping = []
     if revision_photos.any?
-      dir_name = "imagenes_#{inspection.number}"
-      dir_path = File.join(Rails.root, 'tmp', dir_name)
-      FileUtils.mkdir_p(dir_path)
-
-      docx_basename = File.basename(output_path)
-      docx_new_path = File.join(dir_path, docx_basename)
-      FileUtils.mv(output_path, docx_new_path)
-
-      photos_mapping = []
-      counter        = 1
-
+      counter = 1
       revision_photos.each do |photo|
         next unless photo.photo.attached?
 
@@ -965,70 +984,48 @@ class DocumentGeneratorPlat
 
         counter += 1
       end
+    end
 
-      doc.replace('{{admin}}', admin.real_name)
-      doc.replace('{{inspector}}', inspectors.first.real_name)
+    signatures_data = { '{{firma_inspector}}' => [] }
 
-      doc.replace('{{inspector_profesion}}', inspectors.first.profesion)
+    if admin.signature.attached?
+      admin_sig_path = File.join(dir_path, 'admin_sig.png')
+      File.binwrite(admin_sig_path, admin.signature.download)
+      signatures_data['{{firma_admin}}'] = 'admin_sig.png'
+    end
 
-      if inspectors.second
-        doc.replace('{{inspector}}', inspectors.second.real_name)
-        doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
-      end
+    if inspectors.first&.signature&.attached?
+      insp1_sig_path = File.join(dir_path, 'insp1_sig.png')
+      File.binwrite(insp1_sig_path, inspectors.first.signature.download)
+      signatures_data['{{firma_inspector}}'] << 'insp1_sig.png'
+    else
+      signatures_data['{{firma_inspector}}'] << nil
+    end
 
-      if condicion
-        doc.replace('{{y_inspector}}', 'Inspector y ')
-      else
-        doc.replace('{{y_inspector}}', '')
-      end
-
-
-      doc.replace('{{admin_profesion}}', admin.profesion)
-
-      signatures_data = { '{{firma_inspector}}' => [] }
-
-      if admin.signature.attached?
-        admin_sig_path = File.join(dir_path, 'admin_sig.png')
-        File.binwrite(admin_sig_path, admin.signature.download)
-        signatures_data['{{firma_admin}}'] = 'admin_sig.png'
-      end
-
-      if inspectors.first&.signature&.attached?
-        insp1_sig_path = File.join(dir_path, 'insp1_sig.png')
-        File.binwrite(insp1_sig_path, inspectors.first.signature.download)
-        signatures_data['{{firma_inspector}}'] << 'insp1_sig.png'
+    if inspectors.second
+      if inspectors.second.signature.attached?
+        insp2_sig_path = File.join(dir_path, 'insp2_sig.png')
+        File.binwrite(insp2_sig_path, inspectors.second.signature.download)
+        signatures_data['{{firma_inspector}}'] << 'insp2_sig.png'
       else
         signatures_data['{{firma_inspector}}'] << nil
       end
-
-      if inspectors.second
-        if inspectors.second.signature.attached?
-          insp2_sig_path = File.join(dir_path, 'insp2_sig.png')
-          File.binwrite(insp2_sig_path, inspectors.second.signature.download)
-          signatures_data['{{firma_inspector}}'] << 'insp2_sig.png'
-        else
-          signatures_data['{{firma_inspector}}'] << nil
-        end
-      end
-
-      File.write(File.join(dir_path, 'signatures.json'), signatures_data.to_json)
-      mapping_json_path = File.join(dir_path, 'mapping.json')
-      File.write(mapping_json_path, photos_mapping.to_json)
-
-      venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
-      script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
-      token       = 'CODIGO IMAGEN 24123123'
-
-      cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
-      system(cmd)
-
-      FileUtils.mv(docx_new_path, output_path)
-      FileUtils.rm_rf(dir_path)
-    else
-      doc_final = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
-      doc_final.replace('CODIGO IMAGEN 24123123', '')
-      doc_final.commit(output_path)
     end
+
+    File.write(File.join(dir_path, 'signatures.json'), signatures_data.to_json)
+
+    mapping_json_path = File.join(dir_path, 'mapping.json')
+    File.write(mapping_json_path, photos_mapping.to_json)
+
+    venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
+    script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
+    token       = 'CODIGO IMAGEN 24123123'
+
+    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
+    system(cmd)
+
+    FileUtils.mv(docx_new_path, output_path)
+    FileUtils.rm_rf(dir_path)
 
     output_path
   end

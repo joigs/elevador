@@ -889,83 +889,85 @@ class DocumentGeneratorLadder
 
 
 
+    # 1. INICIALIZAR NUEVA INSTANCIA para no corromper el docx y guardar nombres
+    doc_names = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
-    require 'json'
-    require 'fileutils'
+    doc_names.replace('{{admin}}', admin.real_name)
+    doc_names.replace('{{inspector}}', inspectors.first.real_name)
+    doc_names.replace('{{inspector_profesion}}', inspectors.first.profesion)
 
+    if inspectors.second
+      doc_names.replace('{{inspector}}', inspectors.second.real_name)
+      doc_names.replace('{{inspector_profesion}}', inspectors.second.profesion)
+    end
+
+    if condicion
+      doc_names.replace('{{y_inspector}}', 'Inspector y ')
+    else
+      doc_names.replace('{{y_inspector}}', '')
+    end
+
+    doc_names.replace('{{admin_profesion}}', admin.profesion)
+
+    # Guardar los cambios de texto limpiamente antes de pasarlo a Python
+    doc_names.commit(output_path)
+
+    # 2. Preparar el directorio temporal y mover el archivo
     dir_name = "imagenes_#{inspection.number}"
     dir_path = File.join(Rails.root, 'tmp', dir_name)
-
     FileUtils.mkdir_p(dir_path)
 
     docx_basename = File.basename(output_path)
     docx_new_path = File.join(dir_path, docx_basename)
     FileUtils.mv(output_path, docx_new_path)
 
+    # 3. Procesar las fotos de inspección
     photos_mapping = []
-    counter = 1
+    if revision_photos.any?
+      counter = 1
+      revision_photos.each do |photo|
+        next unless photo.photo.attached?
 
+        original_ext = File.extname(photo.photo.blob.filename.to_s)
+        ext = original_ext.empty? ? ".jpg" : original_ext
 
-    revision_photos.each do |photo|
+        new_filename = "#{counter}#{ext}"
+        new_file_path = File.join(dir_path, new_filename)
 
-      original_ext = File.extname(photo.photo.blob.filename.to_s)
-      ext = original_ext.empty? ? ".jpg" : original_ext
+        File.open(new_file_path, 'wb') do |file|
+          file.write(photo.photo.download)
+        end
 
-      new_filename = "#{counter}#{ext}"
-      new_file_path = File.join(dir_path, new_filename)
-
-      File.open(new_file_path, 'wb') do |file|
-        file.write(photo.photo.download)
-      end
-
-      text_imagen_comment = nil
-      unless photo.code.start_with?("GENERALCODE")
-
-        temp_code, temp_point = photo.code.split(' ', 2)
-        index2 = nil
-        revision.codes.each_with_index do |c, idx|
-          if c == temp_code && revision.points[idx] == temp_point
-            index2 = idx
-            text_imagen_comment = revision.comment[idx]
-            break
+        text_imagen_comment = nil
+        unless photo.code.start_with?("GENERALCODE")
+          temp_code, temp_point = photo.code.split(' ', 2)
+          index2 = nil
+          revision.codes.each_with_index do |c, idx|
+            if c == temp_code && revision.points[idx] == temp_point
+              index2 = idx
+              text_imagen_comment = revision.comment[idx]
+              break
+            end
           end
         end
+
+        final_code_text = photo.code.sub('GENERALCODE', '')
+        final_text = if text_imagen_comment
+                       "#{final_code_text} #{text_imagen_comment}"
+                     else
+                       final_code_text
+                     end
+
+        photos_mapping << {
+          "filename" => new_filename,
+          "text"     => final_text.strip
+        }
+
+        counter += 1
       end
-
-      final_code_text = photo.code.sub('GENERALCODE', '')
-      final_text = if text_imagen_comment
-                     "#{final_code_text} #{text_imagen_comment}"
-                   else
-                     final_code_text
-                   end
-
-      photos_mapping << {
-        "filename" => new_filename,
-        "text"     => final_text.strip
-      }
-
-      counter += 1
     end
 
-    doc.replace('{{admin}}', admin.real_name)
-    doc.replace('{{inspector}}', inspectors.first.real_name)
-
-    doc.replace('{{inspector_profesion}}', inspectors.first.profesion)
-
-    if inspectors.second
-      doc.replace('{{inspector}}', inspectors.second.real_name)
-      doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
-    end
-
-    if condicion
-      doc.replace('{{y_inspector}}', 'Inspector y ')
-    else
-      doc.replace('{{y_inspector}}', '')
-    end
-
-
-    doc.replace('{{admin_profesion}}', admin.profesion)
-
+    # 4. Procesar las firmas (descargamos los PNG generados)
     signatures_data = { '{{firma_inspector}}' => [] }
 
     if admin.signature.attached?
@@ -996,21 +998,21 @@ class DocumentGeneratorLadder
 
     mapping_json_path = File.join(dir_path, 'mapping.json')
     File.write(mapping_json_path, photos_mapping.to_json)
-    venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
 
+    # 5. Ejecutar script de Python
+    venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
     script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
     token       = "CODIGO IMAGEN 24123123"
 
     cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
     system(cmd)
 
+    # 6. Devolver el archivo listo a su carpeta final y limpiar temporales
     FileUtils.mv(docx_new_path, output_path)
-
     FileUtils.rm_rf(dir_path)
 
-
-
     return output_path
+    # ================= HASTA AQUÍ =================
   end
 
   private

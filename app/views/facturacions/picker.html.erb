@@ -1,0 +1,84 @@
+<%= turbo_frame_tag "facturacions_picker_frame" do %>
+  <div class="p-4 text-gray-200">
+    <div class="mb-4" data-controller="date-filter">
+      <label class="text-lg font-semibold">Filtrar por fecha de solicitud:</label>
+
+      <%= form_with(url: picker_facturacions_path, method: :get, local: true,
+                    class: "flex flex-wrap items-end gap-4",
+                    data: { turbo_frame: "facturacions_picker_frame", action: "date-filter#onSubmit" }) do %>
+
+        <% if params[:notification_id].present? %>
+          <%= hidden_field_tag :notification_id, params[:notification_id] %>
+        <% end %>
+
+        <div>
+          <label class="block mb-1">Desde:</label>
+          <input type="text" name="fecha_inicio" value="<%= params[:fecha_inicio] %>"
+                 class="text-black rounded p-1"
+                 data-date-filter-target="startDate"
+                 placeholder="Selecciona fecha inicio">
+        </div>
+
+        <div>
+          <label class="block mb-1">Hasta:</label>
+          <input type="text" name="fecha_fin" value="<%= params[:fecha_fin] %>"
+                 class="text-black rounded p-1"
+                 data-date-filter-target="endDate"
+                 placeholder="Selecciona fecha fin">
+        </div>
+
+        <div style="display:none">
+          <button type="submit" data-date-filter-target="submitButton">Filtrar</button>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="overflow-x-auto table-responsive mt-4">
+      <table id="facturacions-table" class="table-auto w-full text-white">
+        <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">N° Corr</th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Solicitud</th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha inspección</th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Inspecciones</th>
+        </tr>
+        </thead>
+
+        <tbody class="bg-gray-700 divide-y divide-gray-600">
+        <% @facturacions.each do |facturacion| %>
+          <% stats = @facturacion_inspection_stats[facturacion.id] || { total: 0, done: 0, last_ins_date: nil } %>
+
+          <tr class="bg-gray-800 border-b border-gray-700"
+              data-fid="<%= facturacion.id %>"
+              data-fnum="<%= facturacion.number %>"
+              data-fname="<%= facturacion.name.to_s %>">
+
+            <td class="px-6 py-4 whitespace-normal break-words">
+              <strong class="text-blue-400"><%= facturacion.number %></strong>
+            </td>
+
+            <td class="px-6 py-4 whitespace-normal break-words">
+              <span class="text-white"><%= facturacion.name %></span>
+            </td>
+
+            <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.solicitud&.strftime('%Y%m%d') %>">
+              <%= format_date(facturacion.solicitud) %>
+            </td>
+
+            <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= stats[:last_ins_date]&.strftime('%Y%m%d') %>">
+              <%= format_date(stats[:last_ins_date]) %>
+            </td>
+
+            <td class="px-6 py-4 whitespace-normal break-words">
+              <%= "#{stats[:done]}/#{stats[:total]}" %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
+
+  </div>
+<% end %>

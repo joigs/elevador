@@ -973,7 +973,6 @@ class DocumentGenerator
     general_photos = revision_base.revision_photos.ordered_by_code.select { |photo| photo.code.start_with?('GENERALCODE') }
     non_general_photos = revision_base.revision_photos.ordered_by_code.reject { |photo| photo.code.start_with?('GENERALCODE') }
 
-    # Combina ambas colecciones, con las que empiezan por GENERALCODE primero
     revision_photos = general_photos + non_general_photos
 
 
@@ -1314,6 +1313,8 @@ class DocumentGenerator
 
       counter += 1
     end
+    # ... (todo tu código anterior se mantiene igual) ...
+
     doc.replace('{{admin}}', admin.real_name)
     doc.replace('{{inspector}}', inspectors.first.real_name)
 
@@ -1330,8 +1331,11 @@ class DocumentGenerator
       doc.replace('{{y_inspector}}', '')
     end
 
-
     doc.replace('{{admin_profesion}}', admin.profesion)
+
+    # ¡ESTA ES LA LÍNEA CLAVE QUE FALTABA!
+    # Guardamos los reemplazos de texto en el disco antes de que el script de Python lea el archivo.
+    doc.commit(docx_new_path)
 
     signatures_data = { '{{firma_inspector}}' => [] }
 
