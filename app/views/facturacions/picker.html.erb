@@ -62,11 +62,11 @@
               <span class="text-white"><%= facturacion.name %></span>
             </td>
 
-            <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.solicitud&.strftime('%Y%m%d') %>">
+            <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.solicitud&.to_date&.strftime('%Y%m%d') %>">
               <%= format_date(facturacion.solicitud) %>
             </td>
 
-            <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= stats[:last_ins_date]&.strftime('%Y%m%d') %>">
+            <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= stats[:last_ins_date]&.to_date&.strftime('%Y%m%d') %>">
               <%= format_date(stats[:last_ins_date]) %>
             </td>
 
