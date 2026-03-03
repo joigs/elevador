@@ -158,7 +158,7 @@
       <%= form.label :facturacion_id, "Cotización Seleccionada", class: "block text-gray-300 text-2xl mr-4" %>
 
       <% unless @cot0 %>
-      <% @cot0 = Facturacion.find_by(number: 0) %>
+        <% @cot0 = Facturacion.find_by(number: 0) %>
       <% end %>
 
       <% if @cot0 %>
@@ -209,7 +209,7 @@
             class="absolute top-4 right-4 text-white text-2xl font-bold"
             onclick="closeFacturacionModal()">&times;</button>
 
-    <turbo-frame id="facturacions_picker_frame" src="<%= picker_facturacions_path %>">
+    <turbo-frame id="facturacions_frame" src="<%= facturacions_path %>">
       Cargando Cotizaciones...
     </turbo-frame>
   </div>
@@ -331,27 +331,19 @@
             toRemove.forEach(idx => cells[idx]?.remove());
         });
     }
+
     function getFacturacionFromRow(row) {
-        if (!row) return { fid: null, fnum: "", fname: "" };
+        const cells = row?.querySelectorAll("td") || [];
+        const link = cells[0]?.querySelector("a");
 
-        // ✅ Nuevo picker: viene en data-* del <tr>
-        const fid   = row.dataset.fid   || null;
-        const fnum  = (row.dataset.fnum  || "").toString().trim();
-        const fname = (row.dataset.fname || "").toString().trim();
+        const href = link?.getAttribute("href") || "";
+        // soporta ambas rutas por si cambia el path
+        const fid = (href.match(/(?:cotizaciones|facturacions)\/(\d+)/))?.[1] || null;
 
-        if (fid) return { fid, fnum, fname };
+        const fnum = (link?.textContent || "").trim();
+        const fname = (cells[1]?.textContent || "").trim();
 
-        // 🔁 Fallback antiguo (si alguna vez cargas el index viejo con links)
-        const cells = row.querySelectorAll("td");
-        const link  = cells[0]?.querySelector("a");
-        const href  = link?.getAttribute("href") || "";
-        const legacyId = (href.match(/(?:cotizaciones|facturacions)\/(\d+)/))?.[1] || null;
-
-        return {
-            fid: legacyId,
-            fnum: (link?.textContent || "").trim(),
-            fname: (cells[1]?.textContent || "").trim()
-        };
+        return { fid, fnum, fname };
     }
 
     function addSelectColumn(tableEl) {
@@ -474,7 +466,7 @@
     }
 
     document.addEventListener('turbo:before-frame-render', e=>{
-        if (e.target.id !== 'facturacions_picker_frame') return
+        if (e.target.id !== 'facturacions_frame') return
 
         const oldTable = e.target.querySelector('#facturacions-table')
         if (oldTable && window.facturacionClickHandler)
@@ -504,7 +496,7 @@
         }
         initFlatpickrFilters()
     }
-    document.addEventListener('turbo:frame-load',e=>{ if(e.target.id==='facturacions_picker_frame') setupFacturacionComponents() })
+    document.addEventListener('turbo:frame-load',e=>{ if(e.target.id==='facturacions_frame') setupFacturacionComponents() })
     document.addEventListener('turbo:render',      setupFacturacionComponents)
 
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') window.closeFacturacionModal() })
@@ -565,7 +557,7 @@
 
         document.addEventListener('turbo:render',      () => console.log('[FacturacionDebug:turbo:render]',      snapshot()));
         document.addEventListener('turbo:frame-load',  e => {
-            if (e.target.id === 'facturacions_picker_frame')
+            if (e.target.id === 'facturacions_frame')
                 console.log('[FacturacionDebug:frame-load]', snapshot());
         });
         document.addEventListener('turbo:before-cache',() => console.log('[FacturacionDebug:before-cache]', snapshot()));

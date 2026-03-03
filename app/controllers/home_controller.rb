@@ -18,33 +18,8 @@ class HomeController < ApplicationController
     unless Current.user.tabla
       @pagy, @inspections = pagy_countless(@inspections, items: 10)
     end
-
-
-
-
-    @facturacions = Facturacion.where.not(number: 0).order(number: :desc)
-
-    facturacion_ids = @facturacions.load.map(&:id)
-
-    rows = Inspection
-             .where(facturacion_id: facturacion_ids)
-             .where(rerun: false)
-             .group(:facturacion_id)
-             .pluck(
-               :facturacion_id,
-               Arel.sql("COUNT(*)"),
-               Arel.sql("SUM(CASE WHEN result IN ('Aprobado','Rechazado') OR result LIKE 'Vencido%' THEN 1 ELSE 0 END)"),
-               Arel.sql("MAX(ins_date)")
-             )
-
-    @facturacion_inspection_stats = rows.to_h do |fid, total, con_resultado, last_date|
-      [fid, { total: total.to_i, con_resultado: con_resultado.to_i, last_ins_date: last_date }]
-    end
-
-
-
-
-
+    @facturacions = Facturacion.order(number: :desc)
+    @facturacions = @facturacions.where.not(number: 0)
 
     @notifications, @notif_counts = current_notifications
 
@@ -88,7 +63,7 @@ class HomeController < ApplicationController
         inspection.update(result: "Vencido (Aprobado)")
       end
 
-  end
+    end
     redirect_to home_path, notice: 'Se han revisado los vencimientos.'
   end
 
