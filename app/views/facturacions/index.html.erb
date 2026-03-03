@@ -133,19 +133,20 @@
                 <p class="text-white"><%= format_date(facturacion.fecha_venta) %></p>
               </td>
 
-              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.fecha_inspeccion&.strftime('%Y%m%d') %>">
-                <p class="text-white"><%= format_date(facturacion.fecha_inspeccion) %></p>
+              <% stats = @facturacion_inspection_stats[facturacion.id] || { total: 0, con_resultado: 0, last_ins_date: nil } %>
+              <% last_ins = stats[:last_ins_date] %>
+
+              <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= last_ins&.strftime('%Y%m%d') %>">
+                <p class="text-white"><%= format_date(last_ins) %></p>
               </td>
+
               <td class="px-6 py-4 whitespace-normal break-words">
-                <p class="text-white">
-                  <%= "#{facturacion.inspecciones_con_resultado_count}/#{facturacion.inspecciones_total}" %>
-                </p>
+                <p class="text-white"><%= "#{stats[:con_resultado]}/#{stats[:total]}" %></p>
               </td>
 
               <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= facturacion.factura&.strftime('%Y%m%d') %>">
                 <p class="text-white"><%= format_date(facturacion.factura) %></p>
               </td>
-
             </tr>
           <% end %>
           </tbody>
