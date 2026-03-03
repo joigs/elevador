@@ -66,19 +66,25 @@
                     </strong>
                   </td>
 
+                  <% item      = inspection.item %>
+                  <% principal = item&.principal %>
+                  <% users     = inspection.users.to_a %>
+
                   <td class="px-6 py-4 whitespace-normal break-words">
-                    <%= link_to inspection.item&.identificador,
-                                item_path(inspection.item),
+                    <%= link_to item&.identificador,
+                                item_path(item),
                                 data: { turbo_frame: "_top" },
-                                class: "text-blue-400 hover:text-blue-600" %>
+                                class: "text-blue-400 hover:text-blue-600" if item %>
                   </td>
 
                   <td class="px-6 py-4 whitespace-normal break-words">
-                    <%= link_to inspection.item&.principal&.name,
-                                principal_path(inspection.item.principal),
+                    <%= link_to principal&.name,
+                                principal_path(principal),
                                 data: { turbo_frame: "_top" },
-                                class: "text-blue-400 hover:text-blue-600" %>
+                                class: "text-blue-400 hover:text-blue-600" if principal %>
                   </td>
+
+
                   <!-- Fecha de inspección con data-order -->
                   <td class="px-6 py-4 whitespace-normal break-words" data-order="<%= inspection.ins_date.strftime('%Y%m%d') %>">
                     <p class="text-white"><%= format_date(inspection.ins_date) %></p>
@@ -95,9 +101,9 @@
                     <p class="text-white"><%= format_date(inspection.report&.ending) %></p>
                   </td>
                   <td class="px-6 py-4 whitespace-normal break-words">
-                    <% if inspection.users.any? %>
+                    <% if users.any? %>
                       <ul>
-                        <% inspection.users.each do |user| %>
+                        <% users.each do |user| %>
                           <li class="text-white"><%= user.real_name %></li>
                         <% end %>
                       </ul>
