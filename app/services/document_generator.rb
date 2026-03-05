@@ -1362,8 +1362,16 @@ class DocumentGenerator
     token       = "CODIGO IMAGEN 24123123"
 
     cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
-    system(cmd)
+    require 'open3'
+    stdout, stderr, status = Open3.capture3(cmd)
 
+    Rails.logger.info("=== RESULTADO PYTHON (STATUS: #{status.exitstatus}) ===")
+    Rails.logger.info(stdout) if stdout.present?
+
+    if !status.success? || stderr.present?
+      Rails.logger.error("=== ERROR FATAL EN PYTHON ===")
+      Rails.logger.error(stderr)
+    end
     FileUtils.mv(docx_new_path, output_path)
     FileUtils.rm_rf(dir_path)
 
