@@ -1247,47 +1247,40 @@ class DocumentGenerator
       end
     end
 
-
-
     doc.commit(output_path)
 
     Dir.glob("#{Rails.root}/tmp/#{inspection.number}_part*").each do |file_path|
       File.delete(file_path) if File.exist?(file_path)
     end
 
-
-
     require 'json'
     require 'fileutils'
 
     dir_name = "imagenes_#{inspection.number}"
     dir_path = File.join(Rails.root, 'tmp', dir_name)
-
     FileUtils.mkdir_p(dir_path)
 
     docx_basename = File.basename(output_path)
     docx_new_path = File.join(dir_path, docx_basename)
-    FileUtils.mv(output_path, docx_new_path)
+
+    doc_names = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
     photos_mapping = []
     counter = 1
 
-
     revision_photos.each do |photo|
-
       original_ext = File.extname(photo.photo.blob.filename.to_s)
       ext = original_ext.empty? ? ".jpg" : original_ext
 
       new_filename = "#{counter}#{ext}"
       new_file_path = File.join(dir_path, new_filename)
 
-       File.open(new_file_path, 'wb') do |file|
-         file.write(photo.photo.download)
-       end
+      File.open(new_file_path, 'wb') do |file|
+        file.write(photo.photo.download)
+      end
 
       text_imagen_comment = nil
       unless photo.code.start_with?("GENERALCODE")
-
         temp_code, temp_point = photo.code.split(' ', 2)
         index2 = nil
         revision.codes.each_with_index do |c, idx|
@@ -1313,29 +1306,25 @@ class DocumentGenerator
 
       counter += 1
     end
-    # ... (todo tu código anterior se mantiene igual) ...
 
-    doc.replace('{{admin}}', admin.real_name)
-    doc.replace('{{inspector}}', inspectors.first.real_name)
-
-    doc.replace('{{inspector_profesion}}', inspectors.first.profesion)
+    doc_names.replace('{{admin}}', admin.real_name)
+    doc_names.replace('{{inspector}}', inspectors.first.real_name)
+    doc_names.replace('{{inspector_profesion}}', inspectors.first.profesion)
 
     if inspectors.second
-      doc.replace('{{inspector}}', inspectors.second.real_name)
-      doc.replace('{{inspector_profesion}}', inspectors.second.profesion)
+      doc_names.replace('{{inspector}}', inspectors.second.real_name)
+      doc_names.replace('{{inspector_profesion}}', inspectors.second.profesion)
     end
 
     if condicion
-      doc.replace('{{y_inspector}}', 'Inspector y ')
+      doc_names.replace('{{y_inspector}}', 'Inspector y ')
     else
-      doc.replace('{{y_inspector}}', '')
+      doc_names.replace('{{y_inspector}}', '')
     end
 
-    doc.replace('{{admin_profesion}}', admin.profesion)
+    doc_names.replace('{{admin_profesion}}', admin.profesion)
 
-    # ¡ESTA ES LA LÍNEA CLAVE QUE FALTABA!
-    # Guardamos los reemplazos de texto en el disco antes de que el script de Python lea el archivo.
-    doc.commit(docx_new_path)
+    doc_names.commit(docx_new_path)
 
     signatures_data = { '{{firma_inspector}}' => [] }
 
@@ -1378,12 +1367,8 @@ class DocumentGenerator
     FileUtils.mv(docx_new_path, output_path)
     FileUtils.rm_rf(dir_path)
 
-
-
-
     return output_path
-
-  end
+    end
 
   private
 

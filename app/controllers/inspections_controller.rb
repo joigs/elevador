@@ -415,10 +415,8 @@ class InspectionsController < ApplicationController
               filename: File.basename(new_doc_path)
     DeleteTempFileJob.set(wait: 5.minutes).perform_later(new_doc_path.to_s)
   rescue StandardError => e
-    Rails.logger.error("[DocumentGenerator] Python script falló!")
-    Rails.logger.error("[DocumentGenerator] STDOUT: #{stdout}")
-    Rails.logger.error("[DocumentGenerator] STDERR: #{stderr}")
-    Rails.logger.error("[DocumentGenerator] Exit code: #{status.exitstatus}")
+    Rails.logger.error("[DocumentGenerator] Error al generar documento: #{e.message}")
+    Rails.logger.error(e.backtrace.first(5).join("\n"))
     flash[:alert] = "Error al generar el documento: #{e.message}"
     redirect_to inspection_path(inspection)
   end
