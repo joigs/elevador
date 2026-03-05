@@ -913,29 +913,11 @@ class DocumentGeneratorPlat
       output_path, output_path
     )
 
-    # === 1. REEMPLAZO SEGURO DE FOOTER ===
-    # Usamos un archivo temporal para no leer y escribir sobre el mismo output_path
-    temp_footer_path = output_path.sub('.docx', '_footer.docx')
     Omnidocx::Docx.replace_footer_content(
       { '{{XXX}}' => inspection.number.to_s },
-      output_path, temp_footer_path
+      output_path, output_path
     )
-    FileUtils.mv(temp_footer_path, output_path)
-
-    # === 2. CREAR CARPETA PARA PYTHON Y MOVER EL ARCHIVO ORIGINAL ===
-    dir_name = "imagenes_#{inspection.number}"
-    dir_path = File.join(Rails.root, 'tmp', dir_name)
-    FileUtils.mkdir_p(dir_path)
-
-    docx_basename = File.basename(output_path)
-    docx_new_path = File.join(dir_path, docx_basename)
-
-    # Movemos el archivo a la carpeta de Python ANTES de procesar los nombres
-    FileUtils.mv(output_path, docx_new_path)
-
-    # === 3. REEMPLAZO SEGURO DE NOMBRES CON DOCX_REPLACE ===
-    # Leemos el archivo ya movido
-    doc_names = DocxReplace::Doc.new(docx_new_path, "#{Rails.root}/tmp")
+    doc_names = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
     doc_names.replace('{{admin}}', admin.real_name)
     doc_names.replace('{{inspector}}', inspectors.first.real_name)
@@ -954,14 +936,16 @@ class DocumentGeneratorPlat
 
     doc_names.replace('{{admin_profesion}}', admin.profesion)
 
-    # ¡CLAVE AQUÍ! Hacemos el commit en un archivo distinto para evitar el error rb_sysopen
-    temp_commit_path = File.join(dir_path, "temp_names.docx")
-    doc_names.commit(temp_commit_path)
+    doc_names.commit(output_path)
 
-    # Reemplazamos el archivo de la carpeta de Python con el que ya tiene los nombres
-    FileUtils.mv(temp_commit_path, docx_new_path)
+    dir_name = "imagenes_#{inspection.number}"
+    dir_path = File.join(Rails.root, 'tmp', dir_name)
+    FileUtils.mkdir_p(dir_path)
 
-    # === 4. PROCESAMIENTO DE FOTOS ===
+    docx_basename = File.basename(output_path)
+    docx_new_path = File.join(dir_path, docx_basename)
+    FileUtils.mv(output_path, docx_new_path)
+
     photos_mapping = []
     if revision_photos.any?
       counter = 1
@@ -1045,7 +1029,6 @@ class DocumentGeneratorPlat
 
     output_path
   end
-
 
   private
 
