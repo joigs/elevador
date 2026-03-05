@@ -913,10 +913,15 @@ class DocumentGeneratorPlat
       output_path, output_path
     )
 
+    # === REEMPLAZO SEGURO DE FOOTER ===
+    temp_footer_path = output_path.sub('.docx', '_footer.docx')
     Omnidocx::Docx.replace_footer_content(
       { '{{XXX}}' => inspection.number.to_s },
-      output_path, output_path
+      output_path, temp_footer_path
     )
+    FileUtils.mv(temp_footer_path, output_path)
+
+    # === REEMPLAZO SEGURO DE NOMBRES ===
     doc_names = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
 
     doc_names.replace('{{admin}}', admin.real_name)
@@ -936,34 +941,17 @@ class DocumentGeneratorPlat
 
     doc_names.replace('{{admin_profesion}}', admin.profesion)
 
-    doc_names.commit(output_path)
+    temp_commit_path = output_path.sub('.docx', '_names.docx')
+    doc_names.commit(temp_commit_path)
+    FileUtils.mv(temp_commit_path, output_path)
+
     dir_name = "imagenes_#{inspection.number}"
     dir_path = File.join(Rails.root, 'tmp', dir_name)
     FileUtils.mkdir_p(dir_path)
 
     docx_basename = File.basename(output_path)
     docx_new_path = File.join(dir_path, docx_basename)
-
-    doc_names = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
-
-    doc_names.replace('{{admin}}', admin.real_name)
-    doc_names.replace('{{inspector}}', inspectors.first.real_name)
-    doc_names.replace('{{inspector_profesion}}', inspectors.first.profesion)
-
-    if inspectors.second
-      doc_names.replace('{{inspector}}', inspectors.second.real_name)
-      doc_names.replace('{{inspector_profesion}}', inspectors.second.profesion)
-    end
-
-    if condicion
-      doc_names.replace('{{y_inspector}}', 'Inspector y ')
-    else
-      doc_names.replace('{{y_inspector}}', '')
-    end
-
-    doc_names.replace('{{admin_profesion}}', admin.profesion)
-
-    doc_names.commit(docx_new_path)
+    FileUtils.mv(output_path, docx_new_path)
 
     photos_mapping = []
     if revision_photos.any?
@@ -1047,7 +1035,7 @@ class DocumentGeneratorPlat
     FileUtils.rm_rf(dir_path)
 
     output_path
-    end
+  end
 
   private
 
