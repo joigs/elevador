@@ -74,7 +74,7 @@ def main():
                                 run = paragraph.add_run()
                                 run.add_picture(img_path, width=Inches(1.8))
                             except Exception as e:
-                                print(f"Error cargando firma admin: {e}")
+                                print("Error cargando firma admin: {}".format(e))
 
                 elif part == "{{firma_inspector}}":
                     sigs = signatures_data.get("{{firma_inspector}}", [])
@@ -89,7 +89,7 @@ def main():
                                 run = paragraph.add_run()
                                 run.add_picture(img_path, width=Inches(1.8))
                             except Exception as e:
-                                print(f"Error cargando firma inspector: {e}")
+                                print("Error cargando firma inspector: {}".format(e))
                 else:
                     if part:
                         paragraph.add_run(part)
