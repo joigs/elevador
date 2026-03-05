@@ -128,7 +128,6 @@
 
         <script>
             (function () {
-                // ---- destruye la tabla antes de que Turbo la guarde en caché ----
                 document.addEventListener("turbo:before-cache", () => {
                     const tableEl = document.getElementById("inspections-table");
                     if (tableEl && tableEl._dataTableInstance) {
@@ -137,7 +136,6 @@
                     }
                 });
 
-                // ---- crea la tabla al cargar la página o un frame ----
                 function initInspectionsTable() {
                     const tableEl = document.getElementById("inspections-table");
                     if (
@@ -206,7 +204,7 @@
                             if (container) container.classList.remove("hidden");
                         });
 
-                        tableEl._dataTableInstance = dataTable; // guarda la instancia
+                        tableEl._dataTableInstance = dataTable;
                     }
                 }
 

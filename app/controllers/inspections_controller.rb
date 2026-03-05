@@ -250,9 +250,6 @@ class InspectionsController < ApplicationController
 
 
 
-
-
-
   def update_ending
     authorize! inspection
     ending = inspection_params[:ending]
@@ -283,7 +280,6 @@ class InspectionsController < ApplicationController
 
         inspection.update(result: new_result) if new_result.present?
       end
-      # --------------------------------------------------------------------------------------
 
       flash[:notice] = "Fecha de término de certificación actualizada"
       redirect_to @inspection
@@ -313,7 +309,6 @@ class InspectionsController < ApplicationController
 
     black_number = inspection.number*-1
 
-    # Intenta actualizar la inspección
     if @inspection.update(inspection_params.except(:manual_action_name, :calle))
 
       @black_inspection = Inspection.find_by(number: black_number)
@@ -323,7 +318,6 @@ class InspectionsController < ApplicationController
       flash[:notice] = "Inspección actualizada"
       redirect_to @inspection
     else
-      # Si la actualización falla debido a errores de validación, renderiza el formulario con los errores
       flash.now[:alert] = @inspection.errors.full_messages.join(', ')
       render :edit, status: :unprocessable_entity
     end
@@ -421,6 +415,9 @@ class InspectionsController < ApplicationController
               filename: File.basename(new_doc_path)
     DeleteTempFileJob.set(wait: 5.minutes).perform_later(new_doc_path.to_s)
   rescue StandardError => e
+    Rails.logger.error "=== ERROR GENERANDO DOC ==="
+    Rails.logger.error e.message
+    Rails.logger.error e.backtrace.join("\n")
     flash[:alert] = "Error al generar el documento: #{e.message}"
     redirect_to inspection_path(inspection)
   end
@@ -720,7 +717,6 @@ class InspectionsController < ApplicationController
 
     authorize! inspection
 
-    # Determinar si es escala o ascensor
     if inspection.item.group.type_of == "escala"
       revision_base = LadderRevision.find_by(inspection_id: inspection.id)
     elsif inspection.item.group.type_of == "ascensor"
@@ -740,23 +736,19 @@ class InspectionsController < ApplicationController
     end
 
     begin
-      # Directorio temporal para guardar el archivo LaTeX y las imágenes
       latex_dir = Rails.root.join('tmp', 'latex')
       FileUtils.mkdir_p(latex_dir)
 
-      # Generar un nombre base que incluye `inspection.number` y un sufijo aleatorio para garantizar la unicidad
       random_suffix = SecureRandom.hex(6)
       base_name = "#{inspection.number}_#{inspection.ins_date.strftime('%m')}_#{inspection.ins_date.strftime('%Y')}_#{item_rol}_#{random_suffix}"
 
-      # Nombre del archivo LaTeX
       latex_file = File.join(latex_dir, "#{base_name}.tex")
 
-      # Generar el contenido LaTeX dinámicamente basado en las imágenes y códigos
       latex_content = "\\documentclass{article}\n"
       latex_content += "\\usepackage{graphicx}\n"
       latex_content += "\\usepackage{geometry}\n"
       latex_content += "\\geometry{a4paper, margin=1in}\n"
-      latex_content += "\\pagestyle{empty}\n" # Quitar el número de página
+      latex_content += "\\pagestyle{empty}\n"
       latex_content += "\\renewcommand{\\figurename}{Imagen}\n"
       latex_content += "\\renewcommand{\\thefigure}{N°\\arabic{figure}}\n"
       latex_content += "\\begin{document}\n"
@@ -764,7 +756,6 @@ class InspectionsController < ApplicationController
       revision_photos.each_slice(2) do |photos|
         latex_content += "\\begin{figure}[h!]\n"
         photos.each do |photo|
-          # Descargar la imagen a un archivo temporal
           image_path = ActiveStorage::Blob.service.send(:path_for, photo.photo.key)
           image_destination = File.join(latex_dir, "#{base_name}_#{photo.id}.jpg")
           FileUtils.cp(image_path, image_destination)
@@ -781,10 +772,8 @@ class InspectionsController < ApplicationController
 
       latex_content += "\\end{document}\n"
 
-      # Guardar el contenido en el archivo LaTeX
       File.open(latex_file, 'w') { |file| file.write(latex_content) }
 
-      # Compilar el archivo LaTeX a PDF usando pdflatex
       Dir.chdir(latex_dir) do
         stdout, stderr, status = Open3.capture3("pdflatex #{File.basename(latex_file)}")
         unless status.success?
@@ -792,10 +781,8 @@ class InspectionsController < ApplicationController
         end
       end
 
-      # Definir la ruta del archivo PDF
       pdf_file = File.join(latex_dir, "#{base_name}.pdf")
 
-      # Eliminar todos los archivos temporales excepto el PDF
       Dir.glob("#{latex_dir}/#{base_name}*").each do |file_path|
         File.delete(file_path) if File.exist?(file_path) && file_path != pdf_file
       end
@@ -979,7 +966,6 @@ class InspectionsController < ApplicationController
     end
 
     begin
-      # Llamada al servicio para procesar el archivo
       result = MassiveLoadService.process(params[:file].path)
 
       if result[:success]
@@ -995,7 +981,6 @@ class InspectionsController < ApplicationController
   end
 
 
-  # app/controllers/inspections_controller.rb
 
   def copy
     @inspection = Inspection.find(params[:id])
@@ -1003,7 +988,6 @@ class InspectionsController < ApplicationController
     @item = @inspection.item
     @report = Report.find_by(inspection: @inspection)
 
-    # Carga de revisión según tipo
     if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       @detail = LadderDetail.find_by(item_id: @item.id)
@@ -1021,7 +1005,6 @@ class InspectionsController < ApplicationController
     @report_og = Report.find_by(inspection: @inspection_og)
     @item_og = @inspection_og.item
 
-    # Carga de revisión original según tipo
     if @inspection_og.item.group.type_of == "escala"
       @revision_og = LadderRevision.find_by(inspection_id: @inspection_og.id)
       @detail_og = LadderDetail.find_by(item_id: @item_og.id)
@@ -1045,11 +1028,9 @@ class InspectionsController < ApplicationController
       return
     end
 
-    # Precarga de datos comunes
     @revision_nulls_og = @revision_og.revision_nulls
     @anothers_og = @item_og.anothers
 
-    # Precarga específica para Ascensor/Escala (se ignorará si es Plat más adelante)
     if @inspection_og.item.group.type_of != "plat"
       @revision_colors_og = @revision_og.revision_colors.order(:section)
     end
@@ -1077,22 +1058,17 @@ class InspectionsController < ApplicationController
         @detail.update!(detail_attributes)
       end
 
-      # Copia de Nulls (Común para todos)
       @revision.revision_nulls.destroy_all
       @revision_nulls_og.each do |src|
         @revision.revision_nulls.create!(point: src.point, comment: src.comment)
       end
 
-      # Copia de Anothers (Común para todos)
       @anothers_og.each do |src|
         @item.anothers.find_or_create_by(point: src.point, ruletype_id: src.ruletype_id, code: src.code, level: src.level, ins_type: src.ins_type, section: src.section)
       end
 
-      # Lógica diferenciada para Defectos (Rules/Colors)
       if @inspection.item.group.type_of == "plat"
-        # === LÓGICA PLAT ===
 
-        # 1. Copiar Defectos (PlatRevisionRulesPlat)
         @revision.plat_revision_rules_plats.destroy_all
         @revision_og.plat_revision_rules_plats.each do |src|
           @revision.plat_revision_rules_plats.create!(
@@ -1102,7 +1078,6 @@ class InspectionsController < ApplicationController
           )
         end
 
-        # 2. Copiar estado de secciones (PlatRevisionSection)
         @revision.plat_revision_sections.destroy_all
         @revision_og.plat_revision_sections.each do |src|
           @revision.plat_revision_sections.create!(
@@ -1112,7 +1087,6 @@ class InspectionsController < ApplicationController
         end
 
       else
-        # === LÓGICA ASCENSOR / ESCALA (Original) ===
         @revision.revision_colors.destroy_all
         @revision_colors_og.each do |src|
           @revision.revision_colors.create!(
@@ -1128,7 +1102,7 @@ class InspectionsController < ApplicationController
         end
       end
 
-    end # Fin Transaction
+    end
 
     @inspection.update(copia: true)
 
@@ -1368,7 +1342,6 @@ class InspectionsController < ApplicationController
   end
 
 
-  # app/controllers/inspections_controller.rb
 
 
   def bulk_ignore
