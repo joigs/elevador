@@ -94,7 +94,6 @@ def main():
                     if part:
                         paragraph.add_run(part)
 
-            # Restauramos la alineación original
             if alignment is not None:
                 paragraph.alignment = alignment
 

@@ -848,7 +848,6 @@ class DocumentGeneratorPlat
       end
 
       if matching_rules.any?
-        doc_table.replace('{{another_si}}', 'No')
 
         final_level_text = 'Leve'
         has_grave = false

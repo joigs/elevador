@@ -1201,7 +1201,6 @@ class DocumentGenerator
         end
 
         if matching_revision_indices.any?
-          doc.replace('{{another_si}}', "No")
 
           levels = matching_revision_indices.map { |i| revision.levels[i] }
           points = matching_revision_indices.map { |i| revision.points[i] }
