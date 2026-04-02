@@ -425,28 +425,26 @@ class InspectionsController < ApplicationController
   def close_inspection
     @inspection = Inspection.find(params[:id])
     authorize! @inspection
+
     if @inspection.item.group.type_of == "escala"
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       isladder = true
       detail = @inspection.item.ladder_detail
     elsif @inspection.item.group.type_of == "ascensor"
-
       @revision = Revision.find(params[:revision_id])
       isladder = false
       detail = @inspection.item.detail
-
     elsif @inspection.item.group.type_of == "plat"
       @revision = PlatRevision.find(params[:revision_id])
       isladder = true
       detail = @inspection.item.detail
-
     end
-
 
     group_type = @inspection.item.group.type_of
 
-    report = inspection.report
+    report = @inspection.report
     revision_nulls = @revision.revision_nulls
+
     if isladder == false && detail.sala_maquinas == "Responder más tarde"
       flash[:alert] = "No se puede cerrar la inspección, No se ha especificado presencia de sala de máquinas"
       redirect_to inspection_path(@inspection)
@@ -475,28 +473,46 @@ class InspectionsController < ApplicationController
         flash[:alert] = "No se puede cerrar la inspección, No se han completado todos los controles de calidad"
         redirect_to inspection_path(@inspection)
       else
-        revision_color_section_0 = @revision.revision_colors.find_by(section: 0)
-        if isladder == false && !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } || revision_color_section_0&.codes&.first == '0.1.1') && (report.certificado_minvu == '' || report.certificado_minvu == nil || report.certificado_minvu == 'No' || report.certificado_minvu == 'no')
+        revision_color_section_0 =
+          if group_type == "plat"
+            nil
+          else
+            @revision.revision_colors.find_by(section: 0)
+          end
+
+        if isladder == false &&
+          !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } ||
+            revision_color_section_0&.codes&.first == '0.1.1') &&
+          (report.certificado_minvu.blank? || report.certificado_minvu.to_s.downcase == 'no')
+
           flash[:alert] = "No se puede cerrar la inspección, No se ha ingresado certificado MINVU"
           redirect_to inspection_path(@inspection)
         else
-
-
           detail.attributes.each do |attr_name, value|
-            if value.is_a?(String) && (value.nil? || value == "") && attr_name != "empresa_instaladora_rut"
+            if value.is_a?(String) && value.blank? && attr_name != "empresa_instaladora_rut"
               detail.update_attribute(attr_name, "S/I")
             end
           end
+
           report.attributes.each do |attr_name, value|
-            if  value.is_a?(String) && (value.nil? || value == "")
+            if value.is_a?(String) && value.blank?
               report.update_attribute(attr_name, "S/I")
             end
           end
-          if @revision.revision_colors.any? { |rc| rc.levels.include?("G") }
+
+          has_grave =
+            if group_type == "plat"
+              @revision.plat_revision_rules_plats.where(level: "G").exists?
+            else
+              @revision.revision_colors.any? { |rc| rc.levels.to_a.include?("G") }
+            end
+
+          if has_grave
             @inspection.update(result: "Rechazado")
           else
             @inspection.update(result: "Aprobado")
           end
+
           if @inspection.update(state: "Cerrado")
             flash[:notice] = "Inspección cerrada con éxito"
             redirect_to inspection_path(@inspection)
@@ -505,12 +521,8 @@ class InspectionsController < ApplicationController
             redirect_to inspection_path(@inspection)
           end
         end
-
-
       end
-
     end
-
   end
 
   def force_close_inspection
