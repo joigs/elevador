@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_02_152805) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_02_193242) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,6 +51,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_152805) do
     t.bigint "item_id", null: false
     t.index ["item_id"], name: "index_anothers_on_item_id"
     t.index ["ruletype_id"], name: "index_anothers_on_ruletype_id"
+  end
+
+  create_table "calendar_entries", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "entry_date", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entry_date"], name: "index_calendar_entries_on_entry_date"
+    t.index ["user_id", "entry_date"], name: "index_calendar_entries_on_user_id_and_entry_date", unique: true
+    t.index ["user_id"], name: "index_calendar_entries_on_user_id"
   end
 
   create_table "conexions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -484,6 +495,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_02_152805) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "calendar_entries", "users"
   add_foreign_key "conexions", "inspections", column: "copy_inspection_id"
   add_foreign_key "conexions", "inspections", column: "original_inspection_id"
   add_foreign_key "convenios", "empresas"
