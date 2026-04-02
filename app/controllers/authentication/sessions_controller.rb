@@ -21,7 +21,11 @@ class Authentication::SessionsController < ApplicationController
     if @user&.authenticate(params[:password])
       session[:user_id] = @user.id
       flash[:notice] = "Bienvenido"
-      redirect_to home_path
+      if @user.relleno?
+        redirect_to edit_relleno_users_path
+      else
+        redirect_to home_path
+      end
     else
       redirect_to new_session_path, alert: "Credenciales inválidas"
     end
@@ -37,7 +41,6 @@ class Authentication::SessionsController < ApplicationController
     end
   end
 
-  private
 
 
 end

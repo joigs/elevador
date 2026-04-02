@@ -6,30 +6,23 @@ class RulesPlatsImporter
     rules_data = []
 
     xlsx.sheet(0).each_row_streaming(offset: 0) do |row|
+      next if row.nil? || row.compact.empty?
 
+      code = row[0]&.cell_value
+      break if code.blank?
 
-      level = []
-      level << 'L'
-      level << 'G'
-
-      code = row[0].cell_value
-
-      break unless code
-      point = row[1].cell_value
-      ref = row[2].cell_value
+      point = row[1]&.cell_value
+      ref   = row[2]&.cell_value
 
       rules_data << RulesPlat.new(
         point: point,
         code: code,
         ref: ref,
-        level: level,
+        level: ['L', 'G'],
         group_id: group_id
       )
-
-
     end
 
-
-    RulesPlat.import rules_data unless rules_data.empty?
+    RulesPlat.import(rules_data) unless rules_data.empty?
   end
 end

@@ -1,6 +1,8 @@
 class Authentication::UsersController < ApplicationController
 
   before_action :convert_signature_to_png, only: [:create, :update]
+  before_action :require_relleno_user!, only: [:edit_relleno, :update_relleno]
+
   def new
     @user = User.new
   end
@@ -258,12 +260,70 @@ class Authentication::UsersController < ApplicationController
 
   end
 
+  def new_relleno
+    unless Current.user&.admin?
+      redirect_to home_path, alert: "No tienes permiso"
+      return
+    end
 
+    @user = User.new
+  end
+
+  def create_relleno
+    unless Current.user&.admin?
+      redirect_to home_path, alert: "No tienes permiso"
+      return
+    end
+
+    @user = User.new(relleno_user_params)
+    @user.relleno = true
+
+    if @user.save
+      flash[:notice] = "Usuario de relleno creado exitosamente"
+      redirect_to user_path(@user)
+    else
+      render :new_relleno, status: :unprocessable_entity
+    end
+  end
+
+
+
+  def edit_relleno
+    @user = Current.user
+  end
+
+  def update_relleno
+    @user = Current.user
+
+    attrs = relleno_update_params.to_h.symbolize_keys
+    attrs.delete(:password) if attrs[:password].blank?
+
+    if @user.update(attrs)
+      flash[:notice] = "Datos actualizados correctamente"
+      redirect_to edit_relleno_users_path
+    else
+      render :edit_relleno, status: :unprocessable_entity
+    end
+  end
 
   private
 
   def user_params
     params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion, :empresa, :signature, :gestion, :principal_id)
+  end
+  def relleno_user_params
+    params.require(:user).permit(:username, :real_name, :password)
+  end
+
+  def relleno_update_params
+    params.require(:user).permit(:username, :password)
+  end
+
+  def require_relleno_user!
+    unless Current.user&.relleno?
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
+    end
   end
 
   def convert_signature_to_png

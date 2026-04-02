@@ -36,6 +36,10 @@ Rails.application.routes.draw do
       collection do
         get :new_client
         post :create_client
+        get :new_relleno
+        post :create_relleno
+        get :edit_relleno
+        patch :update_relleno
       end
       member do
         get :edit_client
