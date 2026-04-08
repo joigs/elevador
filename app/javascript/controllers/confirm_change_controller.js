@@ -10,7 +10,7 @@ export default class extends Controller {
 
         Swal.fire({
             title: "¿Estás seguro?",
-            text: "Cambiar de grupo eliminara todos los datos de las inspecciones (defectos, comentarios, imagenes, detalle de inspección)",
+            text: "Cambiar de grupo eliminara los datos de todas las inspecciones (defectos, comentarios, imagenes)",
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Sí, cambiar",

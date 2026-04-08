@@ -40,29 +40,27 @@ class Authentication::UsersController < ApplicationController
 
   def index
     if Current.user&.admin
-
       if Current.user.super
         users_scope = User.all
       else
         users_scope = User.where(super: false)
+      end
 
+      unless params[:show_relleno] == 'true'
+        users_scope = users_scope.where(relleno: [false, nil])
       end
 
       @q = users_scope.ransack(params[:q])
       @users = @q.result(distinct: true)
+
       unless Current.user.tabla
-        @pagy, @users = pagy_countless(@users, items: 10)  # Paginación infinita para las tarjetas
+        @pagy, @users = pagy_countless(@users, items: 10)
       end
     else
       flash[:alert] = "No tienes permiso"
       redirect_to home_path
     end
-
-
-
   end
-
-
   def show
     if Current.user&.admin
       @user = User.find(params[:id])
