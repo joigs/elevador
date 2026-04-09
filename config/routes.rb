@@ -56,10 +56,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :facturacions, only: [:index, :show]
 
-      post 'login', to: 'sessions#create'
-
-      resources :calendar_entries, only: [:index, :create]
-      delete 'calendar_entries', to: 'calendar_entries#destroy'
+      post 'calendario_login', to: 'calendario_sessions#create'
+      resources :calendario_entries, only: [:index, :create]
+      delete 'calendario_entries', to: 'calendario_entries#destroy'
     end
   end
 

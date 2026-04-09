@@ -120,4 +120,4 @@ gem 'write_xlsx'
 gem 'sidekiq'
 gem 'sidekiq-cron'
 
-
+gem 'jwt'

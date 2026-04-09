@@ -148,6 +148,8 @@ GEM
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
+    jwt (3.1.2)
+      base64
     logger (1.7.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -355,6 +357,7 @@ DEPENDENCIES
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
+  jwt
   mime-types
   mini_magick
   minidusen
