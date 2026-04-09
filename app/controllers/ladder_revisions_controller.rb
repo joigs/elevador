@@ -499,23 +499,26 @@ class LadderRevisionsController < ApplicationController
         code_start = photo.code.split('.')[1].to_i
         if code_start == current_section_num
           if params[:ladder_revision][:codes].present?
-            code_first_part = photo.code.split(' ').first
+            code_first_part = photo.code.split(' ').first.strip
 
-            matching_indices = params[:ladder_revision][:codes].each_index.select { |i| params[:ladder_revision][:codes][i] == code_first_part }
+            matching_indices = params[:ladder_revision][:codes].each_index.select do |i|
+              params[:ladder_revision][:codes][i].strip == code_first_part
+            end
+
             matched = false
             matching_indices.each do |i|
               constructed_code = "#{params[:ladder_revision][:codes][i]} #{params[:ladder_revision][:points][i]}"
-              if constructed_code == photo.code
+              if constructed_code.strip == photo.code.strip
                 matched = true
                 break
               end
             end
+
             photo.destroy unless matched
           else
             photo.destroy
           end
-          end
-
+        end
       end
 
     else
