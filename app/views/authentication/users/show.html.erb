@@ -26,7 +26,13 @@
     <% if Current.user.admin %>
 
       <% if @user.empresa == nil %>
-        <%= link_to "Modificar usuario", edit_user_path(@user), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+
+        <% if @user.relleno == false %>
+          <%= link_to "Modificar usuario", edit_user_path(@user), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+        <% else %>
+          <%= link_to "Modificar usuario", edit_relleno_user_path(@user.id), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
+        <% end %>
+
       <% else%>
         <%= link_to "Modificar usuario", edit_client_user_path(@user), class: "px-4 py-2 rounded bg-yellow-500 text-gray-900 font-bold hover:bg-yellow-700 transition duration-300" %>
   <% end %>

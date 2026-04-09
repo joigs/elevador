@@ -38,14 +38,15 @@ Rails.application.routes.draw do
         post :create_client
         get :new_relleno
         post :create_relleno
-        get :edit_relleno
-        patch :update_relleno
+
       end
       member do
         get :edit_client
         patch :update_client
         get :manage_permisos
         patch :update_permisos
+        get :edit_relleno
+        patch :update_relleno
       end
     end
     resources :sessions, only: [:new, :create, :destroy], path: '/login', path_names: { new: '/' }

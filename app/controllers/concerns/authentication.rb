@@ -27,7 +27,7 @@ module Authentication
 
       unless allowed
         flash[:alert] = "No tienes permiso"
-        redirect_to edit_relleno_users_path
+        redirect_to edit_relleno_user_path(Current.user)
       end
     end
   end

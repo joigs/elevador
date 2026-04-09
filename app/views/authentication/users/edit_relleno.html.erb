@@ -1,7 +1,7 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
   <h1 class="text-4xl font-bold text-gray-800 mb-6">Modificar acceso</h1>
 
-  <%= form_with(model: @user, url: update_relleno_users_path, method: :patch, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
+  <%= form_with(model: @user, url: update_relleno_user_path, method: :patch, builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
     <% if @user.errors.any? %>
       <% error_messages = @user.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
       <%= javascript_tag do %>

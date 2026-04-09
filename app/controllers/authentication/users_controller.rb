@@ -287,18 +287,31 @@ class Authentication::UsersController < ApplicationController
 
 
   def edit_relleno
-    @user = Current.user
+    if params[:id].present? && Current.user&.admin?
+      @user = User.find(params[:id])
+    else
+      @user = Current.user
+    end
   end
 
   def update_relleno
-    @user = Current.user
+    if params[:id].present? && Current.user&.admin?
+      @user = User.find(params[:id])
+    else
+      @user = Current.user
+    end
 
     attrs = relleno_update_params.to_h.symbolize_keys
     attrs.delete(:password) if attrs[:password].blank?
 
     if @user.update(attrs)
       flash[:notice] = "Datos actualizados correctamente"
-      redirect_to edit_relleno_users_path
+
+      if Current.user&.admin? && @user != Current.user
+        redirect_to users_path
+      else
+        redirect_to edit_relleno_user_path(@user)
+      end
     else
       render :edit_relleno, status: :unprocessable_entity
     end
@@ -318,7 +331,7 @@ class Authentication::UsersController < ApplicationController
   end
 
   def require_relleno_user!
-    unless Current.user&.relleno?
+    unless Current.user&.relleno? || Current.user.admin
       flash[:alert] = "No tienes permiso"
       redirect_to home_path
     end

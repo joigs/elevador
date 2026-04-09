@@ -22,7 +22,7 @@ class Authentication::SessionsController < ApplicationController
       session[:user_id] = @user.id
       flash[:notice] = "Bienvenido"
       if @user.relleno?
-        redirect_to edit_relleno_users_path
+        redirect_to edit_relleno_user_path(@user)
       else
         redirect_to home_path
       end
