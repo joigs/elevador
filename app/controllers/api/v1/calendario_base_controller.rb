@@ -12,7 +12,7 @@ module Api
 
       def verify_api_key
         api_key = request.headers['X-API-KEY']
-        valid_key = ENV['EXPO_API_KEY'] || 'mi_clave_secreta_super_segura_123'
+        valid_key = ENV['EXPO_API_KEY']
 
         unless api_key == valid_key
           render json: { error: 'Acceso denegado: API Key inválida o ausente' }, status: :unauthorized
