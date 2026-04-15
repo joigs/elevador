@@ -6,7 +6,7 @@ module Api
       def create
         user = User.find_by(username: params[:username], deleted_at: nil)
 
-        if user&.authenticate(params[:password])
+        if user&.authenticate(params[:password].to_s.downcase)
           token = encode_token(user_id: user.id)
 
           render json: {
