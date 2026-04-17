@@ -21,6 +21,7 @@ class Item < ApplicationRecord
   has_many :revisions, dependent: :destroy
   has_one :ladder_detail, dependent: :destroy
   has_many :ladder_revisions, dependent: :destroy
+  has_many :plat_revisions, dependent: :destroy
   has_many :anothers, dependent: :destroy
 
 

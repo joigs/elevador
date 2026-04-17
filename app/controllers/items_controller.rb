@@ -170,11 +170,6 @@ class ItemsController < ApplicationController
     item
     authorize! @item
 
-    unless @item.group&.type_of == 'ascensor'
-      flash[:alert] = "El activo no es de tipo ascensor."
-      render :edit_group, status: :unprocessable_entity and return
-    end
-
     is_admin = Current.user.admin
     last_inspection = @item.inspections.order(number: :desc).first
     is_inspector = last_inspection&.users&.exists?(id: Current.user&.id)
@@ -184,28 +179,57 @@ class ItemsController < ApplicationController
       render :edit_group, status: :unprocessable_entity and return
     end
 
-
-
     if item_group_params[:group_id] == @item.group_id.to_s
       flash[:alert] = "El activo ya pertenece a este grupo."
       redirect_to item_path(@item) and return
     end
 
     if @item.update(item_group_params)
+      group = @item.group
+      group_type = group.type_of
+      inspections = @item.inspections
 
-      @revisions = @item.revisions
+      # 1. Limpiamos cualquier tipo de revisión antigua que tuviera el activo
+      @item.revisions.destroy_all if @item.respond_to?(:revisions)
+      @item.ladder_revisions.destroy_all if @item.respond_to?(:ladder_revisions)
+      @item.plat_revisions.destroy_all if @item.respond_to?(:plat_revisions)
 
-      @revisions.each do |revision|
-        numbers = []
-        revision.revision_colors.each do |revision_color|
-          numbers << revision_color.section
-          revision_color.destroy
+      # 2. Iteramos por las inspecciones para crear las nuevas revisiones
+      case group_type
+      when "escala"
+        inspections.each do |inspection|
+          revision = LadderRevision.create!(inspection: inspection, item: @item)
+
+          numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15]
+          numbers.each do |number|
+            revision.revision_colors.create!(section: number, color: false, points: [], levels: [], fail: [], comment: [], number: [], priority: [])
+          end
         end
-        numbers.each do |number|
-          revision.revision_colors.create(section: number, color: false, points: [], levels: [], fail: [], comment: [], number: [], priority: [])
+
+        LadderDetail.find_or_create_by(item: @item)
+
+      when "ascensor"
+        inspections.each do |inspection|
+          revision = Revision.create!(inspection: inspection, item: @item, group: group)
+
+          (0..11).each do |number|
+            revision.revision_colors.create!(section: number, color: false, points: [], levels: [], fail: [], comment: [], number: [], priority: [])
+          end
         end
-        revision.revision_photos&.destroy_all
-        revision.revision_nulls&.destroy_all
+
+        Detail.find_or_create_by(item: @item)
+
+      when "plat"
+        inspections.each do |inspection|
+          revision = PlatRevision.create!(inspection: inspection, item: @item, group: group)
+
+          limit = group.secondary_type == "plataforma" ? 9 : 7
+          (0..limit).each do |number|
+            revision.plat_revision_sections.create!(section: number, color: false)
+          end
+        end
+
+        Detail.find_or_create_by(item: @item)
       end
 
       flash[:notice] = "Grupo actualizado"

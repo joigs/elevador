@@ -21,7 +21,7 @@
       <%= form.label :group_id, "Clasificación del ascensor", class: "block text-gray-300" %>
       <%= form.select :group_id,
                       options_for_select(
-                        Group.where(type_of: 'ascensor').map { |g| [g.name, g.id] }, @item.group_id
+                        Group.all.map { |g| [g.name, g.id] }, @item.group_id
                       ),
                       {},
                       { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600
