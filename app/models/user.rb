@@ -40,6 +40,9 @@ class User < ApplicationRecord
   has_many :permisos, through: :user_permisos
   has_many :observacions, dependent: :nullify
 
+  has_many :user_preferencias, dependent: :destroy
+  has_many :preferencias, through: :user_preferencias
+
 
   belongs_to :principal, optional: true, touch: false
   belongs_to :favorito_admin, class_name: 'User', optional: true

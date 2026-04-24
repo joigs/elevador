@@ -14,3 +14,7 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym "RESTful"
 # end
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.irregular 'preferencia', 'preferencias'
+  inflect.irregular 'user_preferencia', 'user_preferencias'
+end

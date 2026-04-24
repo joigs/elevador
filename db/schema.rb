@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_24_153554) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_24_171004) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -334,6 +334,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_24_153554) do
     t.index ["item_id"], name: "index_plat_revisions_on_item_id"
   end
 
+  create_table "preferencias", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "nombre"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "principals", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "rut", null: false
     t.string "name", null: false
@@ -472,6 +478,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_24_153554) do
     t.index ["user_id"], name: "index_user_permisos_on_user_id"
   end
 
+  create_table "user_preferencias", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "preferencia_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["preferencia_id"], name: "index_user_preferencias_on_preferencia_id"
+    t.index ["user_id"], name: "index_user_preferencias_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "username", null: false
     t.string "password_digest", null: false
@@ -532,5 +547,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_24_153554) do
   add_foreign_key "rulesets", "rules"
   add_foreign_key "user_permisos", "permisos"
   add_foreign_key "user_permisos", "users"
+  add_foreign_key "user_preferencias", "preferencias"
+  add_foreign_key "user_preferencias", "users"
   add_foreign_key "users", "principals"
 end

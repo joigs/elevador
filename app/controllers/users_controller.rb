@@ -39,4 +39,21 @@ class UsersController < ApplicationController
     Current.user.update(favorito_admin_id: params[:admin_id])
     head :ok
   end
+
+  def toggle_preferencia
+    @user = User.find_by!(username: params[:username])
+
+    return head :forbidden unless Current.user == @user || Current.user.admin?
+
+    preferencia = Preferencia.find(params[:preferencia_id])
+    activar = params[:valor].to_s == "true"
+
+    if activar
+      @user.preferencias << preferencia unless @user.preferencias.include?(preferencia)
+    else
+      @user.preferencias.destroy(preferencia)
+    end
+
+    head :ok
+  end
 end

@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   resources :users, only: :show, path: '/user', param: :username, as: 'perfil' do
     member do
       patch :toggle_tabla
+      patch :toggle_preferencia
     end
   end
 
