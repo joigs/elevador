@@ -42,7 +42,8 @@ class User < ApplicationRecord
 
 
   belongs_to :principal, optional: true, touch: false
-
+  belongs_to :favorito_admin, class_name: 'User', optional: true
+  has_many :usuarios_que_lo_prefieren, class_name: 'User', foreign_key: 'favorito_admin_id', dependent: :nullify
 
   def solicitar
     permisos.exists?(nombre: 'solicitar')

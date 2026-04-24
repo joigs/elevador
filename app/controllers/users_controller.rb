@@ -34,4 +34,9 @@ class UsersController < ApplicationController
       end
     end
   end
+
+  def update_favorite_admin
+    Current.user.update(favorito_admin_id: params[:admin_id])
+    head :ok
+  end
 end

@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   root 'home#index', as: 'home'
 
   post 'check_all_expirations', to: 'home#check_all_expirations', as: :check_all_expirations
+  patch 'users/update_favorite_admin', to: 'users#update_favorite_admin', as: :update_favorite_admin
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :authentication, path: '', as: '' do
@@ -68,7 +69,6 @@ Rails.application.routes.draw do
       patch :toggle_tabla
     end
   end
-
 
   resources :inspections, path: '/inspections' do
     member do

@@ -47,7 +47,6 @@ class InspectionsController < ApplicationController
     @last_inspection = Inspection.where(item: @item).order(number: :desc).first
     @control2 = @item.group.type_of
     if @control2 == "escala"
-      puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       @detail = LadderDetail.find_by(item_id: @item.id)
       @revision = LadderRevision.find_by(inspection_id: @inspection.id)
       @has_incomplete_revision_colors = @revision.revision_colors.exists?(color: false)

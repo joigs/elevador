@@ -310,10 +310,14 @@
                            class: "block text-sm font-medium text-gray-300" %>
 
             <%= form.collection_select :admin_id, User.where(admin: true, super: false),
-                                       :id, :real_name, {},
+                                       :id, :real_name, { selected: Current.user.favorito_admin_id },
                                        {
                                          class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
-                                         data: { controller: 'slim' }
+                                         data: {
+                                           controller: "slim favorite-admin",
+                                           action: "change->favorite-admin#update",
+                                           favorite_admin_url_value: update_favorite_admin_path
+                                         }
                                        } %>
 
             <%= form.submit "Generar informe",
