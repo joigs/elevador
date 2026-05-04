@@ -14,7 +14,11 @@ class ReportsController < ApplicationController
     end
 
     @revision =  @item.group.revision_for(@report.inspection)
-    @detail = Detail.find_by(item_id: @item.id)
+    if @item.group.type_of == "escala"
+      @detail = LadderDetail.find_by(item_id: @item.id)
+    else
+      @detail = Detail.find_by(item_id: @item.id)
+    end
   end
 
 
