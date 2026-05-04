@@ -13,8 +13,8 @@ class ReportsController < ApplicationController
       @show_third_radio_button = false
     end
 
-
-    @detail = @item.group.revision_for(@report.inspection)
+    @revision =  @item.group.revision_for(@report.inspection)
+    @detail = Detail.find_by(item_id: @item.id)
   end
 
 

@@ -9,3 +9,10 @@ import Swal from 'sweetalert2';
 import 'flowbite';
 
 window.Swal = Swal;
+
+document.addEventListener('keydown', function(e) {
+    if (e.target.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault();
+    }
+});
+
