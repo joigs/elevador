@@ -107,7 +107,7 @@ def process_section_markers(doc, sections_to_remove, log=None):
     if log is None:
         log = lambda msg: None
 
-    for n in range(1, 12):
+    for n in range(1, 16):
         start_marker = "{{na%d-1}}" % n
         end_marker   = "{{na%d-2}}" % n
 

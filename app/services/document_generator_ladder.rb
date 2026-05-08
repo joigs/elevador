@@ -909,10 +909,8 @@ class DocumentGeneratorLadder
 
     doc_names.replace('{{admin_profesion}}', admin.profesion)
 
-    # Guardar los cambios de texto limpiamente antes de pasarlo a Python
     doc_names.commit(output_path)
 
-    # 2. Preparar el directorio temporal y mover el archivo
     dir_name = "imagenes_#{inspection.number}"
     dir_path = File.join(Rails.root, 'tmp', dir_name)
     FileUtils.mkdir_p(dir_path)
@@ -921,7 +919,6 @@ class DocumentGeneratorLadder
     docx_new_path = File.join(dir_path, docx_basename)
     FileUtils.mv(output_path, docx_new_path)
 
-    # 3. Procesar las fotos de inspección
     photos_mapping = []
     if revision_photos.any?
       counter = 1
@@ -967,7 +964,6 @@ class DocumentGeneratorLadder
       end
     end
 
-    # 4. Procesar las firmas (descargamos los PNG generados)
     signatures_data = { '{{firma_inspector}}' => [] }
 
     if admin.signature.attached?
@@ -999,20 +995,41 @@ class DocumentGeneratorLadder
     mapping_json_path = File.join(dir_path, 'mapping.json')
     File.write(mapping_json_path, photos_mapping.to_json)
 
-    # 5. Ejecutar script de Python
+    sections_to_remove = []
+
+    preferencia_quitar = Preferencia.find_by(nombre: "quitar tabla nula de informe")
+    user_tiene_preferencia = preferencia_quitar && Current.user.preferencias.include?(preferencia_quitar)
+
+    if user_tiene_preferencia
+      ladder_sections = (1..8).to_a + (11..15).to_a
+
+      ladder_sections.each do |n|
+        number = n.to_s
+
+        rules_count = rules.select { |rule| rule.code.split('.')[1] == number }.count
+        revision_nulls_count = revision_nulls_total.select { |rev| rev.point.split('.')[1] == number }.count
+
+        next if rules_count.zero?
+
+        if rules_count == revision_nulls_count
+          sections_to_remove << n
+        end
+      end
+    end
+
+    sections_json_path = File.join(dir_path, 'sections_to_remove.json')
+    File.write(sections_json_path, sections_to_remove.to_json)
     venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
     script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
     token       = "CODIGO IMAGEN 24123123"
 
-    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
+    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
     system(cmd)
 
-    # 6. Devolver el archivo listo a su carpeta final y limpiar temporales
     FileUtils.mv(docx_new_path, output_path)
     FileUtils.rm_rf(dir_path)
 
     return output_path
-    # ================= HASTA AQUÍ =================
   end
 
   private
