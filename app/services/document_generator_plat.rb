@@ -1016,11 +1016,43 @@ class DocumentGeneratorPlat
     mapping_json_path = File.join(dir_path, 'mapping.json')
     File.write(mapping_json_path, photos_mapping.to_json)
 
+
+
+    sections_to_remove = []
+
+    preferencia_quitar = Preferencia.find_by(nombre: "quitar tabla nula de informe")
+    user_tiene_preferencia = preferencia_quitar && Current.user.preferencias.include?(preferencia_quitar)
+
+    if user_tiene_preferencia
+      plat_sections =
+        case group.secondary_type
+        when 'plataforma'  then (1..9).to_a
+        when 'salvaescala' then (1..7).to_a
+        else                    []
+        end
+
+      plat_sections.each do |n|
+        number = n.to_s
+
+        rules_count = rules_for_table.select { |rule| rule.code.to_s.start_with?(number) }.count
+        revision_nulls_count = revision_nulls_total.select { |rev| rev.point.to_s.start_with?(number) }.count
+
+        next if rules_count.zero?
+
+        if rules_count == revision_nulls_count
+          sections_to_remove << n
+        end
+      end
+    end
+
+    sections_json_path = File.join(dir_path, 'sections_to_remove.json')
+    File.write(sections_json_path, sections_to_remove.to_json)
+
     venv_python = Rails.root.join('ascensor', 'bin', 'python').to_s
     script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
     token       = 'CODIGO IMAGEN 24123123'
 
-    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
+    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
     system(cmd)
 
     FileUtils.mv(docx_new_path, output_path)
