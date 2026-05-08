@@ -31,11 +31,151 @@ def remove_table_header_formatting(table):
             shading.set(qn('w:fill'), "FFFFFF")
             tcPr.append(shading)
 
+
+# ============================================================
+# Eliminación de secciones nulas
+# ============================================================
+
+W_P   = qn('w:p')
+W_TBL = qn('w:tbl')
+W_T   = qn('w:t')
+
+
+def _paragraph_full_text(p_elem):
+    """Texto plano concatenando todos los <w:t> del párrafo (independiente de runs)."""
+    return ''.join((t.text or '') for t in p_elem.iter(W_T))
+
+
+def _normalize_paragraph_runs(p_elem):
+    """
+    Si el párrafo contiene un marcador {{naN-X}} partido entre múltiples runs,
+    consolida el texto en el primer <w:t> y vacía los demás <w:t>. Esto
+    permite usar replace simple después.
+    """
+    full = _paragraph_full_text(p_elem)
+    if '{{na' not in full:
+        return
+    t_elements = list(p_elem.iter(W_T))
+    if not t_elements:
+        return
+    t_elements[0].text = full
+    for t in t_elements[1:]:
+        t.text = ''
+
+
+def _clear_markers_in_paragraph(p_elem, markers):
+    """Reemplaza cada marker por '' en los <w:t> del párrafo (tras normalizar)."""
+    _normalize_paragraph_runs(p_elem)
+    for t in p_elem.iter(W_T):
+        if not t.text:
+            continue
+        for m in markers:
+            if m in t.text:
+                t.text = t.text.replace(m, '')
+
+
+def _find_marker_paragraph(doc, marker):
+    """Busca el primer <w:p> que contenga `marker` en cualquier parte del documento."""
+    body = doc.element.body
+    for p in body.iter(W_P):
+        if marker in _paragraph_full_text(p):
+            return p
+    return None
+
+
+def _ancestor_in_body(elem, body):
+    """Sube por los ancestros hasta encontrar uno cuyo padre sea el body."""
+    cur = elem
+    while cur is not None:
+        parent = cur.getparent()
+        if parent is body:
+            return cur
+        cur = parent
+    return None
+
+
+def process_section_markers(doc, sections_to_remove, log=None):
+    """
+    Para cada sección N de 1 a 11:
+      - Busca {{naN-1}} y {{naN-2}}.
+      - Si N está en sections_to_remove: elimina del body todos los bloques
+        desde el ancestro-en-body del marcador inicial hasta el del marcador
+        final (inclusive).
+      - Si no: solo limpia los marcadores del texto.
+    """
+    body = doc.element.body
+    if log is None:
+        log = lambda msg: None
+
+    for n in range(1, 12):
+        start_marker = "{{na%d-1}}" % n
+        end_marker   = "{{na%d-2}}" % n
+
+        start_p = _find_marker_paragraph(doc, start_marker)
+        end_p   = _find_marker_paragraph(doc, end_marker)
+
+        if start_p is None and end_p is None:
+            log("Seccion %d: no se encontraron marcadores." % n)
+            continue
+
+        if start_p is None or end_p is None:
+            log("Seccion %d: marcadores desbalanceados (start=%s, end=%s)."
+                % (n, start_p is not None, end_p is not None))
+            for p in (start_p, end_p):
+                if p is not None:
+                    _clear_markers_in_paragraph(p, [start_marker, end_marker])
+            continue
+
+        if n not in sections_to_remove:
+            _clear_markers_in_paragraph(start_p, [start_marker])
+            _clear_markers_in_paragraph(end_p, [end_marker])
+            log("Seccion %d: marcadores limpiados (no se elimina tabla)." % n)
+            continue
+
+        start_block = _ancestor_in_body(start_p, body)
+        end_block   = _ancestor_in_body(end_p, body)
+
+        if start_block is None or end_block is None:
+            log("Seccion %d: no se encontro ancestro en body. Solo limpio marcadores." % n)
+            _clear_markers_in_paragraph(start_p, [start_marker])
+            _clear_markers_in_paragraph(end_p, [end_marker])
+            continue
+
+        if start_block is end_block:
+            log("Seccion %d: ambos marcadores en el mismo bloque del body. Solo limpio marcadores." % n)
+            _clear_markers_in_paragraph(start_block, [start_marker, end_marker])
+            continue
+
+        to_remove = []
+        cur = start_block
+        while cur is not None:
+            to_remove.append(cur)
+            if cur is end_block:
+                break
+            cur = cur.getnext()
+
+        if not to_remove or to_remove[-1] is not end_block:
+            log("Seccion %d: end_block no esta despues de start_block. Solo limpio marcadores." % n)
+            _clear_markers_in_paragraph(start_p, [start_marker])
+            _clear_markers_in_paragraph(end_p, [end_marker])
+            continue
+
+        log("Seccion %d: eliminando %d bloque(s) del body." % (n, len(to_remove)))
+        for elem in to_remove:
+            parent = elem.getparent()
+            if parent is not None:
+                parent.remove(elem)
+
+
+# ============================================================
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--folder", required=True, help="Directorio donde están el DOCX, mapping.json e imágenes")
+    parser.add_argument("--folder", required=True, help="Directorio donde estan el DOCX, mapping.json e imagenes")
     parser.add_argument("--docx",   required=True, help="Nombre del archivo DOCX dentro de --folder")
-    parser.add_argument("--token",  required=True, help="Texto a buscar/reemplazar (p.ej. 'CODIGO IMAGEN 24123123')")
+    parser.add_argument("--token",  required=True, help="Texto a buscar/reemplazar")
+    parser.add_argument("--sections", required=False, default=None,
+                        help="Ruta al JSON con la lista de secciones a eliminar.")
     args = parser.parse_args()
 
     folder_path = args.folder
@@ -47,6 +187,21 @@ def main():
     signatures_path = os.path.join(folder_path, "signatures.json")
 
     doc = Document(docx_path)
+
+    # ---- Procesar marcadores de secciones nulas ----
+    sections_to_remove = []
+    if args.sections and os.path.exists(args.sections):
+        try:
+            with open(args.sections, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    sections_to_remove = [int(x) for x in data]
+        except Exception as e:
+            print("Error leyendo sections JSON: {}".format(e))
+
+    print("Secciones a eliminar: {}".format(sections_to_remove))
+    process_section_markers(doc, sections_to_remove, log=lambda m: print("[secciones] " + m))
+    # -----------------------------------------------
 
     signatures_data = {}
     if os.path.exists(signatures_path):
@@ -102,7 +257,6 @@ def main():
         for row in table.rows:
             for cell in row.cells:
                 process_signatures(cell.paragraphs)
-    # -------------------------------------
 
     if not os.path.exists(mapping_path):
         for paragraph in doc.paragraphs:

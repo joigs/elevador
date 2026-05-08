@@ -1353,6 +1353,49 @@ class DocumentGenerator
 
     File.write(File.join(dir_path, 'signatures.json'), signatures_data.to_json)
 
+
+
+    sections_to_remove = []
+
+    preferencia_quitar = Preferencia.find_by(nombre: "quitar tabla nula de informe")
+    current_tiene_preferencia = preferencia_quitar && Current.user.preferencias.include?(preferencia_quitar)
+
+
+    if current_tiene_preferencia
+      if group.type_of == "ascensor"
+        (1..11).each do |n|
+          number = n.to_s
+
+          sala_excluye = case detail.sala_maquinas
+                         when "Si"                                              then number == "9"
+                         when "No. Máquina en la parte superior"                then number == "2"
+                         when "No. Máquina en foso"                             then number == "2"
+                         when "No. Maquinaria fuera de la caja de elevadores"  then number == "2"
+                         else false
+                         end
+
+          if sala_excluye
+            sections_to_remove << n
+            next
+          end
+
+          rules_count = rules.select { |rule| rule.code.start_with?(number) }.count
+          revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?(number) }.count
+
+
+          next if rules_count.zero?
+
+          if rules_count == revision_nulls_count
+            sections_to_remove << n
+          end
+        end
+      end
+    end
+
+
+    sections_json_path = File.join(dir_path, 'sections_to_remove.json')
+    File.write(sections_json_path, sections_to_remove.to_json)
+
     mapping_json_path = File.join(dir_path, 'mapping.json')
     File.write(mapping_json_path, photos_mapping.to_json)
 
@@ -1360,12 +1403,11 @@ class DocumentGenerator
     script_path = Rails.root.join('app', 'scripts', 'insertar_imagenes.py').to_s
     token       = "CODIGO IMAGEN 24123123"
 
-    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\""
+    cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
     require 'open3'
     stdout, stderr, status = Open3.capture3(cmd)
 
-    Rails.logger.info("=== RESULTADO PYTHON (STATUS: #{status.exitstatus}) ===")
-    Rails.logger.info(stdout) if stdout.present?
+
 
     if !status.success? || stderr.present?
       Rails.logger.error("=== ERROR FATAL EN PYTHON ===")
