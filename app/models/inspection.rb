@@ -24,7 +24,6 @@ class Inspection < ApplicationRecord
   validates :state, inclusion: { in: ['Abierto', 'Cerrado', 'black'] }
 
   #valida que no se puedan agendar revisiones los fines de semana
-  validate :weekend_error
 
   #calcula automaticamente el numero de inspeccion
   attribute :number, :integer, default: -> { calculate_new_number }
