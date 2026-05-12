@@ -56,10 +56,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :facturacions, only: [:index, :show]
-
+  
       post 'calendario_login', to: 'calendario_sessions#create'
       resources :calendario_entries, only: [:index, :create]
       delete 'calendario_entries', to: 'calendario_entries#destroy'
+      resources :holidays, only: [:index]
     end
   end
 
