@@ -15,4 +15,10 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
     }
 });
-
+document.addEventListener("wheel", function (e) {
+    const el = document.activeElement;
+    if (el && el.type === "number" && el === e.target) {
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, behavior: "auto" });
+    }
+}, { passive: false });
