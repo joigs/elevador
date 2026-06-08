@@ -28,7 +28,7 @@ class DocumentGeneratorCotizacionOg
       "dire" => nil,
       "ubica" => nil,
       "ascensor" => nil,
-      "piso" => nil
+      "parada" => nil
     }
 
     headers.each_with_index do |header, index|
@@ -43,7 +43,7 @@ class DocumentGeneratorCotizacionOg
     condominio = xlsx.cell(5, keywords["condominio"]) || xlsx.cell(5, keywords["edificio"]) || 'S/I'
     direccion = xlsx.cell(5, keywords["dire"]) || xlsx.cell(5, keywords["ubica"]) || 'S/I'
     ascensores = xlsx.cell(5, keywords["ascensor"]) || 'S/I'
-    pisos = xlsx.cell(5, keywords["piso"]) || 'S/I'
+    pisos = xlsx.cell(5, keywords["parada"]) || 'S/I'
 
     fecha_actual = Time.zone.today
     meses_espanol = {
