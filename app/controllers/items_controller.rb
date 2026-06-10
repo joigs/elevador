@@ -189,12 +189,10 @@ class ItemsController < ApplicationController
       group_type = group.type_of
       inspections = @item.inspections
 
-      # 1. Limpiamos cualquier tipo de revisión antigua que tuviera el activo
       @item.revisions.destroy_all if @item.respond_to?(:revisions)
       @item.ladder_revisions.destroy_all if @item.respond_to?(:ladder_revisions)
       @item.plat_revisions.destroy_all if @item.respond_to?(:plat_revisions)
 
-      # 2. Iteramos por las inspecciones para crear las nuevas revisiones
       case group_type
       when "escala"
         inspections.each do |inspection|
