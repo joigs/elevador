@@ -169,6 +169,7 @@ Rails.application.routes.draw do
       post 'create_rule', to: 'revisions#create_rule'
       get   :edit_rule
       patch :update_rule
+      delete :destroy_rule
     end
   end
 

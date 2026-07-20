@@ -943,7 +943,19 @@ class RevisionsController < ApplicationController
     end
   end
 
+  def destroy_rule
+    @inspection    = Inspection.find(params[:inspection_id])
+    @another       = Another.find(params[:another_id])
+    @section       = params[:section]
+    @revision_base = Revision.find_by(inspection_id: @inspection.id)
 
+    authorize! @revision_base
+
+    @another.destroy
+
+    flash[:notice] = "Defecto personalizado eliminado."
+    redirect_to edit_revision_path(inspection_id: @inspection.id, section: @section)
+  end
 
   private
 
