@@ -880,15 +880,13 @@ class RevisionsController < ApplicationController
 
   def edit_rule
     @inspection = Inspection.find(params[:inspection_id])
-    # Asegúrate de tener @revision_base, etc. si lo requieres
 
     @another = Another.find(params[:another_id])
     @section = params[:section]
 
     @revision_base = Revision.find_by(inspection_id: @inspection.id)
-    authorize! @revision_base  # O como manejes tu pundit/cancancan
+    authorize! @revision_base
 
-    # Renderizar una vista "edit_rule.html.erb" muy similar a tu "new_rule" pero con @another cargado
   end
 
   def update_rule
