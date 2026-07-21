@@ -35,8 +35,7 @@ module Api
         end
       end
 
-      def encode_token(payload, exp = 3.months.from_now)
-        payload[:exp] = exp.to_i
+      def encode_token(payload)
         JWT.encode(payload, Rails.application.secret_key_base.to_s)
       end
 
