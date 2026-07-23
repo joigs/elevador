@@ -150,20 +150,22 @@ class DocumentGeneratorCotizacion
   end
   private_class_method :read_rows
 
+  PYTHON_BIN = Rails.root.join('ascensor', 'bin', 'python').freeze
+
   def self.expand_table(template_path, rows, output_path)
     payload   = { 'rows' => rows, 'marker_map' => MARKER_MAP }
     json_path = Rails.root.join('tmp', "cotizacion_rows_#{SecureRandom.hex(6)}.json")
     File.write(json_path, JSON.generate(payload))
 
     stdout, stderr, status = Open3.capture3(
-      'python3', PYTHON_SCRIPT.to_s,
+      PYTHON_BIN.to_s, PYTHON_SCRIPT.to_s,
       template_path.to_s, json_path.to_s, output_path.to_s
     )
 
     File.delete(json_path) if File.exist?(json_path)
 
     unless status.success?
-      raise "Error al expandir la tabla (python): #{stderr.presence || stdout}"
+      raise "Error al expandir la tabla (#{PYTHON_BIN}): #{stderr.presence || stdout}"
     end
 
     output_path
