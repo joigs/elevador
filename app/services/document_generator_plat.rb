@@ -742,11 +742,15 @@ class DocumentGeneratorPlat
       doc_3.replace('{{esta/no_esta}}',             'está')
       doc_3.replace('{{texto_grave}}',              '')
       doc_3.replace('{{texto_leve}}',               '')
+      doc_3.replace('{{CERTIFICACION}}', "CERTIFICACION,")
+      doc_3.replace('{{no_grave_no_leve}}', "hasta el mes de #{month_name} del año #{report.ending.year}.")
     elsif errors_graves.any?
       doc_3.replace('{{cumple/parcial/no_cumple}}', 'no cumple')
       doc_3.replace('{{esta/no_esta}}',             'no está')
       doc_3.replace('{{texto_grave}}',
                     'Las No Conformidades evaluadas como Defectos Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.')
+      doc_3.replace('{{CERTIFICACION}}', "CERTIFICACION.")
+      doc_3.replace('{{no_grave_no_leve}}', "")
 
       if errors_leves.any?
         doc_3.replace('{{texto_leve}}',
@@ -758,6 +762,8 @@ class DocumentGeneratorPlat
       doc_3.replace('{{cumple/parcial/no_cumple}}', 'cumple parcialmente')
       doc_3.replace('{{esta/no_esta}}',             'está')
       doc_3.replace('{{texto_grave}}',              '')
+      doc_3.replace('{{CERTIFICACION}}', "CERTIFICACION.")
+      doc_3.replace('{{no_grave_no_leve}}', "")
       doc_3.replace('{{texto_leve}}',
                     "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending&.year}.")
     end

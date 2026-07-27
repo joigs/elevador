@@ -418,6 +418,7 @@ class InspectionsController < ApplicationController
     Rails.logger.error("[DocumentGenerator] Error al generar documento: #{e.message}")
     Rails.logger.error(e.backtrace.first(5).join("\n"))
     flash[:alert] = "Error al generar el documento: #{e.message}"
+    
     redirect_to inspection_path(inspection)
   end
 

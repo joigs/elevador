@@ -662,12 +662,16 @@ class DocumentGeneratorLadder
       doc.replace('{{texto_leve}}', "")
       doc.replace('{{if_grave}}', "")
       doc.replace('{{if_leves}}', "")
+      doc.replace('{{CERTIFICACION}}', "CERTIFICACION,")
+      doc.replace('{{no_grave_no_leve}}', "hasta el mes de #{month_name} del año #{report.ending.year}.")
     end
 
     if !errors_graves.empty?
       doc.replace('{{if_grave}}', "El equipo inspeccionado, identificado en el ítem II, ubicado en: #{inspection.place} no cumple con los requisitos normativos, encontrándose durante la inspección Defectos Graves de certificación anterior no subsanadas.")
       doc.replace('{{cumple/parcial/no_cumple}}', "no cumple")
       doc.replace('{{esta/no_esta}}', "no está")
+      doc.replace('{{CERTIFICACION}}', "CERTIFICACION.")
+      doc.replace('{{no_grave_no_leve}}', "")
       doc.replace('{{texto_grave}}', "Las No Conformidades evaluadas como Defectos Graves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas dentro de 90 días desde la fecha del informe de inspección.")
       if !errors_leves.empty?
         doc.replace('{{if_leves}}', "Las no conformidades, Defectos Leves, encontradas en la inspección son las siguientes:")
@@ -686,6 +690,9 @@ class DocumentGeneratorLadder
       doc.replace('{{texto_grave}}', "")
       doc.replace('{{if_leves}}', "Las no conformidades, Defectos Leves, encontradas en la inspección son las siguientes:")
       doc.replace('{{texto_leve}}', "Las No Conformidades evaluadas como Defectos Leves, deben ser resueltas por la administración, de tal manera de dar cumplimiento en forma integral a la normativa vigente, éstas deben quedar resueltas antes de la próxima CERTIFICACION en #{month_name} del año #{report.ending.year}.")
+      doc.replace('{{CERTIFICACION}}', "CERTIFICACION.")
+      doc.replace('{{no_grave_no_leve}}', "")
+
     end
 
 
