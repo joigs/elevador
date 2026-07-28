@@ -314,17 +314,19 @@ class PlatRevisionsController < ApplicationController
     end
 
     plat_rules      = plat_rules_params
-    null_conditions = plat_revision_null_params # Esto trae un array ej: ["1.1_1", "1.2_3"]
+    null_conditions = plat_revision_null_params
     past_params     = plat_past_revision_params
 
-    # 1. PRECARGAR REGLAS DE LA DB PARA EVITAR USAR PARAMS VACIOS
-    # Recolectamos todos los IDs que vienen del formulario
+
+    if section_str == "0"
+      @inspection.update(is_old: params[:is_old] == "1")
+    end
+
+
     rule_ids = plat_rules.values.map { |r| r[:rules_plat_id] }.compact
-    # Creamos un hash para buscar rápido: { 120 => #<RulesPlat id:120...>, ... }
     rules_lookup = RulesPlat.where(id: rule_ids).index_by(&:id)
 
 
-    # --- LOGICA DEFECTOS ANTERIORES (BLACK PAIRS) ---
     black_pairs = Set.new
     if @black_revision_base && past_params.present?
       fails  = past_params[:fail]  || []

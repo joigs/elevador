@@ -23,11 +23,9 @@ export default class extends Controller {
             if (result.isConfirmed) {
                 this.naCheckboxTargets.forEach((checkbox) => {
                     checkbox.checked = isChecked;
-                    // Disparar eventos 'change' para notificar a otros controllers si es necesario
                     checkbox.dispatchEvent(new Event('change'));
                 });
             } else {
-                // Revertir el estado del checkbox principal
                 headerCheckbox.checked = !isChecked;
             }
         });

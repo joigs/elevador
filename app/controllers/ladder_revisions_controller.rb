@@ -255,6 +255,9 @@ class LadderRevisionsController < ApplicationController
 
     current_section = params[:section]
 
+    if current_section == "0"
+      @inspection.update(is_old: params[:is_old] == "1")
+    end
 
     @revision = @revision_base.revision_colors.find_by(section: current_section)
 

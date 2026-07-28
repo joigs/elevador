@@ -149,7 +149,11 @@ class DocumentGeneratorPlat
 
     doc.replace('{{inspection_place}}', inspection.place)
     doc.replace('{{ins_date}}',         inspection.ins_date&.strftime('%d/%m/%Y') || '')
-
+    if inspection.is_old == true
+      doc.replace('{{if_viejo}}', "Nota: Dada la antigüedad del inmueble, se asume que cuenta con recepción definitiva y que el respectivo expediente (carpeta cero) se encuentra archivado en la Dirección de Obras Municipales (DOM) correspondiente.")
+    else
+      doc.replace('{{if_viejo}}', "")
+    end
     inspector_names = inspection.users.map(&:real_name).join(' / ')
     doc.replace('{{inspector}}', inspector_names)
 
@@ -535,6 +539,7 @@ class DocumentGeneratorPlat
       numeric_code = null.point.to_s.split('_').first
       comments_hash[numeric_code] = null.comment if carpetas.include?(numeric_code)
     end
+
 
     ordered_comments = carpetas.map { |code| comments_hash[code] || '' }
 

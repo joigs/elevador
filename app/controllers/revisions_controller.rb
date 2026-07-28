@@ -441,7 +441,9 @@ class RevisionsController < ApplicationController
     current_section = params[:section]
 
     @revision = @revision_base.revision_colors.find_by(section: current_section)
-
+    if current_section == "0"
+      @inspection.update(is_old: params[:is_old] == "1")
+    end
     real_codes_fail, real_codes_null, real_numbers, real_priority, real_comment_fail, real_comment_null = [], [], [], [], [], []
 
 
@@ -964,7 +966,7 @@ class RevisionsController < ApplicationController
 
   def revision_params
     params.fetch(:revision, {}).permit(
-      :inspection_id, :group_id, :item_id, :color, :section, :imagen_general, :imagen_general_comment, :id,
+      :inspection_id, :group_id, :item_id, :color, :section, :is_old, :imagen_general, :imagen_general_comment, :id,
       codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: [], garbage: []
     ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end

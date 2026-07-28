@@ -666,6 +666,11 @@ class DocumentGenerator
       end
     end
 
+    if inspection.is_old == true
+      doc.replace('{{if_viejo}}', "Nota: Dada la antigüedad del inmueble, se asume que cuenta con recepción definitiva y que el respectivo expediente (carpeta cero) se encuentra archivado en la Dirección de Obras Municipales (DOM) correspondiente.")
+    else
+      doc.replace('{{if_viejo}}', "")
+    end
 
     output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}-#{item_rol}.docx")
     doc.commit(output_path)

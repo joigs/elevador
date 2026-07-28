@@ -215,12 +215,30 @@
   </div>
   <br>
 
-  <div data-controller="na-toggle">
-    <div class="flex justify-start items-center ml-4 my-4">
-      <input type="checkbox" id="toggle-all-na" class="cursor-pointer w-6 h-6 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" data-action="change->na-toggle#confirmToggleAll">
-      <label for="toggle-all-na" class="ml-2 text-lg text-gray-700">Sección no aplica al activo</label>
-    </div>
+  <div data-controller="na-toggle old-toggle">
 
+    <div class="flex">
+
+      <div class="flex justify-start items-center ml-4 my-4">
+        <input type="checkbox" id="toggle-all-na"
+               class="cursor-pointer w-6 h-6 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
+               data-action="change->na-toggle#confirmToggleAll"
+               data-old-toggle-target="header">
+        <label for="toggle-all-na" class="ml-2 text-lg text-gray-700">Sección no aplica al activo</label>
+      </div>
+
+      <% if @section == '0' %>
+        <div class="flex justify-start items-center ml-4 my-4">
+          <%= check_box_tag :is_old, "1", @inspection.is_old,
+                            id: "is_old_checkbox",
+                            class: "cursor-pointer w-6 h-6 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                            data: { action: "change->old-toggle#confirmToggle",
+                                    'old-toggle-target': 'toggle' } %>
+          <%= label_tag :is_old_checkbox, 'Equipo antiguo',
+                        class: "ml-2 text-lg text-gray-700 cursor-pointer" %>
+        </div>
+        <% end %>
+    </div>
   <div class="px-4 mt-4">
     <div class="table-responsive">
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -253,7 +271,7 @@
 
                 <% is_checked_null = @revision_nulls.any? { |rn| rn.point == "#{rule.code}_#{rule.point}" } %>
                 <%= check_box_tag "ladder_revision[null_condition][]", "#{rule.code}_#{rule.point}", is_checked_null, id: "null_condition_#{index}",class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
-                                  data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox' } %>
+                                  data: { action: "change->rules-form#toggleNullCondition", rules_form_target: "nullCondition", 'na-toggle-target': 'naCheckbox', 'old-toggle-target': 'disable' } %>
                 <%= label_tag "null_condition_#{index}", "" %>
               </div>
             </td>
@@ -307,7 +325,7 @@
                                   "1",
                                   is_checked,
                                   id: "fail_#{index}",
-                                  data: { action: "change->rules-form#toggle", rules_form_target: "fail" },
+                                  data: { action: "change->rules-form#toggle", rules_form_target: "fail", 'old-toggle-target': 'disable' },
                                   class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600" %>
 
                 <% if is_checked && @copy_match_lookup && @copy_match_lookup["#{rule.code}||#{rule.point}"] %>
