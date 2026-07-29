@@ -83,7 +83,8 @@ class DocumentGeneratorCotizacionOg
     headers = xlsx.row(4).map { |h| h.to_s.downcase.strip }
     keywords = {
       'contacto' => nil, 'condominio' => nil, 'edificio' => nil,
-      'dire' => nil, 'ubica' => nil, 'ascensor' => nil, 'parada' => nil
+      'dire' => nil, 'ubica' => nil, 'ascensor' => nil, 'parada' => nil,
+      'piso' => nil
     }
     headers.each_with_index do |header, index|
       keywords.each_key { |k| keywords[k] = index + 1 if header.include?(k) }
@@ -120,7 +121,7 @@ class DocumentGeneratorCotizacionOg
       condominio = clean(cell(xlsx, r, keywords['condominio'])) || clean(cell(xlsx, r, keywords['edificio']))
       direccion  = clean(cell(xlsx, r, keywords['dire']))       || clean(cell(xlsx, r, keywords['ubica']))
       ascensores = clean(cell(xlsx, r, keywords['ascensor']))
-      paradas    = clean(cell(xlsx, r, keywords['parada']))
+      paradas    = clean(cell(xlsx, r, keywords['parada']))     || clean(cell(xlsx, r, keywords['piso']))
       contacto   = clean(cell(xlsx, r, keywords['contacto']))
 
       next if [condominio, direccion, ascensores, paradas, contacto].all?(&:nil?)
