@@ -368,13 +368,11 @@ class PlatRevisionsController < ApplicationController
         rel.destroy unless target_map.key?(pair)
       end
 
-      # Actualizar color si corresponde
       black_section = @black_revision_base.plat_revision_sections.find_by(section: section_num)
       @black_revision_section = black_section if black_section
     end
 
 
-    # --- LOGICA 3RA INSPECCION ---
     third_points = Set.new
     if @third_revision_base
       @third_revision_base.plat_revision_rules_plats.includes(:rules_plat).each do |rel|
@@ -384,7 +382,6 @@ class PlatRevisionsController < ApplicationController
       end
     end
 
-    # --- LOGICA REVISIÓN ACTUAL (NO CUMPLE) ---
     current_rels = @revision_base.plat_revision_rules_plats.includes(:rules_plat).select { |rel| rel.rules_plat.code.to_s.start_with?(section_code) }
     current_by_rule_id = current_rels.index_by(&:rules_plat_id)
 
@@ -395,11 +392,9 @@ class PlatRevisionsController < ApplicationController
     keep_photo_code = Set.new
 
     plat_rules.each_value do |row|
-      # Buscamos la regla real usando el ID
       rules_plat_id = row[:rules_plat_id].to_i
       rules_plat = rules_lookup[rules_plat_id]
 
-      # Si no hay ID (ej: defect new), intentamos fallback (poco probable en este flujo)
       unless rules_plat
         rules_plat = RulesPlat.find_by(code: row[:code], point: row[:point], group_id: @group.id)
       end
@@ -414,7 +409,6 @@ class PlatRevisionsController < ApplicationController
       comment  = row[:comment].presence
       photo_files = Array(row[:photos]).reject(&:blank?)
 
-      # Lógica de gravedad automática por repetición
       if fail_val && @black_inspection && black_pairs.include?([code, point]) && (@inspection.rerun == false || third_points.include?(point))
         level = "G"
       end
@@ -435,40 +429,27 @@ class PlatRevisionsController < ApplicationController
       end
     end
 
-    # Borrar defectos que se desmarcaron
     current_rels.each do |rel|
       rel.destroy unless keep_rule_ids.include?(rel.rules_plat_id)
     end
 
 
-    # =========================================================
-    # LOGICA REVISION NULLS (CORREGIDA)
-    # =========================================================
-    # 1. Mapear checkbox "code_point" -> Comentario ingresado en la fila correspondiente
-
     nulls_scope = RevisionNull.where(revision_type: "PlatRevision", revision_id: @revision_base.id)
 
-    # Hash temporal: { "1.1_1" => "Comentario escrito por el usuario", ... }
     null_data_to_save = {}
 
     plat_rules.each_value do |row|
-      # Usamos el ID para reconstruir la clave "code_point" de forma segura
       r_id = row[:rules_plat_id].to_i
       rule_db = rules_lookup[r_id]
       next unless rule_db
 
-      # Construimos la llave tal cual la genera el check_box_tag en la vista
       generated_key = "#{rule_db.code}_#{rule_db.point}"
 
-      # Si esta llave está presente en el array de checkboxes marcados (null_conditions)
       if null_conditions.include?(generated_key)
-        # Guardamos la llave y el comentario asociado a esa fila
         null_data_to_save[generated_key] = row[:comment].to_s
       end
     end
 
-    # 2. Actualizar o Eliminar existentes
-    # Filtramos solo los nulls que pertenecen a ESTA sección para no borrar los de otras secciones
     existing_nulls_for_section = nulls_scope.select do |rn|
       c_part = rn.point.to_s.split('_').first
       c_part.present? && c_part.split('.').first.to_i == section_num
@@ -476,20 +457,15 @@ class PlatRevisionsController < ApplicationController
 
     existing_nulls_for_section.each do |rn|
       if null_data_to_save.key?(rn.point)
-        # Existe y sigue marcado: Actualizamos comentario si cambió
         new_comment = null_data_to_save[rn.point]
         rn.update(comment: new_comment) if rn.comment != new_comment
-        # Lo sacamos del hash para no volver a crearlo
         null_data_to_save.delete(rn.point)
       else
-        # Ya no está marcado en el formulario: Borrar
         rn.destroy
       end
     end
 
-    # 3. Crear nuevos (los que quedaron en el hash)
     null_data_to_save.each do |point_str, comment|
-      # Doble check para no duplicar (aunque el paso 2 debió limpiar)
       next if nulls_scope.exists?(point: point_str)
 
       nulls_scope.create!(
@@ -499,10 +475,8 @@ class PlatRevisionsController < ApplicationController
         revision_id:   @revision_base.id
       )
     end
-    # =========================================================
 
 
-    # Limpiar fotos huerfanas de esta sección
     existing_photos.each do |photo|
       code_part  = photo.code.to_s.split(' ').first
       section_of = code_part.to_s.split('.').first.to_i
@@ -510,7 +484,6 @@ class PlatRevisionsController < ApplicationController
       photo.destroy unless keep_photo_code.include?(photo.code)
     end
 
-    # Imagen general
     if params[:imagen_general].present?
       @revision_base.revision_photos.create!(
         photo: params[:imagen_general],
@@ -518,7 +491,6 @@ class PlatRevisionsController < ApplicationController
       )
     end
 
-    # Guardar color (marcar como revisado)
     color_flag = params[:color].present? && params[:color] == "1"
     @revision_section.color = color_flag
     @revision_section.save!
@@ -580,18 +552,12 @@ class PlatRevisionsController < ApplicationController
     item  = @inspection.item
     group = item.group
 
-    # --- LÓGICA DE CÓDIGO ÚNICO POR SECCIÓN ---
 
-    # 1. Buscamos si YA existe un Another en esta sección para este activo
     existing_another = Another.where(item_id: item.id, section: @section).first
 
     if existing_another
-      # CASO A: Ya existen defectos personalizados en esta sección.
-      # Usamos EL MISMO código que ya tienen (ej: 1.8)
       new_code = existing_another.code
     else
-      # CASO B: Es el primer defecto personalizado en esta sección.
-      # Calculamos el siguiente disponible basado SOLO en las reglas base (RulesPlat)
 
       prefix_str = "#{@section}."
       base_codes = RulesPlat.where(group_id: group.id)
@@ -601,31 +567,25 @@ class PlatRevisionsController < ApplicationController
       max_y = 0
       base_codes.each do |c|
         parts = c.to_s.split('.')
-        # Validamos formato X.Y
         if parts[0] == @section.to_s && parts[1].present?
           y_val = parts[1].to_i
           max_y = y_val if y_val > max_y
         end
       end
 
-      # El nuevo código será el máximo de las reglas base + 1
       new_y = max_y + 1
       new_code = "#{@section}.#{new_y}"
     end
 
-    # --- CREACIÓN DEL REGISTRO ---
 
     @another = Another.new(
       point: point,
       level: level,
       item_id: item.id,
-      code: new_code, # Aquí irá el código repetido o el nuevo calculado
+      code: new_code,
       section: @section
     )
 
-    # IMPORTANTE: Esto requiere que hayas modificado el modelo Another
-    # agregando 'attr_accessor :plat_context' como vimos en el paso anterior
-    # para saltar la validación de 'ruletype'.
     @another.plat_context = true
 
     if @another.save
@@ -640,15 +600,13 @@ class PlatRevisionsController < ApplicationController
 
   def edit_rule
     @inspection = Inspection.find(params[:inspection_id])
-    # Asegúrate de tener @revision_base, etc. si lo requieres
 
     @another = Another.find(params[:another_id])
     @section = params[:section]
 
     @revision_base = Revision.find_by(inspection_id: @inspection.id)
-    authorize! @revision_base  # O como manejes tu pundit/cancancan
+    authorize! @revision_base
 
-    # Renderizar una vista "edit_rule.html.erb" muy similar a tu "new_rule" pero con @another cargado
   end
 
   def update_rule
@@ -707,7 +665,6 @@ class PlatRevisionsController < ApplicationController
 
   private
 
-  # Para encontrar la plat_revision (equivalente a def revision)
   def plat_revision
     @plat_revision = PlatRevision.find(params[:id])
   end
