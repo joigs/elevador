@@ -412,7 +412,7 @@ class PlatRevisionsController < ApplicationController
       fail_val = ActiveModel::Type::Boolean.new.cast(row[:fail])
       level    = row[:level].presence || "L"
       comment  = row[:comment].presence
-      photo_file = row[:photo]
+      photo_files = Array(row[:photos]).reject(&:blank?)
 
       # Lógica de gravedad automática por repetición
       if fail_val && @black_inspection && black_pairs.include?([code, point]) && (@inspection.rerun == false || third_points.include?(point))
@@ -429,12 +429,8 @@ class PlatRevisionsController < ApplicationController
         photo_code = "#{code} #{point}"
         keep_photo_code << photo_code
 
-        if photo_file.present?
-          if (existing = existing_photos_by_code[photo_code])
-            existing.update(photo: photo_file)
-          else
-            @revision_base.revision_photos.create!(photo: photo_file, code: photo_code)
-          end
+        photo_files.each do |file|
+          @revision_base.revision_photos.create!(photo: file, code: photo_code)
         end
       end
     end
@@ -728,26 +724,22 @@ class PlatRevisionsController < ApplicationController
           :fail,
           :level,
           :comment,
-          :photo
+          { photos: [] }
         ]
       )[:plat_rules] || {}
   end
 
-  # Solo los null_condition (N/A), vienen en params[:revision][:null_condition]
   def plat_revision_null_params
     params
       .fetch(:revision, {})
       .permit(null_condition: [])[:null_condition] || []
   end
 
-  # Pasado / defecto anterior (columna "Defecto anterior")
   def plat_past_revision_params
     params
       .permit(past_revision: { fail: [], codes: [], points: [], levels: [] })[:past_revision] || {}
   end
 
-  # Si quieres algo equivalente a revision_params, pero para la cabecera de plat_revision:
-  # (ahora solo usas color/imagen_general directamente desde params, así que es opcional)
   def plat_revision_params
     params
       .fetch(:plat_revision, {})
@@ -756,13 +748,13 @@ class PlatRevisionsController < ApplicationController
         :item_id,
         :group_id,
         :section,
+        :is_old,
         :color,
         :imagen_general,
         :imagen_general_comment
       )
   end
 
-  # Para "another" puedes seguir usando el mismo:
   def another_params
     params.require(:another).permit(:point, :section, { ins_type: [] }, { level: [] })
   end

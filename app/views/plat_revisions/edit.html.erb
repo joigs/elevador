@@ -8,7 +8,6 @@
                                        'Si quieres subir una imagen que no esta asociada a un defecto, presiona el botón con la cámara al inicio de la página.',
                                        'Puedes elegir entre subir una imagen normal y una imagen que se reduzca su tamaño, usa la segunda cuando haya problemas de internet.',
                                        'Para que los cambios sean guardados, debes presionar el botón Guardar Cambios, Ver fallas registradas, o moverte a otra sección',
-                                       'Cada campo de imagen solo soporta una imagen a la vez, subir otra imagen en el mismo campo sobreescribirá la imagen anterior, para subir múltiples imagenés debes presionar el botón Guardar cambios para que la primera imagen sea subida',
                                        'Si es que el defecto no aplica, marca la casilla N/A del defecto.',
                                        'Si es que la ispección anterior no esta en sistema, en los defectos de la inspección anterior marca la casilla defecto anterior',
                                        'Despues de revisar cada sección, marca la "casilla Marcar como revisado" al fondo de la página, sino no podrás cerrar la inspección.',
@@ -379,31 +378,23 @@
                 </td>
                 <%= hidden_field_tag "revision[priority][]", "", data: { rules_form_target: "priority" } %>
                 <%= hidden_field_tag "revision[number][]", "", data: { rules_form_target: "number" } %>
-                <td class="px-4 py-4 justify-center items-center overflow-hidden">
-                  <div data-controller="file-upload image-resize preview">
-                    <%= file_field_tag "plat_rules[#{row_key}][photo]",
+                <td class="px-4 py-4 align-top overflow-hidden">
+                  <div data-controller="image-resize multi-file">
+                    <%= file_field_tag "plat_rules[#{row_key}][photos][]",
+                                       multiple: true,
                                        class: "w-full",
                                        id: "photo_#{index}",
                                        style: "border: 2px solid #24ACBD; border-radius: 4px; padding: 5px;",
                                        disabled: !is_checked,
                                        data: {
                                          rules_form_target: "photo",
-                                         file_upload_target: "file",
-                                         image_resize_target: "file",
-                                         preview_target: "fileInput",
-                                         action: "file-upload#fileChanged change->file-upload#fileChanged change->image-resize#resizeImage change->preview#showImage",
+                                         multi_file_target: "input",
+                                         action: "change->multi-file#added"
                                        },
                                        accept: "image/*" %>
                     <%= hidden_field_tag "revision_photos[code][]", "#{rule.code} #{rule.point}", id: nil, data: { rules_form_target: "photoCode" } %>
-                    <label for="photo_#{index}" class="cursor-pointer">
-                        <span data-file-upload-target="filename" class="text-gray-500">
-                          No hay archivo seleccionado
-                        </span>
-                    </label>
 
-                    <img data-preview-target="previewImage"
-                         alt="Vista previa"
-                         style="display: none; max-width: 200px; margin-top: 8px;" />
+                    <div data-multi-file-target="list" class="mt-2"></div>
                   </div>
                 </td>
 

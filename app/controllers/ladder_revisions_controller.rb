@@ -545,15 +545,18 @@ class LadderRevisionsController < ApplicationController
 
 
 
-    if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
-      params[:revision_photos][:photo].each_with_index do |photo, index|
-        if photo.present?
+    files_by_row = params.dig(:revision_photos, :files) || {}
+    codes_by_row = params.dig(:revision_photos, :code)  || {}
 
-          code = params[:revision_photos][:code][index]
-          @revision_base.revision_photos.create(photo: photo, code: code)
-        end
+    files_by_row.each do |row_index, files|
+      code = codes_by_row[row_index]
+      next if code.blank?
+
+      Array(files).reject(&:blank?).each do |file|
+        @revision_base.revision_photos.create(photo: file, code: code)
       end
     end
+
 
     if params[:imagen_general].present?
       @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
@@ -579,14 +582,14 @@ class LadderRevisionsController < ApplicationController
 
   def ladder_revision_params
     params.fetch(:ladder_revision, {}).permit(
-      :inspection_id, :group_id, :item_id, :color, :section, :id, :imagen_general, :imagen_general_comment,
+      :inspection_id, :group_id, :item_id, :color, :is_old, :section, :id, :imagen_general, :imagen_general_comment,
       codes: [], points: [], levels: [], fail: [], comment: [], priority: [], number: [], null_condition: [], garbage: []
     ).merge(revision_photos_params).merge(past_revision: past_revision_params)
   end
 
-  #agrega los parametros de las fotos a la revision
   def revision_photos_params
-    params.permit(revision_photos: {photo: [], code: []})[:revision_photos] || {}
+    return {} if params[:revision_photos].blank?
+    params[:revision_photos].permit(files: {}, code: {})
   end
 
   def past_revision_params

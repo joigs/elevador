@@ -738,13 +738,15 @@ class RevisionsController < ApplicationController
 
 
 
-    if params.dig(:revision_photos, :photo).present? && params.dig(:revision_photos, :photo).reject(&:blank?).any?
-      params[:revision_photos][:photo].each_with_index do |photo, index|
-        if photo.present?
+    files_by_row = params.dig(:revision_photos, :files) || {}
+    codes_by_row = params.dig(:revision_photos, :code)  || {}
 
-          code = params[:revision_photos][:code][index]
-          @revision_base.revision_photos.create(photo: photo, code: code)
-        end
+    files_by_row.each do |row_index, files|
+      code = codes_by_row[row_index]
+      next if code.blank?
+
+      Array(files).reject(&:blank?).each do |file|
+        @revision_base.revision_photos.create(photo: file, code: code)
       end
     end
 
@@ -972,7 +974,8 @@ class RevisionsController < ApplicationController
   end
 
   def revision_photos_params
-    params.permit(revision_photos: {photo: [], code: []})[:revision_photos] || {}
+    return {} if params[:revision_photos].blank?
+    params[:revision_photos].permit(files: {}, code: {})
   end
 
   def past_revision_params
