@@ -268,6 +268,8 @@ class DocumentGeneratorLadder
 
     last_errors = []
     last_errors_lift = []
+    last_errors_graves = []
+    last_errors_graves_lift = []
     if last_revision_base
       last_revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
 
@@ -293,6 +295,8 @@ class DocumentGeneratorLadder
 
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
+        doc.replace('{{revision_past_errors_graves}}', "")
+        doc.replace('{{revision_past_errors_graves_lift}}', "")
 
       end
 
@@ -300,6 +304,8 @@ class DocumentGeneratorLadder
         doc.replace('{{informe_anterior}}', "Informe anterior sin defectos registrados")
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
+        doc.replace('{{revision_past_errors_graves}}', "")
+        doc.replace('{{revision_past_errors_graves_lift}}', "")
 
       else
         control9384 = false
@@ -318,10 +324,25 @@ class DocumentGeneratorLadder
             else
               last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
+
+          elsif level.to_s.strip == "G"
+
+            if revision.codes.include?(last_revision.codes[index])
+              if revision.points.include?(last_revision.points[index])
+                last_errors_graves << last_revision.codes[index] + " " + last_revision.points[index]
+              else
+                last_errors_graves_lift << last_revision.codes[index] + " " + last_revision.points[index]
+              end
+            else
+              last_errors_graves_lift << last_revision.codes[index] + " " + last_revision.points[index]
+            end
           end
         end
 
         formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                                   " }.join("\n")
+
+        formatted_errors_graves = last_errors_graves.map { |e| "• #{e}\n                                                                                   " }.join("\n")
+        formatted_errors_graves_lift = last_errors_graves_lift.map { |e| "• #{e}\n                                                                                   " }.join("\n")
 
 
         if last_errors.blank?
@@ -384,6 +405,8 @@ class DocumentGeneratorLadder
 
           doc.replace('{{revision_past_errors_level}}', "")
           doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+          doc.replace('{{revision_past_errors_graves}}', formatted_errors_graves)
+          doc.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
 
 
         else
@@ -394,6 +417,8 @@ class DocumentGeneratorLadder
             doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en informe anterior N°#{last_inspection.number} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+            doc.replace('{{revision_past_errors_graves}}', formatted_errors_graves)
+            doc.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
           else
 
             if report.empresa_anterior=="S/I"
@@ -403,6 +428,8 @@ class DocumentGeneratorLadder
             end
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+            doc.replace('{{revision_past_errors_graves}}', formatted_errors_graves)
+            doc.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
           end
 
 
@@ -413,10 +440,9 @@ class DocumentGeneratorLadder
       doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
       doc.replace('{{revision_past_errors_level}}', "")
       doc.replace('{{revision_past_errors_level_lift}}', "")
+      doc.replace('{{revision_past_errors_graves}}', "")
+      doc.replace('{{revision_past_errors_graves_lift}}', "")
     end
-
-
-
 
 
 

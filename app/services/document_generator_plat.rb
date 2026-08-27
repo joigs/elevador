@@ -357,6 +357,8 @@ class DocumentGeneratorPlat
 
     last_errors       = []
     last_errors_lift  = []
+    last_errors_graves      = []
+    last_errors_graves_lift = []
     exists_last_levels = last_revision_entries.any?
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
@@ -371,6 +373,8 @@ class DocumentGeneratorPlat
         doc2.replace('{{informe_anterior}}',               doc_text)
         doc2.replace('{{revision_past_errors_level}}',     '')
         doc2.replace('{{revision_past_errors_level_lift}}', '')
+        doc2.replace('{{revision_past_errors_graves}}',      '')
+        doc2.replace('{{revision_past_errors_graves_lift}}', '')
         doc2.commit(output_path)
 
       elsif !exists_last_levels && report.past_number.nil? && report.past_date.nil?
@@ -378,23 +382,42 @@ class DocumentGeneratorPlat
         doc2.replace('{{informe_anterior}}',                'Informe anterior sin defectos registrados')
         doc2.replace('{{revision_past_errors_level}}',     '')
         doc2.replace('{{revision_past_errors_level_lift}}','')
+        doc2.replace('{{revision_past_errors_graves}}',      '')
+        doc2.replace('{{revision_past_errors_graves_lift}}', '')
         doc2.commit(output_path)
 
       else
         control_leves = false
 
         last_revision_entries.each do |e|
-          if e.level.to_s.strip == 'L'
+          nivel = e.level.to_s.strip
+
+          if nivel == 'L'
             control_leves = true
             if revision_pairs_set.include?([e.code, e.point])
               last_errors << "#{e.code} #{e.point}"
             else
               last_errors_lift << "#{e.code} #{e.point}"
             end
+
+          elsif nivel.present?
+            if revision_pairs_set.include?([e.code, e.point])
+              last_errors_graves << "#{e.code} #{e.point}"
+            else
+              last_errors_graves_lift << "#{e.code} #{e.point}"
+            end
           end
         end
 
         formatted_errors_lift = last_errors_lift.map do |le|
+          "• #{le}\n                                                                                        "
+        end.join("\n")
+
+        formatted_errors_graves = last_errors_graves.map do |le|
+          "• #{le}\n                                                                                        "
+        end.join("\n")
+
+        formatted_errors_graves_lift = last_errors_graves_lift.map do |le|
           "• #{le}\n                                                                                        "
         end.join("\n")
 
@@ -457,6 +480,8 @@ class DocumentGeneratorPlat
 
           doc2.replace('{{revision_past_errors_level}}',      '')
           doc2.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+          doc2.replace('{{revision_past_errors_graves}}',      formatted_errors_graves)
+          doc2.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
 
         else
           formatted_errors = last_errors.map do |le|
@@ -479,6 +504,8 @@ class DocumentGeneratorPlat
             doc2.replace('{{informe_anterior}}', text)
             doc2.replace('{{revision_past_errors_level}}',     formatted_errors)
             doc2.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+            doc2.replace('{{revision_past_errors_graves}}',      formatted_errors_graves)
+            doc2.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
           else
             texto_posible_past = ''
             if report.cert_ant == 'Si'
@@ -506,6 +533,8 @@ class DocumentGeneratorPlat
             end
             doc2.replace('{{revision_past_errors_level}}',     formatted_errors)
             doc2.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+            doc2.replace('{{revision_past_errors_graves}}',      formatted_errors_graves)
+            doc2.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
           end
         end
 
@@ -516,6 +545,8 @@ class DocumentGeneratorPlat
       doc2.replace('{{informe_anterior}}',               'No existe información de informe anterior')
       doc2.replace('{{revision_past_errors_level}}',     '')
       doc2.replace('{{revision_past_errors_level_lift}}','')
+      doc2.replace('{{revision_past_errors_graves}}',      '')
+      doc2.replace('{{revision_past_errors_graves_lift}}', '')
       doc2.commit(output_path)
     end
 

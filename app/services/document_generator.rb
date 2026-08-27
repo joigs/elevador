@@ -410,6 +410,8 @@ class DocumentGenerator
 
     last_errors = []
     last_errors_lift = []
+    last_errors_graves = []
+    last_errors_graves_lift = []
 
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
@@ -419,13 +421,15 @@ class DocumentGenerator
 
         if report.fecha
           doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha #{report.fecha&.strftime('%d/%m/%Y')}:")
-          else
+        else
 
           doc.replace('{{informe_anterior}}', "Con respecto al informe anterior con fecha desconocida:")
         end
 
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
+        doc.replace('{{revision_past_errors_graves}}', "")
+        doc.replace('{{revision_past_errors_graves_lift}}', "")
 
       end
 
@@ -433,6 +437,8 @@ class DocumentGenerator
         doc.replace('{{informe_anterior}}', "Informe anterior sin defectos registrados")
         doc.replace('{{revision_past_errors_level}}', "")
         doc.replace('{{revision_past_errors_level_lift}}', "")
+        doc.replace('{{revision_past_errors_graves}}', "")
+        doc.replace('{{revision_past_errors_graves_lift}}', "")
 
       else
 
@@ -453,11 +459,26 @@ class DocumentGenerator
             else
               last_errors_lift << last_revision.codes[index] + " " + last_revision.points[index]
             end
+
+          elsif level.to_s.strip == "G"
+
+            if revision.codes.include?(last_revision.codes[index])
+              if revision.points.include?(last_revision.points[index])
+                last_errors_graves << last_revision.codes[index] + " " + last_revision.points[index]
+              else
+                last_errors_graves_lift << last_revision.codes[index] + " " + last_revision.points[index]
+              end
+            else
+              last_errors_graves_lift << last_revision.codes[index] + " " + last_revision.points[index]
+            end
           end
 
         end
 
         formatted_errors_lift = last_errors_lift.map { |last_error_lift| "• #{last_error_lift}\n                                                                                   " }.join("\n")
+
+        formatted_errors_graves = last_errors_graves.map { |e| "• #{e}\n                                                                                   " }.join("\n")
+        formatted_errors_graves_lift = last_errors_graves_lift.map { |e| "• #{e}\n                                                                                   " }.join("\n")
 
 
         if last_errors.blank?
@@ -516,10 +537,12 @@ class DocumentGenerator
 
             doc.replace('{{informe_anterior}}', "Informe anterior N°#{texto_numero} #{texto_fecha} #{texto_empresa}no presenta Defectos leves")
 
-            end
+          end
 
           doc.replace('{{revision_past_errors_level}}', "")
           doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+          doc.replace('{{revision_past_errors_graves}}', formatted_errors_graves)
+          doc.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
 
 
         else
@@ -537,6 +560,8 @@ class DocumentGenerator
             doc.replace('{{informe_anterior}}', "Se mantienen las no conformidades indicadas en #{nombre_archivo} de fecha:#{last_inspection_inf_date&.strftime('%d/%m/%Y')}, las cuales se detallan a continuación:")
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+            doc.replace('{{revision_past_errors_graves}}', formatted_errors_graves)
+            doc.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
           else
 
             texto_posible_past = ""
@@ -568,19 +593,21 @@ class DocumentGenerator
             end
             doc.replace('{{revision_past_errors_level}}', formatted_errors)
             doc.replace('{{revision_past_errors_level_lift}}', formatted_errors_lift)
+            doc.replace('{{revision_past_errors_graves}}', formatted_errors_graves)
+            doc.replace('{{revision_past_errors_graves_lift}}', formatted_errors_graves_lift)
           end
 
 
         end
       end
 
-      else
-        doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
-        doc.replace('{{revision_past_errors_level}}', "")
-        doc.replace('{{revision_past_errors_level_lift}}', "")
+    else
+      doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
+      doc.replace('{{revision_past_errors_level}}', "")
+      doc.replace('{{revision_past_errors_level_lift}}', "")
+      doc.replace('{{revision_past_errors_graves}}', "")
+      doc.replace('{{revision_past_errors_graves_lift}}', "")
     end
-
-
 
     doc.replace('{{grupo_en_titulo}}', group.number)
 
