@@ -570,7 +570,7 @@ class LadderRevisionsController < ApplicationController
     end
   end
 
-
+  
 
 
   private

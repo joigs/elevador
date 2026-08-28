@@ -24,6 +24,22 @@
       <%= form.text_field :identificador, maxlength: 100, class: "form-input mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm" %>
     </div>
 
+    <% unless @item.identificador_provisorio? %>
+      <fieldset class="mt-6 border border-gray-700 rounded-md p-4">
+        <legend class="px-2 text-sm font-medium text-gray-300">Motivo</legend>
+
+        <label class="flex items-center gap-2 mb-2 cursor-pointer text-gray-300">
+          <%= radio_button_tag :motivo, "typo", false, required: true %>
+          Estaba mal escrito
+        </label>
+
+        <label class="flex items-center gap-2 cursor-pointer text-gray-300">
+          <%= radio_button_tag :motivo, "cambio", false, required: true %>
+          El identificador del activo cambió
+        </label>
+      </fieldset>
+    <% end %>
+
     <div class="mt-6">
       <%= form.submit "Guardar Identificador", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 cursor-pointer" %>
     </div>

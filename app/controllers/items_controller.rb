@@ -39,51 +39,53 @@ class ItemsController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-      authorize! @item = Item.new(item_params)
+      authorize! @item = Item.new(item_create_params)
+
+      attrs = item_create_params.to_h
 
       # Eliminar espacios en blanco de identificador
-      item_params[:identificador] = item_params[:identificador].gsub(/\s+/, "") if item_params[:identificador].present?
+      attrs["identificador"] = attrs["identificador"].gsub(/\s+/, "") if attrs["identificador"].present?
 
       # Validación de grupo
-      if item_params[:group_id] == "bad"
+      if attrs["group_id"] == "bad"
         flash.now[:alert] = "Seleccione un grupo válido"
         render :new, status: :unprocessable_entity
         return
       end
 
       # Validación de empresa
-      if item_params[:principal_id].blank? || !Principal.exists?(item_params[:principal_id])
+      if attrs["principal_id"].blank? || !Principal.exists?(attrs["principal_id"])
         flash.now[:alert] = "Seleccione una empresa válida"
         render :new, status: :unprocessable_entity
         return
       else
-        @principal = Principal.find(item_params[:principal_id])
+        @principal = Principal.find(attrs["principal_id"])
       end
 
       # Si el identificador está en blanco, generamos uno basado en la empresa y otros datos
-      if item_params[:identificador].blank?
-        item_params[:identificador] = "CAMBIAME(Empresa: #{item_params[:principal_id]}. #{SecureRandom.hex(10)})"
+      if attrs["identificador"].blank?
+        attrs["identificador"] = "CAMBIAME(Empresa: #{attrs["principal_id"]}. #{SecureRandom.hex(10)})"
       end
 
-      if Item.find_by(identificador: item_params[:identificador], principal_id: @principal.id, group_id: item_params[:group_id])
-        flash.now[:alert] = "El activo con id #{item_params[:identificador]} ya existe en la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
+      if Item.find_by(identificador: attrs["identificador"], principal_id: @principal.id, group_id: attrs["group_id"])
+        flash.now[:alert] = "El activo con id #{attrs["identificador"]} ya existe en la empresa #{Item.find_by(identificador: attrs["identificador"]).principal.name}"
         render :new, status: :unprocessable_entity
         return
       end
 
       # Verificación de duplicados
-      @item = Item.where(identificador: item_params[:identificador], principal_id: @principal.id).first_or_initialize
+      @item = Item.where(identificador: attrs["identificador"], principal_id: @principal.id).first_or_initialize
       current_group = @item.group&.id.to_s
-      @item.assign_attributes(item_params)
+      @item.assign_attributes(attrs)
       is_new_item = @item.new_record?
 
-      if @item.new_record? && Item.exists?(identificador: item_params[:identificador])
-        flash.now[:alert] = "El activo con id #{item_params[:identificador]} ya existe en la empresa #{Item.find_by(identificador: item_params[:identificador]).principal.name}"
+      if @item.new_record? && Item.exists?(identificador: attrs["identificador"])
+        flash.now[:alert] = "El activo con id #{attrs["identificador"]} ya existe en la empresa #{Item.find_by(identificador: attrs["identificador"]).principal.name}"
         render :new, status: :unprocessable_entity
         return
       end
 
-      if !@item.new_record? && current_group != item_params[:group_id]
+      if !@item.new_record? && current_group != attrs["group_id"]
         flash.now[:alert] = "El activo con identificador #{@item.identificador} pertenece a otro grupo. Seleccione el grupo correcto."
         render :new, status: :unprocessable_entity
         return
@@ -132,12 +134,48 @@ class ItemsController < ApplicationController
   # Nuevo método para actualizar identificador
   def update_identificador
     authorize! item
-    if @item.update(item_identificador_params)
-      flash[:notice] = "Identificador actualizado"
-      redirect_to items_path
-    else
+
+    nuevo  = params.dig(:item, :identificador).to_s.gsub(/\s+/, "")
+    motivo = params[:motivo].to_s
+
+    if nuevo.blank?
+      @item.errors.add(:identificador, "no puede estar en blanco")
       render :edit_identificador, status: :unprocessable_entity
+      return
     end
+
+    if nuevo == @item.identificador
+      flash[:notice] = "El identificador no cambió"
+      redirect_to items_path
+      return
+    end
+
+    otro = Item.where.not(id: @item.id).find_by(identificador: nuevo)
+    if otro
+      @item.errors.add(:identificador, "ya existe en la empresa #{otro.principal&.name}")
+      render :edit_identificador, status: :unprocessable_entity
+      return
+    end
+
+    motivo = "typo" if @item.identificador_provisorio?
+
+    case motivo
+    when "typo"
+      @item.corregir_identificador!(nuevo)
+      flash[:notice] = "Identificador corregido. Se actualizaron las inspecciones que tenían el valor erróneo."
+    when "cambio"
+      @item.cambiar_identificador!(nuevo)
+      flash[:notice] = "Identificador actualizado. Las inspecciones anteriores conservan el identificador con el que se emitieron."
+    else
+      @item.errors.add(:base, "Indique si se trata de una corrección de tipeo o de un cambio real de identificador")
+      render :edit_identificador, status: :unprocessable_entity
+      return
+    end
+
+    redirect_to items_path
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.record.errors.full_messages.join(', ')
+    render :edit_identificador, status: :unprocessable_entity
   end
 
 
@@ -258,6 +296,10 @@ class ItemsController < ApplicationController
   end
 
   def item_params
+    params.require(:item).permit(:group_id, :principal_id)
+  end
+
+  def item_create_params
     params.require(:item).permit(:identificador, :group_id, :principal_id)
   end
 

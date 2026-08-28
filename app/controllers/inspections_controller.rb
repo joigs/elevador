@@ -65,6 +65,7 @@ class InspectionsController < ApplicationController
 
     @control = @inspection == @last_inspection
     @control3 = @item.identificador.include? "CAMBIAME"
+    @identificador_mismatch = @inspection.identificador_desactualizado?
     @report = Report.find_by(inspection: inspection)
     @inspections = Inspection.where("number > 0").order(number: :desc)
 
@@ -301,6 +302,33 @@ class InspectionsController < ApplicationController
   end
 
 
+  def sync_identificador
+    inspection
+    authorize! @inspection
+
+    if @inspection.item.nil?
+      flash[:alert] = "La inspección no tiene un activo asociado"
+      redirect_to inspection_path(@inspection)
+      return
+    end
+
+    unless @inspection.identificador_desactualizado?
+      flash[:notice] = "El identificador de la inspección ya coincide con el del activo"
+      redirect_to inspection_path(@inspection)
+      return
+    end
+
+    anterior = @inspection.identificador
+    @inspection.sincronizar_identificador!
+
+    flash[:notice] = "Identificador de la inspección actualizado de #{anterior} a #{@inspection.identificador}"
+    redirect_to inspection_path(@inspection)
+  rescue ActiveRecord::RecordInvalid => e
+    flash[:alert] = "No se pudo actualizar el identificador: #{e.record.errors.full_messages.join(', ')}"
+    redirect_to inspection_path(@inspection)
+  end
+
+
 
   def update
     authorize! inspection
@@ -309,7 +337,7 @@ class InspectionsController < ApplicationController
 
     black_number = inspection.number*-1
 
-    if @inspection.update(inspection_params.except(:manual_action_name, :calle))
+    if @inspection.update(inspection_params.except(:manual_action_name, :calle, :identificador, :group_id, :principal_id))
 
       @black_inspection = Inspection.find_by(number: black_number)
       if @black_inspection
@@ -418,7 +446,7 @@ class InspectionsController < ApplicationController
     Rails.logger.error("[DocumentGenerator] Error al generar documento: #{e.message}")
     Rails.logger.error(e.backtrace.first(5).join("\n"))
     flash[:alert] = "Error al generar el documento: #{e.message}"
-    
+
     redirect_to inspection_path(inspection)
   end
 
@@ -482,9 +510,9 @@ class InspectionsController < ApplicationController
           end
 
         if isladder == false &&
-          !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } ||
-            revision_color_section_0&.codes&.first == '0.1.1') &&
-          (report.certificado_minvu.blank? || report.certificado_minvu.to_s.downcase == 'no')
+           !(revision_nulls.any? { |element| element.point&.start_with?('0.1.1_') } ||
+             revision_color_section_0&.codes&.first == '0.1.1') &&
+           (report.certificado_minvu.blank? || report.certificado_minvu.to_s.downcase == 'no')
 
           flash[:alert] = "No se puede cerrar la inspección, No se ha ingresado certificado MINVU"
           redirect_to inspection_path(@inspection)
@@ -740,7 +768,7 @@ class InspectionsController < ApplicationController
 
     revision_photos = revision_base.revision_photos.ordered_by_code
     item = inspection.item
-    item_rol = item.identificador.chars.last(4).join
+    item_rol = (inspection.identificador.presence || item.identificador).to_s.chars.last(4).join
 
     if revision_photos.empty?
       flash[:alert] = "No se encontraron fotos para descargar."
@@ -935,12 +963,12 @@ class InspectionsController < ApplicationController
 
         destino_edificio =
           item&.detail&.destino.presence ||
-            item&.ladder_detail&.destino
+          item&.ladder_detail&.destino
 
         sheet.write_row row, 0, [
           ins.number,
           ins.name,
-          item&.identificador,
+          ins.identificador.presence || item&.identificador,
           item&.principal&.name,
           ins.principal&.rut,
           ins.ins_date&.strftime('%d-%m-%Y'),
@@ -1337,7 +1365,7 @@ class InspectionsController < ApplicationController
         place: i.place,
         ins_date: i.ins_date&.strftime("%Y-%m-%d"),
         state: i.state,
-        item_identificador: i.item&.identificador,
+        item_identificador: i.identificador.presence || i.item&.identificador,
         group_id: i.item&.group&.id
       }
     end

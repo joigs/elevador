@@ -90,6 +90,7 @@ Rails.application.routes.draw do
       get   :edit_certificacion
       patch :update_certificacion
       get   :download_certificacion
+      patch :sync_identificador
     end
 
     #get :download_images

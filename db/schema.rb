@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_28_193059) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_27_211159) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -197,7 +197,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_28_193059) do
     t.boolean "copia", default: false, null: false
     t.boolean "ignorar", default: false, null: false
     t.boolean "is_old", default: false, null: false
+    t.string "identificador"
     t.index ["facturacion_id"], name: "index_inspections_on_facturacion_id"
+    t.index ["identificador"], name: "index_inspections_on_identificador"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
     t.index ["principal_id"], name: "index_inspections_on_principal_id"
@@ -209,8 +211,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_28_193059) do
     t.datetime "updated_at", null: false
     t.bigint "group_id", null: false
     t.bigint "principal_id", null: false
+    t.string "identificador_anterior"
     t.index ["group_id"], name: "index_items_on_group_id"
     t.index ["identificador"], name: "index_items_on_identificador"
+    t.index ["identificador_anterior"], name: "index_items_on_identificador_anterior"
     t.index ["principal_id"], name: "index_items_on_principal_id"
   end
 

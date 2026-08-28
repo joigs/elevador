@@ -33,4 +33,41 @@ class Item < ApplicationRecord
   end
 
 
+  def identificador_provisorio?
+    identificador.to_s.include?("CAMBIAME")
+  end
+
+  def cambiar_identificador!(nuevo)
+    nuevo = nuevo.to_s.strip
+    return false if nuevo.blank? || nuevo == identificador
+
+    update!(identificador_anterior: identificador, identificador: nuevo)
+  end
+
+  def corregir_identificador!(nuevo)
+    nuevo = nuevo.to_s.strip
+    return false if nuevo.blank? || nuevo == identificador
+
+    erroneo = identificador
+
+    transaction do
+      update!(identificador: nuevo)
+      inspections.where(identificador: erroneo)
+                 .update_all(identificador: nuevo, updated_at: Time.current)
+    end
+  end
+
+  def corregir_identificador_anterior!(nuevo)
+    nuevo = nuevo.to_s.strip
+    return false if nuevo == identificador_anterior
+
+    erroneo = identificador_anterior
+
+    transaction do
+      update!(identificador_anterior: nuevo.presence)
+      inspections.where(identificador: erroneo)
+                 .update_all(identificador: nuevo, updated_at: Time.current) if erroneo.present?
+    end
+  end
+
 end

@@ -15,6 +15,7 @@ class Inspection < ApplicationRecord
   }
 
   before_save :update_cambio_if_result_changed
+  before_validation :heredar_identificador_del_item
 
 
 
@@ -104,6 +105,18 @@ class Inspection < ApplicationRecord
   scope :vencidos, -> { where("result LIKE ?", "Vencido%") }
 
 
+
+  def identificador_desactualizado?
+    return false if item.nil?
+    return false if identificador.blank?
+    identificador != item.identificador
+  end
+
+  def sincronizar_identificador!
+    return false if item.nil?
+    update!(identificador: item.identificador)
+  end
+
   private
 
   def self.calculate_new_number
@@ -143,4 +156,9 @@ class Inspection < ApplicationRecord
     end
   end
 
+  def heredar_identificador_del_item
+    return if identificador.present?
+    return if item_id.blank?
+    self.identificador = item&.identificador
+  end
 end
