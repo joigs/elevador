@@ -208,7 +208,7 @@ class DocumentGeneratorPlat
     aux_date = report.urm_fecha&.strftime('%d/%m/%Y') || 'S/I'
     doc.replace('{{urm_fecha}}', aux_date)
 
-    doc.replace('{{item_identificador}}', item.identificador.to_s)
+    doc.replace('{{item_identificador}}', inspection.identificador.to_s)
     doc.replace('{{detail_detalle}}',     detail.detalle.to_s)
     doc.replace('{{detail_marca}}',       detail.marca.to_s)
     doc.replace('{{detail_modelo}}',      detail.modelo.to_s)
@@ -328,6 +328,9 @@ class DocumentGeneratorPlat
 
     if last_inspection
       last_revision_base = PlatRevision.find_by(inspection_id: last_inspection.id)
+      doc.replace('{{instalation_number}}', last_inspection.identificador)
+    else
+      doc.replace('{{instalation_number}}', "N/A")
     end
 
     if last_revision_base

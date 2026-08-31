@@ -173,7 +173,6 @@ class DocumentGenerator
 
     end
 
-    doc.replace('{{instalation_number}}', item.identificador)
 
     if revision.codes.first == '0.1.1'
       doc.replace('{{certificado_minvu}}', "No cumple")
@@ -226,7 +225,7 @@ class DocumentGenerator
 
     aux_date = report.urm_fecha&.strftime('%d/%m/%Y') || 'S/I'
     doc.replace('{{urm_fecha}}', aux_date)
-    doc.replace('{{item_identificador}}', item.identificador)
+    doc.replace('{{item_identificador}}', inspection.identificador)
     doc.replace('{{detail_detalle}}', detail.detalle)
     doc.replace('{{detail_marca}}', detail.marca)
     doc.replace('{{detail_modelo}}', detail.modelo)
@@ -388,7 +387,9 @@ class DocumentGenerator
 
     if last_inspection
       last_revision_base = Revision.find_by(inspection_id: last_inspection.id)
-
+      doc.replace('{{instalation_number}}', last_inspection.identificador)
+    else
+      doc.replace('{{instalation_number}}', "N/A")
     end
 
 
