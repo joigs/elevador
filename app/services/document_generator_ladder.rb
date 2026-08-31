@@ -16,7 +16,7 @@ class DocumentGeneratorLadder
     admin = User.find(admin_id)
     inspectors = inspection.users
     rules = Ladder.all.drop(11)
-    item_rol = item.identificador.chars.last(4).join
+    item_rol = inspection.identificador.chars.last(4).join
 
     revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [], number: [], priority: [])
     revision_base.revision_colors.order(:section).each do |revision_color|
@@ -106,7 +106,6 @@ class DocumentGeneratorLadder
     end
 
 
-    doc.replace('{{instalation_number}}', item.identificador)
 
     if revision.codes.first == '0.1.1'
       doc.replace('{{certificado_minvu}}', "No cumple")
@@ -352,7 +351,7 @@ class DocumentGeneratorLadder
 
           if control9384 == true
             if last_inspection.number.to_i > 0
-              item_rol_past = item.identificador.chars.last(4).join
+              item_rol_past = last_inspection.identificador.chars.last(4).join
               if last_inspection.rerun == true
                 item_rol_past << "-RI"
               end
@@ -378,7 +377,7 @@ class DocumentGeneratorLadder
             end
 
             if last_inspection.number.to_i > 0
-              item_rol_past = item.identificador.chars.last(4).join
+              item_rol_past = last_inspection.identificador.chars.last(4).join
               if last_inspection.rerun == true
                 item_rol_past << "-RI"
               end

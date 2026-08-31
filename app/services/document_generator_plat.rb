@@ -121,7 +121,7 @@ class DocumentGeneratorPlat
     end
 
 
-    item_rol = item.identificador.to_s.chars.last(4).join
+    item_rol = inspection.identificador.to_s.chars.last(4).join
 
     if inspection.rerun == true
       item_rol << "-RI"
@@ -179,7 +179,6 @@ class DocumentGeneratorPlat
       doc.replace('{{report_fecha}}', 'S/I')
     end
 
-    doc.replace('{{instalation_number}}', item.identificador.to_s)
 
     first_code = revision_entries.first&.code
     if first_code == '0.1.1'
@@ -430,7 +429,7 @@ class DocumentGeneratorPlat
 
           if control_leves == true
             if last_inspection && last_inspection.number.to_i > 0
-              item_rol_past = item.identificador.chars.last(4).join
+              item_rol_past = last_inspection.identificador.chars.last(4).join
               if last_inspection.rerun == true
                 item_rol_past << "-RI"
               end
@@ -454,7 +453,7 @@ class DocumentGeneratorPlat
             end
 
             if last_inspection && last_inspection.number.to_i > 0
-              item_rol_past = item.identificador.chars.last(4).join
+              item_rol_past = last_inspection.identificador.chars.last(4).join
               if last_inspection.rerun == true
                 item_rol_past << "-RI"
               end
@@ -495,7 +494,7 @@ class DocumentGeneratorPlat
 
           if last_inspection_obj&.number.to_i > 0
 
-            item_rol_past = item.identificador.chars.last(4).join
+            item_rol_past = last_inspection.identificador.chars.last(4).join
             if last_inspection_obj.rerun == true
               item_rol_past << "-RI"
             end

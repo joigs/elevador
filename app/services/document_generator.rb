@@ -59,7 +59,7 @@ class DocumentGenerator
 
 
 
-    item_rol = item.identificador.chars.last(4).join
+    item_rol = inspection.identificador.chars.last(4).join
 
 
     revision = OpenStruct.new(codes: [], points: [], levels: [], comment: [])
@@ -486,7 +486,7 @@ class DocumentGenerator
 
           if control9384 == true
             if last_inspection.number.to_i > 0
-              item_rol_past = item.identificador.chars.last(4).join
+              item_rol_past = last_inspection.identificador.chars.last(4).join
               if last_inspection.rerun == true
                 item_rol_past << "-RI"
               end
@@ -512,7 +512,7 @@ class DocumentGenerator
             end
 
             if last_inspection.number.to_i > 0
-              item_rol_past = item.identificador.chars.last(4).join
+              item_rol_past = last_inspection.identificador.chars.last(4).join
               if last_inspection.rerun == true
                 item_rol_past << "-RI"
               end
@@ -552,7 +552,7 @@ class DocumentGenerator
 
           if last_inspection.number > 0
             last_inspection_inf_date = last_inspection.inf_date
-            item_rol_past = item.identificador.chars.last(4).join
+            item_rol_past = last_inspection.identificador.chars.last(4).join
             if last_inspection.rerun == true
               item_rol_past << "-RI"
             end
