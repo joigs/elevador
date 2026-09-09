@@ -37,11 +37,15 @@
     <%= form.password_field :password_confirmation, required: !form.object.persisted?, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <div>
-    <%= form.label :principal_id, "Empresa", class: "block text-gray-300" %>
-    <%= form.collection_select :principal_id, Principal.all, :id, :name, { prompt: 'Selecciona una empresa' }, { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim' }, selected: @user&.principal_id } %>
-  </div>
-
+  <% if Current.user.empresa == nil %>
+    <div>
+      <% empresas_disponibles = Principal.where(activo: true)
+                                         .or(Principal.where(id: @user.principal_id))
+                                         .order(:name) %>
+      <%= form.label :principal_id, "Empresa", class: "block text-gray-300" %>
+      <%= form.collection_select :principal_id, empresas_disponibles, :id, :name, { prompt: 'Selecciona una empresa' }, { class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", data: { controller: 'slim' }, selected: @user&.principal_id } %>
+    </div>
+  <% end %>
 
   <div>
     <%= form.label :"Nombre real", class: "block text-gray-300" %>
@@ -50,11 +54,12 @@
 
 
 
-
-  <div>
-    <%= form.label :"Cargo", class: "block text-gray-300" %>
-    <%= form.select :empresa, options_for_select([['Empresario', 'Empresario']], selected: @user.empresa), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-  </div>
+  <% if Current.user.empresa == nil %>
+    <div>
+      <%= form.label :"Cargo", class: "block text-gray-300" %>
+      <%= form.select :empresa, options_for_select([['Empresario', 'Empresario']], selected: @user.empresa), {}, class: "mt-1 block w-full pl-3 pr-10 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    </div>
+  <% end %>
 
 
 

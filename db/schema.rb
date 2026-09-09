@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_27_211159) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_09_182441) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -364,6 +364,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_27_211159) do
     t.datetime "updated_at", null: false
     t.string "contact_email"
     t.string "place"
+    t.boolean "activo", default: true, null: false
+    t.index ["activo"], name: "index_principals_on_activo"
   end
 
   create_table "reports", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -516,6 +518,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_27_211159) do
     t.boolean "super", default: false, null: false
     t.boolean "relleno", default: false, null: false
     t.bigint "favorito_admin_id"
+    t.boolean "activo", default: true, null: false
+    t.index ["activo"], name: "index_users_on_activo"
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["principal_id"], name: "index_users_on_principal_id"
     t.index ["username"], name: "index_users_on_username", unique: true

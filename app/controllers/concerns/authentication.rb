@@ -3,12 +3,23 @@ module Authentication
   included do
     before_action :set_current_user
     before_action :protect_pages
+    before_action :check_user_activo
     before_action :restrict_relleno_access
 
     private
 
     def set_current_user
       Current.user = User.find_by(id: session[:user_id]) if session[:user_id]
+    end
+
+    def check_user_activo
+      return unless Current.user
+      return if Current.user.puede_iniciar_sesion?
+
+      reset_session
+      Current.user = nil
+      flash[:alert] = "Tu cuenta está desactivada. Contacta al administrador."
+      redirect_to new_session_path
     end
 
     def protect_pages

@@ -162,6 +162,9 @@ Rails.application.routes.draw do
     get :no_conformidad
     get :estado_activos
     get :defectos_activos
+    member do
+      patch :toggle_activo
+    end
   end
   resources :revisions, path: '/revisions' do
     member do

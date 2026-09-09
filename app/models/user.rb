@@ -98,6 +98,15 @@ class User < ApplicationRecord
     principal_id == principal_id_de(record)
   end
 
+
+
+  scope :activos, -> { where(activo: true) }
+
+  def puede_iniciar_sesion?
+    activo? && (principal.nil? || principal.activo?)
+  end
+
+
   private
 
   def principal_id_de(record)

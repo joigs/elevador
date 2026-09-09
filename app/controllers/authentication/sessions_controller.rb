@@ -19,6 +19,11 @@ class Authentication::SessionsController < ApplicationController
     @user = User.find_by("username = :login", {login: params[:login]})
 
     if @user&.authenticate(params[:password])
+      unless @user.puede_iniciar_sesion?
+        redirect_to new_session_path, alert: "Tu cuenta está desactivada. Contacta al administrador."
+        return
+      end
+
       session[:user_id] = @user.id
       flash[:notice] = "Bienvenido"
       if @user.relleno?

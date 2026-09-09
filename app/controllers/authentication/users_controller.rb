@@ -152,6 +152,13 @@ class Authentication::UsersController < ApplicationController
       return
     end
 
+    unless principal_seleccionada_activa?
+      @user = User.new(user_params.except(:password, :password_confirmation))
+      flash.now[:alert] = "La empresa seleccionada está desactivada"
+      render :new_client, status: :unprocessable_entity
+      return
+    end
+
     if user_params[:password].present? && user_params[:password_confirmation].present?
       unless user_params[:password] == user_params[:password_confirmation]
         flash.now[:alert] = "Las contraseñas no coinciden"
@@ -190,6 +197,13 @@ class Authentication::UsersController < ApplicationController
   def update_client
     if Current.user&.admin
       @user = User.find(params[:id])
+
+      unless principal_seleccionada_activa?(@user)
+        flash.now[:alert] = "La empresa seleccionada está desactivada"
+        render :edit_client, status: :unprocessable_entity
+        return
+      end
+
       if user_params[:password].present? && user_params[:password_confirmation].present?
         unless user_params[:password] == user_params[:password_confirmation]
           flash.now[:alert] = "Las contraseñas no coinciden"
@@ -326,6 +340,13 @@ class Authentication::UsersController < ApplicationController
     params.require(:user).permit(:username, :real_name, :password)
   end
 
+  def principal_seleccionada_activa?(user = nil)
+    principal_id = user_params[:principal_id]
+    return true if principal_id.blank?
+    return true if user && user.principal_id == principal_id.to_i
+
+    Principal.exists?(id: principal_id, activo: true)
+  end
   def relleno_update_params
     params.require(:user).permit(:username, :password)
   end

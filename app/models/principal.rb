@@ -21,7 +21,18 @@ class Principal < ApplicationRecord
 
   has_many :items
   has_many :inspections
-  has_many :users, dependent: :nullify
+  has_many :users, dependent: :destroy
+  after_update :sincronizar_usuarios_activo, if: :saved_change_to_activo?
+
+  scope :activas, -> { where(activo: true) }
+
+  def activar!
+    update!(activo: true)
+  end
+
+  def desactivar!
+    update!(activo: false)
+  end
 
 
 
@@ -61,6 +72,10 @@ class Principal < ApplicationRecord
 
     remainder = sum % 11
     remainder == 0 ? '0' : remainder == 1 ? 'K' : (11 - remainder).to_s
+  end
+
+  def sincronizar_usuarios_activo
+    users.update_all(activo: activo, updated_at: Time.current)
   end
 end
 

@@ -147,7 +147,8 @@ class PrincipalsController < ApplicationController
 
   # DELETE /principals/1 or /principals/1.json
   def destroy
-    authorize! principal.destroy
+    authorize! principal
+    @principal.destroy
     flash[:notice] = "Empresa eliminada"
     respond_to do |format|
       format.html { redirect_to principals_path }
@@ -155,6 +156,18 @@ class PrincipalsController < ApplicationController
     end
   end
 
+
+  def toggle_activo
+    authorize! principal
+
+    if @principal.update(activo: !@principal.activo)
+      flash[:notice] = @principal.activo? ? "Empresa activada" : "Empresa desactivada"
+    else
+      flash[:alert] = "No se pudo cambiar el estado de la empresa"
+    end
+
+    redirect_to principal_path(@principal), status: :see_other
+  end
 
   def items
     principal = Principal.find(params[:id])
@@ -651,9 +664,9 @@ class PrincipalsController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-    def principal_params
-      params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email, :place)
-    end
+  def principal_params
+    params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email, :place, :activo)
+  end
 
 
 
