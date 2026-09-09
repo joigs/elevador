@@ -13,10 +13,12 @@
             <% end %>
           <% end %>
         </div>
-        <div class="flex justify-between mt-1">
-          <%= button_tag '⟲', type: 'button', data: { action: 'rotate#rotateLeft' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
-          <%= button_tag '⟳', type: 'button', data: { action: 'rotate#rotateRight' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
-        </div>
+        <% if Current.user.admin? || @inspection.owner? %>
+          <div class="flex justify-between mt-1">
+            <%= button_tag '⟲', type: 'button', data: { action: 'rotate#rotateLeft' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+            <%= button_tag '⟳', type: 'button', data: { action: 'rotate#rotateRight' }, class: 'bg-gray-600 text-white px-2 py-1 rounded-full cursor-pointer' %>
+          </div>
+        <% end %>
         <div class="p-3 bg-gray-700 rounded-lg mb-6">
           <span class="text-gray-300">
             <%= photo.code.sub('GENERALCODE', '') %>
@@ -59,7 +61,11 @@
 
   <div class="container mx-auto px-4 py-6">
     <div class="flex flex-wrap justify-between items-center space-y-4 md:space-y-0">
-      <% if Current.user.admin && @inspection.result != 'En revisión'%>
+      <% if Current.user.empresa_de?(@inspection) %>
+        <%= link_to 'Volver a la ficha de inspección',
+                    inspection_path(@inspection),
+                    class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded shadow transition duration-300 ease-in-out" %>
+      <% end %>      <% if Current.user.admin && @inspection.result != 'En revisión'%>
         <%= link_to 'Volver atrás', inspection_path(@inspection), class: "px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded shadow transition duration-300 ease-in-out" %>
       <% end %>
 

@@ -72,6 +72,7 @@ class InspectionsController < ApplicationController
 
 
     @cot0 = Facturacion.find_by(number: 0)
+    @empresa_cliente = Current.user.empresa_de?(@inspection)
 
 
   end

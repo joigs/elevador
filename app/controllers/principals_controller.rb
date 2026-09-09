@@ -89,7 +89,6 @@ class PrincipalsController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.turbo_stream
     end
   end
 
@@ -134,13 +133,13 @@ class PrincipalsController < ApplicationController
     if Current.user.empresa != nil
       if @principal.id != Current.user.principal_id
         flash[:alert] = "No tienes permiso"
-        redirect_to principal_path(Current.user.principal_id)
+        return redirect_to principal_path(Current.user.principal_id), status: :see_other
       end
     end
 
-    if principal.update(principal_params)
+    if @principal.update(principal_params)
       flash[:notice] = "Empresa modificada"
-      redirect_to principal_path(principal)
+      redirect_to principal_path(@principal), status: :see_other
     else
       render :edit, status: :unprocessable_entity
     end
@@ -180,53 +179,43 @@ class PrincipalsController < ApplicationController
         redirect_to principal_path(Current.user.principal_id)
       end
     end
-
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
 
-    @inspections = []
-    @revisions_base = []
-    @items1, @items2, @items3, @items4 = [], [], [], []
-
-    @totalitems.each do |item|
-
-
-      case item.group.number
-      when 1
-        @items1 << item
-      when 2
-        @items2 << item
-      when 3
-        @items3 << item
-      when 4
-        @items4 << item
-      end
-
-    end
+    items_by_group = @totalitems.group_by(&:group_id)
 
     rules_per_group = {}
-    revisions_base_per_group = []
+    revisions_base_per_group = {}
+    group_types = {}
+    group_names = {}
 
     @groups.each do |group|
-      @items = instance_variable_get("@items#{group.number}")
-      @items.each do |item|
-        @inspections << item.inspections.order(number: :desc).first
+      items = items_by_group[group.id] || []
+      revisions = []
+
+      items.each do |item|
+        inspection = item.inspections.order(number: :desc).first
+        next unless inspection
+
+        revision = case group.type_of
+                   when "escala" then LadderRevision.find_by(inspection_id: inspection.id)
+                   when "plat"   then PlatRevision.find_by(inspection_id: inspection.id)
+                   else               Revision.find_by(inspection_id: inspection.id)
+                   end
+        next unless revision
+
+        revisions << revision
       end
 
-      @inspections.each do |inspection|
-        if group.type_of == "escala"
-          @revisions_base << LadderRevision.find_by(inspection_id: inspection.id)
-        else
-          @revisions_base << Revision.find_by(inspection_id: inspection.id)
-        end
-      end
+      rules_per_group[group.number] = case group.type_of
+                                      when "escala" then Ladder.all.to_a
+                                      when "plat"   then RulesPlat.where(group_id: group.id).to_a
+                                      else               group.rules.to_a
+                                      end
 
-      @rules = group.number == 4 ? Ladder.all : group.rules
-      rules_per_group[group.number] = @rules
-      revisions_base_per_group[group.number] = @revisions_base
-
-      @inspections = []
-      @revisions_base = []
+      revisions_base_per_group[group.number] = revisions
+      group_types[group.number] = group.type_of
+      group_names[group.number] = group.name
     end
 
     require 'write_xlsx'
@@ -239,7 +228,7 @@ class PrincipalsController < ApplicationController
         next
       end
 
-      sheet_name = group_number == 4 ? 'Escala' : "Grupo #{group_number}"
+      sheet_name = group_names[group_number]
       worksheet = workbook.add_worksheet(sheet_name)
 
       max_length = 0
@@ -250,10 +239,16 @@ class PrincipalsController < ApplicationController
         content = "#{rule.code} - #{rule.point}"
 
         revisions_base_per_group[group_number].each do |revision_base|
-          revision_base.revision_colors.each do |color|
-            color.codes.each_with_index do |code, index|
-              if code == rule.code && color.points[index] == rule.point
-                counter += 1
+          if group_types[group_number] == "plat"
+            if revision_base.plat_revision_rules_plats.any? { |prrp| prrp.rules_plat_id == rule.id }
+              counter += 1
+            end
+          else
+            revision_base.revision_colors.each do |color|
+              color.codes.each_with_index do |code, index|
+                if code == rule.code && color.points[index] == rule.point
+                  counter += 1
+                end
               end
             end
           end
@@ -395,15 +390,19 @@ class PrincipalsController < ApplicationController
       inspection = item.inspections.order(number: :desc).first
       next 0 unless inspection
 
-      if item.group.type_of == "escala"
-        revision = LadderRevision.find_by(inspection_id: inspection.id)
-      else
-        revision = Revision.find_by(inspection_id: inspection.id)
-      end
+      revision = case item.group.type_of
+                 when "escala" then LadderRevision.find_by(inspection_id: inspection.id)
+                 when "plat"   then PlatRevision.find_by(inspection_id: inspection.id)
+                 else               Revision.find_by(inspection_id: inspection.id)
+                 end
 
       next 0 unless revision
 
-      revision.revision_colors.map { |color| color.points.size }.max || 0
+      if item.group.type_of == "plat"
+        revision.plat_revision_rules_plats.size
+      else
+        revision.revision_colors.map { |color| color.points.size }.max || 0
+      end
     end.max
 
     max_defectos ||= 0
@@ -435,18 +434,25 @@ class PrincipalsController < ApplicationController
       worksheet_defectos.write(row, 4, item.group.name, cell_format)
 
       if inspection
-        if item.group.type_of == "escala"
-          revision = LadderRevision.find_by(inspection_id: inspection.id)
-        else
-          revision = Revision.find_by(inspection_id: inspection.id)
-        end
+        revision = case item.group.type_of
+                   when "escala" then LadderRevision.find_by(inspection_id: inspection.id)
+                   when "plat"   then PlatRevision.find_by(inspection_id: inspection.id)
+                   else               Revision.find_by(inspection_id: inspection.id)
+                   end
 
         if revision
           points = []
-          revision.revision_colors.each do |color|
-            color.points.each_with_index do |point, idx_point|
-              comment = color.comment[idx_point].to_s.strip.empty? ? "(Sin comentarios)" : "(#{color.comment[idx_point]})"
-              points << "#{point} #{comment}"
+          if item.group.type_of == "plat"
+            revision.plat_revision_rules_plats.includes(:rules_plat).each do |prrp|
+              comment = prrp.comment.to_s.strip.empty? ? "(Sin comentarios)" : "(#{prrp.comment})"
+              points << "#{prrp.rules_plat.point} #{comment}"
+            end
+          else
+            revision.revision_colors.each do |color|
+              color.points.each_with_index do |point, idx_point|
+                comment = color.comment[idx_point].to_s.strip.empty? ? "(Sin comentarios)" : "(#{color.comment[idx_point]})"
+                points << "#{point} #{comment}"
+              end
             end
           end
 
@@ -522,55 +528,50 @@ class PrincipalsController < ApplicationController
 
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
-    @items1, @items2, @items3, @items4 = [], [], [], []
-    @inspections, @revisions_base, @states, @identificadores = [], [], [], []
 
-    @items1, @items2, @items3, @items4 = [], [], [], []
-
-    @totalitems.each do |item|
-      case item.group.number
-      when 1
-        @items1 << item
-      when 2
-        @items2 << item
-      when 3
-        @items3 << item
-      when 4
-        @items4 << item
-      end
-    end
+    items_by_group = @totalitems.group_by(&:group_id)
 
     rules_per_group = {}
-    revisions_base_per_group = []
-    items_per_group = []
-    inspections_per_group = []
+    revisions_base_per_group = {}
+    items_per_group = {}
+    inspections_per_group = {}
+    group_types = {}
+    group_names = {}
 
     @groups.each do |group|
-      @items = instance_variable_get("@items#{group.number}")
-      @items.each do |item|
-        @inspections << item.inspections.order(number: :desc).first
-        @identificadores << item.identificador
+      items = items_by_group[group.id] || []
+
+      revisions = []
+      identificadores = []
+      states = []
+
+      items.each do |item|
+        inspection = item.inspections.order(number: :desc).first
+        next unless inspection
+
+        revision = case group.type_of
+                   when "escala" then LadderRevision.find_by(inspection_id: inspection.id)
+                   when "plat"   then PlatRevision.find_by(inspection_id: inspection.id)
+                   else               Revision.find_by(inspection_id: inspection.id)
+                   end
+        next unless revision
+
+        revisions << revision
+        identificadores << item.identificador
+        states << inspection.result
       end
 
-      @inspections.each do |inspection|
-        if group.type_of == "escala"
-          @revisions_base << LadderRevision.find_by(inspection_id: inspection.id)
-        else
-          @revisions_base << Revision.find_by(inspection_id: inspection.id)
-        end
-        @states << inspection.result
-      end
+      rules_per_group[group.number] = case group.type_of
+                                      when "escala" then Ladder.all.to_a
+                                      when "plat"   then RulesPlat.where(group_id: group.id).to_a
+                                      else               group.rules.to_a
+                                      end
 
-      @rules = group.number == 4 ? Ladder.all : group.rules
-      rules_per_group[group.number] = @rules
-      revisions_base_per_group[group.number] = @revisions_base
-      items_per_group[group.number] = @identificadores
-      inspections_per_group[group.number] = @states
-
-      @inspections = []
-      @revisions_base = []
-      @states = []
-      @identificadores = []
+      revisions_base_per_group[group.number] = revisions
+      items_per_group[group.number] = identificadores
+      inspections_per_group[group.number] = states
+      group_types[group.number] = group.type_of
+      group_names[group.number] = group.name
     end
 
     require 'write_xlsx'
@@ -585,7 +586,7 @@ class PrincipalsController < ApplicationController
         next
       end
 
-      sheet_name = group_number == 4 ? 'Escala' : "Grupo #{group_number}"
+      sheet_name = group_names[group_number]
       worksheet = workbook.add_worksheet(sheet_name)
 
       max_length = 0
@@ -598,18 +599,20 @@ class PrincipalsController < ApplicationController
       rules.each_with_index do |rule, row|
         content = "#{rule.code} - #{rule.point}"
 
-
         revisions_base_per_group[group_number].each_with_index do |revision_base, index|
-          revision_base.revision_colors.each do |color|
-            color.codes.each_with_index do |code, index2|
-              if code == rule.code && color.points[index2] == rule.point
-                if color.comment[index2] == ""
-                  stuff = "Sin comentarios"
-                else
-                  stuff = color.comment[index2]
+          if group_types[group_number] == "plat"
+            prrp = revision_base.plat_revision_rules_plats.find { |x| x.rules_plat_id == rule.id }
+            if prrp
+              stuff = prrp.comment.to_s.strip.empty? ? "Sin comentarios" : prrp.comment
+              worksheet.write(row + 3, 8 + index, stuff)
+            end
+          else
+            revision_base.revision_colors.each do |color|
+              color.codes.each_with_index do |code, index2|
+                if code == rule.code && color.points[index2] == rule.point
+                  stuff = color.comment[index2].to_s.strip.empty? ? "Sin comentarios" : color.comment[index2]
+                  worksheet.write(row + 3, 8 + index, stuff)
                 end
-                worksheet.write(row+3, 8 + index, stuff)
-
               end
             end
           end

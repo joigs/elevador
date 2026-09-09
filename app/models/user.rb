@@ -90,4 +90,24 @@ class User < ApplicationRecord
       .distinct
   }
 
+
+
+  def empresa_de?(record)
+    return false if empresa.blank? || principal_id.blank?
+
+    principal_id == principal_id_de(record)
+  end
+
+  private
+
+  def principal_id_de(record)
+    case record
+    when Principal   then record.id
+    when Inspection  then record.principal_id || record.item&.principal_id
+    when Item        then record.principal_id
+    else                  record.try(:principal_id)
+    end
+  end
+
+
 end
