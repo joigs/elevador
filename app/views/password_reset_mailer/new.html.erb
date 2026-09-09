@@ -1,0 +1,19 @@
+<div class="max-w-md mx-auto px-4 my-8">
+  <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Restablecer contraseña</h1>
+    <p class="text-gray-400 mb-4">Ingresa el correo asociado a tu cuenta y te enviaremos un enlace.</p>
+
+    <%= form_with url: password_resets_path, method: :post, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :email, "Correo electrónico", class: "block text-gray-300" %>
+        <%= f.email_field :email, required: true, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+      </div>
+
+      <%= f.submit "Enviar enlace", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+    <% end %>
+
+    <div class="mt-4">
+      <%= link_to "Volver al inicio de sesión", new_session_path, class: "text-blue-400 hover:text-blue-600 text-sm" %>
+    </div>
+  </div>
+</div>

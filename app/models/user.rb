@@ -106,6 +106,10 @@ class User < ApplicationRecord
     activo? && (principal.nil? || principal.activo?)
   end
 
+  generates_token_for :password_reset, expires_in: 30.minutes do
+    password_salt&.last(10)
+  end
+
 
   private
 

@@ -1,0 +1,9 @@
+<p>Hola <%= @user.real_name.presence || @user.username %>,</p>
+
+<p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+
+<p><%= link_to "Restablecer mi contraseña", @url %></p>
+
+<p>El enlace expira en 30 minutos y solo puede usarse una vez.</p>
+
+<p>Si no solicitaste este cambio, ignora este correo: tu contraseña no cambiará.</p>

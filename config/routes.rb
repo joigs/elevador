@@ -12,7 +12,10 @@ Rails.application.routes.draw do
   patch :bash_fill_detail, to: "pages#update_many_details", as: :update_many_details
   get  :bash_fill_report,  to: "pages#bash_fill_report"
   patch :bash_fill_report, to: "pages#update_many_reports", as: :update_many_reports
-
+  get    "reset_password",             to: "authentication/password_resets#new",    as: :new_password_reset
+  post   "reset_password",             to: "authentication/password_resets#create", as: :password_resets
+  get    "reset_password/:token/edit", to: "authentication/password_resets#edit",   as: :edit_password_reset
+  patch  "reset_password/:token",      to: "authentication/password_resets#update", as: :password_reset
   resources :details
   resources :ladder_details
   resources :reports
