@@ -1,0 +1,20 @@
+CHCERT - Plataforma de Transporte Vertical
+
+Hola <%= @user.real_name.presence || @user.username %>,
+
+Recibimos una solicitud para restablecer la contraseña de tu cuenta en
+vertical.chcert.cl
+
+Tu nombre de usuario es: <%= @user.username %>
+
+Para elegir una nueva contraseña, abre este enlace:
+
+<%= @url %>
+
+El enlace expira en 30 minutos y solo puede usarse una vez.
+
+Si no solicitaste este cambio, ignora este correo: tu contraseña actual
+seguirá funcionando.
+
+--
+Mensaje enviado automáticamente, por favor no respondas a este correo.
