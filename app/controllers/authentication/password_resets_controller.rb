@@ -58,6 +58,7 @@ class Authentication::PasswordResetsController < ApplicationController
                     password_confirmation: params[:user][:password_confirmation])
       redirect_to new_session_path, notice: "Contraseña actualizada. Ya puedes iniciar sesión."
     else
+      flash.now[:alert] = @user.errors.full_messages.to_sentence
       render :edit, status: :unprocessable_entity
     end
   end

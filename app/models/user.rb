@@ -25,6 +25,7 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: true,
             length: { in: 3..15 },
             format: {with: /\A[a-z0-9A-Z]+\z/, message: "Solo se permiten letras y numeros"}
+  validates :password, length: { minimum: 6, message: "debe tener al menos 6 caracteres" }, allow_nil: true
   validates :password_digest, length: { minimum: 6 }
   validates :real_name, presence: true
   validates :email, allow_blank: true,

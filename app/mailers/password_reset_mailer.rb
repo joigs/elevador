@@ -6,7 +6,7 @@ class PasswordResetMailer < ApplicationMailer
     mail(
       from: email_address_with_name(ENV["RESET_SMTP_USER"], ENV.fetch("RESET_FROM_NAME", "CHCERT")),
       to: @user.email,
-      subject: "Restablecer tu contraseña",
+      subject: "Restablecer tu contraseña · CHCERT Transporte Vertical",
       delivery_method_options: smtp_propio
     )
   end
