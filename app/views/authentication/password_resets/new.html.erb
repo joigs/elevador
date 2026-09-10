@@ -1,8 +1,8 @@
 <div class="max-w-md mx-auto px-4 my-8">
   <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
     <h1 class="text-2xl font-bold mb-4">Restablecer contraseña</h1>
-    <p class="text-gray-400 mb-4">Ingresa el correo asociado a tu cuenta y te enviaremos un enlace.</p>
-
+    <p class="text-gray-400 mb-2">Ingresa el correo asociado a tu cuenta y te enviaremos un enlace.</p>
+    <p class="text-gray-500 text-sm mb-4">Puedes solicitar hasta 2 enlaces por día.</p>
     <%= form_with url: password_resets_path, method: :post, class: "space-y-4" do |f| %>
       <div>
         <%= f.label :email, "Correo electrónico", class: "block text-gray-300" %>
