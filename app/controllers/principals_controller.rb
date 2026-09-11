@@ -77,8 +77,16 @@ class PrincipalsController < ApplicationController
     @inspection_states = filtered_inspections.group_by(&:state).transform_values(&:count)
     @inspection_states = @inspection_states.sort_by { |s, _| state_order.index(s) || state_order.size }.to_h
 
-    @chart_type = params[:chart_type] || 'bar'
+    if params[:tab] == 'usuarios'
+      unless Current.user.admin? || (Current.user.empresa_admin? && Current.user.principal_id == @principal.id)
+        flash[:alert] = "No tienes permiso"
+        return redirect_to principal_path(@principal)
+      end
 
+      @empresa_users = @principal.users.order(:real_name)
+    end
+
+    @chart_type = params[:chart_type] || 'bar'
     @colors = [
       '#ff6347','#4682b4','#32cd32','#ffd700','#6a5acd','#ff69b4','#8a2be2','#00ced1','#ff4500','#2e8b57',
       '#ff7f50','#6495ed','#9932cc','#3cb371','#b8860b','#ff1493','#1e90ff','#daa520','#ba55d3','#7b68ee',

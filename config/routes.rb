@@ -168,6 +168,12 @@ Rails.application.routes.draw do
     member do
       patch :toggle_activo
     end
+    resources :empresa_users, only: [:destroy], path: "usuarios" do
+      member do
+        patch :toggle_activo
+        patch :toggle_permiso
+      end
+    end
   end
   resources :revisions, path: '/revisions' do
     member do

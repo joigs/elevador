@@ -30,8 +30,17 @@
                     focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
   </div>
 
-  <div class="actions">
-    <%= form.submit (permiso.new_record? ? 'Crear Permiso' : 'Actualizar Permiso'),
+  <div>
+    <%= form.label :tipo_usuario, "Disponible para", class: "block text-gray-300" %>
+    <%= form.select :tipo_usuario,
+                    Permiso::TIPOS_USUARIO.map { |valor, etiqueta| [etiqueta, valor] },
+                    {},
+                    class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border
+                    border-gray-600 rounded-md shadow-sm focus:outline-none
+                    focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div class="actions">    <%= form.submit (permiso.new_record? ? 'Crear Permiso' : 'Actualizar Permiso'),
                     class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" %>
   </div>
 <% end %>

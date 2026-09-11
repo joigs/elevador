@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_09_182441) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_11_131946) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -312,6 +312,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_09_182441) do
     t.text "descripcion"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "tipo_usuario", default: "todos", null: false
   end
 
   create_table "plat_revision_rules_plats", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|

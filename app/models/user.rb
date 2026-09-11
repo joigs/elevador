@@ -77,6 +77,19 @@ class User < ApplicationRecord
     permisos.exists?(nombre: 'only_see')
   end
 
+  def cliente?
+    empresa.present?
+  end
+
+  def empresa_admin?
+    cliente? && permisos.exists?(nombre: "empresa_admin")
+  end
+
+  def recibe_correo?
+    permisos.exists?(nombre: "recibe_correo")
+  end
+
+
   scope :con_permiso_inspeccionar, -> {
     joins(:permisos).where(permisos: { nombre: 'inspeccionar' })
   }

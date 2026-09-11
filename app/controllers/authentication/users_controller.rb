@@ -250,8 +250,8 @@ class Authentication::UsersController < ApplicationController
 
   def manage_permisos
     if Current.user.super
-      @permisos = Permiso.all
       @user = User.find(params[:id])
+      @permisos = Permiso.disponibles_para(@user)
     end
   end
 
@@ -259,19 +259,21 @@ class Authentication::UsersController < ApplicationController
   def update_permisos
     if Current.user.super
       @user = User.find(params[:id])
-      @user.permiso_ids = params[:permiso_ids] || []
+
+      disponibles   = Permiso.disponibles_para(@user).pluck(:id)
+      seleccionados = (params[:permiso_ids] || []).map(&:to_i) & disponibles
+      conservados   = @user.permiso_ids - disponibles
+
+      @user.permiso_ids = (seleccionados + conservados).uniq
 
       if @user.save
         redirect_to @user, notice: 'Permisos actualizados correctamente.'
       else
-        # En caso de error, volver a la vista de gestión
-        @permisos = Permiso.all
+        @permisos = Permiso.disponibles_para(@user)
         render :manage_permisos
       end
     end
-
   end
-
   def new_relleno
     unless Current.user&.admin?
       redirect_to home_path, alert: "No tienes permiso"

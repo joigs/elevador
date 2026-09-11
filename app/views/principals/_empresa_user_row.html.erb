@@ -1,0 +1,75 @@
+<% propio = (user == Current.user) %>
+<tr class="bg-gray-800"
+    id="<%= dom_id(user, :empresa_row) %>"
+    data-table-filter-target="row"
+    data-searchable="<%= [user.username, user.real_name, user.email].compact.join(' ') %>">
+  <td class="px-4 py-4 whitespace-normal break-words">
+    <%= user.username %>
+    <% if propio %>
+      <span class="text-gray-500 text-xs">(tú)</span>
+    <% end %>
+  </td>
+  <td class="px-4 py-4 whitespace-normal break-words"><%= user.real_name %></td>
+  <td class="px-4 py-4 whitespace-normal break-words"><%= user.email.presence || "—" %></td>
+
+  <td class="px-4 py-4 text-center">
+    <% if propio %>
+      <span class="text-gray-500">—</span>
+    <% else %>
+      <%= form_with url: toggle_activo_principal_empresa_user_path(principal, user),
+                    method: :patch,
+                    data: { controller: "toggle-confirm" },
+                    class: "inline" do %>
+        <%= hidden_field_tag :valor, user.activo? ? "0" : "1" %>
+        <%= check_box_tag "activo_#{user.id}", "1", user.activo?,
+                          data: { action: "change->toggle-confirm#confirm" },
+                          class: "w-5 h-5 rounded bg-gray-700 border-gray-600 cursor-pointer" %>
+      <% end %>
+    <% end %>
+  </td>
+
+  <td class="px-4 py-4 text-center">
+    <% if propio %>
+      <span class="text-gray-500">—</span>
+    <% else %>
+      <%= form_with url: toggle_permiso_principal_empresa_user_path(principal, user),
+                    method: :patch,
+                    data: { controller: "toggle-confirm" },
+                    class: "inline" do %>
+        <%= hidden_field_tag :permiso, "empresa_admin" %>
+        <%= hidden_field_tag :valor, user.empresa_admin? ? "0" : "1" %>
+        <%= check_box_tag "admin_#{user.id}", "1", user.empresa_admin?,
+                          data: { action: "change->toggle-confirm#confirm" },
+                          class: "w-5 h-5 rounded bg-gray-700 border-gray-600 cursor-pointer" %>
+      <% end %>
+    <% end %>
+  </td>
+
+  <td class="px-4 py-4 text-center">
+    <%= form_with url: toggle_permiso_principal_empresa_user_path(principal, user),
+                  method: :patch,
+                  data: { controller: "toggle-confirm" },
+                  class: "inline" do %>
+      <%= hidden_field_tag :permiso, "recibe_correo" %>
+      <%= hidden_field_tag :valor, user.recibe_correo? ? "0" : "1" %>
+      <%= check_box_tag "correo_#{user.id}", "1", user.recibe_correo?,
+                        data: { action: "change->toggle-confirm#confirm" },
+                        class: "w-5 h-5 rounded bg-gray-700 border-gray-600 cursor-pointer" %>
+    <% end %>
+  </td>
+
+  <td class="px-4 py-4 text-center">
+    <% if propio %>
+      <span class="text-gray-500">—</span>
+    <% else %>
+      <%= form_with url: principal_empresa_user_path(principal, user),
+                    method: :delete,
+                    data: { turbo: false, controller: "double-confirm" },
+                    class: "inline" do %>
+        <%= submit_tag "Eliminar",
+                       data: { action: "click->double-confirm#confirm" },
+                       class: "px-3 py-1 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 cursor-pointer" %>
+      <% end %>
+    <% end %>
+  </td>
+</tr>
