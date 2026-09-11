@@ -167,6 +167,7 @@ Rails.application.routes.draw do
     get :defectos_activos
     member do
       patch :toggle_activo
+      get :alertas
     end
     resources :empresa_users, only: [:destroy], path: "usuarios" do
       member do

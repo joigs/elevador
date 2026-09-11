@@ -15,13 +15,11 @@ class StaticPagesController < ApplicationController
     today          = Time.zone.today
 
     two_months_later = (today + 2.months).end_of_month
-    # --- Selector de mes (solo UI + filtro opcional) ---
     @ending_month = params[:ending_month].presence # "YYYY-MM" o nil
 
     @ending_month_options =
       (0..2).map do |i|
         d = (today.beginning_of_month + i.months)
-        # label: "enero 2026" (depende del locale)
         label = I18n.l(d, format: "%B %Y").to_s
         [label, d.strftime("%Y-%m")]
       end

@@ -33,6 +33,8 @@ class PrincipalsController < ApplicationController
       @pagy, @items = pagy_countless(@items, items: 10)
     end
 
+    @alertas = calcular_alertas
+
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
     if params[:tab] == 'inspections'
       @q_inspections = @principal.inspections.ransack(params[:q])
@@ -101,7 +103,31 @@ class PrincipalsController < ApplicationController
   end
 
 
+  def alertas
+    principal
+    authorize! @principal
 
+    if Current.user.empresa != nil
+      if @principal.id != Current.user.principal_id
+        flash[:alert] = "No tienes permiso"
+        return redirect_to principal_path(Current.user.principal_id)
+      end
+    end
+
+    @alertas = calcular_alertas
+    @filtro  = params[:filtro].presence
+
+    @filtro = nil unless @filtro && @alertas.key?(@filtro)
+
+    ids = @filtro ? @alertas[@filtro][:ids] : @alertas.values.flat_map { |a| a[:ids] }.uniq
+
+    @q = Inspection.where(id: ids).ransack(params[:q])
+    @inspections = @q.result(distinct: true).includes(:item, :report).order(number: :desc)
+
+    unless Current.user.tabla
+      @pagy, @inspections = pagy_countless(@inspections, items: 10)
+    end
+  end
 
 
   # GET /principals/new
@@ -677,6 +703,65 @@ class PrincipalsController < ApplicationController
   end
 
 
+  def calcular_alertas
+    hoy       = Time.zone.today
+    dos_meses = (hoy + 2.months).end_of_month
 
+    ultimas_ids = @principal.inspections
+                            .where("number > 0")
+                            .select(:id, :item_id, :number)
+                            .order(:item_id, number: :desc)
+                            .group_by(&:item_id)
+                            .values
+                            .map { |inspecciones| inspecciones.first.id }
+
+    base = Inspection.where(id: ultimas_ids, ignorar: false)
+
+    definiciones = {
+      "proximas" => {
+        titulo: "Certificaciones por vencer",
+        texto: "con la certificación por vencer en los próximos 2 meses.",
+        estilo: "amber",
+        scope: base.joins(:report)
+                   .where(state: "Cerrado", result: "Aprobado")
+                   .where("reports.ending > ? AND reports.ending <= ?", hoy, dos_meses)
+      },
+      "rechazadas_proximas" => {
+        titulo: "Rechazadas con reinspección próxima",
+        texto: "rechazados con fecha límite en los próximos 2 meses.",
+        estilo: "orange",
+        scope: base.joins(:report)
+                   .where(state: "Cerrado", result: "Rechazado")
+                   .where("reports.ending > ? AND reports.ending <= ?", hoy, dos_meses)
+      },
+      "vencidas_aprobadas" => {
+        titulo: "Certificaciones vencidas",
+        texto: "con la certificación aprobada ya vencida.",
+        estilo: "rose",
+        scope: base.where(result: "Vencido (Aprobado)")
+      },
+      "vencidas_rechazadas" => {
+        titulo: "Certificaciones vencidas (rechazadas)",
+        texto: "rechazados con el plazo ya vencido.",
+        estilo: "rose_fuerte",
+        scope: base.where(result: "Vencido (Rechazado)")
+      }
+    }
+    definiciones.each_with_object({}) do |(clave, datos), acumulador|
+      ids = datos[:scope].pluck(:id)
+      next if ids.empty?
+
+      n = ids.size
+      sujeto = n == 1 ? "1 activo" : "#{n} activos"
+
+      acumulador[clave] = {
+        titulo: datos[:titulo],
+        texto:  "#{sujeto} #{datos[:texto]}",
+        estilo: datos[:estilo],
+        ids:    ids,
+        count:  n
+      }
+    end
+  end
 
 end

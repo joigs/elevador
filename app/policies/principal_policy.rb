@@ -33,7 +33,9 @@ class PrincipalPolicy < BasePolicy
     Current.user.admin || Current.user.empresa != nil || Current.user.crear || Current.user.only_see
   end
 
-
+  def alertas
+    Current.user.admin || Current.user.empresa != nil || Current.user.crear || Current.user.only_see
+  end
   def method_missing(m, *args, &block)
     Current.user.admin || Current.user.crear
   end

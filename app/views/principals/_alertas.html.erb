@@ -1,0 +1,59 @@
+<% if @alertas.present? %>
+  <% estilos = {
+    "amber" => {
+      fondo: "bg-amber-50", borde: "border-amber-200", icono: "bg-amber-100",
+      numero: "text-amber-700", titulo: "text-amber-900", boton: "bg-amber-600 hover:bg-amber-700"
+    },
+    "orange" => {
+      fondo: "bg-orange-50", borde: "border-orange-200", icono: "bg-orange-100",
+      numero: "text-orange-700", titulo: "text-orange-900", boton: "bg-orange-600 hover:bg-orange-700"
+    },
+    "rose" => {
+      fondo: "bg-rose-50", borde: "border-rose-200", icono: "bg-rose-100",
+      numero: "text-rose-700", titulo: "text-rose-900", boton: "bg-rose-600 hover:bg-rose-700"
+    },
+    "rose_fuerte" => {
+      fondo: "bg-rose-50", borde: "border-rose-300", icono: "bg-rose-100",
+      numero: "text-rose-800", titulo: "text-rose-900", boton: "bg-rose-700 hover:bg-rose-800"
+    }
+  } %>
+
+  <% columnas = case @alertas.size
+                when 1 then "lg:grid-cols-1"
+                when 2 then "lg:grid-cols-2"
+                when 3 then "lg:grid-cols-3"
+                else        "lg:grid-cols-4"
+                end %>
+
+  <div class="grid gap-4 mb-6 grid-cols-1 md:grid-cols-2 <%= columnas %>">
+    <% @alertas.each do |clave, alerta| %>
+      <% e = estilos[alerta[:estilo]] || estilos["rose"] %>
+      <div class="rounded-lg shadow-sm border <%= e[:borde] %> <%= e[:fondo] %> p-5">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center <%= e[:icono] %>">
+            <span class="text-lg font-bold <%= e[:numero] %>"><%= alerta[:count] %></span>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-semibold <%= e[:titulo] %> mb-1">
+              <%= alerta[:titulo] %>
+            </h3>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              <%= alerta[:texto] %>
+            </p>
+
+            <div class="mt-4">
+              <%= link_to alertas_principal_path(@principal, filtro: clave),
+                          class: "inline-flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-white #{e[:boton]} transition duration-200" do %>
+                Ver detalle
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
