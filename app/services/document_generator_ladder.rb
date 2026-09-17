@@ -254,6 +254,9 @@ class DocumentGeneratorLadder
     revision_nulls_total = RevisionNull.where(revision_id: revision_id, revision_type: 'LadderRevision')
                                        .where("point NOT LIKE ?", "5.0%")
 
+    revision_comments = RevisionComment.where(revision_id: revision_id, revision_type: 'LadderRevision').to_a
+    revision_comment_map = revision_comments.each_with_object({}) { |rc, hash| hash["#{rc.code}||#{rc.point}"] = rc.comment }
+
     sorted_inspections = item.inspections.sort_by do |inspection|
       [-inspection.number.abs, inspection.number < 0 ? 1 : 0]
     end
@@ -858,10 +861,11 @@ class DocumentGeneratorLadder
 
 
       else
+        comentario_carpeta = revision_comments.find { |rc| rc.code == carpeta }&.comment
         doc.replace('{{carpeta_si}}', 'Si')
         doc.replace('{{carpeta_no_aplica}}', '')
         doc.replace('{{carpeta_f}}', '')
-        doc.replace('{{carpeta_comentario}}', '')
+        doc.replace('{{carpeta_comentario}}', comentario_carpeta.to_s)
       end
     end
     if inspection.is_old == true
@@ -905,9 +909,10 @@ class DocumentGeneratorLadder
 
 
       else
+        comentario_sin_marcar = revision_comment_map["#{rule.code}||#{rule.point}"]
         doc.replace('{{tabla_si}}', 'SI')
         doc.replace('{{tabla_l}}', '')
-        doc.replace('{{tabla_comentario}}', '')
+        doc.replace('{{tabla_comentario}}', comentario_sin_marcar.to_s)
       end
       doc.replace('{{tabla_na}}', ' ')
     end

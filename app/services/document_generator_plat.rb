@@ -560,6 +560,9 @@ class DocumentGeneratorPlat
     revision_nulls_total = RevisionNull.where(revision_id: revision_base.id, revision_type: 'PlatRevision')
                                        .where('point NOT LIKE ?', '0%')
 
+    revision_comments = RevisionComment.where(revision_id: revision_base.id, revision_type: 'PlatRevision').to_a
+    revision_comment_map = revision_comments.each_with_object({}) { |rc, hash| hash["#{rc.code}||#{rc.point}"] = rc.comment }
+
     comments_hash = {}
 
     revision_entries.each do |e|
@@ -596,10 +599,11 @@ class DocumentGeneratorPlat
         doc3.replace('{{carpeta_comentario}}', ordered_comments[index])
         doc3.replace('{{carpeta_no_aplica}}',  'X')
       else
+        comentario_carpeta = revision_comments.find { |rc| rc.code == carpeta }&.comment
         doc3.replace('{{carpeta_si}}',         'Si')
         doc3.replace('{{carpeta_no_aplica}}',  '')
         doc3.replace('{{carpeta_f}}',          '')
-        doc3.replace('{{carpeta_comentario}}', '')
+        doc3.replace('{{carpeta_comentario}}', comentario_carpeta.to_s)
       end
 
       doc3.commit(output_path)
@@ -863,18 +867,20 @@ class DocumentGeneratorPlat
         end
 
         if entry.comment.present?
-          doc_table.replace('{{tabla_comentario}}', "(#{entry.comment})")
+          doc_table.replace('{{tabla_comentario}}', "#{entry.comment}")
         else
           doc_table.replace('{{tabla_comentario}}', '')
         end
       elsif revision_nulls_total.any? { |null| null.point == "#{rule.code}_#{rule.point}" }
+        comentario_sin_marcar = revision_comment_map["#{rule.code}||#{rule.point}"]
         doc_table.replace('{{tabla_si}}', 'N/A')
         doc_table.replace('{{tabla_l}}', '')
-        doc_table.replace('{{tabla_comentario}}', '')
+        doc_table.replace('{{tabla_comentario}}', comentario_sin_marcar.blank? ? '' : "#{comentario_sin_marcar}")
       else
+        comentario_sin_marcar = revision_comment_map["#{rule.code}||#{rule.point}"]
         doc_table.replace('{{tabla_si}}', 'SI')
         doc_table.replace('{{tabla_l}}', '')
-        doc_table.replace('{{tabla_comentario}}', '')
+        doc_table.replace('{{tabla_comentario}}', comentario_sin_marcar.blank? ? '' : "#{comentario_sin_marcar}")
       end
     end
 
@@ -923,6 +929,8 @@ class DocumentGeneratorPlat
           entry = revision_by_code_point[[rule.code, rule.point]]
           if entry && entry.comment.present?
             "(#{rule.point}: #{entry.comment})"
+          elsif entry.nil? && revision_comment_map["#{rule.code}||#{rule.point}"].present?
+            "(#{rule.point}: #{revision_comment_map["#{rule.code}||#{rule.point}"]})"
           else
             "(#{rule.point}: Sin comentario)"
           end

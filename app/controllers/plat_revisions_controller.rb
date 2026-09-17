@@ -168,6 +168,10 @@ class PlatRevisionsController < ApplicationController
       end
     end
 
+    @revision_comment_map = @revision_base.revision_comments.where(section: section_number).each_with_object({}) do |revision_comment, hash|
+      hash["#{revision_comment.code}||#{revision_comment.point}"] = revision_comment.comment
+    end
+
     @emergent_text = []
 
     if @black_revision_base
@@ -433,6 +437,23 @@ class PlatRevisionsController < ApplicationController
       rel.destroy unless keep_rule_ids.include?(rel.rules_plat_id)
     end
 
+    if plat_rules.present?
+      @revision_base.revision_comments.where(section: section_num).destroy_all
+
+      plat_rules.each_value do |row|
+        comment_code  = row[:comment_code].to_s
+        comment_point = row[:comment_point].to_s
+        comment_text  = row[:comment]
+
+        next if comment_text.blank? || comment_code.blank?
+        next unless comment_code.start_with?(section_code)
+        next if keep_photo_code.include?("#{comment_code} #{comment_point}")
+        next if section_str == "0" && null_conditions.include?("#{comment_code}_#{comment_point}")
+
+        @revision_base.revision_comments.create!(section: section_num, code: comment_code, point: comment_point, comment: comment_text)
+      end
+    end
+
 
     nulls_scope = RevisionNull.where(revision_type: "PlatRevision", revision_id: @revision_base.id)
 
@@ -681,6 +702,8 @@ class PlatRevisionsController < ApplicationController
           :fail,
           :level,
           :comment,
+          :comment_code,
+          :comment_point,
           { photos: [] }
         ]
       )[:plat_rules] || {}

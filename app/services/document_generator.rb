@@ -645,6 +645,9 @@ class DocumentGenerator
     revision_nulls_total = RevisionNull.where(revision_id: revision_id, revision_type: 'Revision')
                                        .where("point NOT LIKE ?", "0%")
 
+    revision_comments = RevisionComment.where(revision_id: revision_id, revision_type: 'Revision').to_a
+    revision_comment_map = revision_comments.each_with_object({}) { |rc, hash| hash["#{rc.code}||#{rc.point}"] = rc.comment }
+
     comments_hash = {}
 
     revision.codes.each_with_index do |code, index|
@@ -687,10 +690,11 @@ class DocumentGenerator
 
 
       else
+        comentario_carpeta = revision_comments.find { |rc| rc.code == carpeta }&.comment
         doc.replace('{{carpeta_si}}', 'Si')
         doc.replace('{{carpeta_no_aplica}}', '')
         doc.replace('{{carpeta_f}}', '')
-        doc.replace('{{carpeta_comentario}}', '')
+        doc.replace('{{carpeta_comentario}}', comentario_carpeta.to_s)
       end
     end
 
@@ -1141,7 +1145,7 @@ class DocumentGenerator
           if revision.comment[index2].blank?
             doc.replace('{{tabla_comentario}}', '')
           else
-            doc.replace('{{tabla_comentario}}', "(#{revision.comment[index2]})")
+            doc.replace('{{tabla_comentario}}', "(Comentario: \"#{revision.comment[index2]}\")")
           end
 
 
@@ -1165,18 +1169,19 @@ class DocumentGenerator
               doc.replace('{{tabla_l}}', 'Grave')
             end
           end
-
         elsif revision_nulls_total.any? { |null| null.point == "#{rule.code}_#{rule.point}" }
           # Si hay una coincidencia en revision_null
+          comentario_sin_marcar = revision_comment_map["#{rule.code}||#{rule.point}"]
           doc.replace('{{tabla_si}}', 'N/A')
           doc.replace('{{tabla_l}}', '')
-          doc.replace('{{tabla_comentario}}', '')
+          doc.replace('{{tabla_comentario}}', comentario_sin_marcar.blank? ? '' : "(Comentario: \"#{comentario_sin_marcar}\")")
 
         else
           # Si no se encuentra coincidencia en revision ni en revision_null
+          comentario_sin_marcar = revision_comment_map["#{rule.code}||#{rule.point}"]
           doc.replace('{{tabla_si}}', 'SI')
           doc.replace('{{tabla_l}}', '')
-          doc.replace('{{tabla_comentario}}', '')
+          doc.replace('{{tabla_comentario}}', comentario_sin_marcar.blank? ? '' : "(Comentario: \"#{comentario_sin_marcar}\")")
         end
 
       end
@@ -1229,6 +1234,11 @@ class DocumentGenerator
       end
 
       if matching_anothers.any?
+        comentarios_sin_marcar = matching_anothers.filter_map do |another|
+          texto = revision_comment_map["#{another.code}||#{another.point}"].to_s.strip
+          "#{another.point} (#{texto})." unless texto.empty?
+        end
+
         matching_revision_indices = []
         matching_anothers.each do |another|
           revision.points.each_with_index do |point, index|
@@ -1269,13 +1279,13 @@ class DocumentGenerator
             "#{revision.points[i]} #{comment}                                                                           "
           end
 
-          comentario_final = comentarios.map(&:strip).join(" ")
+          comentario_final = (comentarios.map(&:strip) + comentarios_sin_marcar).join(" ")
 
           doc.replace('{{another_comentario}}', comentario_final)
         else
           doc.replace('{{another_si}}', "Si")
           doc.replace('{{another_l}}', "")
-          doc.replace('{{another_comentario}}', "")
+          doc.replace('{{another_comentario}}', comentarios_sin_marcar.join(" "))
         end
       else
         doc.replace('{{another_si}}', "Si")

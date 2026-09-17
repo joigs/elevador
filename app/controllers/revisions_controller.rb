@@ -172,6 +172,10 @@ class RevisionsController < ApplicationController
       @revision_map[code][point] = index
     end
 
+    @revision_comment_map = @revision_base.revision_comments.where(section: @section.to_i).each_with_object({}) do |revision_comment, hash|
+      hash["#{revision_comment.code}||#{revision_comment.point}"] = revision_comment.comment
+    end
+
     @emergent_text = []
 
     if @black_revision_base
@@ -445,8 +449,7 @@ class RevisionsController < ApplicationController
       @inspection.update(is_old: params[:is_old] == "1")
     end
     real_codes_fail, real_codes_null, real_numbers, real_priority, real_comment_fail, real_comment_null = [], [], [], [], [], []
-
-
+    comment_rows = (params.permit(revision_comments: [:code, :point, :text])[:revision_comments]&.to_h || {}).values
 
     if current_section == "0"
 
@@ -479,14 +482,14 @@ class RevisionsController < ApplicationController
 
 
           real_codes_fail << numeric_code
-          real_comment_fail << revision_params["comment"][index]
+          real_comment_fail << comment_rows.find { |row| row[:code] == numeric_code }&.dig(:text)
 
 
 
         end
         if nulls&.include?(numeric_code)
           real_codes_null << numeric_code
-          real_comment_null << revision_params["comment"][index]
+          real_comment_null << comment_rows.find { |row| row[:code] == numeric_code }&.dig(:text)
 
         end
 
@@ -527,7 +530,7 @@ class RevisionsController < ApplicationController
             if current_section == "0"
               comment << real_comment_fail[counter]
             else
-              comment << params[:revision][:comment][counter]
+              comment << comment_rows.find { |row| row[:code] == params[:revision][:codes][counter] && row[:point] == params[:revision][:points][counter] }&.dig(:text)
 
             end
 
@@ -752,10 +755,24 @@ class RevisionsController < ApplicationController
 
 
 
-      if params[:imagen_general].present?
-        @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
-      end
+    if params[:imagen_general].present?
+      @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
+    end
 
+    if params[:revision_comments].present?
+      null_points = Array(params.dig(:revision, :null_condition))
+      fail_pairs = codes.zip(points)
+
+      @revision_base.revision_comments.where(section: current_section_num).destroy_all
+
+      comment_rows.each do |row|
+        next if row[:text].blank?
+        next if fail_pairs.include?([row[:code], row[:point]])
+        next if current_section == "0" && null_points.include?("#{row[:code]}_#{row[:point]}")
+
+        @revision_base.revision_comments.create(section: current_section_num, code: row[:code], point: row[:point], comment: row[:text])
+      end
+    end
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment)
 
@@ -936,6 +953,8 @@ class RevisionsController < ApplicationController
           end
         end
       end
+
+      RevisionComment.where(revision_type: 'Revision', revision_id: @revision_bases_ids, code: @another.code, point: past_text).update_all(point: @another.point)
 
       flash[:notice] = "Defecto personalizado actualizado."
       redirect_to edit_revision_path(inspection_id: @inspection.id, section: @section)

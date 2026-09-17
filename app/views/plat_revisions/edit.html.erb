@@ -404,7 +404,7 @@
                        if comment_index && @revision&.comment
                          @revision.comment[comment_index]
                        else
-                         nil
+                         @revision_comment_map["#{rule.code}||#{rule.point}"]
                        end %>
 
                   <% if @section != "0" %>
@@ -412,7 +412,6 @@
                                       base_comment,
                                       rows: 6,
                                       cols: 25,
-                                      data: { rules_form_target: "comment" },
                                       maxlength: 1000,
                                       class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
                   <% else %>
@@ -422,7 +421,6 @@
                                         revision_null&.comment,
                                         rows: 6,
                                         cols: 25,
-                                        data: { rules_form_target: "comment" },
                                         maxlength: 1000,
                                         class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
                     <% else %>
@@ -430,11 +428,13 @@
                                         base_comment,
                                         rows: 6,
                                         cols: 25,
-                                        data: { rules_form_target: "comment" },
                                         maxlength: 1000,
                                         class: "shadow appearance-none border rounded  py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
                     <% end %>
                   <% end %>
+                  <%= hidden_field_tag "revision[garbage][]", "", id: nil, data: { rules_form_target: "comment" } %>
+                  <%= hidden_field_tag "plat_rules[#{row_key}][comment_code]", rule.code, id: nil %>
+                  <%= hidden_field_tag "plat_rules[#{row_key}][comment_point]", rule.point, id: nil %>
                 </td>
               </tr>
             <% end %>

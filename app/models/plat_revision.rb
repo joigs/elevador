@@ -6,7 +6,7 @@ class PlatRevision < ApplicationRecord
   has_many :plat_revision_rules_plats, dependent: :destroy
   has_many :rules_plats, through: :plat_revision_rules_plats
   has_many :plat_revision_sections, dependent: :destroy
-
+  has_many :revision_comments, as: :revision, dependent: :destroy
 
 
   has_many :revision_photos, as: :revision, dependent: :destroy

@@ -134,6 +134,10 @@ class LadderRevisionsController < ApplicationController
       @revision_map[code][point] = index
     end
 
+    @revision_comment_map = @revision_base.revision_comments.where(section: @section.to_i).each_with_object({}) do |revision_comment, hash|
+      hash["#{revision_comment.code}||#{revision_comment.point}"] = revision_comment.comment
+    end
+
 
     @emergent_text = []
 
@@ -262,7 +266,7 @@ class LadderRevisionsController < ApplicationController
     @revision = @revision_base.revision_colors.find_by(section: current_section)
 
     real_codes_fail, real_codes_null, real_numbers, real_priority, real_comment_fail, real_comment_null = [], [], [], [], [], []
-
+    comment_rows = (params.permit(revision_comments: [:code, :point, :text])[:revision_comments]&.to_h || {}).values
 
 
 
@@ -295,18 +299,17 @@ class LadderRevisionsController < ApplicationController
         #Si no es ni fail ni null, se debe eliminar este código
         if fails&.include?(numeric_code)
 
-
           real_codes_fail << numeric_code
           real_numbers << index
           real_priority << "."
-          real_comment_fail << ladder_revision_params["comment"][index]
+          real_comment_fail << comment_rows.find { |row| row[:code] == numeric_code }&.dig(:text)
 
 
 
         end
         if nulls&.include?(numeric_code)
           real_codes_null << numeric_code
-          real_comment_null << ladder_revision_params["comment"][index]
+          real_comment_null << comment_rows.find { |row| row[:code] == numeric_code }&.dig(:text)
 
 
         end
@@ -350,7 +353,7 @@ class LadderRevisionsController < ApplicationController
               priority << real_priority[counter]
               number << real_numbers[counter]
             else
-              comment << params[:ladder_revision][:comment][counter]
+              comment << comment_rows.find { |row| row[:code] == params[:ladder_revision][:codes][counter] && row[:point] == params[:ladder_revision][:points][counter] }&.dig(:text)
               number << params[:ladder_revision][:number][counter]
               priority << params[:ladder_revision][:priority][counter]
             end
@@ -560,6 +563,21 @@ class LadderRevisionsController < ApplicationController
 
     if params[:imagen_general].present?
       @revision_base.revision_photos.create(photo: params[:imagen_general], code: "GENERALCODE#{params[:imagen_general_comment]}")
+    end
+
+    if params[:revision_comments].present?
+      null_points = Array(params.dig(:ladder_revision, :null_condition))
+      fail_pairs = codes.zip(points)
+
+      @revision_base.revision_comments.where(section: current_section_num).destroy_all
+
+      comment_rows.each do |row|
+        next if row[:text].blank?
+        next if fail_pairs.include?([row[:code], row[:point]])
+        next if current_section == "0" && null_points.include?("#{row[:code]}_#{row[:point]}")
+
+        @revision_base.revision_comments.create(section: current_section_num, code: row[:code], point: row[:point], comment: row[:text])
+      end
     end
 
     if @revision.update(color: color, codes: codes, points: points, levels: levels, comment: comment, number: number, priority: priority)
