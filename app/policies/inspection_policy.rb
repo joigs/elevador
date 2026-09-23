@@ -67,6 +67,13 @@ class InspectionPolicy < BasePolicy
     Current.user.admin || Current.user.certificar || Current.user.only_see || Current.user.empresa_de?(record)
   end
 
+  def download_certificacion
+    Current.user.admin ||
+      Current.user.certificar ||
+      Current.user.only_see ||
+      Current.user.empresa_de?(record)
+  end
+
   def export_xlsx
     Current.user.admin || Current.user.crear || Current.user.certificar
   end
