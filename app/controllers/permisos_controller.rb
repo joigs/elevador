@@ -62,7 +62,7 @@ class PermisosController < ApplicationController
 
   # Solo permite parámetros seguros
   def permiso_params
-    params.require(:permiso).permit(:nombre, :descripcion)
+    params.require(:permiso).permit(:nombre, :descripcion, :tipo_usuario)
   end
 end
 

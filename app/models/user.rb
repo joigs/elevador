@@ -90,6 +90,18 @@ class User < ApplicationRecord
   end
 
 
+  def gestionar_permisos_clientes
+    permisos.exists?(nombre: 'gestionar_permisos_clientes')
+  end
+
+  def puede_gestionar_permisos_de?(otro)
+    return false if otro.nil? || otro.relleno
+    return true if super?
+
+    !cliente? && gestionar_permisos_clientes && otro.cliente?
+  end
+
+
   scope :con_permiso_inspeccionar, -> {
     joins(:permisos).where(permisos: { nombre: 'inspeccionar' })
   }

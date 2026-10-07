@@ -3,6 +3,11 @@ class Authentication::UsersController < ApplicationController
   before_action :convert_signature_to_png, only: [:create, :update]
   before_action :require_relleno_user!, only: [:edit_relleno, :update_relleno]
 
+
+  before_action :set_user_para_permisos, only: [:manage_permisos, :update_permisos]
+
+
+
   def new
     @user = User.new
   end
@@ -249,29 +254,22 @@ class Authentication::UsersController < ApplicationController
   end
 
   def manage_permisos
-    if Current.user.super
-      @user = User.find(params[:id])
-      @permisos = Permiso.disponibles_para(@user)
-    end
+    @permisos = Permiso.disponibles_para(@user)
   end
 
   # PATCH /users/:id/update_permisos
   def update_permisos
-    if Current.user.super
-      @user = User.find(params[:id])
+    disponibles   = Permiso.disponibles_para(@user).pluck(:id)
+    seleccionados = (params[:permiso_ids] || []).map(&:to_i) & disponibles
+    conservados   = @user.permiso_ids - disponibles
 
-      disponibles   = Permiso.disponibles_para(@user).pluck(:id)
-      seleccionados = (params[:permiso_ids] || []).map(&:to_i) & disponibles
-      conservados   = @user.permiso_ids - disponibles
+    @user.permiso_ids = (seleccionados + conservados).uniq
 
-      @user.permiso_ids = (seleccionados + conservados).uniq
-
-      if @user.save
-        redirect_to @user, notice: 'Permisos actualizados correctamente.'
-      else
-        @permisos = Permiso.disponibles_para(@user)
-        render :manage_permisos
-      end
+    if @user.save
+      redirect_to @user, notice: 'Permisos actualizados correctamente.'
+    else
+      @permisos = Permiso.disponibles_para(@user)
+      render :manage_permisos, status: :unprocessable_entity
     end
   end
   def new_relleno
@@ -382,6 +380,13 @@ class Authentication::UsersController < ApplicationController
       rescue => e
         Rails.logger.error "Error al convertir la firma a PNG: #{e.message}"
       end
+    end
+  end
+  def set_user_para_permisos
+    @user = User.find(params[:id])
+    unless Current.user&.puede_gestionar_permisos_de?(@user)
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
     end
   end
 end
