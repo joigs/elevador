@@ -74,6 +74,9 @@ class InspectionPolicy < BasePolicy
       Current.user.empresa_de?(record)
   end
 
+  def destroy_certificacion
+    Current.user.admin || Current.user.certificar
+  end
   def export_xlsx
     Current.user.admin || Current.user.crear || Current.user.certificar
   end
@@ -82,6 +85,13 @@ class InspectionPolicy < BasePolicy
     Current.user.admin || record.owner? || Current.user.crear || Current.user.certificar
   end
 
+  def edit_certificacion
+    Current.user.admin || Current.user.certificar || Current.user.crear || Current.user.only_see
+  end
+
+  def update_certificacion
+    Current.user.admin || Current.user.certificar || Current.user.crear
+  end
 
   def method_missing(m, *args, &block)
     Current.user.admin || Current.user.crear || Current.user.certificar

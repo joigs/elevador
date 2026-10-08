@@ -33,9 +33,9 @@ class InspectionsController < ApplicationController
 
 
     inspection
+    cargar_certificaciones
     @item = inspection.item
     @report = Report.find_by(inspection_id: @inspection.id)
-
     @previous_inspection = @item.inspections.where(state: ["Cerrado", "Abierto"]).order(number: :desc).offset(1).first
 
     if @previous_inspection
@@ -891,34 +891,30 @@ class InspectionsController < ApplicationController
   def edit_certificacion
     @inspection = Inspection.find(params[:id])
     authorize! @inspection
+    cargar_certificaciones
   end
 
   def update_certificacion
     @inspection = Inspection.find(params[:id])
     authorize! @inspection
 
-    if params[:inspection].nil? || params[:inspection][:certificacion].blank?
-      flash.now[:alert] = "Debes seleccionar un archivo para subir."
+    archivos = Array(params.dig(:inspection, :certificaciones)).compact_blank
 
-      respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.append('flash', partial: 'shared/flash') }
-        format.html { render :edit_certificacion }
-      end
-      return
+    if archivos.empty?
+      flash.now[:alert] = "Debes seleccionar al menos un archivo para subir."
+      cargar_certificaciones
+      return render :edit_certificacion, status: :unprocessable_entity
     end
 
-    @inspection.certificacion.purge if @inspection.certificacion.attached?
-
-    if @inspection.update(certificacion: params[:inspection][:certificacion])
-      redirect_to @inspection,
-                  notice: "Certificación actualizada exitosamente. Subida el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
+    if @inspection.certificaciones.attach(archivos)
+      redirect_to edit_certificacion_inspection_path(@inspection),
+                  notice: "#{archivos.size} archivo(s) subido(s) el #{Time.current.strftime('%d/%m/%Y %H:%M')}."
     else
-      flash.now[:alert] = "Error al subir la certificación."
-
-      respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.append('flash', partial: 'shared/flash') }
-        format.html { render :edit_certificacion }
-      end
+      errores = @inspection.errors.full_messages.to_sentence
+      @inspection.reload
+      cargar_certificaciones
+      flash.now[:alert] = "No se pudieron subir los archivos: #{errores}"
+      render :edit_certificacion, status: :unprocessable_entity
     end
   end
 
@@ -926,14 +922,33 @@ class InspectionsController < ApplicationController
     @inspection = Inspection.find(params[:id])
     authorize! @inspection
 
-    if @inspection.certificacion.attached?
-      redirect_to rails_blob_path(@inspection.certificacion, disposition: "attachment")
+    archivo =
+      if params[:attachment_id].present?
+        @inspection.certificaciones_attachments.find_by(id: params[:attachment_id])
+      else
+        @inspection.certificaciones_attachments.order(created_at: :desc).first
+      end
+
+    if archivo
+      disposition = params[:inline].present? ? "inline" : "attachment"
+      redirect_to rails_blob_path(archivo, disposition: disposition)
     else
       redirect_to @inspection, alert: "No hay certificación disponible para descargar."
     end
   end
 
+  def destroy_certificacion
+    @inspection = Inspection.find(params[:id])
+    authorize! @inspection
 
+    archivo = @inspection.certificaciones_attachments.find(params[:attachment_id])
+    nombre = archivo.filename.to_s
+    archivo.purge_later
+
+    redirect_to edit_certificacion_inspection_path(@inspection),
+                notice: "Se eliminó #{nombre}.",
+                status: :see_other
+  end
 
   def export_xlsx
     scope = Inspection
@@ -1413,6 +1428,13 @@ class InspectionsController < ApplicationController
 
   def inspection
     @inspection = Inspection.find(params[:id])
+  end
+
+  def cargar_certificaciones
+    @certificaciones = @inspection.certificaciones_attachments
+                                  .includes(:blob)
+                                  .order(created_at: :desc)
+                                  .to_a
   end
 
   def informe_params

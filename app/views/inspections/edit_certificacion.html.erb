@@ -1,4 +1,6 @@
-<div class="max-w-xl mx-auto px-4 py-6 ">
+<% puede_eliminar = Current.user.admin || Current.user.certificar %>
+
+<div class="max-w-3xl mx-auto px-4 py-6">
   <div class="flex items-center justify-start">
     <%= link_to "Volver a la inspección",
                 inspection_path(@inspection),
@@ -6,33 +8,81 @@
   </div>
 </div>
 
-<div class="max-w-xl mx-auto my-4 px-4 py-6 bg-gray-900 rounded-lg shadow-md">
-  <h1 class="text-2xl font-bold text-center text-gray-200 mb-6">Subir Certificación</h1>
-
-  <p class="text-gray-300 mb-4">
-    <strong>Última actualización:</strong>
-    <%= @inspection.certificacion.attached? ? @inspection.certificacion.created_at.strftime("%d/%m/%Y %H:%M") : "No se ha subido una certificación aún." %>
+<div class="max-w-3xl mx-auto my-4 px-4 py-6 bg-gray-900 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-center text-gray-200 mb-1">Certificación</h1>
+  <p class="text-center text-gray-400 mb-6">
+    Inspección N°<%= @inspection.number %> <%= @inspection.name %>
   </p>
 
-  <%= form_with(model: @inspection, url: update_certificacion_inspection_path(@inspection), method: :patch, multipart: true, class: "space-y-4") do |form| %>
+  <%= form_with(model: @inspection,
+                url: update_certificacion_inspection_path(@inspection),
+                method: :patch,
+                multipart: true,
+                class: "space-y-3 mb-8 p-4 rounded-md bg-gray-800 border border-gray-700") do |form| %>
     <div>
-      <%= form.label :certificacion, "Subir certificación (.pdf):", class: "block text-gray-300 font-bold mb-2" %>
-      <%= form.file_field :certificacion, accept: ".pdf", class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      <%= form.label :certificaciones, "Agregar archivos (.pdf)", class: "block text-gray-300 font-bold mb-2" %>
+      <%= form.file_field :certificaciones,
+                          multiple: true,
+                          include_hidden: false,
+                          accept: ".pdf,application/pdf",
+                          class: "block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+      <p class="mt-2 text-xs text-gray-500">
+        Puedes seleccionar varios archivos a la vez.
+      </p>
     </div>
 
-    <%= form.hidden_field :dummy_field, value: "1" %>
-
-    <div>
-      <%= form.submit "Subir", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
-    </div>
+    <%= form.submit "Subir",
+                    class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
   <% end %>
 
-  <% if @inspection.certificacion.attached? %>
-    <div class="mt-6 text-center">
-      <%= link_to "Descargar certificación actual",
-                  download_certificacion_inspection_path(@inspection),
-                  class: "inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" %>
-    </div>
+  <h2 class="text-lg font-bold text-gray-200 mb-3">
+    Archivos (<%= @certificaciones.size %>)
+  </h2>
+
+  <% if @certificaciones.any? %>
+    <ul class="divide-y divide-gray-700 rounded-md border border-gray-700 bg-gray-800">
+      <% @certificaciones.each do |archivo| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <div class="min-w-0 flex-1">
+            <p class="text-white font-medium break-all mb-0"><%= archivo.filename %></p>
+            <p class="text-xs text-gray-400 mb-0">
+              Subido el <%= archivo.created_at.in_time_zone.strftime("%d/%m/%Y %H:%M") %>
+              · <%= number_to_human_size(archivo.byte_size) %>
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <%= link_to "Ver",
+                        download_certificacion_inspection_path(@inspection, attachment_id: archivo.id, inline: 1),
+                        target: "_blank",
+                        rel: "noopener",
+                        data: { turbo: false },
+                        class: "px-3 py-1.5 rounded bg-sky-500 text-gray-900 text-sm font-bold hover:bg-sky-600 transition duration-200" %>
+
+            <%= link_to "Descargar",
+                        download_certificacion_inspection_path(@inspection, attachment_id: archivo.id),
+                        data: { turbo: false },
+                        class: "px-3 py-1.5 rounded bg-orange-500 text-gray-900 text-sm font-bold hover:bg-orange-600 transition duration-200" %>
+
+            <% if puede_eliminar %>
+              <%= button_to "Eliminar",
+                            destroy_certificacion_inspection_path(@inspection, attachment_id: archivo.id),
+                            method: :delete,
+                            form: {
+                              data: {
+                                controller: "certificacion-eliminar",
+                                action: "submit->certificacion-eliminar#confirm",
+                                certificacion_eliminar_nombre_value: archivo.filename.to_s
+                              }
+                            },
+                            class: "px-3 py-1.5 ml-4 rounded bg-red-600 text-gray-900 text-sm font-bold hover:bg-red-700 transition duration-200 cursor-pointer" %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-gray-400 italic">Todavía no se han subido archivos de certificación.</p>
   <% end %>
 </div>
 

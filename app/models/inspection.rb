@@ -33,13 +33,16 @@ class Inspection < ApplicationRecord
   validates :inf_date, date: true
   validates :rerun, inclusion: { in: [true, false] }
   validate :informe_format
+  validate :certificaciones_format
   validates :region, presence: true
   validates :comuna, presence: true
   validates :facturacion_id, presence: true
 
 
   has_one_attached :informe
-  has_one_attached :certificacion
+  has_many_attached :certificaciones
+
+  CERTIFICACION_MAX_SIZE = 100.megabytes
 
   has_many :inspection_users, dependent: :destroy
   has_many :users, through: :inspection_users
@@ -160,5 +163,15 @@ class Inspection < ApplicationRecord
     return if identificador.present?
     return if item_id.blank?
     self.identificador = item&.identificador
+  end
+
+  def certificaciones_format
+    certificaciones.attachments.reject(&:persisted?).each do |archivo|
+      if archivo.blob.content_type != "application/pdf"
+        errors.add(:base, "#{archivo.filename}: el archivo debe ser un PDF")
+      elsif archivo.blob.byte_size > CERTIFICACION_MAX_SIZE
+        errors.add(:base, "#{archivo.filename}: supera los 100 MB")
+      end
+    end
   end
 end

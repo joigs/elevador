@@ -92,6 +92,7 @@ Rails.application.routes.draw do
       patch :copy
       get   :edit_certificacion
       patch :update_certificacion
+      delete :destroy_certificacion
       get   :download_certificacion
       patch :sync_identificador
     end
