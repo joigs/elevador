@@ -1,5 +1,6 @@
 class GraficosController < ApplicationController
   def index
+    authorize!
     @inspections = Inspection.where("number > 0").order(number: :desc)
     @year = params[:year].presence&.to_i || Date.current.year
 
@@ -100,6 +101,7 @@ class GraficosController < ApplicationController
 
 
   def certificados_excel
+    authorize!
     year  = params[:year]&.to_i || Date.current.year
     range = Date.new(year, 1, 1)..Date.new(year, 12, 31)
     months_es = %w[Ene Feb Mar Abr May Jun Jul Ago Sep Oct Nov Dic]

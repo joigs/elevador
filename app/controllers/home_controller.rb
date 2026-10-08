@@ -4,7 +4,7 @@ class HomeController < ApplicationController
     @user = Current.user
 
     if @user.empresa != nil
-      redirect_to principal_path(@user.principal)
+      return redirect_to destino_inicial(@user)
     end
 
     if @user.admin

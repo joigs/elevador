@@ -1,5 +1,7 @@
 class StaticPagesController < ApplicationController
   def warnings
+    authorize!
+
     params[:filter] ||= "expiring_soon"
 
     latest_inspection_ids =
@@ -94,6 +96,7 @@ class StaticPagesController < ApplicationController
 
 
   def info
+    authorize!
     @active_tab = params[:tab].presence || "empresas"
 
     if @active_tab == "empresas"
@@ -121,6 +124,8 @@ class StaticPagesController < ApplicationController
   end
 
   def export_empresas_xlsx
+    authorize!
+
     grouped = Hash.new { |h, k| h[k] = { nombres: {}, roles: {}, insps: {} } }
 
     Report.joins(:inspection)

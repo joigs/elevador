@@ -3,6 +3,15 @@ class PrincipalsController < ApplicationController
 
   # GET /principals or /principals.json
   def index
+    if Current.user.cliente?
+      empresas = Current.user.empresas_activas.order(:name).to_a
+      @alertas_por_empresa = empresas.index_with(&:alertas)
+      @principals = empresas.sort_by do |empresa|
+        [-@alertas_por_empresa[empresa].values.sum { |a| a[:count] }, empresa.name]
+      end
+      return
+    end
+
     @q = Principal.ransack(params[:q])
     @principals = @q.result(distinct: true).order(created_at: :desc)
 
@@ -18,22 +27,16 @@ class PrincipalsController < ApplicationController
   # GET /principals/1 or /principals/1.json
   def show
     principal
+    return if bloquear_si_no_es_su_empresa!
 
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        redirect_to principal_path(Current.user.principal_id)
-      end
-    end
-
-    @q = principal.items.ransack(params[:q])
+    @q = @principal.items.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
 
     unless Current.user.tabla
       @pagy, @items = pagy_countless(@items, items: 10)
     end
 
-    @alertas = calcular_alertas
+    @alertas = @principal.alertas
 
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
     if params[:tab] == 'inspections'
@@ -80,7 +83,7 @@ class PrincipalsController < ApplicationController
     @inspection_states = @inspection_states.sort_by { |s, _| state_order.index(s) || state_order.size }.to_h
 
     if params[:tab] == 'usuarios'
-      unless Current.user.admin? || (Current.user.empresa_admin? && Current.user.principal_id == @principal.id)
+      unless Current.user.admin? || (Current.user.empresa_admin? && Current.user.empresa_de?(@principal))
         flash[:alert] = "No tienes permiso"
         return redirect_to principal_path(@principal)
       end
@@ -107,14 +110,9 @@ class PrincipalsController < ApplicationController
     principal
     authorize! @principal
 
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        return redirect_to principal_path(Current.user.principal_id)
-      end
-    end
+    return if bloquear_si_no_es_su_empresa!
 
-    @alertas = calcular_alertas
+    @alertas = @principal.alertas
     @filtro  = params[:filtro].presence
 
     @filtro = nil unless @filtro && @alertas.key?(@filtro)
@@ -139,12 +137,7 @@ class PrincipalsController < ApplicationController
   def edit
     authorize! principal
 
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        redirect_to principal_path(Current.user.principal_id)
-      end
-    end
+    return if bloquear_si_no_es_su_empresa!
   end
 
   # POST /principals or /principals.json
@@ -164,12 +157,7 @@ class PrincipalsController < ApplicationController
   def update
     authorize! principal
 
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        return redirect_to principal_path(Current.user.principal_id), status: :see_other
-      end
-    end
+    return if bloquear_si_no_es_su_empresa!
 
     if @principal.update(principal_params)
       flash[:notice] = "Empresa modificada"
@@ -204,14 +192,24 @@ class PrincipalsController < ApplicationController
   end
 
   def items
-    principal = Principal.find(params[:id])
-    items = principal.items.select(:id, :identificador).order(:identificador)
+    principal
+
+    if Current.user.cliente? && !Current.user.empresa_de?(@principal)
+      return head :forbidden
+    end
+
+    items = @principal.items.select(:id, :identificador).order(:identificador)
     render json: items
   end
 
   def places
-    principal = Principal.find(params[:id])
-    places = principal.inspections.select(:place).distinct.map(&:place)
+    principal
+
+    if Current.user.cliente? && !Current.user.empresa_de?(@principal)
+      return head :forbidden
+    end
+
+    places = @principal.inspections.select(:place).distinct.map(&:place)
     render json: places
   end
 
@@ -220,12 +218,7 @@ class PrincipalsController < ApplicationController
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
 
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        redirect_to principal_path(Current.user.principal_id)
-      end
-    end
+    return if bloquear_si_no_es_su_empresa!
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
 
@@ -330,12 +323,7 @@ class PrincipalsController < ApplicationController
   def estado_activos
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        redirect_to principal_path(Current.user.principal_id)
-      end
-    end
+    return if bloquear_si_no_es_su_empresa!
     @items = @principal.items
 
 
@@ -566,12 +554,7 @@ class PrincipalsController < ApplicationController
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
 
-    if Current.user.empresa != nil
-      if @principal.id != Current.user.principal_id
-        flash[:alert] = "No tienes permiso"
-        redirect_to principal_path(Current.user.principal_id)
-      end
-    end
+    return if bloquear_si_no_es_su_empresa!
 
     @groups = Group.all
     @totalitems = @principal.items.select { |item| item.inspections.any? }
@@ -699,69 +682,17 @@ class PrincipalsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
   def principal_params
-    params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email, :place, :activo)
+    params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email, :place)
   end
 
 
-  def calcular_alertas
-    hoy       = Time.zone.today
-    dos_meses = (hoy + 2.months).end_of_month
 
-    ultimas_ids = @principal.inspections
-                            .where("number > 0")
-                            .select(:id, :item_id, :number)
-                            .order(:item_id, number: :desc)
-                            .group_by(&:item_id)
-                            .values
-                            .map { |inspecciones| inspecciones.first.id }
+  def bloquear_si_no_es_su_empresa!
+    return false unless Current.user.cliente?
+    return false if Current.user.empresa_de?(@principal)
 
-    base = Inspection.where(id: ultimas_ids, ignorar: false)
-
-    definiciones = {
-      "proximas" => {
-        titulo: "Certificaciones por vencer",
-        texto: "con la certificación por vencer en los próximos 2 meses.",
-        estilo: "amber",
-        scope: base.joins(:report)
-                   .where(state: "Cerrado", result: "Aprobado")
-                   .where("reports.ending > ? AND reports.ending <= ?", hoy, dos_meses)
-      },
-      "rechazadas_proximas" => {
-        titulo: "Rechazadas con reinspección próxima",
-        texto: "rechazados con fecha límite en los próximos 2 meses.",
-        estilo: "orange",
-        scope: base.joins(:report)
-                   .where(state: "Cerrado", result: "Rechazado")
-                   .where("reports.ending > ? AND reports.ending <= ?", hoy, dos_meses)
-      },
-      "vencidas_aprobadas" => {
-        titulo: "Certificaciones vencidas",
-        texto: "con la certificación aprobada ya vencida.",
-        estilo: "rose",
-        scope: base.where(result: "Vencido (Aprobado)")
-      },
-      "vencidas_rechazadas" => {
-        titulo: "Certificaciones vencidas (rechazadas)",
-        texto: "rechazados con el plazo ya vencido.",
-        estilo: "rose_fuerte",
-        scope: base.where(result: "Vencido (Rechazado)")
-      }
-    }
-    definiciones.each_with_object({}) do |(clave, datos), acumulador|
-      ids = datos[:scope].pluck(:id)
-      next if ids.empty?
-
-      n = ids.size
-      sujeto = n == 1 ? "1 activo" : "#{n} activos"
-
-      acumulador[clave] = {
-        titulo: datos[:titulo],
-        texto:  "#{sujeto} #{datos[:texto]}",
-        estilo: datos[:estilo],
-        ids:    ids,
-        count:  n
-      }
-    end
+    flash[:alert] = "No tienes permiso"
+    redirect_to principals_path, status: :see_other
+    true
   end
-
 end

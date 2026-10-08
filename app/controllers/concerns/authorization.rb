@@ -25,5 +25,20 @@ module Authorization
       end
     end
 
+    def alcance_cliente(scope, columna = :principal_id)
+      return scope unless Current.user&.cliente?
+
+      scope.where(columna => Current.user.principal_ids)
+    end
+
+    def bloquear_cliente_fuera_de_empresa!(record)
+      return false unless Current.user&.cliente?
+      return false if Current.user.empresa_de?(record)
+
+      flash[:alert] = "No tienes permiso"
+      redirect_to destino_inicial, status: :see_other
+      true
+    end
+
   end
 end

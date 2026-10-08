@@ -77,6 +77,9 @@ class User < ApplicationRecord
     permisos.exists?(nombre: 'only_see')
   end
 
+  has_many :principal_users, dependent: :destroy
+  has_many :principals, through: :principal_users
+
   def cliente?
     empresa.present?
   end
@@ -87,6 +90,21 @@ class User < ApplicationRecord
 
   def recibe_correo?
     permisos.exists?(nombre: "recibe_correo")
+  end
+
+  def empresas_activas
+    principals.where(activo: true)
+  end
+
+  def empresa_unica
+    empresas_activas.first if empresas_activas.count == 1
+  end
+
+  def empresas_gestionables
+    return Principal.where(activo: true).order(:name) if admin?
+    return Principal.none unless empresa_admin?
+
+    empresas_activas.order(:name)
   end
 
 
@@ -119,19 +137,23 @@ class User < ApplicationRecord
 
 
   def empresa_de?(record)
-    return false if empresa.blank? || principal_id.blank?
+    return false if empresa.blank?
 
-    principal_id == principal_id_de(record)
+    objetivo = principal_id_de(record)
+    return false if objetivo.blank?
+
+    principal_ids.include?(objetivo)
   end
-
 
 
   scope :activos, -> { where(activo: true) }
 
   def puede_iniciar_sesion?
-    activo? && (principal.nil? || principal.activo?)
-  end
+    return false unless activo?
+    return true unless cliente?
 
+    empresas_activas.exists?
+  end
   generates_token_for :password_reset, expires_in: 30.minutes do
     password_salt&.last(10)
   end

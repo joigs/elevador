@@ -1,4 +1,11 @@
 <% propio = (user == Current.user) %>
+<% gestionables = local_assigns[:gestionables] || Current.user.empresas_gestionables.to_a %>
+<% gestionables_ids = gestionables.map(&:id) %>
+<% empresas_usuario = user.principals.sort_by(&:name) %>
+<% otras_empresas = empresas_usuario.count { |e| !gestionables_ids.include?(e.id) } %>
+<% puede_quitar = !propio && empresas_usuario.size > 1 %>
+<% puede_eliminar = !propio && otras_empresas.zero? %>
+<% disponibles = gestionables.reject { |e| empresas_usuario.any? { |u| u.id == e.id } } %>
 <tr class="bg-gray-800"
     id="<%= dom_id(user, :empresa_row) %>"
     data-table-filter-target="row"
@@ -11,6 +18,47 @@
   </td>
   <td class="px-4 py-4 whitespace-normal break-words"><%= user.real_name %></td>
   <td class="px-4 py-4 whitespace-normal break-words"><%= user.email.presence || "—" %></td>
+
+  <td class="px-4 py-4">
+    <div class="flex flex-wrap items-center gap-1.5">
+      <% empresas_usuario.each do |empresa| %>
+        <% next unless gestionables_ids.include?(empresa.id) %>
+        <span class="inline-flex items-center gap-1 pl-2.5 <%= puede_quitar ? 'pr-1' : 'pr-2.5' %> py-0.5 rounded-full text-xs font-medium <%= empresa.id == principal.id ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200' %>">
+          <%= empresa.name %>
+          <% if puede_quitar %>
+            <%= form_with url: quitar_empresa_principal_empresa_user_path(principal, user),
+                          method: :delete,
+                          class: "inline-flex",
+                          data: { controller: "empresa-membership" } do %>
+              <%= hidden_field_tag :empresa_id, empresa.id, id: nil %>
+              <button type="submit"
+                      data-nombre="<%= empresa.name %>"
+                      data-action="click->empresa-membership#confirmarQuitar"
+                      title="Quitar de <%= empresa.name %>"
+                      class="w-4 h-4 inline-flex items-center justify-center rounded-full hover:bg-black/30 leading-none cursor-pointer">&times;</button>
+            <% end %>
+          <% end %>
+        </span>
+      <% end %>
+
+      <% if otras_empresas.positive? %>
+        <span class="text-xs text-gray-400">+<%= otras_empresas %> <%= otras_empresas == 1 ? "otra" : "otras" %></span>
+      <% end %>
+    </div>
+
+    <% if disponibles.any? %>
+      <%= form_with url: agregar_empresa_principal_empresa_user_path(principal, user),
+                    method: :post,
+                    class: "mt-2",
+                    data: { controller: "empresa-membership" } do %>
+        <%= select_tag :empresa_id,
+                       options_for_select([["+ Agregar a empresa…", ""]] + disponibles.map { |e| [e.name, e.id] }),
+                       id: nil,
+                       data: { action: "change->empresa-membership#confirmarAgregar" },
+                       class: "text-xs bg-gray-700 text-gray-200 border border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
+      <% end %>
+    <% end %>
+  </td>
 
   <td class="px-4 py-4 text-center">
     <% if propio %>
@@ -59,14 +107,14 @@
   </td>
 
   <td class="px-4 py-4 text-center">
-    <% if propio %>
+    <% unless puede_eliminar %>
       <span class="text-gray-500">—</span>
     <% else %>
       <%= form_with url: principal_empresa_user_path(principal, user),
                     method: :delete,
                     data: { turbo: false, controller: "double-confirm" },
                     class: "inline" do %>
-        <%= submit_tag "Eliminar",
+        <%= submit_tag "Eliminar usuario",
                        data: { action: "click->double-confirm#confirm" },
                        class: "px-3 py-1 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 cursor-pointer" %>
       <% end %>

@@ -334,18 +334,21 @@ class Authentication::UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion, :empresa, :signature, :gestion, :principal_id)
+    params.require(:user).permit(:username, :password, :real_name, :email, :admin, :password_confirmation, :profesion, :empresa, :signature, :gestion, principal_ids: [])
   end
   def relleno_user_params
     params.require(:user).permit(:username, :real_name, :password)
   end
 
   def principal_seleccionada_activa?(user = nil)
-    principal_id = user_params[:principal_id]
-    return true if principal_id.blank?
-    return true if user && user.principal_id == principal_id.to_i
+    seleccionadas = Array(user_params[:principal_ids]).reject(&:blank?).map(&:to_i)
+    return true if seleccionadas.empty?
 
-    Principal.exists?(id: principal_id, activo: true)
+    ya_asignadas = user ? user.principal_ids : []
+    nuevas = seleccionadas - ya_asignadas
+    return true if nuevas.empty?
+
+    Principal.where(id: nuevas, activo: true).count == nuevas.size
   end
   def relleno_update_params
     params.require(:user).permit(:username, :password)

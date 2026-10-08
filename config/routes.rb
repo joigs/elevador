@@ -174,6 +174,8 @@ Rails.application.routes.draw do
       member do
         patch :toggle_activo
         patch :toggle_permiso
+        post :agregar_empresa
+        delete :quitar_empresa
       end
     end
   end

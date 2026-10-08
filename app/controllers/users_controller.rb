@@ -8,7 +8,7 @@ class UsersController < ApplicationController
                         elsif @user.empresa == nil
                           Inspection.joins(:users).where(users: { id: @user.id }).where("number > 0")
                         else
-                          Inspection.where(principal_id: @user.principal_id).where("number > 0")
+                          Inspection.where(principal_id: @user.principal_ids).where("number > 0")
                         end
 
     @q = inspections_scope.ransack(params[:q])

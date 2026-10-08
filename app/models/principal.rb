@@ -21,11 +21,12 @@ class Principal < ApplicationRecord
 
   has_many :items
   has_many :inspections
-  has_many :users, dependent: :destroy
-  after_update :sincronizar_usuarios_activo, if: :saved_change_to_activo?
+  has_many :principal_users, dependent: :destroy
+  has_many :users, through: :principal_users
+
+  before_destroy :eliminar_usuarios_exclusivos, prepend: true
 
   scope :activas, -> { where(activo: true) }
-
   def activar!
     update!(activo: true)
   end
@@ -34,7 +35,71 @@ class Principal < ApplicationRecord
     update!(activo: false)
   end
 
+  def alertas
+    hoy       = Time.zone.today
+    dos_meses = (hoy + 2.months).end_of_month
 
+    ultimas_ids = inspections
+                    .where("number > 0")
+                    .select(:id, :item_id, :number)
+                    .order(:item_id, number: :desc)
+                    .group_by(&:item_id)
+                    .values
+                    .map { |inspecciones| inspecciones.first.id }
+
+    base = Inspection.where(id: ultimas_ids, ignorar: false)
+
+    definiciones = {
+      "proximas" => {
+        titulo: "Certificaciones por vencer",
+        texto: "con la certificación por vencer en los próximos 2 meses.",
+        estilo: "amber",
+        scope: base.joins(:report)
+                   .where(state: "Cerrado", result: ["Aprobado", "Vencido (Aprobado)"])
+                   .where("reports.ending >= ? AND reports.ending <= ?", hoy, dos_meses)
+      },
+      "rechazadas_proximas" => {
+        titulo: "Rechazadas con reinspección próxima",
+        texto: "rechazados con fecha límite en los próximos 2 meses.",
+        estilo: "orange",
+        scope: base.joins(:report)
+                   .where(state: "Cerrado", result: ["Rechazado", "Vencido (Rechazado)"])
+                   .where("reports.ending >= ? AND reports.ending <= ?", hoy, dos_meses)
+      },
+      "vencidas_aprobadas" => {
+        titulo: "Certificaciones vencidas",
+        texto: "con la certificación aprobada ya vencida.",
+        estilo: "rose",
+        scope: base.joins(:report)
+                   .where(state: "Cerrado", result: ["Aprobado", "Vencido (Aprobado)"])
+                   .where("reports.ending < ?", hoy)
+      },
+      "vencidas_rechazadas" => {
+        titulo: "Certificaciones vencidas (rechazadas)",
+        texto: "rechazados con el plazo ya vencido.",
+        estilo: "rose_fuerte",
+        scope: base.joins(:report)
+                   .where(state: "Cerrado", result: ["Rechazado", "Vencido (Rechazado)"])
+                   .where("reports.ending < ?", hoy)
+      }
+    }
+
+    definiciones.each_with_object({}) do |(clave, datos), acumulador|
+      ids = datos[:scope].pluck(:id)
+      next if ids.empty?
+
+      n = ids.size
+      sujeto = n == 1 ? "1 activo" : "#{n} activos"
+
+      acumulador[clave] = {
+        titulo: datos[:titulo],
+        texto:  "#{sujeto} #{datos[:texto]}",
+        estilo: datos[:estilo],
+        ids:    ids,
+        count:  n
+      }
+    end
+  end
 
   private
 
@@ -74,8 +139,10 @@ class Principal < ApplicationRecord
     remainder == 0 ? '0' : remainder == 1 ? 'K' : (11 - remainder).to_s
   end
 
-  def sincronizar_usuarios_activo
-    users.update_all(activo: activo, updated_at: Time.current)
+  def eliminar_usuarios_exclusivos
+    users.includes(:principal_users).each do |user|
+      user.destroy if user.principal_users.size == 1
+    end
   end
 end
 

@@ -4,7 +4,7 @@ class InspectionsController < ApplicationController
   require 'fileutils'
   require 'open3'
   def index
-    base = Inspection.where("number > 0")
+    base = alcance_cliente(Inspection.where("number > 0"))
 
     if params[:facturacion_id].present?
       @facturacion = Facturacion.find(params[:facturacion_id])
@@ -30,9 +30,9 @@ class InspectionsController < ApplicationController
   end
 
   def show
-
-
     inspection
+    return if bloquear_cliente_fuera_de_empresa!(@inspection)
+
     cargar_certificaciones
     @item = inspection.item
     @report = Report.find_by(inspection_id: @inspection.id)
@@ -951,8 +951,7 @@ class InspectionsController < ApplicationController
   end
 
   def export_xlsx
-    scope = Inspection
-              .where("number > 0")
+    scope = alcance_cliente(Inspection.where("number > 0"))
               .includes(
                 :principal, :report, :users,
                 item: [:principal, :detail, :ladder_detail]

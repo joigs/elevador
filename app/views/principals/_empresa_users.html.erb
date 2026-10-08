@@ -22,6 +22,7 @@
           <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Usuario</th>
           <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
           <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+          <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Empresas</th>
           <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Activo</th>
           <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Admin de<br>empresa</th>
           <th class="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider">Recibe<br>correos</th>
@@ -29,8 +30,9 @@
         </tr>
         </thead>
         <tbody class="divide-y divide-gray-700">
-        <% @empresa_users.each do |user| %>
-          <%= render "principals/empresa_user_row", user: user, principal: @principal %>
+        <% gestionables = Current.user.empresas_gestionables.to_a %>
+        <% @empresa_users.includes(:principals).each do |user| %>
+          <%= render "principals/empresa_user_row", user: user, principal: @principal, gestionables: gestionables %>
         <% end %>
         </tbody>
       </table>

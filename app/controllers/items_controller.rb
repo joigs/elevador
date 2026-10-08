@@ -1,21 +1,26 @@
 class ItemsController < ApplicationController
   def index
-    @q = Item.ransack(params[:q])
+    @q = alcance_cliente(Item.all).ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
 
     unless Current.user.tabla
-      @pagy, @items = pagy_countless(@items, items: 10)  # Paginación infinita para las tarjetas
+      @pagy, @items = pagy_countless(@items, items: 10)
     end
 
-    duplicate_identifiers = Item.group(:identificador).having('count(identificador) > 1').pluck(:identificador)
-    @duplicate_items = Item.where(identificador: duplicate_identifiers).group_by(&:identificador)
+    if Current.user.cliente?
+      @duplicate_items = {}
+    else
+      duplicate_identifiers = Item.group(:identificador).having('count(identificador) > 1').pluck(:identificador)
+      @duplicate_items = Item.where(identificador: duplicate_identifiers).group_by(&:identificador)
+    end
   end
 
 
   def show
     item
+    return if bloquear_cliente_fuera_de_empresa!(@item)
 
-    @q = item.inspections.where("number > 0").ransack(params[:q])
+    @q = @item.inspections.where("number > 0").ransack(params[:q])
     @inspections = @q.result(distinct: true).order(number: :desc)
 
     unless Current.user.tabla

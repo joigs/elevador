@@ -1,0 +1,148 @@
+<% columnas_alertas = [
+  ["proximas",            "Por vencer",            "bg-amber-100 text-amber-800"],
+  ["rechazadas_proximas", "Rechazadas<br>próximas", "bg-orange-100 text-orange-800"],
+  ["vencidas_aprobadas",  "Vencidas",              "bg-rose-100 text-rose-800"],
+  ["vencidas_rechazadas", "Vencidas<br>rechazadas", "bg-rose-200 text-rose-900"]
+] %>
+
+<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+      <h1 class="text-2xl font-bold text-white">Mis empresas</h1>
+      <p class="text-gray-400">Selecciona una empresa para ver sus activos, inspecciones y reportes.</p>
+    </div>
+
+    <div class="overflow-x-auto table-responsive mt-6">
+      <table id="principals-cliente-table" class="table-auto w-full text-white">
+        <thead class="bg-gray-800">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+            <p class="hover:text-blue-700 ml-2">Nombre</p>
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+            <p class="hover:text-blue-700">RUT</p>
+          </th>
+          <% columnas_alertas.each do |_clave, titulo, _clase| %>
+            <th class="col-num px-6 py-3 text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+              <p class="hover:text-blue-700"><%= titulo.html_safe %></p>
+            </th>
+          <% end %>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+            <p class="hover:text-blue-700">Acciones</p>
+          </th>
+        </tr>
+        </thead>
+        <tbody class="bg-gray-700 divide-y divide-gray-600">
+        <% @principals.each do |empresa| %>
+          <% alertas = @alertas_por_empresa[empresa] %>
+          <tr class="bg-gray-800 border-b border-gray-700">
+            <td class="px-6 py-4 whitespace-normal break-words">
+              <%= link_to empresa.name, principal_path(empresa), class: "text-blue-400 hover:text-blue-600" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <p class="text-white"><%= empresa.rut %></p>
+            </td>
+            <% columnas_alertas.each do |clave, _titulo, clase| %>
+              <% n = alertas[clave]&.dig(:count) || 0 %>
+              <td class="col-num px-6 py-4" data-order="<%= n %>">
+                <% if n.positive? %>
+                  <span class="inline-block min-w-[2rem] px-2 py-0.5 rounded-full text-sm font-bold <%= clase %>"><%= n %></span>
+                <% else %>
+                  <span class="text-gray-500">0</span>
+                <% end %>
+              </td>
+            <% end %>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <%= link_to "Ver empresa", principal_path(empresa), class: "text-blue-400 hover:text-blue-600" %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+        (function () {
+            function initPrincipalsClienteTable() {
+                const tableEl = document.getElementById("principals-cliente-table");
+                if (
+                    tableEl &&
+                    !tableEl._simpleDt &&
+                    typeof simpleDatatables !== "undefined" &&
+                    simpleDatatables.DataTable
+                ) {
+                    const dt = new simpleDatatables.DataTable(tableEl, {
+                        labels: {
+                            placeholder: "Buscar...",
+                            perPage: "registros por pág.",
+                            noRows: "No hay datos para mostrar",
+                            noResults: "No hay resultados que coincidan con tu búsqueda",
+                            info: "Mostrando {start} a {end} de {rows} entradas"
+                        },
+                        tableRender: (_data, table, type) => {
+                            if (type === "print") return table;
+                            table.childNodes[0].childNodes.forEach((row) => {
+                                row.attributes ||= {};
+                                row.attributes.class = (row.attributes.class || "") + " bg-gray-800 text-white";
+                                row.childNodes.forEach((th) => {
+                                    th.attributes ||= {};
+                                    th.attributes.class = (th.attributes.class || "") + " bg-gray-800 text-white";
+                                });
+                            });
+                            return table;
+                        }
+                    });
+                    tableEl._simpleDt = dt;
+                }
+            }
+
+            document.addEventListener("turbo:load", initPrincipalsClienteTable);
+            document.addEventListener("turbo:frame-load", initPrincipalsClienteTable);
+            document.addEventListener("turbo:before-cache", () => {
+                const tableEl = document.getElementById("principals-cliente-table");
+                if (tableEl && tableEl._simpleDt) {
+                    tableEl._simpleDt.destroy();
+                    delete tableEl._simpleDt;
+                }
+            });
+        })();
+    </script>
+
+    <style>
+        #principals-cliente-table thead th button.datatable-sorter {
+            background: transparent !important;
+            border: none !important;
+            color: #fff !important;
+        }
+        #principals-cliente-table thead th button.datatable-sorter:hover {
+            background: transparent !important;
+            color: #1d4ed8 !important;
+        }
+        #principals-cliente-table .datatable-selector,
+        #principals-cliente-table .datatable-input {
+            background-color: #f2f2f2 !important;
+            color: #000 !important;
+            border: 1px solid #ccc !important;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+        }
+        #principals-cliente-table th.col-num,
+        #principals-cliente-table td.col-num {
+            width: 11rem;
+            text-align: center;
+        }
+        #principals-cliente-table th.col-num button.datatable-sorter {
+            width: 100%;
+            text-align: center;
+            padding-right: 1rem;
+        }
+        #principals-cliente-table th.col-num button.datatable-sorter p {
+            margin: 0 auto;
+        }
+        .datatable-top label,
+        .datatable-top .datatable-search {
+            color: #d1d5db;
+        }
+    </style>
+  </div>
+</div>

@@ -10,8 +10,41 @@ class EmpresaUsersController < ApplicationController
       return redirigir(alert: "No puedes eliminar tu propia cuenta")
     end
 
+    unless (@user.principal_ids - Current.user.empresas_gestionables.pluck(:id)).empty?
+      return redirigir(alert: "El usuario pertenece a empresas que no administras. Quítalo de tus empresas en lugar de eliminarlo.")
+    end
+
     @user.destroy
     redirigir(notice: "Usuario eliminado")
+  end
+
+  def agregar_empresa
+    empresa = Current.user.empresas_gestionables.find_by(id: params[:empresa_id])
+    return responder(alert: "Empresa no válida") unless empresa
+
+    @user.principal_users.find_or_create_by!(principal: empresa)
+    responder(notice: "Usuario agregado a #{empresa.name}")
+  end
+
+  def quitar_empresa
+    empresa = Current.user.empresas_gestionables.find_by(id: params[:empresa_id])
+    return responder(alert: "Empresa no válida") unless empresa
+
+    if @user == Current.user
+      return responder(alert: "No puedes quitarte a ti mismo de una empresa")
+    end
+
+    if @user.principal_users.count <= 1
+      return responder(alert: "El usuario debe pertenecer al menos a una empresa")
+    end
+
+    @user.principal_users.where(principal: empresa).destroy_all
+
+    if empresa == @principal
+      quitar_fila
+    else
+      responder(notice: "Usuario quitado de #{empresa.name}")
+    end
   end
 
   def toggle_activo
@@ -54,7 +87,7 @@ class EmpresaUsersController < ApplicationController
 
   def autorizar_gestion!
     permitido = Current.user.admin? ||
-                (Current.user.empresa_admin? && Current.user.principal_id == @principal.id)
+                (Current.user.empresa_admin? && Current.user.empresa_de?(@principal))
 
     unless permitido
       flash[:alert] = "No tienes permiso"
@@ -85,6 +118,14 @@ class EmpresaUsersController < ApplicationController
         )
       end
       format.html { redirigir(flash_opts) }
+    end
+  end
+  def quitar_fila
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.remove(helpers.dom_id(@user, :empresa_row))
+      end
+      format.html { redirigir(notice: "Usuario quitado de la empresa") }
     end
   end
 end

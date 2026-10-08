@@ -22,6 +22,13 @@ module Authentication
       redirect_to new_session_path
     end
 
+    def destino_inicial(user = Current.user)
+      return home_path unless user&.cliente?
+
+      empresa = user.empresa_unica
+      empresa ? principal_path(empresa) : principals_path
+    end
+
     def protect_pages
       unless Current.user
         flash[:alert] = "Debe iniciar sesión"

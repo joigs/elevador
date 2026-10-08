@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_08_131556) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -353,6 +353,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_131556) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "principal_users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "principal_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["principal_id"], name: "index_principal_users_on_principal_id"
+    t.index ["user_id", "principal_id"], name: "index_principal_users_on_user_and_principal", unique: true
+    t.index ["user_id"], name: "index_principal_users_on_user_id"
+  end
+
   create_table "principals", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "rut", null: false
     t.string "name", null: false
@@ -528,7 +538,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_131556) do
     t.string "profesion"
     t.boolean "tabla", default: true
     t.string "empresa"
-    t.bigint "principal_id"
     t.boolean "gestion", default: false, null: false
     t.boolean "super", default: false, null: false
     t.boolean "relleno", default: false, null: false
@@ -536,7 +545,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_131556) do
     t.boolean "activo", default: true, null: false
     t.index ["activo"], name: "index_users_on_activo"
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
-    t.index ["principal_id"], name: "index_users_on_principal_id"
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
@@ -567,6 +575,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_131556) do
   add_foreign_key "plat_revisions", "groups"
   add_foreign_key "plat_revisions", "inspections"
   add_foreign_key "plat_revisions", "items"
+  add_foreign_key "principal_users", "principals"
+  add_foreign_key "principal_users", "users"
   add_foreign_key "reports", "inspections"
   add_foreign_key "reports", "items"
   add_foreign_key "revisions", "groups"
@@ -580,5 +590,4 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_131556) do
   add_foreign_key "user_permisos", "users"
   add_foreign_key "user_preferencias", "preferencias"
   add_foreign_key "user_preferencias", "users"
-  add_foreign_key "users", "principals"
 end

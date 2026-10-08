@@ -1,10 +1,10 @@
 class GraficoPolicy < BasePolicy
 
   def index
-    Current.user
+    Current.user.admin || Current.user.cotizar || Current.user.solicitar
   end
 
   def method_missing(m, *args, &block)
-    Current.user
+    Current.user.admin || Current.user.cotizar || Current.user.solicitar
   end
 end

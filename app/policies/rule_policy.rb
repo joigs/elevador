@@ -1,5 +1,5 @@
 class RulePolicy < BasePolicy
   def method_missing(m, *args, &block)
-    Current.user
+    Current.user.admin?
   end
 end
