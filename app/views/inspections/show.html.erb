@@ -55,22 +55,7 @@
   <div class="bg-gray-900 p-4 rounded-lg shadow-md">
     <div class="grid grid-cols-2 gap-2 text-white">
 
-      <div>
-        <h2 class="text-2xl font-bold mb-1">
-          Inspección N°<%= @inspection.number %> <%= @inspection.name %>
-        </h2>
-        <p class="text-lg text-blue-400 mb-0">
-          <strong class="text-white">Identificador:</strong>
-          <%= link_to (@inspection.identificador.presence || @inspection.item&.identificador), item_path(@inspection.item) %>
-        </p>
-        <% if @identificador_mismatch %>
-          <p class="text-sm text-yellow-400 mb-0">
-            Identificador actual del activo: <%= @item.identificador %>
-          </p>
-        <% end %>
-      </div>
-
-      <div class="row-span-2 self-start"
+      <div class="col-start-2 row-start-1 self-start"
            data-controller="warning"
            data-warning-ins-date="<%= @inspection.ins_date %>"
            data-warning-is-owner="<%= @inspection.owner? %>"
@@ -116,7 +101,7 @@
                   </div>
 
                   <% if @certificaciones.any? %>
-                    <ul class="mt-2 space-y-2">
+                    <ul class="mt-2 space-y-2 max-h-56 overflow-y-auto pr-1">
                       <% @certificaciones.each do |archivo| %>
                         <li class="flex items-center justify-between gap-3">
                           <span class="text-sm text-gray-200 truncate" title="<%= archivo.filename %>"><%= archivo.filename %></span>
@@ -296,8 +281,24 @@
         </div>
       </div>
 
-      <div class="mt-6 row-start-2 col-start-1">
-        <% unless @empresa_cliente %>
+      <div class="col-start-1 row-start-1 flex flex-col">
+        <div>
+          <h2 class="text-2xl font-bold mb-1">
+            Inspección N°<%= @inspection.number %> <%= @inspection.name %>
+          </h2>
+          <p class="text-lg text-blue-400 mb-0">
+            <strong class="text-white">Identificador:</strong>
+            <%= link_to (@inspection.identificador.presence || @inspection.item&.identificador), item_path(@inspection.item) %>
+          </p>
+          <% if @identificador_mismatch %>
+            <p class="text-sm text-yellow-400 mb-0">
+              Identificador actual del activo: <%= @item.identificador %>
+            </p>
+          <% end %>
+        </div>
+
+        <div class="mt-6">
+          <% unless @empresa_cliente %>
           <p class="mb-0">
             <strong>Empresa cliente:</strong>
             <%= link_to @inspection.item&.principal&.name,
@@ -395,8 +396,8 @@
         <% end %>
       </div>
 
-      <div class="flex flex-col mt-6 col-start-1 row-start-3">
-        <% if @control2 == "escala" %>
+        <div class="flex flex-col mt-6">
+          <% if @control2 == "escala" %>
           <%= link_to 'Ver fallas encontradas',
                       ladder_revision_path(inspection_id: @inspection),
                       class: "px-3 py-2 rounded bg-blue-500 text-gray-900 font-bold hover:bg-blue-600 mt-2" \
@@ -475,9 +476,7 @@
                       action: "click->inspection-delete-confirmation#deleteItem",
                       delete_confirmation_redirect_url_value: "/inspections"
                     } if Current.user.admin || Current.user.crear %>
-      </div>
-
-      <div>
+        </div>
       </div>
 
     </div>
