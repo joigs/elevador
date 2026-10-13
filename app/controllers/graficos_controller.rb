@@ -111,7 +111,7 @@ class GraficosController < ApplicationController
                    .where(inspections: { ins_date: range })
                    .where('inspections.number > 0')
                    .distinct
-                   .includes(inspections: [:item, :report, :users])
+                   .includes(inspections: [:item, :report, :users, :sucursal])
 
     Tempfile.create(['informes', '.xlsx']) do |tmp|
       path = tmp.path
@@ -152,67 +152,68 @@ class GraficosController < ApplicationController
       r = 1
 
       principals.find_each do |principal|
-        inspections = principal.inspections
-                               .select { |i| i.ins_date.present? && range.cover?(i.ins_date.to_date) && i.number.to_i > 0 }
-                               .sort_by(&:ins_date)
-        next if inspections.empty?
+        inspections_empresa = principal.inspections
+                                       .select { |i| i.ins_date.present? && range.cover?(i.ins_date.to_date) && i.number.to_i > 0 }
+                                       .sort_by(&:ins_date)
+        next if inspections_empresa.empty?
 
-        inspectors = inspections.flat_map(&:users).compact.map(&:real_name).uniq.sort
-        inspectors_multiline = inspectors.join("\n")
+        inspections_empresa.group_by(&:sucursal).each do |sucursal, inspections|
+          inspectors = inspections.flat_map(&:users).compact.map(&:real_name).uniq.sort
+          inspectors_multiline = inspectors.join("\n")
 
-        base = [
-          principal.name.to_s,
-          principal.contact_name.to_s,
-          principal.rut.to_s,
-          principal.place.to_s,
-          'Ivan Castro Dolcino',
-          '',
-          inspectors_multiline,
-          ''
-        ]
-
-        r0 = r
-
-        inspections.each do |insp|
-          date  = insp.ins_date.to_date
-          mm    = date.strftime('%m')
-          yyyy  = date.strftime('%Y')
-          ident = insp.item&.identificador.to_s
-          tail4 = ident[-4, 4].to_s
-
-          numero = "N° #{insp.number}-#{mm}-#{yyyy}-#{tail4}"
-          prox = if insp.report&.ending.present?
-                   d = insp.report.ending.to_date
-                   "#{months_es[d.month - 1]}-#{d.strftime('%y')}"
-                 else
-                   ''
-                 end
-
-          row = Array.new(8, '') + [
-            numero,
-            ident,
-            date.strftime('%d/%m/%Y'), # dd/mm/yyyy
+          base = [
+            principal.name.to_s,
+            sucursal&.contact_name.to_s,
+            principal.rut.to_s,
+            sucursal&.place.to_s,
+            'Ivan Castro Dolcino',
             '',
-            prox
+            inspectors_multiline,
+            ''
           ]
 
-          0.upto(12) { |cidx| sheet.write(r, cidx, row[cidx], [2,5,7,10,11,12].include?(cidx) ? cell_c : cell) }
-          sheet.set_row(r, 20)
-          r += 1
-        end
+          r0 = r
 
-        span_last = r - 1
-        if r0 == span_last
-          sheet.write_row(r0, 0, base, cell)
-          [2,5,7].each { |c| sheet.write(r0, c, base[c], cell_c) }
-        else
-          (0..7).each do |c|
-            fmt = [2,5,7].include?(c) ? cell_c : cell
-            sheet.merge_range(r0, c, span_last, c, base[c], fmt)
+          inspections.each do |insp|
+            date  = insp.ins_date.to_date
+            mm    = date.strftime('%m')
+            yyyy  = date.strftime('%Y')
+            ident = insp.item&.identificador.to_s
+            tail4 = ident[-4, 4].to_s
+
+            numero = "N° #{insp.number}-#{mm}-#{yyyy}-#{tail4}"
+            prox = if insp.report&.ending.present?
+                     d = insp.report.ending.to_date
+                     "#{months_es[d.month - 1]}-#{d.strftime('%y')}"
+                   else
+                     ''
+                   end
+
+            row = Array.new(8, '') + [
+              numero,
+              ident,
+              date.strftime('%d/%m/%Y'),
+              '',
+              prox
+            ]
+
+            0.upto(12) { |cidx| sheet.write(r, cidx, row[cidx], [2,5,7,10,11,12].include?(cidx) ? cell_c : cell) }
+            sheet.set_row(r, 20)
+            r += 1
+          end
+
+          span_last = r - 1
+          if r0 == span_last
+            sheet.write_row(r0, 0, base, cell)
+            [2,5,7].each { |c| sheet.write(r0, c, base[c], cell_c) }
+          else
+            (0..7).each do |c|
+              fmt = [2,5,7].include?(c) ? cell_c : cell
+              sheet.merge_range(r0, c, span_last, c, base[c], fmt)
+            end
           end
         end
       end
-
       workbook.close
 
       send_data File.binread(path),

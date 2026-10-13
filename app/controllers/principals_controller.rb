@@ -41,7 +41,7 @@ class PrincipalsController < ApplicationController
     @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
     if params[:tab] == 'inspections'
       @q_inspections = @principal.inspections.ransack(params[:q])
-      @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).order(number: :desc)
+      @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).includes(:sucursal).order(number: :desc)
       unless Current.user.tabla
         @pagy_inspections, @inspections = pagy_countless(@inspections, items: 10)
       end
@@ -131,6 +131,7 @@ class PrincipalsController < ApplicationController
   # GET /principals/new
   def new
     authorize! @principal = Principal.new
+    @principal.sucursals.build(nombre: "Sucursal 1")
   end
 
   # GET /principals/1/edit
@@ -142,15 +143,15 @@ class PrincipalsController < ApplicationController
 
   # POST /principals or /principals.json
   def create
-    authorize! @principal = Principal.new(principal_params)
+    authorize! @principal = Principal.new(principal_create_params)
 
     if @principal.save
       flash[:notice] = "Empresa añadida exitosamente"
       redirect_to principals_path
     else
+      @principal.sucursals.build(nombre: "Sucursal 1") if @principal.sucursals.empty?
       render :new, status: :unprocessable_entity
     end
-
   end
 
   # PATCH/PUT /principals/1 or /principals/1.json
@@ -682,7 +683,12 @@ class PrincipalsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
   def principal_params
-    params.require(:principal).permit(:rut, :name, :business_name, :contact_name, :email, :phone, :cellphone, :contact_email, :place)
+    params.require(:principal).permit(:rut, :name, :business_name, :email, :phone)
+  end
+
+  def principal_create_params
+    params.require(:principal).permit(:rut, :name, :business_name, :email, :phone,
+                                      sucursals_attributes: [:nombre, :place, :contact_name, :contact_email, :cellphone])
   end
 
 

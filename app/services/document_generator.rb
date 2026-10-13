@@ -15,6 +15,7 @@ class DocumentGenerator
   def self.generate_document(inspection_id, principal_id, revision_id, item_id, admin_id)
     inspection = Inspection.find(inspection_id)
     principal = Principal.find(principal_id)
+    sucursal = inspection.sucursal || principal.sucursals.first
     revision_base = Revision.find(revision_id)
     item = Item.find(item_id)
     group = item.group
@@ -89,11 +90,8 @@ class DocumentGenerator
     doc.replace('{{principal_rut}}', principal.rut)
 
 
-    if principal.contact_name
-      doc.replace('{{principal_contact_name}}', principal.contact_name)
-    else
-      doc.replace('{{principal_contact_name}}', "S/I")
-    end
+
+    doc.replace('{{principal_contact_name}}', sucursal&.contact_name.presence || "S/I")
 
     doc.replace('{{principal_email}}', principal.email)
 
@@ -106,27 +104,9 @@ class DocumentGenerator
 
 
 
-
-    if principal.cellphone
-      doc.replace('{{principal_cellphone}}', principal.cellphone)
-    else
-      doc.replace('{{principal_cellphone}}', "S/I")
-    end
-
-
-    if principal.contact_email
-      doc.replace('{{principal_contact_email}}', principal.contact_email)
-    else
-      doc.replace('{{principal_contact_email}}', "S/I")
-    end
-
-
-    if principal.place
-      doc.replace('{{principal_place}}', principal.place)
-    else
-      doc.replace('{{principal_place}}', "S/I")
-    end
-
+    doc.replace('{{principal_cellphone}}', sucursal&.cellphone.presence || "S/I")
+    doc.replace('{{principal_contact_email}}', sucursal&.contact_email.presence || "S/I")
+    doc.replace('{{principal_place}}', sucursal&.place.presence || "S/I")
 
     doc.replace('{{inspection_place}}', inspection.place)
     doc.replace('{{ins_date}}', inspection.ins_date&.strftime('%d/%m/%Y'))

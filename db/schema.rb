@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_13_202354) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -198,11 +198,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
     t.boolean "ignorar", default: false, null: false
     t.boolean "is_old", default: false, null: false
     t.string "identificador"
+    t.bigint "sucursal_id"
     t.index ["facturacion_id"], name: "index_inspections_on_facturacion_id"
     t.index ["identificador"], name: "index_inspections_on_identificador"
     t.index ["item_id"], name: "index_inspections_on_item_id"
     t.index ["number"], name: "index_inspections_on_number", unique: true
     t.index ["principal_id"], name: "index_inspections_on_principal_id"
+    t.index ["sucursal_id"], name: "index_inspections_on_sucursal_id"
   end
 
   create_table "items", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -367,14 +369,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
     t.string "rut", null: false
     t.string "name", null: false
     t.string "business_name"
-    t.string "contact_name"
     t.string "email"
     t.string "phone"
-    t.string "cellphone"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "contact_email"
-    t.string "place"
     t.boolean "activo", default: true, null: false
     t.index ["activo"], name: "index_principals_on_activo"
   end
@@ -508,6 +506,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
     t.string "gygatype_number"
   end
 
+  create_table "sucursals", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "principal_id", null: false
+    t.string "nombre", null: false
+    t.string "place"
+    t.string "contact_name"
+    t.string "contact_email"
+    t.string "cellphone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["principal_id", "nombre"], name: "index_sucursals_on_principal_id_and_nombre", unique: true
+    t.index ["principal_id"], name: "index_sucursals_on_principal_id"
+  end
+
   create_table "user_permisos", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "permiso_id", null: false
@@ -560,6 +571,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
   add_foreign_key "inspections", "facturacions"
   add_foreign_key "inspections", "items"
   add_foreign_key "inspections", "principals"
+  add_foreign_key "inspections", "sucursals"
   add_foreign_key "items", "groups"
   add_foreign_key "items", "principals"
   add_foreign_key "ladder_details", "items"
@@ -586,6 +598,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_08_153526) do
   add_foreign_key "rules_plats", "groups"
   add_foreign_key "rulesets", "groups"
   add_foreign_key "rulesets", "rules"
+  add_foreign_key "sucursals", "principals"
   add_foreign_key "user_permisos", "permisos"
   add_foreign_key "user_permisos", "users"
   add_foreign_key "user_preferencias", "preferencias"

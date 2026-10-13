@@ -46,8 +46,46 @@
       </div>
     </div>
 
-    <% if Current.user.admin || Current.user.empresa_de?(@principal) || Current.user.crear || Current.user.only_see %>
     <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <div class="tracking-wide text-2xl font-bold text-gray-300">Sucursales</div>
+        <% if Current.user.admin || Current.user.crear %>
+          <%= link_to "Agregar sucursal", new_principal_sucursal_path(@principal), class: "px-3 py-2 rounded bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition duration-300" %>
+        <% end %>
+      </div>
+
+      <% sucursales = @principal.sucursals.to_a %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% sucursales.each do |sucursal| %>
+          <div class="bg-gray-900 rounded-md border border-gray-700 p-4 flex flex-col">
+            <p class="text-white font-semibold mb-2"><%= sucursal.nombre %></p>
+            <p class="text-gray-400 text-sm"><strong class="text-gray-200">Dirección:</strong> <%= sucursal.place.presence || "—" %></p>
+            <p class="text-gray-400 text-sm mt-1"><strong class="text-gray-200">Contacto:</strong> <%= sucursal.contact_name.presence || "—" %></p>
+            <p class="text-gray-400 text-sm mt-1"><strong class="text-gray-200">Email:</strong> <%= sucursal.contact_email.presence || "—" %></p>
+            <p class="text-gray-400 text-sm mt-1"><strong class="text-gray-200">Teléfono:</strong> <%= sucursal.cellphone.presence || "—" %></p>
+
+            <% if Current.user.admin || Current.user.crear %>
+              <div class="flex gap-2 mt-4">
+                <%= link_to "Modificar", edit_principal_sucursal_path(@principal, sucursal), class: "px-3 py-1 rounded bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-600 transition duration-200" %>
+                <% if sucursales.size > 1 %>
+                  <%= form_with url: principal_sucursal_path(@principal, sucursal),
+                                method: :delete,
+                                data: { turbo: false, controller: "sucursal-delete" } do %>
+                    <%= submit_tag "Eliminar",
+                                   data: { action: "click->sucursal-delete#confirm" },
+                                   class: "px-3 py-1 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 cursor-pointer" %>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <% if Current.user.admin || Current.user.empresa_de?(@principal) || Current.user.crear || Current.user.only_see %>
+
+      <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-md">
       <div class="tracking-wide text-2xl font-bold text-gray-300 mb-4">Descarga de reportes</div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="relative group">
@@ -164,6 +202,7 @@
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">N° Inspección</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Nombre</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Activo</p> </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Sucursal</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Fecha Inspección</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Resultado</p> </th>
                   <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700"> <p class="hover:text-blue-700">Tiempo en<br>resultado actual</p> </th>
@@ -197,6 +236,10 @@
                                   item_path(inspection.item),
                                   data: { turbo_frame: "_top" },
                                   class: "text-blue-400 hover:text-blue-600" %>
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-normal break-words">
+                      <p class="text-white"><%= inspection.sucursal&.nombre || "—" %></p>
                     </td>
 
                     <!-- Fecha de inspección con data-order -->
@@ -414,7 +457,9 @@
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                       <p class="hover:text-blue-700">Clasificación</p>
                     </th>
-
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
+                      <p class="hover:text-blue-700">Sucursal</p>
+                    </th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hover:text-blue-700">
                       <p class="hover:text-blue-700">Última inspección</p>
                     </th>
@@ -443,6 +488,9 @@
                       </td>
 
                       <% inspection = last_inspection(item) %>
+                      <td class="px-6 py-4 whitespace-normal break-words">
+                        <p class="text-white"><%= inspection&.sucursal&.nombre || "—" %></p>
+                      </td>
                       <% if inspection %>
                         <td class="px-6 py-4 whitespace-normal break-words">
                           <p class="text-white"><%= format_date(inspection.ins_date) %></p>

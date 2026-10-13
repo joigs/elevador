@@ -9,6 +9,7 @@ class DocumentGeneratorLadder
 
     inspection = Inspection.find(inspection_id)
     principal = Principal.find(principal_id)
+    sucursal = inspection.sucursal || principal.sucursals.first
     revision_base = LadderRevision.find(revision_id)
     item = Item.find(item_id)
     detail = item.ladder_detail
@@ -46,11 +47,7 @@ class DocumentGeneratorLadder
     doc.replace('{{principal_business_name}}', principal.business_name)
     doc.replace('{{principal_rut}}', principal.rut)
 
-    if principal.contact_name
-      doc.replace('{{principal_contact_name}}', principal.contact_name)
-    else
-      doc.replace('{{principal_contact_name}}', "S/I")
-    end
+    doc.replace('{{principal_contact_name}}', sucursal&.contact_name.presence || "S/I")
 
     doc.replace('{{principal_email}}', principal.email)
 
@@ -63,26 +60,9 @@ class DocumentGeneratorLadder
 
 
 
-
-    if principal.cellphone
-      doc.replace('{{principal_cellphone}}', principal.cellphone)
-    else
-      doc.replace('{{principal_cellphone}}', "S/I")
-    end
-
-
-    if principal.contact_email
-      doc.replace('{{principal_contact_email}}', principal.contact_email)
-    else
-      doc.replace('{{principal_contact_email}}', "S/I")
-    end
-
-
-    if principal.place
-      doc.replace('{{principal_place}}', principal.place)
-    else
-      doc.replace('{{principal_place}}', "S/I")
-    end
+    doc.replace('{{principal_cellphone}}', sucursal&.cellphone.presence || "S/I")
+    doc.replace('{{principal_contact_email}}', sucursal&.contact_email.presence || "S/I")
+    doc.replace('{{principal_place}}', sucursal&.place.presence || "S/I")
 
 
     doc.replace('{{inspection_place}}', inspection.place)

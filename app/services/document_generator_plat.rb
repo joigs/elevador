@@ -12,6 +12,7 @@ class DocumentGeneratorPlat
   def self.generate_document(inspection_id, principal_id, plat_revision_id, item_id, admin_id)
     inspection      = Inspection.find(inspection_id)
     principal       = Principal.find(principal_id)
+    sucursal        = inspection.sucursal || principal.sucursals.first
     revision_base   = PlatRevision.find(plat_revision_id)
     item            = Item.find(item_id)
     group           = item.group
@@ -140,12 +141,12 @@ class DocumentGeneratorPlat
     doc.replace('{{principal_business_name}}', principal.business_name)
     doc.replace('{{principal_rut}}',           principal.rut)
 
-    doc.replace('{{principal_contact_name}}',  principal.contact_name.presence  || 'S/I')
+    doc.replace('{{principal_contact_name}}',  sucursal&.contact_name.presence  || 'S/I')
     doc.replace('{{principal_email}}',         principal.email)
     doc.replace('{{principal_phone}}',         principal.phone.presence         || 'S/I')
-    doc.replace('{{principal_cellphone}}',     principal.cellphone.presence     || 'S/I')
-    doc.replace('{{principal_contact_email}}', principal.contact_email.presence || 'S/I')
-    doc.replace('{{principal_place}}',         principal.place.presence         || 'S/I')
+    doc.replace('{{principal_cellphone}}',     sucursal&.cellphone.presence     || 'S/I')
+    doc.replace('{{principal_contact_email}}', sucursal&.contact_email.presence || 'S/I')
+    doc.replace('{{principal_place}}',         sucursal&.place.presence         || 'S/I')
 
     doc.replace('{{inspection_place}}', inspection.place)
     doc.replace('{{ins_date}}',         inspection.ins_date&.strftime('%d/%m/%Y') || '')

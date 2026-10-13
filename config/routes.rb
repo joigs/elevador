@@ -95,6 +95,7 @@ Rails.application.routes.draw do
       delete :destroy_certificacion
       get   :download_certificacion
       patch :sync_identificador
+      patch :update_sucursal
     end
 
     #get :download_images
@@ -170,6 +171,7 @@ Rails.application.routes.draw do
       patch :toggle_activo
       get :alertas
     end
+    resources :sucursals, except: [:index, :show], path: "sucursales"
     resources :empresa_users, only: [:destroy], path: "usuarios" do
       member do
         patch :toggle_activo

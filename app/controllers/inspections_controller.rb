@@ -20,6 +20,7 @@ class InspectionsController < ApplicationController
                      .preload(
                        :report,
                        :users,
+                       :sucursal,
                        item: :principal
                      )
                      .order(number: :desc)
@@ -73,6 +74,7 @@ class InspectionsController < ApplicationController
 
     @cot0 = Facturacion.find_by(number: 0)
     @empresa_cliente = Current.user.empresa_de?(@inspection)
+    @sucursales = @inspection.principal.sucursals.to_a
 
 
   end
@@ -301,7 +303,18 @@ class InspectionsController < ApplicationController
       render @inspection, status: :unprocessable_entity
     end
   end
+  def update_sucursal
+    authorize! inspection
 
+    sucursal = Sucursal.find_by(id: params[:sucursal_id], principal_id: @inspection.principal_id)
+
+    if sucursal
+      @inspection.update_column(:sucursal_id, sucursal.id)
+      render json: { ok: true, detalle: sucursal.detalle_contacto }
+    else
+      render json: { ok: false, error: "Sucursal no válida" }, status: :unprocessable_entity
+    end
+  end
 
   def sync_identificador
     inspection
@@ -953,7 +966,7 @@ class InspectionsController < ApplicationController
   def export_xlsx
     scope = alcance_cliente(Inspection.where("number > 0"))
               .includes(
-                :principal, :report, :users,
+                :principal, :report, :users, :sucursal,
                 item: [:principal, :detail, :ladder_detail]
               )
               .order(number: :desc)
@@ -966,7 +979,7 @@ class InspectionsController < ApplicationController
       sheet     = workbook.add_worksheet('Inspecciones')
 
       headers = [
-        'N° Inspección', 'Nombre', 'Activo', 'Empresa', 'Rut empresa',
+        'N° Inspección', 'Nombre', 'Activo', 'Empresa', 'Rut empresa', 'Sucursal',
         'Fecha Inspección', 'Resultado', 'Tiempo en resultado actual',
         'Fecha término', 'Inspector asignado', 'Nombre contacto', 'email contacto',
         'Teléfono contacto', 'Destino edificio'
@@ -986,14 +999,15 @@ class InspectionsController < ApplicationController
           ins.identificador.presence || item&.identificador,
           item&.principal&.name,
           ins.principal&.rut,
+          ins.sucursal&.nombre,
           ins.ins_date&.strftime('%d-%m-%Y'),
           ins.result,
           ins.cambio ? "#{(Date.current - ins.cambio).to_i} días" : nil,
           ins.report&.ending&.strftime('%d-%m-%Y'),
           ins.users.present? ? ins.users.map(&:real_name).join(', ') : 'No asignado',
-          ins.principal&.contact_name,
-          ins.principal&.contact_email,
-          ins.principal&.cellphone,
+          ins.sucursal&.contact_name,
+          ins.sucursal&.contact_email,
+          ins.sucursal&.cellphone,
           destino_edificio
         ]
       end

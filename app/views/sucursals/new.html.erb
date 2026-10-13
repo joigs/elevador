@@ -1,0 +1,7 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <div class="mb-6">
+    <%= link_to "Volver a #{@principal.name}", principal_path(@principal), class: "inline-flex items-center px-4 py-2 text-base leading-6 font-medium rounded-md text-blue-400 bg-gray-800 hover:bg-blue-800 hover:text-white transition duration-150 ease-in-out" %>
+  </div>
+  <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Nueva sucursal de <%= @principal.name %></h1>
+  <%= render "form", principal: @principal, sucursal: @sucursal %>
+</div>

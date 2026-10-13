@@ -21,6 +21,10 @@ class Principal < ApplicationRecord
 
   has_many :items
   has_many :inspections
+  has_many :sucursals, -> { order(:id) }, dependent: :destroy, inverse_of: :principal
+  accepts_nested_attributes_for :sucursals
+
+  validate :al_menos_una_sucursal, on: :create
   has_many :principal_users, dependent: :destroy
   has_many :users, through: :principal_users
 
@@ -142,6 +146,12 @@ class Principal < ApplicationRecord
   def eliminar_usuarios_exclusivos
     users.includes(:principal_users).each do |user|
       user.destroy if user.principal_users.size == 1
+    end
+  end
+
+  def al_menos_una_sucursal
+    if sucursals.reject(&:marked_for_destruction?).empty?
+      errors.add(:base, "Debe registrar al menos una sucursal")
     end
   end
 end

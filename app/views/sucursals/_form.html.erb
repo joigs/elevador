@@ -1,0 +1,42 @@
+<%= form_with(model: [principal, sucursal], builder: CustomFormBuilder, class: "space-y-4 max-w-md mx-auto bg-gray-900 text-white p-6 rounded-lg shadow-md") do |form| %>
+  <% if sucursal.errors.any? %>
+    <% error_messages = sucursal.errors.full_messages.map { |msg| "<li>#{j msg}</li>" }.join %>
+    <%= javascript_tag do %>
+      Swal.fire({
+      icon: 'error',
+      title: 'Error: la sucursal no pudo ser guardada',
+      html: '<ul style="text-align: left;">' + '<%= raw error_messages %>' + '</ul>',
+      confirmButtonText: 'Entendido'
+      })
+    <% end %>
+  <% end %>
+
+  <div>
+    <%= form.label :nombre, "Nombre de la sucursal:", class: "block text-gray-300" %>
+    <%= form.text_field :nombre, required: true, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :place, "Dirección:", class: "block text-gray-300" %>
+    <%= form.text_field :place, maxlength: 200, data: { controller: "capitalize", action: "input->capitalize#capitalizeFirstLetter", capitalize_target: "input" }, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :contact_name, "Nombre del contacto:", class: "block text-gray-300" %>
+    <%= form.text_field :contact_name, data: { controller: "titleize", action: "input->titleize#updateInput", titleize_target: "input" }, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :contact_email, "Email del contacto:", class: "block text-gray-300" %>
+    <%= form.text_field :contact_email, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :cellphone, "Teléfono de contacto:", class: "block text-gray-300" %>
+    <%= form.text_field :cellphone, maxlength: 100, class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+  </div>
+
+  <div class="mt-4 py-5">
+    <%= form.submit "#{sucursal.new_record? ? 'Agregar' : 'Modificar'} sucursal", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+  </div>
+<% end %>

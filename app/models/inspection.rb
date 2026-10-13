@@ -49,6 +49,7 @@ class Inspection < ApplicationRecord
   belongs_to :item
   belongs_to :principal
   belongs_to :facturacion
+  belongs_to :sucursal, optional: true
   accepts_nested_attributes_for :item
   has_one :report, dependent: :destroy
   has_one :revision, dependent: :destroy
@@ -56,6 +57,7 @@ class Inspection < ApplicationRecord
   has_one :plat_revision, dependent: :destroy
 
   before_validation :set_principal_from_item
+  before_validation :asignar_sucursal_por_defecto
 
   #sirve para revisar si el usuario es el inspector encargado de la inspeccion, o si es admin
   def owner?
@@ -173,5 +175,12 @@ class Inspection < ApplicationRecord
         errors.add(:base, "#{archivo.filename}: supera los 100 MB")
       end
     end
+  end
+
+  def asignar_sucursal_por_defecto
+    return if principal_id.blank?
+    return if sucursal && sucursal.principal_id == principal_id
+
+    self.sucursal = Sucursal.where(principal_id: principal_id).order(:id).first
   end
 end

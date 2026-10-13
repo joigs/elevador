@@ -93,6 +93,10 @@ class InspectionPolicy < BasePolicy
     Current.user.admin || Current.user.certificar || Current.user.crear
   end
 
+  def update_sucursal
+    Current.user.admin || Current.user.crear || Current.user.certificar || record.owner?
+  end
+
   def method_missing(m, *args, &block)
     Current.user.admin || Current.user.crear || Current.user.certificar
   end

@@ -306,8 +306,8 @@
                         class: "text-blue-400" %>
           </p>
         <% end %>
-        <p class="mb-0"><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
-
+          <p class="mb-0"><strong>Fecha de la inspección:</strong> <%= format_date(@inspection.ins_date) %></p>
+          <p class="mb-0"><strong>Sucursal:</strong> <%= @inspection.sucursal&.nombre || "—" %></p>
 
         <% unless @empresa_cliente %>
           <p class="mb-0">
@@ -397,6 +397,24 @@
       </div>
 
         <div class="flex flex-col mt-6">
+          <% if (Current.user.admin || Current.user.crear || Current.user.certificar || @inspection.owner?) && @sucursales.any? %>
+            <div class="mb-3"
+                 data-controller="sucursal-select"
+                 data-sucursal-select-url-value="<%= update_sucursal_inspection_path(@inspection) %>">
+              <label for="inspection_sucursal_id" class="block text-sm font-medium text-gray-300">
+                Sucursal (contacto y dirección del informe):
+              </label>
+              <%= select_tag :sucursal_id,
+                             options_from_collection_for_select(@sucursales, :id, :nombre, @inspection.sucursal_id),
+                             id: "inspection_sucursal_id",
+                             class: "mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                             data: { controller: "slim", action: "change->sucursal-select#update" } %>
+              <p class="mt-1 text-xs text-gray-400" data-sucursal-select-target="detalle">
+                <%= @inspection.sucursal&.detalle_contacto %>
+              </p>
+            </div>
+          <% end %>
+
           <% if @control2 == "escala" %>
           <%= link_to 'Ver fallas encontradas',
                       ladder_revision_path(inspection_id: @inspection),
