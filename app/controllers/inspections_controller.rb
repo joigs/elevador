@@ -310,7 +310,7 @@ class InspectionsController < ApplicationController
 
     if sucursal
       @inspection.update_column(:sucursal_id, sucursal.id)
-      render json: { ok: true, detalle: sucursal.detalle_contacto }
+      render json: { ok: true, nombre: sucursal.nombre, detalle: sucursal.detalle_contacto }
     else
       render json: { ok: false, error: "Sucursal no válida" }, status: :unprocessable_entity
     end

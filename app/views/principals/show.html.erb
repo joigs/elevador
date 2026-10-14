@@ -70,7 +70,11 @@
                 <% if sucursales.size > 1 %>
                   <%= form_with url: principal_sucursal_path(@principal, sucursal),
                                 method: :delete,
-                                data: { turbo: false, controller: "sucursal-delete" } do %>
+                                data: {
+                                  turbo: false,
+                                  controller: "sucursal-delete",
+                                  sucursal_delete_inspecciones_value: sucursal.inspections.count
+                                } do %>
                     <%= submit_tag "Eliminar",
                                    data: { action: "click->sucursal-delete#confirm" },
                                    class: "px-3 py-1 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 cursor-pointer" %>

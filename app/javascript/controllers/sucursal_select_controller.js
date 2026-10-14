@@ -22,6 +22,8 @@ export default class extends Controller {
             .then((response) => response.ok ? response.json() : Promise.reject(response))
             .then((data) => {
                 if (this.hasDetalleTarget) this.detalleTarget.textContent = data.detalle
+                const nombre = document.getElementById("inspection-sucursal-nombre")
+                if (nombre) nombre.textContent = data.nombre
             })
             .catch(() => {
                 window.Swal.fire({
