@@ -401,9 +401,7 @@
             <div class="mb-3"
                  data-controller="sucursal-select"
                  data-sucursal-select-url-value="<%= update_sucursal_inspection_path(@inspection) %>">
-              <label for="inspection_sucursal_id" class="block text-sm font-medium text-gray-300">
-                Sucursal (contacto y dirección del informe):
-              </label>
+
               <%= select_tag :sucursal_id,
                              options_from_collection_for_select(@sucursales, :id, :nombre, @inspection.sucursal_id),
                              id: "inspection_sucursal_id",
