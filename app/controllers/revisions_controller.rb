@@ -1,6 +1,7 @@
 class RevisionsController < ApplicationController
 
   require "ostruct"
+  include InclusionSection
 
 
 
@@ -116,6 +117,17 @@ class RevisionsController < ApplicationController
     elementos = @nombres.values_at(*indices)
 
     elementos.each { |elemento| @nombres.delete(elemento) }
+
+    @inclusion_section = InclusionCheck::SECCION_REVISION
+    @nombres[@inclusion_section] = InclusionCheck::NOMBRE_SECCION
+    @colors = colores_con_inclusion(@colors, @revision_base, @inclusion_section)
+
+    if params[:section].to_s == @inclusion_section.to_s
+      @section = params[:section]
+      cargar_inclusion(@revision_base)
+      render :edit_inclusion
+      return
+    end
 
     @copy = Conexion.find_by(copy_inspection_id: @inspection.id)
     @inspection_og = Inspection.find_by(id: @copy.original_inspection_id) if @copy.present?
@@ -405,6 +417,8 @@ class RevisionsController < ApplicationController
     end
 
 
+    @inclusion_checks = @revision_base.inclusion_checks.with_attached_photos.index_by(&:numero) if @revision_base.inclusion_aplica?
+
     @revision_codes = []
 
     @revision.codes.each_with_index do |code, index|
@@ -436,6 +450,12 @@ class RevisionsController < ApplicationController
     @revision_base = Revision.find_by!(inspection_id: params[:inspection_id])
     @inspection = Inspection.find_by(id: params[:inspection_id])
 
+    if params[:section].to_s == InclusionCheck::SECCION_REVISION.to_s
+      actualizar_inclusion(@revision_base,
+                           redirect_ok: revision_path(inspection_id: @inspection.id),
+                           redirect_error: edit_revision_path(inspection_id: @inspection.id, section: InclusionCheck::SECCION_REVISION))
+      return
+    end
 
     # inicializa arreglos para guardar informacion de la revisión
     codes, points, levels, comment, fail_statuses = [], [], [], [], []

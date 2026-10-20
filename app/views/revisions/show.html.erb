@@ -70,6 +70,8 @@
 
     <% end %>
 
+    <%= render 'shared/inclusion_resumen', checks: @inclusion_checks if @revision_base.inclusion_aplica? %>
+
 
   </div>
 

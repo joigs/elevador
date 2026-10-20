@@ -684,6 +684,8 @@ class DocumentGenerator
       doc.replace('{{if_viejo}}', "")
     end
 
+    InclusionReport.reemplazar(doc, revision_base)
+
     output_path = Rails.root.join('tmp', "Informe N°#{inspection.number.to_s}-#{inspection.ins_date&.strftime('%m')}-#{inspection.ins_date&.strftime('%Y')}-#{item_rol}.docx")
     doc.commit(output_path)
 
@@ -1001,11 +1003,11 @@ class DocumentGenerator
 
 
 
+    inclusion_fotos = InclusionReport.fotos(revision_base)
 
-    if revision_photos.empty?
+    if revision_photos.empty? && inclusion_fotos.empty?
       doc.replace('CODIGO IMAGEN 24123123', '')
     end
-
 
 
 
@@ -1331,6 +1333,14 @@ class DocumentGenerator
         "text"     => final_text.strip
       }
 
+      counter += 1
+    end
+
+    inclusion_fotos.each do |foto, texto|
+      ext = File.extname(foto.filename.to_s).presence || ".jpg"
+      new_filename = "#{counter}#{ext}"
+      File.binwrite(File.join(dir_path, new_filename), foto.download)
+      photos_mapping << { "filename" => new_filename, "text" => texto }
       counter += 1
     end
 

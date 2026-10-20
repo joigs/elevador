@@ -1,0 +1,47 @@
+<div class="px-4 my-6">
+  <h2 class="px-6 py-3 text-lg text-gray-900 bg-gray-200">Inclusión y accesibilidad universal (informativo)</h2>
+
+  <% if checks.blank? %>
+    <p class="px-6 py-3 text-gray-600">La sección de inclusión no ha sido registrada.</p>
+  <% else %>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <table class="w-full text-sm text-left text-gray-400">
+        <thead class="text-xs uppercase bg-gray-700 text-gray-400">
+        <tr>
+          <th class="px-3 py-3">Nº</th>
+          <th class="px-6 py-3">Elemento</th>
+          <th class="px-4 py-3">Estado</th>
+          <th class="px-6 py-3">Comentario</th>
+          <th class="px-4 py-3">Imágenes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% InclusionCheck::CRITERIOS.each do |criterio| %>
+          <% check = checks[criterio[:numero]] %>
+          <% estado = check&.estado || "Sin registrar" %>
+          <tr class="border-b bg-gray-800 border-gray-700 text-white">
+            <td class="px-3 py-3 font-bold"><%= criterio[:numero] %></td>
+            <td class="px-6 py-3"><%= criterio[:elemento] %></td>
+            <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded text-xs font-bold
+                  <%= { "Cumple" => "bg-green-600", "No implementado" => "bg-red-600", "N/A" => "bg-gray-500" }.fetch(estado, "bg-gray-700") %>">
+                  <%= estado %>
+                </span>
+            </td>
+            <td class="px-6 py-3 whitespace-pre-line"><%= check&.comment %></td>
+            <td class="px-4 py-3">
+              <% if check&.photos&.attached? %>
+                <div class="flex flex-wrap gap-2">
+                  <% check.photos.each do |photo| %>
+                    <%= link_to image_tag(url_for(photo), class: "max-w-[90px] max-h-[90px] rounded"), url_for(photo), target: "_blank" %>
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

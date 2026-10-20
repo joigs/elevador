@@ -678,7 +678,18 @@ class DocumentGeneratorPlat
       end
     end
 
+    if revision_base.inclusion_aplica?
+      inc_template = Rails.root.join('app', 'templates', 'template_inclusion_plat.docx')
+      doc_inc      = DocxReplace::Doc.new(inc_template, "#{Rails.root}/tmp")
+      InclusionReport.reemplazar(doc_inc, revision_base)
+      out_inc = Rails.root.join('tmp', "#{inspection.number}_inclusion.docx")
+      doc_inc.commit(out_inc)
+      Omnidocx::Docx.merge_documents([output_path, out_inc], output_path, false)
+      File.delete(out_inc) if File.exist?(out_inc)
+    end
+
     doc_1_1_template = Rails.root.join('app', 'templates', 'template_1.1.docx')
+
     doc_1_1          = DocxReplace::Doc.new(doc_1_1_template, "#{Rails.root}/tmp")
 
     doc_1_1.replace('{{inspection_place}}', inspection.place)
@@ -1038,8 +1049,16 @@ class DocumentGeneratorPlat
       end
     end
 
-    signatures_data = { '{{firma_inspector}}' => [] }
+    counter = photos_mapping.size + 1
+    InclusionReport.fotos(revision_base).each do |foto, texto|
+      ext = File.extname(foto.filename.to_s).presence || '.jpg'
+      new_filename = "#{counter}#{ext}"
+      File.binwrite(File.join(dir_path, new_filename), foto.download)
+      photos_mapping << { 'filename' => new_filename, 'text' => texto }
+      counter += 1
+    end
 
+    signatures_data = { '{{firma_inspector}}' => [] }
     if admin.signature.attached?
       admin_sig_path = File.join(dir_path, 'admin_sig.png')
       File.binwrite(admin_sig_path, admin.signature.download)

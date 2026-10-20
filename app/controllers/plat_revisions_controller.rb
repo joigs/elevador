@@ -1,5 +1,5 @@
 class PlatRevisionsController < ApplicationController
-
+  include InclusionSection
 
 
   def edit
@@ -84,6 +84,19 @@ class PlatRevisionsController < ApplicationController
       ]
     else
       @nombres = []
+    end
+
+    if @revision_base.inclusion_aplica?
+      @inclusion_section = InclusionCheck::SECCION_PLATAFORMA
+      @nombres[@inclusion_section] = InclusionCheck::NOMBRE_SECCION
+      @colors = colores_con_inclusion(@colors, @revision_base, @inclusion_section)
+
+      if params[:section].to_s == @inclusion_section.to_s
+        @section = params[:section]
+        cargar_inclusion(@revision_base)
+        render :edit_inclusion
+        return
+      end
     end
 
     @copy          = Conexion.find_by(copy_inspection_id: @inspection.id)
@@ -271,6 +284,8 @@ class PlatRevisionsController < ApplicationController
                  .includes(:rules_plat)
                  .order("rules_plats.code ASC, rules_plats.point ASC")
 
+    @inclusion_checks = @revision_base.inclusion_checks.with_attached_photos.index_by(&:numero) if @revision_base.inclusion_aplica?
+
     @photos_by_code = @revision_photos.each_with_object(Hash.new { |h, k| h[k] = [] }) do |photo, hash|
       next unless photo.photo.attached?
       next if photo.code.to_s.start_with?("GENERALCODE")
@@ -281,6 +296,13 @@ class PlatRevisionsController < ApplicationController
     @inspection    = Inspection.find(params[:inspection_id])
     @revision_base = PlatRevision.find_by!(inspection_id: @inspection.id)
     authorize! @revision_base if respond_to?(:authorize!)
+
+    if @revision_base.inclusion_aplica? && params[:section].to_s == InclusionCheck::SECCION_PLATAFORMA.to_s
+      actualizar_inclusion(@revision_base,
+                           redirect_ok: plat_revision_path(inspection_id: @inspection.id),
+                           redirect_error: edit_plat_revision_path(inspection_id: @inspection.id, section: InclusionCheck::SECCION_PLATAFORMA))
+      return
+    end
 
     section_str  = params[:section].to_s
     section_num  = section_str.to_i

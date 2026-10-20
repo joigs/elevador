@@ -1,0 +1,89 @@
+
+
+<div class="px-4 mt-4">
+  <h2 class="px-6 py-3 text-lg text-gray-900 bg-gray-200">Inclusión y accesibilidad universal</h2>
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-400">
+      <thead class="text-xs uppercase bg-gray-700 text-gray-400">
+      <tr>
+        <th class="px-3 py-3">Nº</th>
+        <th class="px-6 py-3">Elemento / condición a verificar</th>
+        <th class="px-6 py-3">Criterio de verificación</th>
+        <th class="px-4 py-3">No implementado</th>
+        <th class="px-4 py-3">N/A</th>
+        <th class="px-4 py-3">Imagen</th>
+        <th class="px-6 py-3">Comentario</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% InclusionCheck::CRITERIOS.each do |criterio| %>
+        <% n = criterio[:numero] %>
+        <% check = checks[n] %>
+        <tr class="border-b bg-gray-800 border-gray-700" data-controller="inclusion-row">
+          <td class="px-3 py-4 text-white font-bold"><%= n %></td>
+
+          <td class="px-6 py-4 text-white font-bold break-words whitespace-normal">
+            <%= criterio[:elemento] %>
+          </td>
+
+          <td class="px-6 py-4 text-white break-words whitespace-normal max-w-[40%]">
+            <%= sanitize criterio[:criterio], tags: %w[b] %>
+          </td>
+
+          <td class="px-4 py-4">
+            <div class="flex justify-center items-center">
+              <%= check_box_tag "inclusion[#{n}][no_implementado]", "1", check&.no_implementado,
+                                id: "inclusion_no_implementado_#{n}",
+                                class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                                data: { inclusion_row_target: "noImplementado", action: "change->inclusion-row#exclusive" } %>
+            </div>
+          </td>
+
+          <td class="px-4 py-4">
+            <div class="flex justify-center items-center">
+              <%= check_box_tag "inclusion[#{n}][na]", "1", check&.na,
+                                id: "inclusion_na_#{n}",
+                                class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                                data: { inclusion_row_target: "na", action: "change->inclusion-row#exclusive" } %>
+            </div>
+          </td>
+
+          <td class="px-4 py-4 align-top overflow-hidden">
+            <% if check&.photos&.attached? %>
+              <div class="flex flex-wrap gap-2 mb-2">
+                <% check.photos.each do |photo| %>
+                  <label class="flex flex-col items-center text-xs text-white cursor-pointer">
+                    <%= image_tag url_for(photo), class: "max-w-[90px] max-h-[90px] rounded", alt: "Foto punto #{n}" %>
+                    <span class="mt-1">
+                      <%= check_box_tag "inclusion[#{n}][eliminar_fotos][]", photo.id, false, id: "inclusion_eliminar_foto_#{photo.id}" %>
+                      Eliminar
+                    </span>
+                  </label>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div data-controller="image-resize multi-file">
+              <%= file_field_tag "inclusion[#{n}][photos][]",
+                                 multiple: true,
+                                 class: "w-full border-2 border-[#24ACBD] rounded p-1 mt-10",
+                                 id: "inclusion_photo_#{n}",
+                                 data: { multi_file_target: "input", action: "change->multi-file#added" },
+                                 accept: "image/*" %>
+              <div data-multi-file-target="list" class="mt-2"></div>
+            </div>
+          </td>
+
+          <td class="px-6 py-4">
+            <%= text_area_tag "inclusion[#{n}][comment]", check&.comment,
+                              id: "inclusion_comment_#{n}",
+                              rows: 6, cols: 25, maxlength: 1000,
+                              class: "shadow appearance-none border rounded py-2 px-3 text-white bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,2 @@
+<%= render 'shared/inclusion_page',
+           section_path: ->(n) { edit_revision_path(id: @revision_base, inspection_id: @inspection.id, section: n) } %>

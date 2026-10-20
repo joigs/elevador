@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_13_202354) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_20_135348) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -164,6 +164,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_13_202354) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["holiday_date"], name: "index_holidays_on_holiday_date", unique: true
+  end
+
+  create_table "inclusion_checks", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "revision_type", null: false
+    t.bigint "revision_id", null: false
+    t.integer "numero", null: false
+    t.boolean "no_implementado", default: false, null: false
+    t.boolean "na", default: false, null: false
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_type", "revision_id", "numero"], name: "index_inclusion_checks_on_revision_and_numero", unique: true
+    t.index ["revision_type", "revision_id"], name: "index_inclusion_checks_on_revision"
   end
 
   create_table "inspection_users", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|

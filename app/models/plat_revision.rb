@@ -11,11 +11,16 @@ class PlatRevision < ApplicationRecord
 
   has_many :revision_photos, as: :revision, dependent: :destroy
   has_many :revision_nulls, as: :revision, dependent: :destroy
+  has_many :inclusion_checks, as: :revision, dependent: :destroy
 
   accepts_nested_attributes_for :revision_photos, allow_destroy: true
   accepts_nested_attributes_for :revision_nulls, allow_destroy: true
 
 
+
+  def inclusion_aplica?
+    group.secondary_type == "plataforma"
+  end
 
   def only_owner?
     inspection = Inspection.find_by(id: self.inspection_id)
