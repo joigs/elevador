@@ -169,6 +169,120 @@ def process_section_markers(doc, sections_to_remove, log=None):
 
 # ============================================================
 
+INC_TOKEN = "CODIGO IMAGEN INCLUSION 24123123"
+INC_START = "{{anexo_inc_ini}}"
+INC_END = "{{anexo_inc_fin}}"
+
+
+def _normalize_runs_with(p_elem, needle):
+    full = _paragraph_full_text(p_elem)
+    if needle not in full:
+        return
+    t_elements = list(p_elem.iter(W_T))
+    if not t_elements:
+        return
+    t_elements[0].text = full
+    for t in t_elements[1:]:
+        t.text = ''
+
+
+def _clear_text_in_paragraph(p_elem, needles):
+    for needle in needles:
+        found = False
+        for t in p_elem.iter(W_T):
+            if t.text and needle in t.text:
+                t.text = t.text.replace(needle, '')
+                found = True
+        if found:
+            continue
+        _normalize_runs_with(p_elem, needle)
+        for t in p_elem.iter(W_T):
+            if t.text and needle in t.text:
+                t.text = t.text.replace(needle, '')
+
+def remove_block_between(doc, start_marker, end_marker):
+    body = doc.element.body
+    start_p = _find_marker_paragraph(doc, start_marker)
+    end_p = _find_marker_paragraph(doc, end_marker)
+
+    if start_p is None or end_p is None:
+        for p in (start_p, end_p):
+            if p is not None:
+                _clear_text_in_paragraph(p, [start_marker, end_marker])
+        return
+
+    start_block = _ancestor_in_body(start_p, body)
+    end_block = _ancestor_in_body(end_p, body)
+
+    if start_block is None or end_block is None:
+        _clear_text_in_paragraph(start_p, [start_marker])
+        _clear_text_in_paragraph(end_p, [end_marker])
+        return
+
+    to_remove = []
+    cur = start_block
+    while cur is not None:
+        to_remove.append(cur)
+        if cur is end_block:
+            break
+        cur = cur.getnext()
+
+    if to_remove[-1] is not end_block:
+        _clear_text_in_paragraph(start_p, [start_marker])
+        _clear_text_in_paragraph(end_p, [end_marker])
+        return
+
+    for elem in to_remove:
+        parent = elem.getparent()
+        if parent is not None:
+            parent.remove(elem)
+
+
+def insert_photo_table(doc, paragraph, photos_mapping, folder_path):
+    new_paragraph = add_paragraph_after(paragraph)
+    table = add_table_after(new_paragraph, doc, rows=0, cols=2)
+    remove_table_header_formatting(table)
+
+    for i in range(0, len(photos_mapping), 2):
+        row_img = table.add_row()
+        row_text = table.add_row()
+
+        for col in range(2):
+            if i + col >= len(photos_mapping):
+                break
+            foto = photos_mapping[i + col]
+            p_img = row_img.cells[col].paragraphs[0]
+            p_img.paragraph_format.keep_with_next = True
+            p_img.add_run().add_picture(os.path.join(folder_path, foto["filename"]), width=Inches(2))
+            row_text.cells[col].paragraphs[0].add_run(foto["text"])
+
+
+def process_inclusion_annex(doc, folder_path):
+    mapping_path = os.path.join(folder_path, "mapping_inclusion.json")
+    photos = []
+    if os.path.exists(mapping_path):
+        with open(mapping_path, "r", encoding="utf-8") as f:
+            photos = json.load(f) or []
+
+    if not photos:
+        remove_block_between(doc, INC_START, INC_END)
+        token_p = _find_marker_paragraph(doc, INC_TOKEN)
+        if token_p is not None:
+            _clear_text_in_paragraph(token_p, [INC_TOKEN])
+        return
+
+    for marker in (INC_START, INC_END):
+        marker_p = _find_marker_paragraph(doc, marker)
+        if marker_p is not None:
+            _clear_text_in_paragraph(marker_p, [marker])
+
+    for paragraph in doc.paragraphs:
+        if INC_TOKEN in paragraph.text:
+            paragraph.text = paragraph.text.replace(INC_TOKEN, "")
+            insert_photo_table(doc, paragraph, photos, folder_path)
+            break
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--folder", required=True, help="Directorio donde estan el DOCX, mapping.json e imagenes")
@@ -257,6 +371,8 @@ def main():
         for row in table.rows:
             for cell in row.cells:
                 process_signatures(cell.paragraphs)
+
+    process_inclusion_annex(doc, folder_path)
 
     if not os.path.exists(mapping_path):
         for paragraph in doc.paragraphs:

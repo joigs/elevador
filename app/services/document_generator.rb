@@ -1005,7 +1005,7 @@ class DocumentGenerator
 
     inclusion_fotos = InclusionReport.fotos(revision_base)
 
-    if revision_photos.empty? && inclusion_fotos.empty?
+    if revision_photos.empty?
       doc.replace('CODIGO IMAGEN 24123123', '')
     end
 
@@ -1336,13 +1336,13 @@ class DocumentGenerator
       counter += 1
     end
 
-    inclusion_fotos.each do |foto, texto|
+    inclusion_mapping = inclusion_fotos.each_with_index.map do |(foto, texto), i|
       ext = File.extname(foto.filename.to_s).presence || ".jpg"
-      new_filename = "#{counter}#{ext}"
+      new_filename = "inc_#{i + 1}#{ext}"
       File.binwrite(File.join(dir_path, new_filename), foto.download)
-      photos_mapping << { "filename" => new_filename, "text" => texto }
-      counter += 1
+      { "filename" => new_filename, "text" => texto }
     end
+    File.write(File.join(dir_path, 'mapping_inclusion.json'), inclusion_mapping.to_json)
 
     doc_names.replace('{{admin}}', admin.real_name)
     doc_names.replace('{{inspector}}', inspectors.first.real_name)

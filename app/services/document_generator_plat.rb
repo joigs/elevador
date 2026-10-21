@@ -1049,14 +1049,13 @@ class DocumentGeneratorPlat
       end
     end
 
-    counter = photos_mapping.size + 1
-    InclusionReport.fotos(revision_base).each do |foto, texto|
+    inclusion_mapping = InclusionReport.fotos(revision_base).each_with_index.map do |(foto, texto), i|
       ext = File.extname(foto.filename.to_s).presence || '.jpg'
-      new_filename = "#{counter}#{ext}"
+      new_filename = "inc_#{i + 1}#{ext}"
       File.binwrite(File.join(dir_path, new_filename), foto.download)
-      photos_mapping << { 'filename' => new_filename, 'text' => texto }
-      counter += 1
+      { 'filename' => new_filename, 'text' => texto }
     end
+    File.write(File.join(dir_path, 'mapping_inclusion.json'), inclusion_mapping.to_json)
 
     signatures_data = { '{{firma_inspector}}' => [] }
     if admin.signature.attached?
