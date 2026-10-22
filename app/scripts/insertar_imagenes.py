@@ -238,6 +238,22 @@ def remove_block_between(doc, start_marker, end_marker):
             parent.remove(elem)
 
 
+CERT_ANT_START = "{{cert_ant_tabla_ini}}"
+CERT_ANT_END = "{{cert_ant_tabla_fin}}"
+
+
+def process_cert_anterior(doc, sin_cert_anterior):
+    """Elimina las tablas de defectos levantados/mantenidos si no hay
+    certificación anterior; si la hay, solo limpia los marcadores."""
+    if sin_cert_anterior:
+        remove_block_between(doc, CERT_ANT_START, CERT_ANT_END)
+        return
+    for marker in (CERT_ANT_START, CERT_ANT_END):
+        p = _find_marker_paragraph(doc, marker)
+        if p is not None:
+            _clear_text_in_paragraph(p, [marker])
+
+
 def insert_photo_table(doc, paragraph, photos_mapping, folder_path):
     new_paragraph = add_paragraph_after(paragraph)
     table = add_table_after(new_paragraph, doc, rows=0, cols=2)
@@ -290,6 +306,8 @@ def main():
     parser.add_argument("--token",  required=True, help="Texto a buscar/reemplazar")
     parser.add_argument("--sections", required=False, default=None,
                         help="Ruta al JSON con la lista de secciones a eliminar.")
+    parser.add_argument("--sin-cert-anterior", action="store_true",
+                        help="Elimina las tablas de evaluación de certificación anterior.")
     args = parser.parse_args()
 
     folder_path = args.folder
@@ -315,6 +333,7 @@ def main():
 
     print("Secciones a eliminar: {}".format(sections_to_remove))
     process_section_markers(doc, sections_to_remove, log=lambda m: print("[secciones] " + m))
+    process_cert_anterior(doc, args.sin_cert_anterior)
     # -----------------------------------------------
 
     signatures_data = {}

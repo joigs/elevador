@@ -123,7 +123,13 @@ class DocumentGenerator
 
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y'))
 
-    if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
+    sin_inspeccion_anterior = !(report.cert_ant == 'Si' || report.cert_ant == 'sistema')
+    sin_cert_anterior = report.cert_ant == 'No' || report.cert_ant_real == 'No'
+    if sin_cert_anterior
+      doc.replace('{{cert_ant}}', 'N/A')
+      doc.replace('{{report_fecha}}', 'N/A')
+
+    elsif report.cert_ant == 'Si' || report.cert_ant == 'sistema'
 
       if report.cert_ant_real == 'No'
         doc.replace('{{cert_ant}}', 'No')
@@ -143,10 +149,6 @@ class DocumentGenerator
       end
 
 
-
-    elsif report.cert_ant == 'No'
-      doc.replace('{{cert_ant}}', 'No')
-      doc.replace('{{report_fecha}}', '')
     else
       doc.replace('{{cert_ant}}', 'S/I')
       doc.replace('{{report_fecha}}', 'S/I')
@@ -154,7 +156,9 @@ class DocumentGenerator
     end
 
 
-    if revision.codes.first == '0.1.1'
+    if sin_cert_anterior
+      doc.replace('{{certificado_minvu}}', 'N/A')
+    elsif revision.codes.first == '0.1.1'
       doc.replace('{{certificado_minvu}}', "No cumple")
     else
       doc.replace('{{certificado_minvu}}', report.certificado_minvu)
@@ -166,24 +170,14 @@ class DocumentGenerator
 
 
 
-    if report.empresa_anterior
-      doc.replace('{{empresa_anterior}}', report.empresa_anterior)
+    if sin_cert_anterior
+      doc.replace('{{empresa_anterior}}', 'N/A')
+      doc.replace('{{ea_rol}}', 'N/A')
+      doc.replace('{{ea_rut}}', 'N/A')
     else
-      doc.replace('{{empresa_anterior}}', "S/I")
-    end
-
-
-    if report.ea_rol
-      doc.replace('{{ea_rol}}', report.ea_rol)
-    else
-      doc.replace('{{ea_rol}}', "S/I")
-    end
-
-
-    if report.ea_rut
-      doc.replace('{{ea_rut}}', report.ea_rut)
-    else
-      doc.replace('{{ea_rut}}', "S/I")
+      doc.replace('{{empresa_anterior}}', report.empresa_anterior || "S/I")
+      doc.replace('{{ea_rol}}', report.ea_rol || "S/I")
+      doc.replace('{{ea_rut}}', report.ea_rut || "S/I")
     end
 
 
@@ -364,14 +358,15 @@ class DocumentGenerator
     end
 
     last_inspection = sorted_inspections[1]
-
     if last_inspection
       last_revision_base = Revision.find_by(inspection_id: last_inspection.id)
-      doc.replace('{{instalation_number}}', last_inspection.identificador)
-    else
-      doc.replace('{{instalation_number}}', "N/A")
     end
 
+    if sin_cert_anterior || last_inspection.nil?
+      doc.replace('{{instalation_number}}', "N/A")
+    else
+      doc.replace('{{instalation_number}}', last_inspection.identificador)
+    end
 
 
     if last_revision_base
@@ -385,10 +380,6 @@ class DocumentGenerator
         last_revision.comment.concat(revision_color.comment || [])
       end
     end
-
-
-
-
     last_errors = []
     last_errors_lift = []
     last_errors_graves = []
@@ -396,8 +387,6 @@ class DocumentGenerator
 
 
     if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
-
-
       if last_revision_base.nil? && report.past_number.nil? && report.past_date.nil?
 
         if report.fecha
@@ -582,6 +571,12 @@ class DocumentGenerator
         end
       end
 
+    elsif sin_inspeccion_anterior
+      doc.replace('{{informe_anterior}}', "No existe inspección anterior.")
+      doc.replace('{{revision_past_errors_level}}', "")
+      doc.replace('{{revision_past_errors_level_lift}}', "")
+      doc.replace('{{revision_past_errors_graves}}', "")
+      doc.replace('{{revision_past_errors_graves_lift}}', "")
     else
       doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
       doc.replace('{{revision_past_errors_level}}', "")
@@ -1442,6 +1437,7 @@ class DocumentGenerator
     token       = "CODIGO IMAGEN 24123123"
 
     cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
+    cmd += " --sin-cert-anterior" if sin_inspeccion_anterior
     require 'open3'
     stdout, stderr, status = Open3.capture3(cmd)
 

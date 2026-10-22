@@ -76,42 +76,35 @@ class DocumentGeneratorLadder
 
     doc.replace('{{inspection_validation}}', report.ending.strftime('%d/%m/%Y'))
 
-    if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
-      doc.replace('{{cert_ant}}', 'Si')
+    sin_inspeccion_anterior = !(report.cert_ant == 'Si' || report.cert_ant == 'sistema')
+    sin_cert_anterior = report.cert_ant == 'No' || report.cert_ant_real == 'No'
 
-    elsif report.cert_ant == 'No'
-      doc.replace('{{cert_ant}}', 'No')
+    if sin_cert_anterior
+      doc.replace('{{cert_ant}}', 'N/A')
+    elsif report.cert_ant == 'Si' || report.cert_ant == 'sistema'
+      doc.replace('{{cert_ant}}', 'Si')
     else
       doc.replace('{{cert_ant}}', 'S/I')
     end
 
 
-
-    if revision.codes.first == '0.1.1'
-      doc.replace('{{certificado_minvu}}', "No cumple")
+    if sin_cert_anterior
+      doc.replace('{{certificado_minvu}}', 'N/A')
+      doc.replace('{{report_fecha}}', 'N/A')
+      doc.replace('{{empresa_anterior}}', 'N/A')
+      doc.replace('{{ea_rol}}', 'N/A')
+      doc.replace('{{ea_rut}}', 'N/A')
     else
-      doc.replace('{{certificado_minvu}}', report.certificado_minvu)
-    end
+      if revision.codes.first == '0.1.1'
+        doc.replace('{{certificado_minvu}}', "No cumple")
+      else
+        doc.replace('{{certificado_minvu}}', report.certificado_minvu)
+      end
 
-    doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
-    if report.empresa_anterior
-      doc.replace('{{empresa_anterior}}', report.empresa_anterior)
-    else
-      doc.replace('{{empresa_anterior}}', "S/I")
-    end
-
-
-    if report.ea_rol
-      doc.replace('{{ea_rol}}', report.ea_rol)
-    else
-      doc.replace('{{ea_rol}}', "S/I")
-    end
-
-
-    if report.ea_rut
-      doc.replace('{{ea_rut}}', report.ea_rut)
-    else
-      doc.replace('{{ea_rut}}', "S/I")
+      doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y'))
+      doc.replace('{{empresa_anterior}}', report.empresa_anterior || "S/I")
+      doc.replace('{{ea_rol}}', report.ea_rol || "S/I")
+      doc.replace('{{ea_rut}}', report.ea_rut || "S/I")
     end
     doc.replace('{{empresa_mantenedora}}', report.empresa_mantenedora)
     doc.replace('{{em_rol}}', report.em_rol)
@@ -242,13 +235,16 @@ class DocumentGeneratorLadder
     end
 
     last_inspection = sorted_inspections[1]
-
     if last_inspection
       last_revision_base = LadderRevision.find_by(inspection_id: last_inspection.id)
-      doc.replace('{{instalation_number}}', last_inspection.identificador)
-    else
-      doc.replace('{{instalation_number}}', "N/A")
     end
+
+    if sin_cert_anterior || last_inspection.nil?
+      doc.replace('{{instalation_number}}', "N/A")
+    else
+      doc.replace('{{instalation_number}}', last_inspection.identificador)
+    end
+
 
     last_errors = []
     last_errors_lift = []
@@ -420,6 +416,12 @@ class DocumentGeneratorLadder
         end
       end
 
+    elsif sin_inspeccion_anterior
+      doc.replace('{{informe_anterior}}', "No existe inspección anterior.")
+      doc.replace('{{revision_past_errors_level}}', "")
+      doc.replace('{{revision_past_errors_level_lift}}', "")
+      doc.replace('{{revision_past_errors_graves}}', "")
+      doc.replace('{{revision_past_errors_graves_lift}}', "")
     else
       doc.replace('{{informe_anterior}}', "No existe información de informe anterior")
       doc.replace('{{revision_past_errors_level}}', "")
@@ -427,7 +429,6 @@ class DocumentGeneratorLadder
       doc.replace('{{revision_past_errors_graves}}', "")
       doc.replace('{{revision_past_errors_graves_lift}}', "")
     end
-
 
 
 
@@ -1048,8 +1049,8 @@ class DocumentGeneratorLadder
     token       = "CODIGO IMAGEN 24123123"
 
     cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
+    cmd += " --sin-cert-anterior" if sin_inspeccion_anterior
     system(cmd)
-
     FileUtils.mv(docx_new_path, output_path)
     FileUtils.rm_rf(dir_path)
 

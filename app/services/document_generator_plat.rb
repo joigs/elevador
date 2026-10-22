@@ -163,34 +163,42 @@ class DocumentGeneratorPlat
 
     doc.replace('{{inspection_validation}}', report.ending&.strftime('%d/%m/%Y') || '')
 
-    if report.cert_ant == 'Si' || report.cert_ant == 'sistema'
+    sin_inspeccion_anterior = !(report.cert_ant == 'Si' || report.cert_ant == 'sistema')
+    sin_cert_anterior = report.cert_ant == 'No' || report.cert_ant_real == 'No'
+    if sin_cert_anterior
+      doc.replace('{{cert_ant}}', 'N/A')
+      doc.replace('{{report_fecha}}', 'N/A')
+    elsif report.cert_ant == 'Si' || report.cert_ant == 'sistema'
       cert_ant_real =
         case report.cert_ant_real
         when 'Si' then 'Si'
-        when 'No' then 'No'
         else            'S/I'
         end
       doc.replace('{{cert_ant}}', cert_ant_real)
       doc.replace('{{report_fecha}}', report.fecha&.strftime('%d/%m/%Y') || 'S/I')
-    elsif report.cert_ant == 'No'
-      doc.replace('{{cert_ant}}', 'No')
-      doc.replace('{{report_fecha}}', '')
     else
       doc.replace('{{cert_ant}}', 'S/I')
       doc.replace('{{report_fecha}}', 'S/I')
     end
 
 
-    first_code = revision_entries.first&.code
-    if first_code == '0.1.1'
-      doc.replace('{{certificado_minvu}}', 'No cumple')
+    if sin_cert_anterior
+      doc.replace('{{certificado_minvu}}', 'N/A')
+      doc.replace('{{empresa_anterior}}',  'N/A')
+      doc.replace('{{ea_rol}}',            'N/A')
+      doc.replace('{{ea_rut}}',            'N/A')
     else
-      doc.replace('{{certificado_minvu}}', report.certificado_minvu.to_s)
-    end
+      first_code = revision_entries.first&.code
+      if first_code == '0.1.1'
+        doc.replace('{{certificado_minvu}}', 'No cumple')
+      else
+        doc.replace('{{certificado_minvu}}', report.certificado_minvu.to_s)
+      end
 
-    doc.replace('{{empresa_anterior}}', report.empresa_anterior.presence || 'S/I')
-    doc.replace('{{ea_rol}}',           report.ea_rol.presence           || 'S/I')
-    doc.replace('{{ea_rut}}',           report.ea_rut.presence           || 'S/I')
+      doc.replace('{{empresa_anterior}}', report.empresa_anterior.presence || 'S/I')
+      doc.replace('{{ea_rol}}',           report.ea_rol.presence           || 'S/I')
+      doc.replace('{{ea_rut}}',           report.ea_rut.presence           || 'S/I')
+    end
 
     doc.replace('{{empresa_mantenedora}}', report.empresa_mantenedora)
     doc.replace('{{em_rol}}',              report.em_rol)
@@ -325,13 +333,17 @@ class DocumentGeneratorPlat
 
     last_revision_base    = nil
     last_revision_entries = []
-
     if last_inspection
       last_revision_base = PlatRevision.find_by(inspection_id: last_inspection.id)
-      doc.replace('{{instalation_number}}', last_inspection.identificador)
-    else
-      doc.replace('{{instalation_number}}', "N/A")
     end
+
+    doc_inst = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+    if sin_cert_anterior || last_inspection.nil?
+      doc_inst.replace('{{instalation_number}}', 'N/A')
+    else
+      doc_inst.replace('{{instalation_number}}', last_inspection.identificador)
+    end
+    doc_inst.commit(output_path)
 
     if last_revision_base
       last_rels = last_revision_base.plat_revision_rules_plats.includes(:rules_plat).to_a
@@ -543,6 +555,14 @@ class DocumentGeneratorPlat
 
         doc2.commit(output_path)
       end
+    elsif sin_inspeccion_anterior
+      doc2 = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
+      doc2.replace('{{informe_anterior}}',                 'No existe inspección anterior.')
+      doc2.replace('{{revision_past_errors_level}}',       '')
+      doc2.replace('{{revision_past_errors_level_lift}}',  '')
+      doc2.replace('{{revision_past_errors_graves}}',      '')
+      doc2.replace('{{revision_past_errors_graves_lift}}', '')
+      doc2.commit(output_path)
     else
       doc2 = DocxReplace::Doc.new(output_path, "#{Rails.root}/tmp")
       doc2.replace('{{informe_anterior}}',               'No existe información de informe anterior')
@@ -1124,6 +1144,7 @@ class DocumentGeneratorPlat
     token       = 'CODIGO IMAGEN 24123123'
 
     cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
+    cmd += " --sin-cert-anterior" if sin_inspeccion_anterior
     system(cmd)
 
     FileUtils.mv(docx_new_path, output_path)
