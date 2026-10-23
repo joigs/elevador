@@ -22,6 +22,12 @@
                   class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" %>
     <% end %>
 
+    <% if @user.cliente? && Current.user.puede_gestionar_sucursales_de?(@user) %>
+      <%= link_to 'Administrar Sucursales',
+                  manage_sucursales_user_path(@user),
+                  class: "bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded" %>
+    <% end %>
+
     <% if Current.user.admin %>
 
       <% if @user.empresa == nil %>

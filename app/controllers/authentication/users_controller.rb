@@ -5,7 +5,7 @@ class Authentication::UsersController < ApplicationController
 
 
   before_action :set_user_para_permisos, only: [:manage_permisos, :update_permisos]
-
+  before_action :set_user_para_sucursales, only: [:manage_sucursales, :update_sucursales]
 
 
   def new
@@ -181,6 +181,7 @@ class Authentication::UsersController < ApplicationController
     @user = User.new(user_params)
     @user.admin = false
     if @user.save
+      @user.sincronizar_sucursales_con_empresas!
       flash[:notice] = "Usuario creado exitosamente"
       redirect_to user_path(@user)
     else
@@ -218,6 +219,7 @@ class Authentication::UsersController < ApplicationController
       end
 
       if @user.update(user_params)
+        @user.sincronizar_sucursales_con_empresas!
         flash[:notice] = "Usuario modificado"
         redirect_to home_path
       else
@@ -240,7 +242,7 @@ class Authentication::UsersController < ApplicationController
         end
       end
 
-      if @user.update(user_params)
+      if @user.update(user_params.except(:principal_ids, :empresa, :admin, :gestion))
         flash[:notice] = "Usuario modificado"
         redirect_to perfil_path(username: @user.username)
       else
@@ -271,6 +273,30 @@ class Authentication::UsersController < ApplicationController
       @permisos = Permiso.disponibles_para(@user)
       render :manage_permisos, status: :unprocessable_entity
     end
+  end
+  def manage_sucursales
+    @sucursales = Current.user.sucursales_asignables_para(@user)
+  end
+
+  def update_sucursales
+    asignables    = Current.user.sucursales_asignables_para(@user).pluck(:id)
+    seleccionadas = Array(params[:sucursal_ids]).map(&:to_i) & asignables
+    conservadas   = @user.sucursal_ids - asignables
+    finales       = (seleccionadas + conservadas).uniq
+
+    if finales.empty?
+      flash.now[:alert] = "El usuario debe tener acceso al menos a una sucursal"
+      @sucursales = Current.user.sucursales_asignables_para(@user)
+      return render :manage_sucursales, status: :unprocessable_entity
+    end
+
+    ActiveRecord::Base.transaction do
+      @user.sucursal_ids = finales
+      @user.sincronizar_empresas_desde_sucursales!
+    end
+
+    flash[:notice] = "Sucursales actualizadas"
+    redirect_to volver_desde_sucursales, status: :see_other
   end
   def new_relleno
     unless Current.user&.admin?
@@ -390,6 +416,25 @@ class Authentication::UsersController < ApplicationController
     unless Current.user&.puede_gestionar_permisos_de?(@user)
       flash[:alert] = "No tienes permiso"
       redirect_to home_path
+    end
+  end
+  def set_user_para_sucursales
+    @user = User.find(params[:id])
+    unless Current.user&.puede_gestionar_sucursales_de?(@user)
+      flash[:alert] = "No tienes permiso"
+      redirect_to home_path
+    end
+  end
+
+  def volver_desde_sucursales
+    principal = Principal.find_by(id: params[:principal_id])
+
+    if principal && (Current.user.admin? || Current.user.empresa_de?(principal))
+      principal_path(principal, tab: "usuarios")
+    elsif Current.user.admin?
+      user_path(@user)
+    else
+      destino_inicial
     end
   end
 end

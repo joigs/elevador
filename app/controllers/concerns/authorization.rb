@@ -25,10 +25,14 @@ module Authorization
       end
     end
 
-    def alcance_cliente(scope, columna = :principal_id)
+    def alcance_cliente(scope)
       return scope unless Current.user&.cliente?
 
-      scope.where(columna => Current.user.principal_ids)
+      case scope.klass.name
+      when "Inspection" then scope.where(sucursal_id: Current.user.sucursal_ids)
+      when "Item"       then scope.where(id: Current.user.item_ids_visibles)
+      else                   scope.where(principal_id: Current.user.principal_ids)
+      end
     end
 
     def bloquear_cliente_fuera_de_empresa!(record)

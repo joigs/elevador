@@ -4,8 +4,11 @@
 <% empresas_usuario = user.principals.sort_by(&:name) %>
 <% otras_empresas = empresas_usuario.count { |e| !gestionables_ids.include?(e.id) } %>
 <% puede_quitar = !propio && empresas_usuario.size > 1 %>
-<% puede_eliminar = !propio && otras_empresas.zero? %>
 <% disponibles = gestionables.reject { |e| empresas_usuario.any? { |u| u.id == e.id } } %>
+<% sucursales_gestor_ids = Current.user.sucursales_gestionables_en(principal).pluck(:id) %>
+<% sucursales_aqui = user.sucursals.select { |s| sucursales_gestor_ids.include?(s.id) }.sort_by(&:id) %>
+<% puede_gestionar_sucursales = Current.user.puede_gestionar_sucursales_de?(user) %>
+<% puede_eliminar = !propio && (user.sucursal_ids - Current.user.sucursales_asignables_para(user).pluck(:id)).empty? %>
 <tr class="bg-gray-800"
     id="<%= dom_id(user, :empresa_row) %>"
     data-table-filter-target="row"
@@ -57,6 +60,23 @@
                        data: { action: "change->empresa-membership#confirmarAgregar" },
                        class: "text-xs bg-gray-700 text-gray-200 border border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500" %>
       <% end %>
+    <% end %>
+  </td>
+
+  <td class="px-4 py-4">
+    <div class="flex flex-wrap items-center gap-1.5">
+      <% sucursales_aqui.each do |sucursal| %>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-200"><%= sucursal.nombre %></span>
+      <% end %>
+      <% if sucursales_aqui.empty? %>
+        <span class="text-xs text-gray-500">—</span>
+      <% end %>
+    </div>
+    <% if puede_gestionar_sucursales %>
+      <%= link_to "Gestionar sucursales",
+                  manage_sucursales_user_path(user, principal_id: principal.id),
+                  data: { turbo_frame: "_top" },
+                  class: "inline-block mt-2 text-xs text-blue-400 hover:text-blue-300" %>
     <% end %>
   </td>
 

@@ -1,0 +1,48 @@
+<% volver = params[:principal_id].present? ? principal_path(params[:principal_id], tab: "usuarios") : user_path(@user) %>
+<% asignadas = @user.sucursal_ids %>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+  <div class="mb-6">
+    <%= link_to "Volver", volver, class: "inline-flex items-center px-4 py-2 text-base leading-6 font-medium rounded-md text-blue-400 bg-gray-800 hover:bg-blue-800 hover:text-white transition duration-150 ease-in-out" %>
+  </div>
+
+
+  <div class="bg-gray-900 text-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-1">Sucursales de <%= @user.real_name %></h1>
+    <p class="text-gray-400 text-sm mb-6">
+      Usuario <%= @user.username %>. Solo verá activos e inspecciones de las sucursales marcadas.
+    </p>
+
+    <% if @sucursales.empty? %>
+      <p class="text-gray-300">No hay sucursales que puedas asignar a este usuario.</p>
+    <% else %>
+      <%= form_with url: update_sucursales_user_path(@user), method: :patch, local: true do |form| %>
+        <%= hidden_field_tag :principal_id, params[:principal_id] if params[:principal_id].present? %>
+
+        <% @sucursales.group_by(&:principal).each do |principal, sucursales| %>
+          <div class="mb-6">
+            <p class="text-lg font-semibold text-gray-200 mb-2"><%= principal.name %></p>
+            <div class="rounded-md border border-gray-700 divide-y divide-gray-700">
+              <% sucursales.each do |sucursal| %>
+                <label for="sucursal_<%= sucursal.id %>" class="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-800">
+                  <%= check_box_tag "sucursal_ids[]", sucursal.id, asignadas.include?(sucursal.id),
+                                    id: "sucursal_#{sucursal.id}",
+                                    class: "mt-1 h-4 w-4 rounded bg-gray-700 border-gray-600" %>
+                  <span>
+                    <span class="block text-white"><%= sucursal.nombre %></span>
+                    <span class="block text-xs text-gray-400"><%= sucursal.detalle_contacto %></span>
+                  </span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="flex gap-2">
+          <%= form.submit "Guardar sucursales", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer" %>
+          <%= link_to "Cancelar", volver, class: "bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded" %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

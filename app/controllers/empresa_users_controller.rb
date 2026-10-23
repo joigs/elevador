@@ -10,8 +10,9 @@ class EmpresaUsersController < ApplicationController
       return redirigir(alert: "No puedes eliminar tu propia cuenta")
     end
 
-    unless (@user.principal_ids - Current.user.empresas_gestionables.pluck(:id)).empty?
-      return redirigir(alert: "El usuario pertenece a empresas que no administras. Quítalo de tus empresas en lugar de eliminarlo.")
+    ajenas = @user.sucursal_ids - Current.user.sucursales_asignables_para(@user).pluck(:id)
+    unless ajenas.empty?
+      return redirigir(alert: "El usuario tiene acceso a sucursales que no administras. Quítalo de tus empresas en lugar de eliminarlo.")
     end
 
     @user.destroy
@@ -22,7 +23,14 @@ class EmpresaUsersController < ApplicationController
     empresa = Current.user.empresas_gestionables.find_by(id: params[:empresa_id])
     return responder(alert: "Empresa no válida") unless empresa
 
-    @user.principal_users.find_or_create_by!(principal: empresa)
+    sucursal_ids = Current.user.sucursales_gestionables_en(empresa).pluck(:id)
+    return responder(alert: "No tienes sucursales que asignar en #{empresa.name}") if sucursal_ids.empty?
+
+    ActiveRecord::Base.transaction do
+      sucursal_ids.each { |sucursal_id| SucursalUser.find_or_create_by!(user_id: @user.id, sucursal_id: sucursal_id) }
+      @user.sincronizar_empresas_desde_sucursales!
+    end
+
     responder(notice: "Usuario agregado a #{empresa.name}")
   end
 
@@ -34,13 +42,18 @@ class EmpresaUsersController < ApplicationController
       return responder(alert: "No puedes quitarte a ti mismo de una empresa")
     end
 
-    if @user.principal_users.count <= 1
+    sucursal_ids = Current.user.sucursales_gestionables_en(empresa).pluck(:id)
+
+    if (@user.sucursal_ids - sucursal_ids).empty?
       return responder(alert: "El usuario debe pertenecer al menos a una empresa")
     end
 
-    @user.principal_users.where(principal: empresa).destroy_all
+    ActiveRecord::Base.transaction do
+      SucursalUser.where(user_id: @user.id, sucursal_id: sucursal_ids).destroy_all
+      @user.sincronizar_empresas_desde_sucursales!
+    end
 
-    if empresa == @principal
+    if empresa == @principal && !Current.user.usuarios_gestionables_en(@principal).exists?(id: @user.id)
       quitar_fila
     else
       responder(notice: "Usuario quitado de #{empresa.name}")
@@ -96,13 +109,14 @@ class EmpresaUsersController < ApplicationController
   end
 
   def set_user
-    @user = @principal.users.find(params[:id])
+    @user = Current.user.usuarios_gestionables_en(@principal).find(params[:id])
   end
 
   def redirigir(flash_opts)
     redirect_to principal_path(@principal, tab: "usuarios"),
                 flash_opts.merge(status: :see_other)
   end
+
   def responder(flash_opts)
     @user.reload
 
@@ -120,6 +134,7 @@ class EmpresaUsersController < ApplicationController
       format.html { redirigir(flash_opts) }
     end
   end
+
   def quitar_fila
     respond_to do |format|
       format.turbo_stream do

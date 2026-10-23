@@ -5,7 +5,7 @@ class PrincipalsController < ApplicationController
   def index
     if Current.user.cliente?
       empresas = Current.user.empresas_activas.order(:name).to_a
-      @alertas_por_empresa = empresas.index_with(&:alertas)
+      @alertas_por_empresa = empresas.index_with { |e| e.alertas(sucursal_ids: Current.user.sucursal_ids) }
       @principals = empresas.sort_by do |empresa|
         [-@alertas_por_empresa[empresa].values.sum { |a| a[:count] }, empresa.name]
       end
@@ -29,18 +29,18 @@ class PrincipalsController < ApplicationController
     principal
     return if bloquear_si_no_es_su_empresa!
 
-    @q = @principal.items.ransack(params[:q])
+    @q = items_visibles.ransack(params[:q])
     @items = @q.result(distinct: true).order(created_at: :desc)
 
     unless Current.user.tabla
       @pagy, @items = pagy_countless(@items, items: 10)
     end
+    @alertas = @principal.alertas(sucursal_ids: sucursal_ids_filtro)
+    @sucursales_visibles = Current.user.cliente? ? @principal.sucursals.where(id: Current.user.sucursal_ids).to_a : @principal.sucursals.to_a
 
-    @alertas = @principal.alertas
-
-    @inspections = @principal.inspections.where("number > ?", 0).order(number: :desc)
+    @inspections = inspecciones_visibles.where("number > ?", 0).order(number: :desc)
     if params[:tab] == 'inspections'
-      @q_inspections = @principal.inspections.ransack(params[:q])
+      @q_inspections = inspecciones_visibles.ransack(params[:q])
       @inspections = @q_inspections.result(distinct: true).where("number > ?", 0).includes(:sucursal).order(number: :desc)
       unless Current.user.tabla
         @pagy_inspections, @inspections = pagy_countless(@inspections, items: 10)
@@ -88,7 +88,7 @@ class PrincipalsController < ApplicationController
         return redirect_to principal_path(@principal)
       end
 
-      @empresa_users = @principal.users.order(:real_name)
+      @empresa_users = Current.user.usuarios_gestionables_en(@principal).order(:real_name)
     end
 
     @chart_type = params[:chart_type] || 'bar'
@@ -112,7 +112,7 @@ class PrincipalsController < ApplicationController
 
     return if bloquear_si_no_es_su_empresa!
 
-    @alertas = @principal.alertas
+    @alertas = @principal.alertas(sucursal_ids: sucursal_ids_filtro)
     @filtro  = params[:filtro].presence
 
     @filtro = nil unless @filtro && @alertas.key?(@filtro)
@@ -199,7 +199,7 @@ class PrincipalsController < ApplicationController
       return head :forbidden
     end
 
-    items = @principal.items.select(:id, :identificador).order(:identificador)
+    items = items_visibles.select(:id, :identificador).order(:identificador)
     render json: items
   end
 
@@ -210,7 +210,7 @@ class PrincipalsController < ApplicationController
       return head :forbidden
     end
 
-    places = @principal.inspections.select(:place).distinct.map(&:place)
+    places = inspecciones_visibles.select(:place).distinct.map(&:place)
     render json: places
   end
 
@@ -221,7 +221,7 @@ class PrincipalsController < ApplicationController
 
     return if bloquear_si_no_es_su_empresa!
     @groups = Group.all
-    @totalitems = @principal.items.select { |item| item.inspections.any? }
+    @totalitems = items_visibles.select { |item| item.inspections.any? }
 
     items_by_group = @totalitems.group_by(&:group_id)
 
@@ -325,8 +325,7 @@ class PrincipalsController < ApplicationController
     @principal = Principal.find(params[:principal_id])
     authorize! @principal
     return if bloquear_si_no_es_su_empresa!
-    @items = @principal.items
-
+    @items = items_visibles
 
 
     require 'write_xlsx'
@@ -558,7 +557,7 @@ class PrincipalsController < ApplicationController
     return if bloquear_si_no_es_su_empresa!
 
     @groups = Group.all
-    @totalitems = @principal.items.select { |item| item.inspections.any? }
+    @totalitems = items_visibles.select { |item| item.inspections.any? }
 
     items_by_group = @totalitems.group_by(&:group_id)
 
@@ -701,4 +700,20 @@ class PrincipalsController < ApplicationController
     redirect_to principals_path, status: :see_other
     true
   end
+  def items_visibles
+    return @principal.items unless Current.user.cliente?
+
+    @principal.items.where(id: Current.user.item_ids_visibles)
+  end
+
+  def inspecciones_visibles
+    return @principal.inspections unless Current.user.cliente?
+
+    @principal.inspections.where(sucursal_id: Current.user.sucursal_ids)
+  end
+
+  def sucursal_ids_filtro
+    Current.user.cliente? ? Current.user.sucursal_ids : nil
+  end
+
 end

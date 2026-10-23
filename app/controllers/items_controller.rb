@@ -19,8 +19,9 @@ class ItemsController < ApplicationController
   def show
     item
     return if bloquear_cliente_fuera_de_empresa!(@item)
-
-    @q = @item.inspections.where("number > 0").ransack(params[:q])
+    inspecciones = @item.inspections.where("number > 0")
+    inspecciones = inspecciones.where(sucursal_id: Current.user.sucursal_ids) if Current.user.cliente?
+    @q = inspecciones.ransack(params[:q])
     @inspections = @q.result(distinct: true).order(number: :desc)
 
     unless Current.user.tabla

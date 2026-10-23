@@ -39,7 +39,7 @@ class Principal < ApplicationRecord
     update!(activo: false)
   end
 
-  def alertas
+  def alertas(sucursal_ids: nil)
     hoy       = Time.zone.today
     dos_meses = (hoy + 2.months).end_of_month
 
@@ -52,6 +52,7 @@ class Principal < ApplicationRecord
                     .map { |inspecciones| inspecciones.first.id }
 
     base = Inspection.where(id: ultimas_ids, ignorar: false)
+    base = base.where(sucursal_id: sucursal_ids) unless sucursal_ids.nil?
 
     definiciones = {
       "proximas" => {

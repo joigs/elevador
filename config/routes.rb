@@ -49,6 +49,8 @@ Rails.application.routes.draw do
         patch :update_client
         get :manage_permisos
         patch :update_permisos
+        get :manage_sucursales
+        patch :update_sucursales
         get :edit_relleno
         patch :update_relleno
       end

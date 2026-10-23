@@ -10,7 +10,8 @@ class SucursalsController < ApplicationController
     authorize! @sucursal = @principal.sucursals.build(sucursal_params)
 
     if @sucursal.save
-      flash[:notice] = "Sucursal creada"
+      flash[:alert] = "La sucursal #{@sucursal.nombre} fue creada. Ningún cliente fue asignado automáticamente; para darles acceso, asígnala desde la gestión de sucursales de cada usuario."
+      flash[:alert_type] = "info"
       redirect_to principal_path(@principal), status: :see_other
     else
       render :new, status: :unprocessable_entity
