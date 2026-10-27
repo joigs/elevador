@@ -69,7 +69,6 @@
 
         <p class="mb-0"><strong>Factura:</strong> <%= format_date(@facturacion.factura) %></p>
 
-        <% if @facturacion.emicion.present? %>
           <div id="precio-container" class="mb-0">
             <strong>Precio (sin iva):</strong>
             <span id="precio-text"><%= @facturacion.precio %></span> UF
@@ -85,12 +84,7 @@
               </svg>
             </button>
           </div>
-        <% else %>
-          <p class="mb-0">
-            <strong>Precio (sin iva):</strong>
-            <%= @facturacion.precio %> UF
-          </p>
-        <% end %>
+
       </div>
 
 
