@@ -20,8 +20,12 @@ class Revision < ApplicationRecord
 
 
 
-  def inclusion_aplica?
+  def inclusion_posible?
     group.type_of == "ascensor"
+  end
+
+  def inclusion_aplica?
+    inclusion_posible? && inspection.report&.inclusion == true
   end
 
   def only_owner?

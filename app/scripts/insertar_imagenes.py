@@ -253,6 +253,19 @@ def process_cert_anterior(doc, sin_cert_anterior):
         if p is not None:
             _clear_text_in_paragraph(p, [marker])
 
+INC_TABLA_START = "{{inc_tabla_ini}}"
+INC_TABLA_END = "{{inc_tabla_fin}}"
+
+
+def process_inclusion_tabla(doc, sin_inclusion):
+    if sin_inclusion:
+        remove_block_between(doc, INC_TABLA_START, INC_TABLA_END)
+        return
+    for marker in (INC_TABLA_START, INC_TABLA_END):
+        p = _find_marker_paragraph(doc, marker)
+        if p is not None:
+            _clear_text_in_paragraph(p, [marker])
+
 
 def insert_photo_table(doc, paragraph, photos_mapping, folder_path):
     new_paragraph = add_paragraph_after(paragraph)
@@ -308,6 +321,8 @@ def main():
                         help="Ruta al JSON con la lista de secciones a eliminar.")
     parser.add_argument("--sin-cert-anterior", action="store_true",
                         help="Elimina las tablas de evaluación de certificación anterior.")
+    parser.add_argument("--sin-inclusion", action="store_true",
+                        help="Elimina la tabla y conclusión de inclusión.")
     args = parser.parse_args()
 
     folder_path = args.folder
@@ -334,6 +349,7 @@ def main():
     print("Secciones a eliminar: {}".format(sections_to_remove))
     process_section_markers(doc, sections_to_remove, log=lambda m: print("[secciones] " + m))
     process_cert_anterior(doc, args.sin_cert_anterior)
+    process_inclusion_tabla(doc, args.sin_inclusion)
     # -----------------------------------------------
 
     signatures_data = {}

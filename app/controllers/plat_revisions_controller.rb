@@ -97,6 +97,9 @@ class PlatRevisionsController < ApplicationController
         render :edit_inclusion
         return
       end
+    elsif @revision_base.inclusion_posible? && params[:section].to_s == InclusionCheck::SECCION_PLATAFORMA.to_s
+      redirect_to edit_plat_revision_path(inspection_id: @inspection.id, section: 0)
+      return
     end
 
     @copy          = Conexion.find_by(copy_inspection_id: @inspection.id)
@@ -297,7 +300,7 @@ class PlatRevisionsController < ApplicationController
     @revision_base = PlatRevision.find_by!(inspection_id: @inspection.id)
     authorize! @revision_base if respond_to?(:authorize!)
 
-    if @revision_base.inclusion_aplica? && params[:section].to_s == InclusionCheck::SECCION_PLATAFORMA.to_s
+    if @revision_base.inclusion_posible? && params[:section].to_s == InclusionCheck::SECCION_PLATAFORMA.to_s
       actualizar_inclusion(@revision_base,
                            redirect_ok: plat_revision_path(inspection_id: @inspection.id),
                            redirect_error: edit_plat_revision_path(inspection_id: @inspection.id, section: InclusionCheck::SECCION_PLATAFORMA))

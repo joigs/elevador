@@ -118,14 +118,19 @@ class RevisionsController < ApplicationController
 
     elementos.each { |elemento| @nombres.delete(elemento) }
 
-    @inclusion_section = InclusionCheck::SECCION_REVISION
-    @nombres[@inclusion_section] = InclusionCheck::NOMBRE_SECCION
-    @colors = colores_con_inclusion(@colors, @revision_base, @inclusion_section)
+    if @revision_base.inclusion_aplica?
+      @inclusion_section = InclusionCheck::SECCION_REVISION
+      @nombres[@inclusion_section] = InclusionCheck::NOMBRE_SECCION
+      @colors = colores_con_inclusion(@colors, @revision_base, @inclusion_section)
 
-    if params[:section].to_s == @inclusion_section.to_s
-      @section = params[:section]
-      cargar_inclusion(@revision_base)
-      render :edit_inclusion
+      if params[:section].to_s == @inclusion_section.to_s
+        @section = params[:section]
+        cargar_inclusion(@revision_base)
+        render :edit_inclusion
+        return
+      end
+    elsif params[:section].to_s == InclusionCheck::SECCION_REVISION.to_s
+      redirect_to edit_revision_path(inspection_id: @inspection.id, section: 0)
       return
     end
 

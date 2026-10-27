@@ -1438,6 +1438,7 @@ class DocumentGenerator
 
     cmd = "#{venv_python} \"#{script_path}\" --folder \"#{dir_path}\" --docx \"#{docx_basename}\" --token \"#{token}\" --sections \"#{sections_json_path}\""
     cmd += " --sin-cert-anterior" if sin_inspeccion_anterior
+    cmd += " --sin-inclusion" unless revision_base.inclusion_aplica?
     require 'open3'
     stdout, stderr, status = Open3.capture3(cmd)
 
