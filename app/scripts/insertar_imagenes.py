@@ -282,7 +282,11 @@ def insert_photo_table(doc, paragraph, photos_mapping, folder_path):
             foto = photos_mapping[i + col]
             p_img = row_img.cells[col].paragraphs[0]
             p_img.paragraph_format.keep_with_next = True
-            p_img.add_run().add_picture(os.path.join(folder_path, foto["filename"]), width=Inches(2))
+            try:
+                p_img.add_run().add_picture(os.path.join(folder_path, foto["filename"]), width=Inches(2))
+            except Exception as e:
+                print("No se pudo insertar {}: {}".format(foto["filename"], e))
+                p_img.add_run("(Imagen en formato no compatible)")
             row_text.cells[col].paragraphs[0].add_run(foto["text"])
 
 

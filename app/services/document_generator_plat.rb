@@ -1069,10 +1069,17 @@ class DocumentGeneratorPlat
       end
     end
 
-    inclusion_mapping = InclusionReport.fotos(revision_base).each_with_index.map do |(foto, texto), i|
-      ext = File.extname(foto.filename.to_s).presence || '.jpg'
-      new_filename = "inc_#{i + 1}#{ext}"
-      File.binwrite(File.join(dir_path, new_filename), foto.download)
+    inclusion_mapping = InclusionReport.fotos(revision_base).each_with_index.filter_map do |(foto, texto), i|
+      new_filename = "inc_#{i + 1}.jpg"
+      begin
+        imagen = MiniMagick::Image.read(foto.download)
+        imagen.auto_orient
+        imagen.format("jpg")
+        imagen.write(File.join(dir_path, new_filename))
+      rescue StandardError => e
+        Rails.logger.error("Foto de inclusión #{foto.id} no se pudo convertir: #{e.message}")
+        next
+      end
       { 'filename' => new_filename, 'text' => texto }
     end
     File.write(File.join(dir_path, 'mapping_inclusion.json'), inclusion_mapping.to_json)
