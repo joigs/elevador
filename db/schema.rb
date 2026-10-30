@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_27_184226) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_30_190418) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -414,7 +414,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_27_184226) do
     t.string "past_number"
     t.date "past_date"
     t.string "cert_ant_real"
-    t.boolean "inclusion", default: false, null: false
+    t.boolean "inclusion", default: true, null: false
     t.index ["em_rut"], name: "index_reports_on_em_rut"
     t.index ["inspection_id"], name: "index_reports_on_inspection_id"
     t.index ["item_id"], name: "index_reports_on_item_id"
