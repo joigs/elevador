@@ -1,3 +1,3 @@
 class RevisionNull < ApplicationRecord
-  belongs_to :revision
+  belongs_to :revision, polymorphic: true
 end

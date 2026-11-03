@@ -3,8 +3,9 @@
   <h1 class="text-3xl font-bold text-gray-800 mb-8">Editar defecto personalizado</h1>
 
   <div class="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
-    <%= form_with(model: @another, local: true, url: update_rule_revision_path(@inspection.id), method: :patch) do |form| %>
-
+    <%= form_with(model: @another, local: true,
+                  url: update_rule_plat_revision_path(id: @revision_base, inspection_id: @inspection.id),
+                  method: :patch) do |form| %>
       <!-- Importante para que luego puedas ubicar la Another en el update_rule -->
       <%= hidden_field_tag "another[id]", @another.id %>
       <%= hidden_field_tag "another[section]", @another.section %>
@@ -69,7 +70,7 @@
 
   <div class="text-center mt-4">
     <%= link_to 'Volver a inspección',
-                edit_revision_path(inspection_id: @inspection.id, section: @section),
+                edit_plat_revision_path(inspection_id: @inspection.id, section: @section),
                 class: "px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-300" %>
   </div>
 </div>

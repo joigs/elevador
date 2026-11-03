@@ -645,68 +645,65 @@ class PlatRevisionsController < ApplicationController
 
 
   def edit_rule
-    @inspection = Inspection.find(params[:inspection_id])
-
-    @another = Another.find(params[:another_id])
-    @section = params[:section]
-
-    @revision_base = Revision.find_by(inspection_id: @inspection.id)
+    @inspection    = Inspection.find(params[:inspection_id])
+    @revision_base = PlatRevision.find_by!(inspection_id: @inspection.id)
     authorize! @revision_base
 
+    @another = Another.find_by!(id: params[:another_id], item_id: @inspection.item_id)
+    @section = params[:section]
   end
 
   def update_rule
-    @inspection = Inspection.find(params[:inspection_id])
-    @another = Another.find(params[:another][:id])
-    @section = params[:another][:section]
-    @revision_base = Revision.find_by(inspection_id: @inspection.id)
-
+    @inspection    = Inspection.find(params[:inspection_id])
+    @revision_base = PlatRevision.find_by!(inspection_id: @inspection.id)
     authorize! @revision_base
 
-    past_text = @another.point
+    @another = Another.find_by!(id: params[:another][:id], item_id: @inspection.item_id)
+    @section = params[:another][:section]
 
-    if @another.update(another_params)
+    code      = @another.code
+    old_point = @another.point
 
-      @revision_bases_ids = Revision.where(item_id: @inspection.item_id).pluck(:id)
+    ActiveRecord::Base.transaction do
+      @another.update!(another_params)
 
-      @revisions = []
-      @revision_bases_ids.each do |revision_id|
-        @revisions << RevisionColor.find_by(revision_id: revision_id, section: @section)
-      end
+      new_point    = @another.point
+      new_levels   = Array(@another.level).reject(&:blank?)
+      revision_ids = PlatRevision.where(item_id: @inspection.item_id).pluck(:id)
 
-      @revisions.each do |revision|
-        revision.codes.each_with_index do |code, index|
-          if code == @another.code && revision.points[index] == past_text
+      rules_plat = RulesPlat.find_by(code: code, point: old_point, group_id: @inspection.item.group_id)
 
+      if rules_plat
+        rules_plat.update!(point: new_point) if old_point != new_point
 
-
-
-            if revision.levels[index] == "G"
-              puts(another_params.inspect)
-              if @another.level == ["L"]
-                revision.levels[index] = "L"
-              end
-            elsif revision.levels[index] == "L"
-              if @another.level == ["G"]
-                revision.levels[index] = "G"
-              end
-            end
-
-
-            revision.points[index] = @another.point
-            revision.save
-          end
+        if new_levels.size == 1
+          PlatRevisionRulesPlat
+            .where(plat_revision_id: revision_ids, rules_plat_id: rules_plat.id)
+            .update_all(level: new_levels.first, updated_at: Time.current)
         end
       end
 
-      flash[:notice] = "Defecto personalizado actualizado."
-      redirect_to edit_revision_path(inspection_id: @inspection.id, section: @section)
-    else
-      flash[:alert] = "Error al actualizar."
-      render :edit_rule
-    end
-  end
+      if old_point != new_point
+        RevisionComment.where(revision_type: "PlatRevision", revision_id: revision_ids,
+                              code: code, point: old_point)
+                       .update_all(point: new_point)
 
+        RevisionNull.where(revision_type: "PlatRevision", revision_id: revision_ids,
+                           point: "#{code}_#{old_point}")
+                    .update_all(point: "#{code}_#{new_point}")
+
+        RevisionPhoto.where(revision_type: "PlatRevision", revision_id: revision_ids,
+                            code: "#{code} #{old_point}")
+                     .update_all(code: "#{code} #{new_point}")
+      end
+    end
+
+    flash[:notice] = "Defecto personalizado actualizado."
+    redirect_to edit_plat_revision_path(inspection_id: @inspection.id, section: @section)
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = "Error al actualizar: #{e.record.errors.full_messages.join(', ')}"
+    render :edit_rule, status: :unprocessable_entity
+  end
 
 
   private
