@@ -1,6 +1,7 @@
 require 'docx_replace'
 require 'omnidocx'
 require 'fileutils'
+require 'mini_magick'
 require "ostruct"
 
 
@@ -950,14 +951,21 @@ class DocumentGeneratorLadder
       revision_photos.each do |photo|
         next unless photo.photo.attached?
 
-        original_ext = File.extname(photo.photo.blob.filename.to_s)
-        ext = original_ext.empty? ? ".jpg" : original_ext
-
-        new_filename = "#{counter}#{ext}"
+        new_filename = "#{counter}.jpg"
         new_file_path = File.join(dir_path, new_filename)
 
-        File.open(new_file_path, 'wb') do |file|
-          file.write(photo.photo.download)
+        begin
+          imagen = MiniMagick::Image.read(photo.photo.download)
+          imagen.combine_options do |c|
+            c.auto_orient
+            c.background "white"
+            c.alpha "remove"
+          end
+          imagen.format("jpg")
+          imagen.write(new_file_path)
+        rescue StandardError => e
+          Rails.logger.error("Foto #{photo.id} no se pudo convertir: #{e.message}")
+          File.binwrite(new_file_path, photo.photo.download)
         end
 
         text_imagen_comment = nil

@@ -285,7 +285,7 @@ def insert_photo_table(doc, paragraph, photos_mapping, folder_path):
             try:
                 p_img.add_run().add_picture(os.path.join(folder_path, foto["filename"]), width=Inches(2))
             except Exception as e:
-                print("No se pudo insertar {}: {}".format(foto["filename"], e))
+                print("No se pudo insertar {}: {}".format(foto["filename"], repr(e)), file=sys.stderr)
                 p_img.add_run("(Imagen en formato no compatible)")
             row_text.cells[col].paragraphs[0].add_run(foto["text"])
 
@@ -447,8 +447,11 @@ def main():
                 tx1 = photos_mapping[i]["text"]
                 p_img1 = row_img.cells[0].paragraphs[0]
                 p_img1.paragraph_format.keep_with_next = True
-                run1 = p_img1.add_run()
-                run1.add_picture(os.path.join(folder_path, fn1), width=Inches(2))
+                try:
+                    p_img1.add_run().add_picture(os.path.join(folder_path, fn1), width=Inches(2))
+                except Exception as e:
+                    print("No se pudo insertar {}: {}".format(fn1, repr(e)), file=sys.stderr)
+                    p_img1.add_run("(Imagen en formato no compatible)")
 
                 p_txt1 = row_text.cells[0].paragraphs[0]
                 p_txt1.add_run(tx1)
@@ -458,8 +461,11 @@ def main():
                     tx2 = photos_mapping[i+1]["text"]
                     p_img2 = row_img.cells[1].paragraphs[0]
                     p_img2.paragraph_format.keep_with_next = True
-                    run2 = p_img2.add_run()
-                    run2.add_picture(os.path.join(folder_path, fn2), width=Inches(2))
+                    try:
+                        p_img2.add_run().add_picture(os.path.join(folder_path, fn2), width=Inches(2))
+                    except Exception as e:
+                        print("No se pudo insertar {}: {}".format(fn2, repr(e)), file=sys.stderr)
+                        p_img2.add_run("(Imagen en formato no compatible)")
 
                     p_txt2 = row_text.cells[1].paragraphs[0]
                     p_txt2.add_run(tx2)

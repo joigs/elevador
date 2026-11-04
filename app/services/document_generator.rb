@@ -770,10 +770,10 @@ class DocumentGenerator
       end
 
       # Contar rules que empiezan con ese número
-      rules_count = rules.select { |rule| rule.code.start_with?(number) }.count
+      rules_count = rules.count { |rule| rule.code.start_with?("#{number}.") }
 
       # Contar revision_nulls_total que empiezan con ese número
-      revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?(number) }.count
+      revision_nulls_count = revision_nulls_total.count { |rev| rev.point.start_with?("#{number}.") }
 
       # Si la cantidad es igual, eliminar el texto correspondiente
       if rules_count == revision_nulls_count
@@ -1293,14 +1293,21 @@ class DocumentGenerator
     counter = 1
 
     revision_photos.each do |photo|
-      original_ext = File.extname(photo.photo.blob.filename.to_s)
-      ext = original_ext.empty? ? ".jpg" : original_ext
-
-      new_filename = "#{counter}#{ext}"
+      new_filename = "#{counter}.jpg"
       new_file_path = File.join(dir_path, new_filename)
 
-      File.open(new_file_path, 'wb') do |file|
-        file.write(photo.photo.download)
+      begin
+        imagen = MiniMagick::Image.read(photo.photo.download)
+        imagen.combine_options do |c|
+          c.auto_orient
+          c.background "white"
+          c.alpha "remove"
+        end
+        imagen.format("jpg")
+        imagen.write(new_file_path)
+      rescue StandardError => e
+        Rails.logger.error("Foto #{photo.id} no se pudo convertir: #{e.message}")
+        File.binwrite(new_file_path, photo.photo.download)
       end
 
       text_imagen_comment = nil
@@ -1418,11 +1425,8 @@ class DocumentGenerator
             sections_to_remove << n
             next
           end
-
-          rules_count = rules.select { |rule| rule.code.start_with?(number) }.count
-          revision_nulls_count = revision_nulls_total.select { |rev| rev.point.start_with?(number) }.count
-
-
+          rules_count = rules.count { |rule| rule.code.start_with?("#{number}.") }
+          revision_nulls_count = revision_nulls_total.count { |rev| rev.point.start_with?("#{number}.") }
           next if rules_count.zero?
 
           if rules_count == revision_nulls_count
