@@ -1,0 +1,77 @@
+<% tarifas = {
+  "Geinse" => [
+    ["ARICA", "3.2", "10", "13.2"],
+    ["IQUIQUE", "3.2", "10", "13.2"],
+    ["CALAMA", "3.2", "10", "13.2"],
+    ["ANTOFAGASTA", "3.2", "10", "13.2"],
+    ["COPIAPO", "3.2", "10", "13.2"],
+    ["LA SERENA /LOS VILOS", "3.2", "6", "9.2"],
+    ["COQUIMBO", "3.2", "6", "9.2"],
+    ["VALPARAISO/ VIÑA DEL MAR", "3.2", "1.8", "5"],
+    ["SANTIAGO", "3.2", "0.8", "4"],
+    ["RANCAGUA", "3.2", "0.8", "4"],
+    ["TALCA", "3.2", "4", "7.2"],
+    ["CHILLAN/CONCEPCION", "3.2", "0.3", "3.5"],
+    ["LOS ANGELES", "3.2", "1.2", "4.4"],
+    ["TEMUCO", "3.2", "3", "6.2"],
+    ["VALDIVIA", "3.2", "5", "8.2"],
+    ["OSORNO", "3.2", "5", "8.2"],
+    ["PUERTO MONTT", "3.2", "6", "9.2"]
+  ]
+} %>
+<% panel_lado = local_assigns.fetch(:align, "left") == "right" ? "right-0" : "left-0" %>
+
+<div data-controller="tarifas-info" class="relative inline-block text-left">
+  <button type="button"
+          data-action="tarifas-info#toggle"
+          title="Información de tarifas"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold italic font-serif">
+    i
+  </button>
+
+  <div data-tarifas-info-target="panel"
+       class="hidden absolute <%= panel_lado %> top-full mt-2 z-50 w-[42rem] max-w-[90vw] bg-gray-900 border border-gray-700 rounded-lg shadow-2xl p-4 text-white">
+    <div class="flex items-center justify-between mb-3">
+      <select data-tarifas-info-target="selector"
+              data-action="change->tarifas-info#change"
+              class="bg-gray-700 text-white border border-gray-600 rounded-md px-2 py-1">
+        <% tarifas.keys.each do |nombre| %>
+          <option value="<%= nombre %>"><%= nombre %></option>
+        <% end %>
+      </select>
+
+      <button type="button"
+              data-action="tarifas-info#toggle"
+              class="text-gray-400 hover:text-white text-2xl leading-none">
+        &times;
+      </button>
+    </div>
+
+    <% tarifas.each_with_index do |(nombre, filas), i| %>
+      <div data-tarifas-info-target="tabla"
+           data-nombre="<%= nombre %>"
+           class="max-h-[60vh] overflow-auto <%= 'hidden' unless i.zero? %>">
+        <table class="w-full text-sm border border-gray-700">
+          <thead class="bg-red-700 text-white">
+          <tr>
+            <th class="px-3 py-2 text-left">Ciudad</th>
+            <th class="px-3 py-2 text-center">Valor Fijo UF</th>
+            <th class="px-3 py-2 text-center">Valor en UF X Gastos operacional Unitario</th>
+            <th class="px-3 py-2 text-center">Valor Neto en U.F.</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% filas.each do |ciudad, fijo, gastos, neto| %>
+            <tr class="border-t border-gray-700">
+              <td class="px-3 py-1"><%= ciudad %></td>
+              <td class="px-3 py-1 text-center"><%= fijo %></td>
+              <td class="px-3 py-1 text-center"><%= gastos %></td>
+              <td class="px-3 py-1 text-center"><%= neto %></td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>

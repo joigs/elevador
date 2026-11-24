@@ -11,7 +11,10 @@
 
 <turbo-frame id="facturacions_frame">
   <div class="bg-gray-800">
-    <div class="bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+    <div class="relative bg-gray-900 py-6 px-8 shadow-lg rounded-lg text-center">
+      <div class="absolute top-6 right-8">
+        <%= render "facturacions/tarifas_info", align: "right" %>
+      </div>
       <h1 class="text-3xl font-bold text-white">Cotizaciones</h1>
       <%= link_to "Descargar Excel", export_xlsx_facturacions_path(format: :xlsx), class: "inline-flex items-center mt-4 px-4 py-2 border border-transparent text-base leading-6 font-medium rounded-md text-green-400 bg-yellow-700 hover:bg-yellow-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out" %>
       <%= link_to "Reporte mensual por región",
