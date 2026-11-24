@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_30_190418) do
+ActiveRecord::Schema[7.1].define(version: 2026_11_24_181326) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -69,8 +69,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_30_190418) do
     t.bigint "copy_inspection_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "previous_inspection_id"
     t.index ["copy_inspection_id"], name: "index_conexions_on_copy_inspection_id"
     t.index ["original_inspection_id"], name: "index_conexions_on_original_inspection_id"
+    t.index ["previous_inspection_id"], name: "index_conexions_on_previous_inspection_id"
   end
 
   create_table "convenios", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|

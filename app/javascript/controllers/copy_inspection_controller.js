@@ -14,11 +14,14 @@ export default class extends Controller {
     static targets = [
         "backdrop", "modalPanel", "searchInput", "resultsBody",
         "copyBtn", "previewBtn", "summaryBox",
-        "paginationTop", "paginationBottom"
+        "paginationTop", "paginationBottom",
+        "previousSwitch", "copyPreviousToggle", "previousInfo"
     ]
 
     connect() {
         this.selectedId = null
+        this.selectedRow = null
+        this._lastPreview = null
         this._debounceTimer = null
         this.query = ""
         this.page = 1
@@ -32,12 +35,15 @@ export default class extends Controller {
         document.addEventListener("keydown", this._escHandler)
 
         this.selectedId = null
+        this.selectedRow = null
+        this._lastPreview = null
         this.query = ""
         this.page = 1
         this.searchInputTarget.value = ""
         this.resultsBodyTarget.innerHTML = ""
         this.summaryBoxTarget.innerHTML = ""
         this._setButtonsDisabled(true)
+        this._updatePreviousSwitch(null)
 
         this.fetchSearch()
     }
@@ -80,7 +86,10 @@ export default class extends Controller {
     renderRows(rows) {
         this.resultsBodyTarget.innerHTML = ""
         this.selectedId = null
+        this.selectedRow = null
+        this._lastPreview = null
         this._setButtonsDisabled(true)
+        this._updatePreviousSwitch(null)
         this.summaryBoxTarget.innerHTML = ""
 
         rows.forEach(r => {
@@ -99,7 +108,10 @@ export default class extends Controller {
       `
             tr.querySelector('input[type="radio"]').addEventListener("change", () => {
                 this.selectedId = r.id
+                this.selectedRow = r
+                this._lastPreview = null
                 this._setButtonsDisabled(false)
+                this._updatePreviousSwitch(r)
                 this.summaryBoxTarget.innerHTML = ""
             })
             this.resultsBodyTarget.appendChild(tr)
@@ -136,10 +148,60 @@ export default class extends Controller {
         }
     }
 
+    _updatePreviousSwitch(row) {
+        if (!this.hasPreviousSwitchTarget) return
+
+        if (row && row.has_previous) {
+            this.previousSwitchTarget.classList.remove("hidden")
+            if (this.hasCopyPreviousToggleTarget) this.copyPreviousToggleTarget.checked = true
+            if (this.hasPreviousInfoTarget) {
+                this.previousInfoTarget.textContent =
+                    `Inspección anterior del origen: N° ${Math.abs(row.previous_number)} (${this._certAntLabel(row.previous_mode)})`
+            }
+        } else {
+            this.previousSwitchTarget.classList.add("hidden")
+            if (this.hasPreviousInfoTarget) this.previousInfoTarget.textContent = ""
+        }
+    }
+
+    previousToggled() {
+        const hadSummary = this.summaryBoxTarget.textContent.trim() !== ""
+        this._lastPreview = null
+        if (hadSummary) this.showPreview()
+    }
+
+    _copyPreviousParam() {
+        const checked = this.hasCopyPreviousToggleTarget && this.copyPreviousToggleTarget.checked
+        return (this.selectedRow?.has_previous && checked) ? "1" : "0"
+    }
+
+    _certAntLabel(mode) {
+        if (mode === "Si") return "ingresada manualmente"
+        if (mode === "sistema") return "en sistema"
+        if (mode === "No") return "sin inspección anterior"
+        return "sin definir"
+    }
+
+    _previousSummaryLines(p, maps, j) {
+        if (!p || !p.enabled) return []
+
+        const current = this._renameArrayOfObjects(p.current, maps.revColors, { strict: true })
+        const source  = this._renameArrayOfObjects(p.source,  maps.revColors, { strict: true })
+
+        return [
+            "",
+            "=== Defectos inspección anterior (actual) ===",
+            j(current || []),
+            "",
+            "=== Defectos inspección anterior (referencia) ===",
+            j(source || [])
+        ]
+    }
     async showPreview() {
         if (!this.selectedId) return
         const url = new URL(this.previewUrlValue, window.location.origin)
         url.searchParams.set("selected_inspection_id", this.selectedId)
+        url.searchParams.set("copy_previous", this._copyPreviousParam())
 
         const res = await fetch(url, { headers: { "Accept": "application/json" } })
         const data = await this.safeJson(res).catch(async (e) => {
@@ -214,7 +276,14 @@ export default class extends Controller {
             j(anSource || []),
             "",
             "=== Defectos Adicionales (se crearán) ===",
-            j(anCreate || [])
+            j(anCreate || []),
+            "",
+            "=== Inclusión y accesibilidad universal (actual) ===",
+            j(this._renameArrayOfObjects(s.inclusion?.current, maps.inclusion, { strict: true }) || []),
+            "",
+            "=== Inclusión y accesibilidad universal (referencia) ===",
+            j(this._renameArrayOfObjects(s.inclusion?.source, maps.inclusion, { strict: true }) || []),
+            ...this._previousSummaryLines(s.previous, maps, j)
         ].join("\n")
 
         this.summaryBoxTarget.textContent = text
@@ -225,9 +294,14 @@ export default class extends Controller {
         if (!this.selectedId) return
         if (!this._lastPreview) await this.showPreview()
 
+        const copyPrevious = this._copyPreviousParam()
+        const extra = copyPrevious === "1"
+            ? " También se reemplazará la inspección anterior de esta inspección."
+            : ""
+
         const r1 = await Swal.fire({
             title: "¿Copiar desde la inspección seleccionada?",
-            text: "Se reemplazarán/crearán datos según el resumen mostrado.",
+            text: "Se reemplazarán/crearán datos según el resumen mostrado." + extra,
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Sí, continuar",
@@ -249,6 +323,7 @@ export default class extends Controller {
 
         const formData = new FormData()
         formData.append("selected_inspection_id", this.selectedId)
+        formData.append("copy_previous", copyPrevious)
 
         try {
 
@@ -337,7 +412,8 @@ export default class extends Controller {
             em_rol: "Rol empresa mantenedora",
             em_rut: "RUT empresa mantenedora",
             nom_tec_man: "Nombre técnico mantenedor",
-            tm_rut: "RUT técnico mantenedor"
+            tm_rut: "RUT técnico mantenedor",
+            inclusion: "Inclusión y accesibilidad universal"
         }
 
         const detail = {
@@ -423,7 +499,13 @@ export default class extends Controller {
             section: "Sección"
         }
 
-        return { report, detail, ladderDetail, revNulls, revColors, anothers }
+        const inclusion = {
+            numero: "N°",
+            estado: "Estado",
+            comment: "Comentario"
+        }
+
+        return { report, detail, ladderDetail, revNulls, revColors, anothers, inclusion }
     }
 
     _humanizeEs(str) {

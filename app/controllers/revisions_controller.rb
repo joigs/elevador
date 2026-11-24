@@ -269,6 +269,18 @@ class RevisionsController < ApplicationController
       end
     end
 
+    @copy_past_match_lookup = {}
+
+    if @copy&.previous_inspection_id.present? && @black_revision_base
+      past_og_revision = Revision.find_by(inspection_id: @copy.previous_inspection_id)
+      past_og_sec = past_og_revision&.revision_colors&.find_by(section: @section)
+      if past_og_sec
+        Array(past_og_sec.codes).zip(Array(past_og_sec.points)).each do |code, point|
+          next if code.blank? && point.blank?
+          @copy_past_match_lookup["#{code}||#{point}"] = true
+        end
+      end
+    end
 
 
   rescue ActiveRecord::RecordNotFound

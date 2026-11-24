@@ -1104,6 +1104,9 @@ class InspectionsController < ApplicationController
       @revision_colors_og = @revision_og.revision_colors.order(:section)
     end
 
+    type_of = @inspection.item.group.type_of
+    @anterior_og = copiar_anterior_param? ? anterior_del_origen(@inspection_og, @report_og, @inspection) : nil
+
     ActiveRecord::Base.transaction do
       @report.update!(
         fecha: @report_og.fecha,
@@ -1119,6 +1122,7 @@ class InspectionsController < ApplicationController
         em_rut: @report_og.em_rut,
         nom_tec_man: @report_og.nom_tec_man,
         tm_rut: @report_og.tm_rut,
+        inclusion: @report_og.inclusion,
         )
 
       @count_inspections = @item.inspections.where("number > 0").count
@@ -1171,6 +1175,17 @@ class InspectionsController < ApplicationController
         end
       end
 
+      if @revision.respond_to?(:inclusion_checks) && @revision_og.respond_to?(:inclusion_checks)
+        copiar_inclusion!(@revision, @revision_og)
+      end
+
+      if @anterior_og
+        @report.update!(cert_ant: "Si")
+        _black, black_revision = BlackInspectionBuilder.find_or_create!(@inspection)
+        raise "No se pudo crear la revisión de la inspección anterior." unless black_revision
+        BlackInspectionBuilder.replace_defects!(black_revision, @anterior_og[:revision], type_of)
+      end
+
     end
 
     @inspection.update(copia: true)
@@ -1180,7 +1195,7 @@ class InspectionsController < ApplicationController
       @conexions.destroy_all
     end
 
-    Conexion.create!(original_inspection: @inspection_og, copy_inspection: @inspection)
+    Conexion.create!(original_inspection: @inspection_og, copy_inspection: @inspection, previous_inspection_id: @anterior_og&.dig(:inspection)&.id)
 
     respond_to do |format|
       format.html { redirect_to inspection_path(@inspection), notice: "Copiado correctamente." }
@@ -1238,7 +1253,7 @@ class InspectionsController < ApplicationController
 
     report_fields = %i[
   fecha vi_co_man_ini vi_co_man_ter ul_reg_man urm_fecha empresa_anterior ea_rol ea_rut
-  empresa_mantenedora em_rol em_rut nom_tec_man tm_rut
+  empresa_mantenedora em_rol em_rut nom_tec_man tm_rut inclusion
 ]
 
     report_changes = []
@@ -1298,6 +1313,22 @@ class InspectionsController < ApplicationController
     existing_keys = anothers_current.map { |a| [a.point, a.ruletype_id, a.code, a.level, a.ins_type, a.section] }
     anothers_to_create = anothers_source.map { |s| [s.point, s.ruletype_id, s.code, s.level, s.ins_type, s.section] } - existing_keys
 
+    type_of           = @inspection.item.group.type_of
+    anterior_og       = anterior_del_origen(@inspection_og, @report_og, @inspection)
+    copiar_anterior   = anterior_og.present? && copiar_anterior_param?
+    black_destino_rev = BlackInspectionBuilder.find_revision(@inspection)
+
+    previous_summary = {
+      available: anterior_og.present?,
+      enabled: copiar_anterior,
+      source_mode: anterior_og&.dig(:mode),
+      source_number: anterior_og&.dig(:inspection)&.number,
+      target_cert_ant: @report&.cert_ant,
+      will_create_black: copiar_anterior && black_destino_rev.nil?,
+      current: copiar_anterior ? defectos_anteriores_snapshot(black_destino_rev, type_of) : [],
+      source:  copiar_anterior ? defectos_anteriores_snapshot(anterior_og[:revision], type_of) : []
+    }
+
     current_snapshot = {
       inspection: { id: @inspection.id, number: @inspection.number, name: @inspection.name,
                     item_id: @inspection.item_id, group_id: @inspection.item&.group&.id },
@@ -1345,6 +1376,11 @@ class InspectionsController < ApplicationController
         current: current_snapshot[:anothers],
         source:  source_snapshot[:anothers],
         will_create: anothers_to_create.map { |p, rt, code, lvl, it, sec| { point: p, ruletype_id: rt, code: code, level: lvl, ins_type: it, section: sec } }
+      },
+      previous: previous_summary,
+      inclusion: {
+        current: inclusion_snapshot(@revision),
+        source:  inclusion_snapshot(@revision_og)
       }
     }
 
@@ -1381,12 +1417,15 @@ class InspectionsController < ApplicationController
 
     total_count = scope.count
     results = scope
-                .includes(:item)
+                .includes(item: :group)
                 .order(number: :desc)
                 .offset((page - 1) * per_page)
                 .limit(per_page)
 
+    reports_by_inspection = Report.where(inspection_id: results.map(&:id)).index_by(&:inspection_id)
+
     payload = results.map do |i|
+      anterior = anterior_del_origen(i, reports_by_inspection[i.id], @inspection)
       {
         id: i.id,
         number: i.number,
@@ -1395,7 +1434,10 @@ class InspectionsController < ApplicationController
         ins_date: i.ins_date&.strftime("%Y-%m-%d"),
         state: i.state,
         item_identificador: i.identificador.presence || i.item&.identificador,
-        group_id: i.item&.group&.id
+        group_id: i.item&.group&.id,
+        has_previous: anterior.present?,
+        previous_number: anterior&.dig(:inspection)&.number,
+        previous_mode: anterior&.dig(:mode)
       }
     end
 
@@ -1452,6 +1494,68 @@ class InspectionsController < ApplicationController
 
   def informe_params
     params.require(:inspection).permit(:informe, :dummy_field)
+  end
+
+  def copiar_anterior_param?
+    params[:copy_previous].to_s == "1"
+  end
+
+  def anterior_del_origen(inspection_og, report_og, destino)
+    return nil unless report_og
+
+    item_og = inspection_og.item
+    klass   = BlackInspectionBuilder.revision_class_for(item_og.group.type_of)
+    return nil unless klass
+
+    anterior =
+      case report_og.cert_ant
+      when "Si"
+        BlackInspectionBuilder.find(inspection_og)
+      when "sistema"
+        item_og.inspections
+               .where(state: ["Cerrado", "Abierto"])
+               .where("number > 0 AND number < ?", inspection_og.number)
+               .order(number: :desc)
+               .first
+      end
+
+    return nil if anterior.nil? || anterior.id == destino.id
+
+    revision = klass.find_by(inspection_id: anterior.id)
+    revision && { inspection: anterior, revision: revision, mode: report_og.cert_ant }
+  end
+
+  def defectos_anteriores_snapshot(revision, type_of)
+    return [] unless revision
+
+    if type_of == "plat"
+      revision.plat_revision_rules_plats.includes(:rules_plat).map do |prrp|
+        { section: prrp.rules_plat.code.to_s.split('.').first, codes: prrp.rules_plat.code, points: prrp.rules_plat.point }
+      end
+    else
+      revision.revision_colors.order(:section)
+              .reject { |rc| Array(rc.codes).empty? }
+        .map { |rc| { section: rc.section, codes: rc.codes, points: rc.points } }
+    end
+  end
+
+  def copiar_inclusion!(destino, origen)
+    origen_checks = origen.inclusion_checks.index_by(&:numero)
+
+    destino.inclusion_checks.where.not(numero: origen_checks.keys).destroy_all
+
+    origen_checks.each do |numero, src|
+      check = destino.inclusion_checks.find_or_initialize_by(numero: numero)
+      check.update!(no_implementado: src.no_implementado, na: src.na, comment: src.comment)
+    end
+  end
+
+  def inclusion_snapshot(revision)
+    return [] unless revision.respond_to?(:inclusion_checks)
+
+    revision.inclusion_checks.order(:numero).map do |c|
+      { numero: c.numero, estado: c.estado, comment: c.comment }
+    end
   end
 
 

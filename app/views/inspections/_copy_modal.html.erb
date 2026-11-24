@@ -27,6 +27,21 @@
         >
       </div>
 
+      <div class="mb-3 hidden" data-copy-inspection-target="previousSwitch">
+        <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+          <input type="checkbox"
+                 class="sr-only peer"
+                 checked
+                 data-copy-inspection-target="copyPreviousToggle"
+                 data-action="change->copy-inspection#previousToggled">
+          <span class="relative w-11 h-6 bg-gray-600 rounded-full transition-colors peer-checked:bg-green-600
+                       after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5
+                       after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></span>
+          <span class="text-sm">Copiar también los defectos de la inspección anterior</span>
+        </label>
+        <p class="text-xs text-gray-400 mt-1" data-copy-inspection-target="previousInfo"></p>
+      </div>
+
       <!-- Toolbar superior sticky: paginación + botones -->
       <div class="sticky top-0 z-10 bg-gray-900 py-2 flex items-center justify-between border-b border-gray-800">
         <div class="flex items-center gap-2 text-sm" data-copy-inspection-target="paginationTop">

@@ -320,15 +320,20 @@
 
             <% if @black_inspection %>
               <td data-controller="past-submit">
-                <div class="flex justify-center items-center">
+                <div class="flex flex-col justify-center items-center">
 
-                <% is_black_checked = @black_revision.codes.include?(rule.code) && @black_revision.points.include?(rule.point) %>
-                <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
-                                  data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
-                <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
-                <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
-                <%= hidden_field_tag "past_revision[levels][]", "L", data: { past_submit_target: "level" } %>
-                  </div>
+                  <% is_black_checked = @black_revision.codes.include?(rule.code) && @black_revision.points.include?(rule.point) %>
+                  <%= check_box_tag "past_revision[fail][]", "1", is_black_checked, id: "past_fail_#{index}", class: "cursor-pointer w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600",
+                                    data: { action: "change->past-submit#toggleSubmit", past_submit_target: "checkbox" } %>
+                  <% if is_black_checked && @copy_past_match_lookup && @copy_past_match_lookup["#{rule.code}||#{rule.point}"] %>
+                  <span class="mt-1 text-[13px] px-2 py-0.5 rounded border bg-yellow-200 border-yellow-300 text-yellow-900">
+                    Copiado
+                  </span>
+                  <% end %>
+                  <%= hidden_field_tag "past_revision[codes][]", rule.code, data: { past_submit_target: "code" } %>
+                  <%= hidden_field_tag "past_revision[points][]", rule.point, data: { past_submit_target: "point" } %>
+                  <%= hidden_field_tag "past_revision[levels][]", "L", data: { past_submit_target: "level" } %>
+                </div>
               </td>
             <% end %>
 
