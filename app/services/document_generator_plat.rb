@@ -1039,17 +1039,11 @@ class DocumentGeneratorPlat
         new_file_path = File.join(dir_path, new_filename)
 
         begin
-          imagen = MiniMagick::Image.read(photo.photo.download)
-          imagen.combine_options do |c|
-            c.auto_orient
-            c.background "white"
-            c.alpha "remove"
-          end
-          imagen.format("jpg")
-          imagen.write(new_file_path)
+          datos = photo.photo.download
+          foto_a_jpg(datos, new_file_path)
         rescue StandardError => e
           Rails.logger.error("Foto #{photo.id} no se pudo convertir: #{e.message}")
-          File.binwrite(new_file_path, photo.photo.download)
+          File.binwrite(new_file_path, datos || photo.photo.download)
         end
 
         text_imagen_comment = nil
@@ -1079,10 +1073,7 @@ class DocumentGeneratorPlat
     inclusion_mapping = InclusionReport.fotos(revision_base).each_with_index.filter_map do |(foto, texto), i|
       new_filename = "inc_#{i + 1}.jpg"
       begin
-        imagen = MiniMagick::Image.read(foto.download)
-        imagen.auto_orient
-        imagen.format("jpg")
-        imagen.write(File.join(dir_path, new_filename))
+        foto_a_jpg(foto.download, File.join(dir_path, new_filename))
       rescue StandardError => e
         Rails.logger.error("Foto de inclusión #{foto.id} no se pudo convertir: #{e.message}")
         next
@@ -1168,6 +1159,31 @@ class DocumentGeneratorPlat
   end
 
   private
+
+  def self.foto_a_jpg(datos, destino)
+    imagen = MiniMagick::Image.read(datos)
+    imagen.format("jpg") do |c|
+      c.auto_orient
+      c.background "white"
+      c.alpha "remove"
+      c << "+profile" << "!icc,*"
+      c.quality "82"
+    end
+    imagen.write(destino)
+
+    cabecera = File.binread(destino, 4).to_s.bytes
+    return if cabecera == [0xFF, 0xD8, 0xFF, 0xE0] || cabecera == [0xFF, 0xD8, 0xFF, 0xE1]
+
+    Rails.logger.warn("JPEG con cabecera #{cabecera.inspect} en #{destino}, se usa conversión estándar")
+    imagen = MiniMagick::Image.read(datos)
+    imagen.combine_options do |c|
+      c.auto_orient
+      c.background "white"
+      c.alpha "remove"
+    end
+    imagen.format("jpg")
+    imagen.write(destino)
+  end
 
   def self.prepare_images_for_document(plat_revision_id, code)
     revision_photos = RevisionPhoto.where(revision_id: plat_revision_id,

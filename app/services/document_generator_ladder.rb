@@ -955,19 +955,12 @@ class DocumentGeneratorLadder
         new_file_path = File.join(dir_path, new_filename)
 
         begin
-          imagen = MiniMagick::Image.read(photo.photo.download)
-          imagen.combine_options do |c|
-            c.auto_orient
-            c.background "white"
-            c.alpha "remove"
-          end
-          imagen.format("jpg")
-          imagen.write(new_file_path)
+          datos = photo.photo.download
+          foto_a_jpg(datos, new_file_path)
         rescue StandardError => e
           Rails.logger.error("Foto #{photo.id} no se pudo convertir: #{e.message}")
-          File.binwrite(new_file_path, photo.photo.download)
+          File.binwrite(new_file_path, datos || photo.photo.download)
         end
-
         text_imagen_comment = nil
         unless photo.code.start_with?("GENERALCODE")
           temp_code, temp_point = photo.code.split(' ', 2)
@@ -1066,6 +1059,31 @@ class DocumentGeneratorLadder
   end
 
   private
+
+  def self.foto_a_jpg(datos, destino)
+    imagen = MiniMagick::Image.read(datos)
+    imagen.format("jpg") do |c|
+      c.auto_orient
+      c.background "white"
+      c.alpha "remove"
+      c << "+profile" << "!icc,*"
+      c.quality "82"
+    end
+    imagen.write(destino)
+
+    cabecera = File.binread(destino, 4).to_s.bytes
+    return if cabecera == [0xFF, 0xD8, 0xFF, 0xE0] || cabecera == [0xFF, 0xD8, 0xFF, 0xE1]
+
+    Rails.logger.warn("JPEG con cabecera #{cabecera.inspect} en #{destino}, se usa conversión estándar")
+    imagen = MiniMagick::Image.read(datos)
+    imagen.combine_options do |c|
+      c.auto_orient
+      c.background "white"
+      c.alpha "remove"
+    end
+    imagen.format("jpg")
+    imagen.write(destino)
+  end
 
   def self.prepare_images_for_document(revision_id, code)
     revision_photos = RevisionPhoto.where(revision_id: revision_id, revision_type: 'LadderRevision', code: code)
