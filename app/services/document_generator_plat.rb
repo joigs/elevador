@@ -677,8 +677,8 @@ class DocumentGeneratorPlat
     end
 
     aux = section_labels
-    cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                        " }.join("\n")
-    no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                         " }.join("\n")
+    cumple_text = cumple.map { |index| "#{aux[index]}\n                                                                                                           " }.join("\n")
+    no_cumple_text = no_cumple.map { |index| "#{aux[index]}\n                                                                                                     " }.join("\n")
 
     if revision_nulls.count == carpetas.size
       cumple_text.gsub!(/^•0\..*$/, '')
